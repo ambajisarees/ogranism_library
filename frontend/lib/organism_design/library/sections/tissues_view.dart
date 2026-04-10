@@ -138,11 +138,9 @@ class _TissuesViewState extends State<TissuesView> {
             const SizedBox(width: OrganismTheme.spacing2Xl),
             Column(
               children: [
-                TissuePagination(
+                 TissuePagination(
                   currentPage: 1,
                   totalPages: 10,
-                  totalRecords: 1391,
-                  itemsPerPage: 10,
                   onPageChanged: (p) {},
                 ),
                 const SizedBox(height: OrganismTheme.spacing2Xl),
