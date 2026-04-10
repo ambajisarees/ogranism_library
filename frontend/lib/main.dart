@@ -43,7 +43,9 @@ class TextileERPMain extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Ambaji Sarees ERP',
-      theme: OrganismTheme.materialTheme,
+      theme: OrganismTheme.materialTheme(Brightness.light),
+      darkTheme: OrganismTheme.materialTheme(Brightness.dark),
+      themeMode: ThemeMode.system,
       debugShowCheckedModeBanner: false,
       home: const AppBootstrapSelector(),
     );
