@@ -257,7 +257,7 @@ class _TissueDropdownState<T> extends State<TissueDropdown<T>> {
             onChanged: widget.isDisabled ? null : widget.onChanged,
             isDense: true,
             isExpanded: true,
-            icon: const Icon(LucideIcons.chevronsUpDown, size: OrganismTheme.iconSizeSm, color: OrganismTheme.iconSecondary),
+            icon: Icon(LucideIcons.chevronsUpDown, size: OrganismTheme.iconSizeSm, color: OrganismTheme.iconSecondary),
             style: OrganismTheme.bodyLarge,
             dropdownColor: OrganismTheme.surface,
             borderRadius: OrganismTheme.borderMd,
