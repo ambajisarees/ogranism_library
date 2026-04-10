@@ -373,7 +373,7 @@ class TissueEmptyState extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(OrganismTheme.spacingLg),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: OrganismTheme.stone100,
               shape: BoxShape.circle,
             ),

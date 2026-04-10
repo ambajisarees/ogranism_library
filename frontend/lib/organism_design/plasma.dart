@@ -327,7 +327,7 @@ class _PlasmaToastWidget extends StatelessWidget {
           const SizedBox(width: OrganismTheme.spacingLg),
           GestureDetector(
             onTap: onClose,
-            child: const Icon(
+            child: Icon(
               LucideIcons.x,
               size: OrganismTheme.iconSizeSm,
               color: OrganismTheme.iconMuted,

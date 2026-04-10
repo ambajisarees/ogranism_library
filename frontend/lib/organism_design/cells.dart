@@ -752,7 +752,7 @@ class CellKbd extends StatelessWidget {
         color: OrganismTheme.stone50,
         border: Border.all(color: OrganismTheme.stone200),
         borderRadius: BorderRadius.circular(4),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
             color: OrganismTheme.stone200,
             offset: Offset(0, 1), // Simulating 3D mechanical key depth slightly
