@@ -1,0 +1,38 @@
+# .gitignore for Textile ERP (Flutter + Node + Supabase)
+
+# Flutter / Dart
+build/
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+
+# Windows specific
+frontend/build/
+frontend/.dart_tool/
+frontend/.packages
+frontend/windows/flutter/ephemeral/
+frontend/windows/flutter/generated_config.cmake
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+
+# Backups
+_backups/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*.DS_Store
+
+# Supabase
+backend/supabase/.temp/

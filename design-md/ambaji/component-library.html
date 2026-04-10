@@ -1,0 +1,3142 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="slate-cloud">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ambaji ERP | Component Library v1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* =========== RESET =========== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* =========== ROOT TOKENS =========== */
+        :root {
+            /* Spacing Scale (8px base) */
+            --s-1: 4px; --s-2: 6px; --s-3: 8px; --s-4: 12px; --s-5: 16px;
+            --s-6: 20px; --s-7: 24px; --s-8: 32px; --s-9: 40px; --s-10: 48px;
+
+            /* Border Radius Scale */
+            --r-xs: 3px; --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px; --r-pill: 9999px;
+
+            /* Fonts */
+            --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        /* =========== THEME: SLATE-CLOUD (LIGHT) =========== */
+        [data-theme="slate-cloud"] {
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f1f5f9;
+            --bg-input: #ffffff;
+            --bg-nav: rgba(248, 250, 252, 0.85);
+            --bg-sidebar: #ffffff;
+            --bg-sidebar-item-active: rgba(62, 207, 142, 0.08); /* Use accent-muted */
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --text-subtle: #94a3b8;
+            --border-subtle: #e2e8f0;
+            --border-default: #cbd5e1;
+            --border-strong: #94a3b8;
+            --accent: #3ecf8e;
+            --accent-hover: #059669;
+            --accent-muted: rgba(62, 207, 142, 0.1);
+            --accent-border: rgba(62, 207, 142, 0.3);
+            --accent-on: #ffffff;
+            --status-active-bg: #dcfce7;
+            --status-active-text: #166534;
+            --status-active-border: #bbf7d0;
+            --status-pending-bg: #fef9c3;
+            --status-pending-text: #854d0e;
+            --status-pending-border: #fde047;
+            --status-closed-bg: #e2e8f0;
+            --status-closed-text: #334155;
+            --status-closed-border: #cbd5e1;
+            --status-error-bg: #fee2e2;
+            --status-error-text: #ef4444; /* Standardized Red */
+            --status-error-border: #fecaca;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08);
+            --shadow-md: 0 4px 6px rgba(15, 23, 42, 0.1);
+            --shadow-lg: 0 10px 15px rgba(15, 23, 42, 0.1);
+        }
+
+        /* =========== THEME: OBSIDIAN-AMBER (DARK) =========== */
+        [data-theme="obsidian-amber"] {
+            --bg-page: #0d0c0a;
+            --bg-card: #1a1815;
+            --bg-card-hover: #262117;
+            --bg-input: #1a1815;
+            --bg-nav: rgba(13, 12, 10, 0.85);
+            --bg-sidebar: #1a1815;
+            --bg-sidebar-item-active: rgba(245, 158, 11, 0.12);
+            --text-primary: #f5e6c8;
+            --text-secondary: #d4c5a9;
+            --text-muted: #a39986;
+            --text-subtle: #8b8178;
+            --border-subtle: #3d3633;
+            --border-default: #4a4540;
+            --border-strong: #6b6358;
+            --accent: #f59e0b;
+            --accent-hover: #f97316;
+            --accent-muted: rgba(245, 158, 11, 0.15);
+            --accent-border: rgba(245, 158, 11, 0.4);
+            --accent-on: #0d0c0a;
+            --status-active-bg: rgba(34, 197, 94, 0.2);
+            --status-active-text: #86efac;
+            --status-active-border: rgba(34, 197, 94, 0.4);
+            --status-pending-bg: rgba(234, 179, 8, 0.2);
+            --status-pending-text: #facc15;
+            --status-pending-border: rgba(234, 179, 8, 0.4);
+            --status-closed-bg: rgba(100, 116, 139, 0.15);
+            --status-closed-text: #cbd5e1;
+            --status-closed-border: rgba(100, 116, 139, 0.3);
+            --status-error-bg: rgba(239, 68, 68, 0.15);
+            --status-error-text: #ff6b6b;
+            --status-error-border: rgba(239, 68, 68, 0.3);
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        /* =========== GLOBAL STYLES =========== */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-main);
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text-primary);
+            background-color: var(--bg-page);
+            transition: background-color 0.2s, color 0.2s;
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            min-height: 100vh;
+        }
+
+        .mono {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            letter-spacing: 0.02em;
+        }
+
+        /* =========== SIDEBAR =========== */
+        .lib-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 220px;
+            height: 100vh;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-subtle);
+            padding: var(--s-5);
+            overflow-y: auto;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: var(--s-4);
+        }
+
+        .lib-sidebar-brand {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: var(--s-3) 0;
+            border-bottom: 1px solid var(--border-subtle);
+            margin-bottom: var(--s-2);
+            display: flex;
+            align-items: center;
+            gap: var(--s-3);
+        }
+
+        .lib-sidebar-theme-btn {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-default);
+            color: var(--text-secondary);
+            padding: var(--s-3) var(--s-4);
+            border-radius: var(--r-sm);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--s-3);
+        }
+
+        .lib-sidebar-theme-btn:hover {
+            background-color: var(--bg-card-hover);
+            border-color: var(--border-strong);
+        }
+
+        .lib-sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--s-3);
+            font-size: 12px;
+        }
+
+        .lib-nav-group-label {
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: var(--s-4);
+            margin-bottom: var(--s-2);
+            padding-left: var(--s-2);
+        }
+
+        .lib-nav-item {
+            padding: var(--s-2) var(--s-3);
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: var(--r-sm);
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lib-nav-item:hover {
+            background-color: var(--bg-sidebar-item-active);
+            color: var(--text-primary);
+        }
+
+        .lib-nav-item.active {
+            background-color: var(--bg-sidebar-item-active);
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .lib-nav-count {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* =========== MAIN CONTENT =========== */
+        .lib-main {
+            grid-column: 2;
+            padding: var(--s-8);
+            overflow-y: auto;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .lib-page-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: var(--s-2);
+        }
+
+        .lib-page-sub {
+            color: var(--text-secondary);
+            margin-bottom: var(--s-8);
+        }
+
+        /* =========== SECTION HEADERS =========== */
+        .lib-tier-header {
+            margin-top: var(--s-10);
+            margin-bottom: var(--s-6);
+            padding-bottom: var(--s-5);
+            border-bottom: 2px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .lib-tier-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .lib-tier-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: var(--s-1);
+        }
+
+        .lib-tier-badge {
+            background-color: var(--accent-muted);
+            color: var(--accent);
+            padding: var(--s-2) var(--s-4);
+            border-radius: var(--r-pill);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .lib-group-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: var(--s-6);
+            margin-bottom: var(--s-4);
+            padding-left: var(--s-2);
+            border-left: 3px solid var(--accent);
+        }
+
+        /* =========== DEMO CONTAINER STYLES =========== */
+        .lib-demo-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--s-5);
+            margin-bottom: var(--s-6);
+        }
+
+        .lib-demo-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--s-3);
+        }
+
+        .lib-demo-block {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--r-md);
+            padding: var(--s-5);
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: var(--s-4);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lib-comp-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .lib-erp-tag {
+            background-color: var(--accent-muted);
+            color: var(--accent);
+            padding: var(--s-1) var(--s-3);
+            border-radius: var(--r-xs);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        /* =========== FOUNDATION STYLES =========== */
+        .f-swatch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--s-4);
+            margin-bottom: var(--s-6);
+        }
+
+        .f-swatch {
+            border-radius: var(--r-md);
+            height: 80px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .f-type-row, .f-space-row, .f-radius-row, .f-depth-row, .f-icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--s-4);
+            margin-bottom: var(--s-5);
+        }
+
+        /* =========== BUTTON STYLES =========== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--s-2);
+            padding: var(--s-2) var(--s-4);
+            border: 1px solid transparent;
+            border-radius: var(--r-sm);
+            font-size: 14px;
+            font-weight: 500;
+            font-family: var(--font-main);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: var(--accent-on);
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--text-primary);
+            border-color: var(--border-default);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--bg-card-hover);
+            border-color: var(--border-strong);
+        }
+
+        .btn-ghost {
+            background-color: transparent;
+            color: var(--accent);
+            border-color: transparent;
+        }
+
+        .btn-ghost:hover {
+            background-color: var(--accent-muted);
+        }
+
+        .btn-destructive {
+            background-color: var(--status-error-bg);
+            color: var(--status-error-text);
+            border-color: var(--status-error-border);
+        }
+
+        .btn-destructive:hover {
+            background-color: var(--status-error-border);
+            border-color: var(--status-error-text);
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border-radius: var(--r-sm);
+            background-color: transparent;
+            border-color: var(--border-default);
+        }
+
+        .btn-icon:hover {
+            background-color: var(--bg-card-hover);
+        }
+
+        .btn-sm { padding: var(--s-1) var(--s-3); font-size: 12px; }
+        .btn-md { padding: var(--s-3) var(--s-5); font-size: 14px; }
+        .btn-lg { padding: var(--s-4) var(--s-6); font-size: 16px; }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border: 2px solid currentColor;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* =========== INPUT STYLES =========== */
+        .input, .textarea, .select {
+            width: 100%;
+            padding: var(--s-3) var(--s-4);
+            border: 1px solid var(--border-default);
+            border-radius: var(--r-sm);
+            background-color: var(--bg-input);
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .input:focus, .textarea:focus, .select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-muted);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-number, .input-mono {
+            font-family: var(--font-mono);
+            text-align: right;
+        }
+
+        .textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: var(--font-main);
+        }
+
+        .input-date {
+            position: relative;
+        }
+
+        .input-prefix-wrap {
+            position: relative;
+        }
+
+        .input-prefix-wrap::before {
+            content: attr(data-prefix);
+            position: absolute;
+            left: var(--s-3);
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .input-prefix-wrap input {
+            padding-left: calc(var(--s-4) + 20px);
+        }
+
+        /* =========== CHECKBOX & RADIO =========== */
+        .check-wrap {
+            display: flex;
+            align-items: center;
+            gap: var(--s-2);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .check-wrap input[type="checkbox"],
+        .check-wrap input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--accent);
+        }
+
+        /* =========== TOGGLE SWITCH =========== */
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background-color: var(--border-default);
+            border-radius: var(--r-pill);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            transition: left 0.2s;
+        }
+
+        .toggle.active {
+            background-color: var(--accent);
+        }
+
+        .toggle.active::after {
+            left: 22px;
+        }
+
+        /* =========== BADGE STYLES =========== */
+        .badge {
+            display: inline-block;
+            padding: var(--s-1) var(--s-3);
+            border-radius: var(--r-sm);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            border: 1px solid transparent;
+        }
+
+        .badge-active {
+            background-color: var(--status-active-bg);
+            color: var(--status-active-text);
+            border-color: var(--status-active-border);
+        }
+
+        .badge-pending {
+            background-color: var(--status-pending-bg);
+            color: var(--status-pending-text);
+            border-color: var(--status-pending-border);
+        }
+
+        .badge-closed {
+            background-color: var(--status-closed-bg);
+            color: var(--status-closed-text);
+            border-color: var(--status-closed-border);
+        }
+
+        .badge-error {
+            background-color: var(--status-error-bg);
+            color: var(--status-error-text);
+            border-color: var(--status-error-border);
+        }
+
+        .count-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            color: var(--accent-on);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* =========== AVATAR STYLES =========== */
+        .avatar {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: var(--accent-muted);
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 14px;
+            border: 2px solid var(--bg-card);
+        }
+
+        .avatar-sm { width: 28px; height: 28px; font-size: 12px; }
+        .avatar-md { width: 36px; height: 36px; font-size: 14px; }
+        .avatar-lg { width: 48px; height: 48px; font-size: 16px; }
+
+        .avatar-group {
+            display: flex;
+            align-items: center;
+            gap: calc(var(--s-3) * -1);
+        }
+
+        /* =========== DIVIDER =========== */
+        .divider-h {
+            height: 1px;
+            background-color: var(--border-subtle);
+            margin: var(--s-4) 0;
+        }
+
+        .divider-v {
+            width: 1px;
+            background-color: var(--border-subtle);
+            margin: 0 var(--s-4);
+        }
+
+        /* =========== SPINNER =========== */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-subtle);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        /* =========== SKELETON =========== */
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card-hover) 50%, var(--bg-card) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+            border-radius: var(--r-sm);
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* =========== TOOLTIP =========== */
+        .tooltip-wrap {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip-wrap::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--text-primary);
+            color: var(--bg-page);
+            padding: var(--s-2) var(--s-3);
+            border-radius: var(--r-sm);
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 1000;
+        }
+
+        .tooltip-wrap:hover::after {
+            opacity: 1;
+        }
+
+        /* =========== TAG =========== */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--s-2);
+            padding: var(--s-2) var(--s-3);
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-default);
+            border-radius: var(--r-sm);
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .tag:hover {
+            border-color: var(--border-strong);
+            background-color: var(--bg-card-hover);
+        }
+
+        /* =========== FORM FRAGMENTS =========== */
+        .form-field {
+            margin-bottom: var(--s-5);
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--s-2);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--s-4);
+        }
+
+        /* =========== FILTER & SEARCH =========== */
+        .filter-bar {
+            display: flex;
+            gap: var(--s-4);
+            margin-bottom: var(--s-5);
+            flex-wrap: wrap;
+        }
+
+        .date-range {
+            display: flex;
+            gap: var(--s-3);
+            align-items: center;
+        }
+
+        .date-range input {
+            flex: 1;
+        }
+
+        .multi-select-box {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-default);
+            border-radius: var(--r-sm);
+            padding: var(--s-3);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        /* =========== QUANTITY STEPPER =========== */
+        .qty-stepper {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            border: 1px solid var(--border-default);
+            border-radius: var(--r-sm);
+            background-color: var(--bg-input);
+        }
+
+        .qty-stepper button {
+            background: none;
+            border: none;
+            padding: var(--s-2) var(--s-3);
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            font-size: 16px;
+        }
+
+        .qty-stepper button:hover {
+            background-color: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        .qty-stepper input {
+            border: none;
+            text-align: center;
+            width: 50px;
+            padding: var(--s-2) var(--s-1);
+            background: none;
+            color: var(--text-primary);
+        }
+
+        .qty-stepper input:focus {
+            outline: none;
+        }
+
+        /* =========== NAVIGATION FRAGMENTS =========== */
+        .demo-sidebar {
+            width: 200px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-subtle);
+            padding: var(--s-4);
+        }
+
+        .demo-nav-item {
+            padding: var(--s-3) var(--s-4);
+            border-radius: var(--r-sm);
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            margin-bottom: var(--s-2);
+        }
+
+        .demo-nav-item:hover, .demo-nav-item.active {
+            background-color: var(--bg-sidebar-item-active);
+            color: var(--accent);
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: var(--s-2);
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: var(--s-4);
+        }
+
+        .breadcrumb span:not(:last-child)::after {
+            content: '/';
+            margin-left: var(--s-2);
+        }
+
+        /* =========== TABS =========== */
+        .tabs-pill, .tabs-underline {
+            display: flex;
+            gap: var(--s-2);
+            border-bottom: 1px solid var(--border-subtle);
+            margin-bottom: var(--s-4);
+        }
+
+        .tabs-pill .tab {
+            padding: var(--s-3) var(--s-4);
+            border-radius: var(--r-sm);
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tabs-pill .tab:hover {
+            background-color: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        .tabs-pill .tab.active {
+            background-color: var(--accent-muted);
+            color: var(--accent);
+        }
+
+        .tabs-underline {
+            border-bottom: none;
+        }
+
+        .tabs-underline .tab {
+            padding: var(--s-3) var(--s-4);
+            border-bottom: 2px solid transparent;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tabs-underline .tab:hover {
+            color: var(--text-primary);
+        }
+
+        .tabs-underline .tab.active {
+            border-bottom-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* =========== TOP APP BAR =========== */
+        .demo-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--s-4);
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-subtle);
+            margin-bottom: var(--s-4);
+        }
+
+        /* =========== COMMAND TRIGGER =========== */
+        .cmd-trigger {
+            padding: var(--s-3) var(--s-4);
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-default);
+            border-radius: var(--r-sm);
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-width: 300px;
+            transition: all 0.2s;
+        }
+
+        .cmd-trigger:hover {
+            border-color: var(--border-strong);
+            background-color: var(--bg-card-hover);
+        }
+
+        /* =========== PAGINATION =========== */
+        .pagination {
+            display: flex;
+            gap: var(--s-3);
+            align-items: center;
+            justify-content: center;
+            margin-top: var(--s-6);
+        }
+
+        .pagination button {
+            padding: var(--s-2) var(--s-3);
+            border: 1px solid var(--border-default);
+            background-color: var(--bg-card);
+            border-radius: var(--r-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            border-color: var(--border-strong);
+            background-color: var(--bg-card-hover);
+        }
+
+        .pagination button.active {
+            background-color: var(--accent);
+            color: var(--accent-on);
+            border-color: var(--accent);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* =========== CARD FRAGMENTS =========== */
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--r-md);
+            padding: var(--s-5);
+        }
+
+        .kpi-card {
+            display: flex;
+            flex-direction: column;
+            gap: var(--s-2);
+            padding: var(--s-4);
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--r-md);
+            text-align: center;
+        }
+
+        .kpi-card .label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .kpi-card .value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+        }
+
+        .vno-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--r-md);
+            padding: var(--s-4);
+            display: flex;
+            flex-direction: column;
+            gap: var(--s-3);
+        }
+
+        .vno-card-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .party-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--r-md);
+            padding: var(--s-4);
+        }
+
+        .party-card-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--s-2);
+        }
+
+        .list-item-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--r-md);
+            padding: var(--s-4);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .list-item-card:hover {
+            border-color: var(--accent);
+            background-color: var(--bg-card-hover);
+        }
+
+        .metric-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--r-md);
+            padding: var(--s-4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* =========== TABLE STYLES =========== */
+        .demo-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--r-md);
+            overflow: hidden;
+        }
+
+        .demo-table thead {
+            background-color: var(--bg-card-hover);
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .demo-table th {
+            padding: var(--s-3) var(--s-4);
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .demo-table td {
+            padding: var(--s-3) var(--s-4);
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .demo-table tr:hover {
+            background-color: var(--bg-card-hover);
+        }
+
+        .demo-table tr.selected {
+            background-color: var(--accent-muted);
+        }
+
+        /* =========== EMPTY STATE =========== */
+        .empty-state {
+            text-align: center;
+            padding: var(--s-10);
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: var(--s-4);
+        }
+
+        .empty-state-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--s-2);
+        }
+
+        /* =========== FEEDBACK STYLES =========== */
+        .toast {
+            position: fixed;
+            bottom: var(--s-5);
+            right: var(--s-5);
+            padding: var(--s-4);
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-default);
+            border-radius: var(--r-md);
+            box-shadow: var(--shadow-lg);
+            max-width: 400px;
+            z-index: 2000;
+        }
+
+        .alert {
+            padding: var(--s-4);
+            border-radius: var(--r-md);
+            border: 1px solid var(--border-default);
+            margin-bottom: var(--s-4);
+        }
+
+        .alert.success {
+            background-color: var(--status-active-bg);
+            border-color: var(--status-active-border);
+            color: var(--status-active-text);
+        }
+
+        .alert.warning {
+            background-color: var(--status-pending-bg);
+            border-color: var(--status-pending-border);
+            color: var(--status-pending-text);
+        }
+
+        .alert.error {
+            background-color: var(--status-error-bg);
+            border-color: var(--status-error-border);
+            color: var(--status-error-text);
+        }
+
+        /* =========== PROGRESS BAR =========== */
+        .progress-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: var(--s-2);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: var(--border-subtle);
+            border-radius: var(--r-pill);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--accent);
+            transition: width 0.3s;
+        }
+
+        /* =========== STEPS =========== */
+        .steps {
+            display: flex;
+            align-items: center;
+            gap: var(--s-3);
+            margin-bottom: var(--s-6);
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: var(--s-2);
+        }
+
+        .step-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--border-subtle);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .step-dot.active {
+            background-color: var(--accent);
+            color: var(--accent-on);
+        }
+
+        .step-dot.completed {
+            background-color: var(--accent);
+            color: var(--accent-on);
+        }
+
+        .step-connector {
+            width: 40px;
+            height: 2px;
+            background-color: var(--border-subtle);
+        }
+
+        .step-connector.active {
+            background-color: var(--accent);
+        }
+
+        /* =========== OVERLAY STYLES =========== */
+        .demo-modal-shell {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            border-radius: var(--r-md);
+            padding: var(--s-6);
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .demo-drawer-shell {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 350px;
+            background-color: var(--bg-card);
+            border-left: 1px solid var(--border-subtle);
+            padding: var(--s-5);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+        }
+
+        .popover {
+            position: absolute;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-default);
+            border-radius: var(--r-md);
+            padding: var(--s-4);
+            box-shadow: var(--shadow-md);
+            z-index: 900;
+            min-width: 200px;
+        }
+
+        .context-menu {
+            position: absolute;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-default);
+            border-radius: var(--r-md);
+            padding: var(--s-2) 0;
+            box-shadow: var(--shadow-md);
+            z-index: 900;
+            min-width: 150px;
+        }
+
+        .context-menu-item {
+            padding: var(--s-2) var(--s-4);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .context-menu-item:hover {
+            background-color: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        /* =========== PATTERN STYLES =========== */
+        .pat-demo {
+            border: 2px dashed var(--border-default);
+            padding: var(--s-5);
+            border-radius: var(--r-md);
+            margin-bottom: var(--s-6);
+        }
+
+        .demo-app-shell {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: var(--s-3);
+            min-height: 400px;
+            background-color: var(--bg-page);
+        }
+
+        .demo-app-shell-sidebar {
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-subtle);
+            padding: var(--s-4);
+        }
+
+        .demo-app-shell-main {
+            padding: var(--s-5);
+        }
+
+        .demo-master-detail {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: var(--s-4);
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--r-md);
+            overflow: hidden;
+            height: 500px;
+        }
+
+        .demo-master {
+            border-right: 1px solid var(--border-subtle);
+            padding: var(--s-4);
+            overflow-y: auto;
+        }
+
+        .demo-detail {
+            padding: var(--s-5);
+            overflow-y: auto;
+        }
+
+        .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--s-4);
+        }
+
+        .bulk-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--s-4);
+            background-color: var(--accent-muted);
+            border: 1px solid var(--accent-border);
+            border-radius: var(--r-md);
+            margin-bottom: var(--s-4);
+        }
+
+        .pipeline {
+            display: flex;
+            gap: var(--s-4);
+            align-items: center;
+            margin-bottom: var(--s-6);
+        }
+
+        .pipeline-stage {
+            flex: 1;
+            text-align: center;
+            padding: var(--s-4);
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--r-md);
+        }
+
+        .pipeline-stage.active {
+            border-color: var(--accent);
+            background-color: var(--accent-muted);
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: var(--s-4);
+            padding-left: var(--s-5);
+            position: relative;
+            margin-bottom: var(--s-6);
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: var(--border-subtle);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: var(--s-5);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -14px;
+            top: 2px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: var(--border-default);
+            border: 2px solid var(--bg-page);
+        }
+
+        .timeline-item.active .timeline-dot {
+            background-color: var(--accent);
+        }
+
+        .cmd-palette {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-default);
+            border-radius: var(--r-md);
+            padding: var(--s-4);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+        }
+
+        .cmd-palette-input {
+            width: 100%;
+            padding: var(--s-4);
+            border: 1px solid var(--border-default);
+            border-radius: var(--r-sm);
+            font-size: 14px;
+            margin-bottom: var(--s-4);
+        }
+
+        .cmd-palette-results {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .cmd-palette-item {
+            padding: var(--s-3) var(--s-4);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: var(--r-sm);
+        }
+
+        .cmd-palette-item:hover {
+            background-color: var(--bg-card-hover);
+        }
+
+        .cmd-palette-item.active {
+            background-color: var(--accent-muted);
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <aside class="lib-sidebar">
+        <div class="lib-sidebar-brand">
+            <i data-lucide="shield" class="icon-md"></i>
+            AMBAJI ERP
+        </div>
+        
+        <button class="lib-sidebar-theme-btn" onclick="toggleTheme()">
+            <i data-lucide="sun-moon" class="icon-sm"></i>
+            Switch Theme
+        </button>
+        <nav class="lib-sidebar-nav">
+            <div class="lib-nav-group-label">FOUNDATION</div>
+            <div class="lib-nav-item" onclick="navigateTo('foundation')">
+                <span>Colors & Typography</span>
+                <span class="lib-nav-count">6</span>
+            </div>
+            <div class="lib-nav-group-label">ATOMS</div>
+            <div class="lib-nav-item" onclick="navigateTo('atoms-buttons')">
+                <span>Buttons</span>
+                <span class="lib-nav-count">7</span>
+            </div>
+            <div class="lib-nav-item" onclick="navigateTo('atoms-inputs')">
+                <span>Inputs</span>
+                <span class="lib-nav-count">10</span>
+            </div>
+            <div class="lib-nav-item" onclick="navigateTo('atoms-display')">
+                <span>Display</span>
+                <span class="lib-nav-count">9</span>
+            </div>
+            <div class="lib-nav-group-label">FRAGMENTS</div>
+            <div class="lib-nav-item" onclick="navigateTo('frag-forms')">
+                <span>Forms</span>
+                <span class="lib-nav-count">8</span>
+            </div>
+            <div class="lib-nav-item" onclick="navigateTo('frag-nav')">
+                <span>Navigation</span>
+                <span class="lib-nav-count">8</span>
+            </div>
+            <div class="lib-nav-item" onclick="navigateTo('frag-cards')">
+                <span>Cards</span>
+                <span class="lib-nav-count">6</span>
+            </div>
+            <div class="lib-nav-item" onclick="navigateTo('frag-table')">
+                <span>Tables</span>
+                <span class="lib-nav-count">6</span>
+            </div>
+            <div class="lib-nav-item" onclick="navigateTo('frag-feedback')">
+                <span>Feedback</span>
+                <span class="lib-nav-count">5</span>
+            </div>
+            <div class="lib-nav-item" onclick="navigateTo('frag-overlays')">
+                <span>Overlays</span>
+                <span class="lib-nav-count">5</span>
+            </div>
+            <div class="lib-nav-group-label">PATTERNS</div>
+            <div class="lib-nav-item" onclick="navigateTo('pat-layout')">
+                <span>Layout</span>
+                <span class="lib-nav-count">5</span>
+            </div>
+            <div class="lib-nav-item" onclick="navigateTo('pat-data')">
+                <span>Data Display</span>
+                <span class="lib-nav-count">4</span>
+            </div>
+            <div class="lib-nav-item" onclick="navigateTo('pat-erp')">
+                <span>ERP Patterns</span>
+                <span class="lib-nav-count">5</span>
+            </div>
+            <div class="lib-nav-item" onclick="navigateTo('pat-forms')">
+                <span>Forms</span>
+                <span class="lib-nav-count">4</span>
+            </div>
+            <div class="lib-nav-item" onclick="navigateTo('pat-dashboard')">
+                <span>Dashboard</span>
+                <span class="lib-nav-count">3</span>
+            </div>
+            <div class="lib-nav-item" onclick="navigateTo('pat-nav')">
+                <span>Navigation</span>
+                <span class="lib-nav-count">4</span>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="lib-main">
+        <h1 class="lib-page-title">Ambaji ERP Component Library</h1>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--s-8);">
+            <p class="lib-page-sub" style="margin-bottom: 0;">Complete design system for textile business ERP. 95 components across 4 tiers.</p>
+            <button class="btn btn-secondary btn-sm" onclick="toggleDensity()">
+                <i data-lucide="layers" class="icon-sm"></i>
+                Toggle Extreme Density
+            </button>
+        </div>
+
+        <!-- ===== FOUNDATION ===== -->
+        <section id="foundation">
+            <div class="lib-tier-header">
+                <div>
+                    <div class="lib-tier-title">Foundation</div>
+                    <div class="lib-tier-desc">Core design tokens: colors, typography, spacing, shadows, icons</div>
+                </div>
+                <div class="lib-tier-badge">6 Components</div>
+            </div>
+
+            <div class="lib-group-title">F1: Color Tokens (Slate Cloud Light)</div>
+            <div class="lib-demo-row">
+                <div class="lib-demo-block">
+                    <div class="f-swatch" style="background-color: #f8fafc;"></div>
+                    <div class="lib-comp-label">--bg-page<br>#f8fafc</div>
+                </div>
+                <div class="lib-demo-block">
+                    <div class="f-swatch" style="background-color: #ffffff;"></div>
+                    <div class="lib-comp-label">--bg-card<br>#ffffff</div>
+                </div>
+                <div class="lib-demo-block">
+                    <div class="f-swatch" style="background-color: #3ecf8e;"></div>
+                    <div class="lib-comp-label">--accent<br>#3ecf8e</div>
+                </div>
+                <div class="lib-demo-block">
+                    <div class="f-swatch" style="background-color: #0f172a;"></div>
+                    <div class="lib-comp-label">--text-primary<br>#0f172a</div>
+                </div>
+            </div>
+
+            <div class="lib-group-title">F2: Typography</div>
+            <div class="lib-demo-block">
+                <div style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 800;">Inter Variable 800</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px;">JetBrains Mono 400</div>
+                <div style="font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text-secondary);">Body text in Inter 400, 14px, 1.5 line-height</div>
+            </div>
+
+            <div class="lib-group-title">F3: Spacing Scale</div>
+            <div class="lib-demo-row">
+                <div class="lib-demo-block">
+                    <div style="width: 4px; height: 40px; background-color: var(--accent); margin: auto;"></div>
+                    <div class="lib-comp-label">--s-1: 4px</div>
+                </div>
+                <div class="lib-demo-block">
+                    <div style="width: 8px; height: 40px; background-color: var(--accent); margin: auto;"></div>
+                    <div class="lib-comp-label">--s-3: 8px</div>
+                </div>
+                <div class="lib-demo-block">
+                    <div style="width: 16px; height: 40px; background-color: var(--accent); margin: auto;"></div>
+                    <div class="lib-comp-label">--s-5: 16px</div>
+                </div>
+                <div class="lib-demo-block">
+                    <div style="width: 32px; height: 40px; background-color: var(--accent); margin: auto;"></div>
+                    <div class="lib-comp-label">--s-8: 32px</div>
+                </div>
+            </div>
+
+            <div class="lib-group-title">F4: Border Radius</div>
+            <div class="lib-demo-row">
+                <div class="lib-demo-block">
+                    <div style="width: 60px; height: 60px; background-color: var(--accent); border-radius: var(--r-xs); margin: auto;"></div>
+                    <div class="lib-comp-label">--r-xs: 3px</div>
+                </div>
+                <div class="lib-demo-block">
+                    <div style="width: 60px; height: 60px; background-color: var(--accent); border-radius: var(--r-md); margin: auto;"></div>
+                    <div class="lib-comp-label">--r-md: 8px</div>
+                </div>
+                <div class="lib-demo-block">
+                    <div style="width: 60px; height: 60px; background-color: var(--accent); border-radius: var(--r-lg); margin: auto;"></div>
+                    <div class="lib-comp-label">--r-lg: 12px</div>
+                </div>
+                <div class="lib-demo-block">
+                    <div style="width: 60px; height: 60px; background-color: var(--accent); border-radius: var(--r-pill); margin: auto;"></div>
+                    <div class="lib-comp-label">--r-pill: 9999px</div>
+                </div>
+            </div>
+
+            <div class="lib-group-title">F5: Shadows</div>
+            <div class="lib-demo-row">
+                <div class="lib-demo-block" style="box-shadow: var(--shadow-sm);">
+                    <div class="lib-comp-label">Shadow SM</div>
+                </div>
+                <div class="lib-demo-block" style="box-shadow: var(--shadow-md);">
+                    <div class="lib-comp-label">Shadow MD</div>
+                </div>
+                <div class="lib-demo-block" style="box-shadow: var(--shadow-lg);">
+                    <div class="lib-comp-label">Shadow LG</div>
+                </div>
+            </div>
+
+            <div class="lib-group-title">F6: Status Tokens</div>
+            <div class="lib-demo-row">
+                <div class="lib-demo-block">
+                    <span class="badge badge-active">Active</span>
+                    <div class="lib-comp-label">--status-active</div>
+                </div>
+                <div class="lib-demo-block">
+                    <span class="badge badge-pending">Pending</span>
+                    <div class="lib-comp-label">--status-pending</div>
+                </div>
+                <div class="lib-demo-block">
+                    <span class="badge badge-closed">Closed</span>
+                    <div class="lib-comp-label">--status-closed</div>
+                </div>
+                <div class="lib-demo-block">
+                    <span class="badge badge-error">Error</span>
+                    <div class="lib-comp-label">--status-error</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== ATOMS: BUTTONS ===== -->
+        <section id="atoms-buttons">
+            <div class="lib-tier-header">
+                <div>
+                    <div class="lib-tier-title">Atoms: Buttons</div>
+                    <div class="lib-tier-desc">Button primitives: primary, secondary, ghost, destructive, icon, sizes, loading</div>
+                </div>
+                <div class="lib-tier-badge">7 Components</div>
+            </div>
+
+            <div class="lib-group-title">A1: Primary Button</div>
+            <div class="lib-demo-row">
+                <div class="lib-demo-block">
+                    <button class="btn btn-primary">Primary</button>
+                    <div class="lib-comp-label">Default</div>
+                </div>
+                <div class="lib-demo-block">
+                    <button class="btn btn-primary" disabled>Disabled</button>
+                    <div class="lib-comp-label">Disabled State</div>
+                </div>
+            </div>
+
+            <div class="lib-group-title">A2: Secondary Button</div>
+            <div class="lib-demo-block">
+                <button class="btn btn-secondary">Secondary</button>
+                <div class="lib-comp-label">Outline Style</div>
+            </div>
+
+            <div class="lib-group-title">A3: Ghost Button</div>
+            <div class="lib-demo-block">
+                <button class="btn btn-ghost">Ghost</button>
+                <div class="lib-comp-label">Transparent Background</div>
+            </div>
+
+            <div class="lib-group-title">A4: Destructive Button</div>
+            <div class="lib-demo-block">
+                <button class="btn btn-destructive"><i data-lucide="trash-2" class="icon-sm"></i> Delete</button>
+                <div class="lib-comp-label">Red Alert Style</div>
+            </div>
+
+            <div class="lib-group-title">A5: Icon Button</div>
+            <div class="lib-demo-block">
+                <button class="btn btn-icon"><i data-lucide="plus" class="icon-sm"></i></button>
+                <div class="lib-comp-label">Square Icon Button</div>
+            </div>
+
+            <div class="lib-group-title">A6: Button Sizes</div>
+            <div class="lib-demo-row">
+                <div class="lib-demo-block">
+                    <button class="btn btn-primary btn-sm">Small</button>
+                    <div class="lib-comp-label">12px Font</div>
+                </div>
+                <div class="lib-demo-block">
+                    <button class="btn btn-primary btn-md">Medium</button>
+                    <div class="lib-comp-label">14px Font</div>
+                </div>
+                <div class="lib-demo-block">
+                    <button class="btn btn-primary btn-lg">Large</button>
+                    <div class="lib-comp-label">16px Font</div>
+                </div>
+            </div>
+
+            <div class="lib-group-title">A7: Loading Button</div>
+            <div class="lib-demo-block">
+                <button class="btn btn-primary btn-loading">Saving...</button>
+                <div class="lib-comp-label">Animated Spinner</div>
+            </div>
+        </section>
+
+        <!-- ===== ATOMS: INPUTS ===== -->
+        <section id="atoms-inputs">
+            <div class="lib-tier-header">
+                <div>
+                    <div class="lib-tier-title">Atoms: Inputs</div>
+                    <div class="lib-tier-desc">Form input primitives: text, number, password, select, checkbox, radio, toggle, date</div>
+                </div>
+                <div class="lib-tier-badge">10 Components</div>
+            </div>
+
+            <div class="lib-group-title">A8: Text Input</div>
+            <div class="lib-demo-block">
+                <input type="text" class="input" placeholder="Enter text...">
+                <div class="lib-comp-label">Text Input Field</div>
+            </div>
+
+            <div class="lib-group-title">A9: Number Input</div>
+            <div class="lib-demo-block">
+                <input type="number" class="input input-number" placeholder="0" value="100">
+                <div class="lib-comp-label">Right-aligned Numbers</div>
+            </div>
+
+            <div class="lib-group-title">A10: Password Input</div>
+            <div class="lib-demo-block">
+                <input type="password" class="input" placeholder="••••••••">
+                <div class="lib-comp-label">Secure Entry</div>
+            </div>
+
+            <div class="lib-group-title">A11: Search Input</div>
+            <div class="lib-demo-block">
+                <div class="input-wrapper">
+                    <i data-lucide="search" class="icon-sm" style="position: absolute; left: var(--s-3); color: var(--text-muted);"></i>
+                    <input type="text" class="input" placeholder="Search..." style="padding-left: 32px;">
+                </div>
+                <div class="lib-comp-label">Search Field</div>
+            </div>
+
+            <div class="lib-group-title">A12: Textarea</div>
+            <div class="lib-demo-block">
+                <textarea class="textarea" placeholder="Multi-line text..."></textarea>
+                <div class="lib-comp-label">Textarea Field</div>
+            </div>
+
+            <div class="lib-group-title">A13: Select Dropdown</div>
+            <div class="lib-demo-block">
+                <select class="select">
+                    <option>Choose an option...</option>
+                    <option>Option 1</option>
+                    <option>Option 2</option>
+                </select>
+                <div class="lib-comp-label">Select Dropdown</div>
+            </div>
+
+            <div class="lib-group-title">A14: Checkbox</div>
+            <div class="lib-demo-block">
+                <label class="check-wrap">
+                    <input type="checkbox" checked>
+                    <span>Remember me</span>
+                </label>
+                <div class="lib-comp-label">Checkbox with Label</div>
+            </div>
+
+            <div class="lib-group-title">A15: Radio Button</div>
+            <div class="lib-demo-block">
+                <label class="check-wrap">
+                    <input type="radio" name="option" checked>
+                    <span>Option A</span>
+                </label>
+                <label class="check-wrap">
+                    <input type="radio" name="option">
+                    <span>Option B</span>
+                </label>
+                <div class="lib-comp-label">Radio Buttons</div>
+            </div>
+
+            <div class="lib-group-title">A16: Toggle Switch</div>
+            <div class="lib-demo-block">
+                <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+                <div class="lib-comp-label">On/Off Toggle</div>
+            </div>
+
+            <div class="lib-group-title">A17: Date Input</div>
+            <div class="lib-demo-block">
+                <input type="date" class="input input-date">
+                <div class="lib-comp-label">Date Picker</div>
+            </div>
+        </section>
+
+        <!-- ===== ATOMS: DISPLAY ===== -->
+        <section id="atoms-display">
+            <div class="lib-tier-header">
+                <div>
+                    <div class="lib-tier-title">Atoms: Display</div>
+                    <div class="lib-tier-desc">Display primitives: badges, avatars, dividers, spinners, skeleton, tooltips, tags</div>
+                </div>
+                <div class="lib-tier-badge">9 Components</div>
+            </div>
+
+            <div class="lib-group-title">A18: Badges</div>
+            <div class="lib-demo-row">
+                <div class="lib-demo-block">
+                    <span class="badge badge-active">Active</span>
+                    <div class="lib-comp-label">Status Badge</div>
+                </div>
+                <div class="lib-demo-block">
+                    <span class="badge badge-pending">Pending</span>
+                    <div class="lib-comp-label">Pending Status</div>
+                </div>
+                <div class="lib-demo-block">
+                    <span class="badge badge-closed">Closed</span>
+                    <div class="lib-comp-label">Closed Status</div>
+                </div>
+            </div>
+
+            <div class="lib-group-title">A19: Count Badge</div>
+            <div class="lib-demo-block">
+                <span class="count-badge">5</span>
+                <div class="lib-comp-label">Numeric Badge</div>
+            </div>
+
+            <div class="lib-group-title">A20: Avatars</div>
+            <div class="lib-demo-row">
+                <div class="lib-demo-block">
+                    <div class="avatar avatar-sm">AS</div>
+                    <div class="lib-comp-label">Small Avatar</div>
+                </div>
+                <div class="lib-demo-block">
+                    <div class="avatar avatar-md">AM</div>
+                    <div class="lib-comp-label">Medium Avatar</div>
+                </div>
+                <div class="lib-demo-block">
+                    <div class="avatar avatar-lg">AL</div>
+                    <div class="lib-comp-label">Large Avatar</div>
+                </div>
+            </div>
+
+            <div class="lib-group-title">A21: Avatar Group</div>
+            <div class="lib-demo-block">
+                <div class="avatar-group">
+                    <div class="avatar avatar-md">U1</div>
+                    <div class="avatar avatar-md">U2</div>
+                    <div class="avatar avatar-md">+2</div>
+                </div>
+                <div class="lib-comp-label">Stacked Avatars</div>
+            </div>
+
+            <div class="lib-group-title">A22: Dividers</div>
+            <div class="lib-demo-block">
+                <div style="width: 100%; height: 1px; background-color: var(--border-subtle);"></div>
+                <div class="lib-comp-label">Horizontal Divider</div>
+            </div>
+
+            <div class="lib-group-title">A23: Spinner</div>
+            <div class="lib-demo-block">
+                <div class="spinner"></div>
+                <div class="lib-comp-label">Loading Spinner</div>
+            </div>
+
+            <div class="lib-group-title">A24: Skeleton</div>
+            <div class="lib-demo-block">
+                <div class="skeleton" style="width: 100%; height: 40px; border-radius: var(--r-md);"></div>
+                <div class="lib-comp-label">Shimmer Skeleton</div>
+            </div>
+
+            <div class="lib-group-title">A25: Tooltip</div>
+            <div class="lib-demo-block">
+                <div class="tooltip-wrap" data-tooltip="Helpful tip here">Hover me</div>
+                <div class="lib-comp-label">Tooltip on Hover</div>
+            </div>
+
+            <div class="lib-group-title">A26: Tags</div>
+            <div class="lib-demo-block">
+                <span class="tag">Tag 1</span>
+                <span class="tag">Tag 2</span>
+                <span class="tag">Tag 3</span>
+                <div class="lib-comp-label">Clickable Tags</div>
+            </div>
+        </section>
+
+        <!-- ===== FRAGMENTS: FORMS ===== -->
+        <section id="frag-forms">
+            <div class="lib-tier-header">
+                <div>
+                    <div class="lib-tier-title">Fragments: Forms</div>
+                    <div class="lib-tier-desc">Form components: field groups, search, filters, date ranges, multi-select, quantity stepper, currency input</div>
+                </div>
+                <div class="lib-tier-badge">8 Components</div>
+            </div>
+
+            <div class="lib-group-title">FR1: Form Field</div>
+            <div class="lib-demo-block">
+                <div class="form-field">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="input" placeholder="Enter your name">
+                </div>
+                <div class="lib-comp-label">Label + Input</div>
+            </div>
+
+            <div class="lib-group-title">FR2: Form Row (Multi-column)</div>
+            <div class="lib-demo-block">
+                <div class="form-row">
+                    <div class="form-field">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="input" placeholder="First">
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="input" placeholder="Last">
+                    </div>
+                </div>
+                <div class="lib-comp-label">Two-Column Layout</div>
+            </div>
+
+            <div class="lib-group-title">FR3: Search Bar</div>
+            <div class="lib-demo-block">
+                <input type="text" class="input" placeholder="Search parties, items, orders..." style="width: 100%;">
+                <div class="lib-comp-label">Full-Width Search</div>
+            </div>
+
+            <div class="lib-group-title">FR4: Filter Bar</div>
+            <div class="lib-demo-block">
+                <div class="filter-bar">
+                    <select class="select" style="flex: 1;">
+                        <option>Filter by Status</option>
+                        <option>Active</option>
+                        <option>Pending</option>
+                    </select>
+                    <button class="btn btn-secondary">Clear Filters</button>
+                </div>
+                <div class="lib-comp-label">Filter Controls</div>
+            </div>
+
+            <div class="lib-group-title">FR5: Date Range</div>
+            <div class="lib-demo-block">
+                <div class="date-range">
+                    <input type="date" class="input">
+                    <span style="color: var(--text-muted);">to</span>
+                    <input type="date" class="input">
+                </div>
+                <div class="lib-comp-label">From-To Date Picker</div>
+            </div>
+
+            <div class="lib-group-title">FR6: Multi-Select Box</div>
+            <div class="lib-demo-block">
+                <div class="multi-select-box">
+                    <label class="check-wrap"><input type="checkbox"> Option 1</label>
+                    <label class="check-wrap"><input type="checkbox" checked> Option 2</label>
+                    <label class="check-wrap"><input type="checkbox"> Option 3</label>
+                </div>
+                <div class="lib-comp-label">Scrollable Checkbox List</div>
+            </div>
+
+            <div class="lib-group-title">FR7: Quantity Stepper</div>
+            <div class="lib-demo-block">
+                <div class="qty-stepper">
+                    <button onclick="qtyChange(this, -1)">−</button>
+                    <input type="number" value="5" readonly>
+                    <button onclick="qtyChange(this, 1)">+</button>
+                </div>
+                <div class="lib-comp-label">Increment/Decrement</div>
+            </div>
+
+            <div class="lib-group-title">FR8: Currency Input</div>
+            <div class="lib-demo-block">
+                <div class="input-wrapper input-prefix-wrap" data-prefix="₹">
+                    <input type="number" class="input" placeholder="0.00" value="1000">
+                </div>
+                <div class="lib-comp-label">Currency Field with Prefix</div>
+            </div>
+        </section>
+
+        <!-- ===== FRAGMENTS: NAVIGATION ===== -->
+        <section id="frag-nav">
+            <div class="lib-tier-header">
+                <div>
+                    <div class="lib-tier-title">Fragments: Navigation</div>
+                    <div class="lib-tier-desc">Navigation components: sidebar items, breadcrumbs, tabs, top app bar, command trigger, pagination</div>
+                </div>
+                <div class="lib-tier-badge">8 Components</div>
+            </div>
+
+            <div class="lib-group-title">FR9: Sidebar Navigation</div>
+            <div class="lib-demo-block">
+                <div class="demo-sidebar">
+                    <div class="demo-nav-item active">Home</div>
+                    <div class="demo-nav-item">Reports</div>
+                    <div class="demo-nav-item">Settings</div>
+                </div>
+                <div class="lib-comp-label">Vertical Sidebar Nav</div>
+            </div>
+
+            <div class="lib-group-title">FR10: Breadcrumb</div>
+            <div class="lib-demo-block">
+                <div class="breadcrumb">
+                    <span>Home</span>
+                    <span>Orders</span>
+                    <span>SO-001</span>
+                </div>
+                <div class="lib-comp-label">Hierarchical Navigation</div>
+            </div>
+
+            <div class="lib-group-title">FR11: Pill Tabs</div>
+            <div class="lib-demo-block">
+                <div class="tabs-pill">
+                    <button class="tab active" onclick="switchTab(this, 'tabs-1')">Tab 1</button>
+                    <button class="tab" onclick="switchTab(this, 'tabs-1')">Tab 2</button>
+                    <button class="tab" onclick="switchTab(this, 'tabs-1')">Tab 3</button>
+                </div>
+                <div class="lib-comp-label">Pill-Style Tabs</div>
+            </div>
+
+            <div class="lib-group-title">FR12: Underline Tabs</div>
+            <div class="lib-demo-block">
+                <div class="tabs-underline">
+                    <button class="tab active" onclick="switchTab(this, 'tabs-2')">Tab 1</button>
+                    <button class="tab" onclick="switchTab(this, 'tabs-2')">Tab 2</button>
+                    <button class="tab" onclick="switchTab(this, 'tabs-2')">Tab 3</button>
+                </div>
+                <div class="lib-comp-label">Underline-Style Tabs</div>
+            </div>
+
+            <div class="lib-group-title">FR13: Top App Bar</div>
+            <div class="lib-demo-block">
+                <div class="demo-topbar">
+                    <div style="font-weight: 600;">Orders</div>
+                    <div style="color: var(--text-muted);">45 items</div>
+                </div>
+                <div class="lib-comp-label">Header with Title</div>
+            </div>
+
+            <div class="lib-group-title">FR14: Command Trigger</div>
+            <div class="lib-demo-block">
+                <div class="cmd-trigger">
+                    <span>Search commands...</span>
+                    <span style="font-size: 11px; color: var(--text-muted);">⌘K</span>
+                </div>
+                <div class="lib-comp-label">Command Palette Trigger</div>
+            </div>
+
+            <div class="lib-group-title">FR15: Pagination</div>
+            <div class="lib-demo-block">
+                <div class="pagination">
+                    <button>← Previous</button>
+                    <button class="active">1</button>
+                    <button>2</button>
+                    <button>3</button>
+                    <button>Next →</button>
+                </div>
+                <div class="lib-comp-label">Page Navigation</div>
+            </div>
+
+            <div class="lib-group-title">FR16: Top Navigation Bar</div>
+            <div class="lib-demo-block">
+                <div class="demo-topbar">
+                    <div>Dashboard</div>
+                    <button class="btn btn-sm btn-ghost">Sync</button>
+                    <button class="btn btn-sm btn-primary">Export</button>
+                </div>
+                <div class="lib-comp-label">Horizontal Top Bar</div>
+            </div>
+        </section>
+
+        <!-- ===== FRAGMENTS: CARDS ===== -->
+        <section id="frag-cards">
+            <div class="lib-tier-header">
+                <div>
+                    <div class="lib-tier-title">Fragments: Cards</div>
+                    <div class="lib-tier-desc">Card components: KPI cards, feature cards, list item cards, VNO cards, party cards, metric cards</div>
+                </div>
+                <div class="lib-tier-badge">6 Components</div>
+            </div>
+
+            <div class="lib-group-title">FR17: KPI Card</div>
+            <div class="lib-demo-row">
+                <div class="lib-demo-block">
+                    <div class="kpi-card">
+                        <div class="label">Orders This Month</div>
+                        <div class="value">1,234</div>
+                    </div>
+                    <div class="lib-comp-label">Numeric KPI</div>
+                </div>
+                <div class="lib-demo-block">
+                    <div class="kpi-card">
+                        <div class="label">Revenue</div>
+                        <div class="value">₹2.4M</div>
+                    </div>
+                    <div class="lib-comp-label">Currency KPI</div>
+                </div>
+            </div>
+
+            <div class="lib-group-title">FR18: VNO Card</div>
+            <div class="lib-demo-block">
+                <div class="vno-card">
+                    <div class="vno-card-title">VNO-2024-001</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">Date: 2024-01-15</div>
+                    <div style="font-size: 13px; color: var(--text-secondary);">Qty: 100</div>
+                </div>
+                <div class="lib-comp-label">Voucher Card</div>
+            </div>
+
+            <div class="lib-group-title">FR19: Party Card</div>
+            <div class="lib-demo-block">
+                <div class="party-card">
+                    <div class="party-card-name">ABC Textiles</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">Supplier</div>
+                    <div style="font-size: 12px; margin-top: var(--s-2); color: var(--text-secondary);">Balance: ₹50,000</div>
+                </div>
+                <div class="lib-comp-label">Customer/Supplier Card</div>
+            </div>
+
+            <div class="lib-group-title">FR20: List Item Card</div>
+            <div class="lib-demo-block">
+                <div class="list-item-card">
+                    <div style="font-weight: 600; margin-bottom: var(--s-2);">Item Name</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">Quality: A</div>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: var(--s-2);">Stock: 500 meters</div>
+                </div>
+                <div class="lib-comp-label">Interactive List Item</div>
+            </div>
+
+            <div class="lib-group-title">FR21: Metric Card</div>
+            <div class="lib-demo-block">
+                <div class="metric-card">
+                    <div>
+                        <div style="font-size: 12px; color: var(--text-muted);">Pending Orders</div>
+                        <div style="font-size: 20px; font-weight: 700; margin-top: var(--s-1);">45</div>
+                    </div>
+                    <div style="color: var(--accent); font-size: 20px;">→</div>
+                </div>
+                <div class="lib-comp-label">Metric with Action</div>
+            </div>
+
+            <div class="lib-group-title">FR22: Feature Card</div>
+            <div class="lib-demo-block">
+                <div class="card">
+                    <div style="font-weight: 600; margin-bottom: var(--s-3);">Feature Title</div>
+                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: var(--s-4);">Description of the feature goes here.</div>
+                    <button class="btn btn-sm btn-primary">Learn More</button>
+                </div>
+                <div class="lib-comp-label">Content Card</div>
+            </div>
+        </section>
+
+        <!-- ===== FRAGMENTS: TABLES ===== -->
+        <section id="frag-table">
+            <div class="lib-tier-header">
+                <div>
+                    <div class="lib-tier-title">Fragments: Tables</div>
+                    <div class="lib-tier-desc">Table components: data tables, empty states, skeleton loading</div>
+                </div>
+                <div class="lib-tier-badge">6 Components</div>
+            </div>
+
+            <div class="lib-group-title">FR23: Basic Table</div>
+            <div class="lib-demo-block">
+                <table class="demo-table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Order #001</td>
+                            <td><span class="badge badge-active">Active</span></td>
+                            <td>₹10,000</td>
+                        </tr>
+                        <tr>
+                            <td>Order #002</td>
+                            <td><span class="badge badge-pending">Pending</span></td>
+                            <td>₹15,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="lib-comp-label">Sortable Columns</div>
+            </div>
+
+            <div class="lib-group-title">FR24: Table with Selection</div>
+            <div class="lib-demo-block">
+                <table class="demo-table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox"></th>
+                            <th>Item</th>
+                            <th>Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="selected">
+                            <td><input type="checkbox" checked></td>
+                            <td>Item A</td>
+                            <td>100</td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td>Item B</td>
+                            <td>200</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="lib-comp-label">Selectable Rows</div>
+            </div>
+
+            <div class="lib-group-title">FR25: Empty State</div>
+            <div class="lib-demo-block">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <div class="empty-state-title">No records found</div>
+                    <p style="font-size: 13px; color: var(--text-muted);">Try adjusting your filters</p>
+                </div>
+                <div class="lib-comp-label">Empty State</div>
+            </div>
+
+            <div class="lib-group-title">FR26: Skeleton Rows</div>
+            <div class="lib-demo-block">
+                <div class="skeleton" style="width: 100%; height: 40px; margin-bottom: var(--s-3);"></div>
+                <div class="skeleton" style="width: 100%; height: 40px; margin-bottom: var(--s-3);"></div>
+                <div class="skeleton" style="width: 100%; height: 40px;"></div>
+                <div class="lib-comp-label">Loading Skeleton</div>
+            </div>
+
+            <div class="lib-group-title">FR27: Grouped Table Rows</div>
+            <div class="lib-demo-block">
+                <div style="font-weight: 600; color: var(--accent); margin-bottom: var(--s-3);">Group A</div>
+                <table class="demo-table" style="width: 100%;">
+                    <tbody>
+                        <tr>
+                            <td>Item 1</td>
+                            <td>100</td>
+                        </tr>
+                        <tr>
+                            <td>Item 2</td>
+                            <td>200</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="lib-comp-label">Grouped Data</div>
+            </div>
+
+            <div class="lib-group-title">FR28: Sortable Table Header</div>
+            <div class="lib-demo-block">
+                <table class="demo-table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Name ↑↓</th>
+                            <th>Amount ↑↓</th>
+                            <th>Date ↑↓</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Order 1</td>
+                            <td>₹1,000</td>
+                            <td>2024-01-15</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="lib-comp-label">Sortable Headers</div>
+            </div>
+        </section>
+
+        <!-- ===== FRAGMENTS: FEEDBACK ===== -->
+        <section id="frag-feedback">
+            <div class="lib-tier-header">
+                <div>
+                    <div class="lib-tier-title">Fragments: Feedback</div>
+                    <div class="lib-tier-desc">Feedback components: toasts, alerts, progress bars, step indicators</div>
+                </div>
+                <div class="lib-tier-badge">5 Components</div>
+            </div>
+
+            <div class="lib-group-title">FR29: Toast Notifications</div>
+            <div class="lib-demo-row">
+                <div class="lib-demo-block">
+                    <div class="toast" style="margin: 0; position: relative; bottom: auto; right: auto;">
+                        <div style="font-weight: 600; margin-bottom: var(--s-2);">Success</div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">Order saved successfully</div>
+                    </div>
+                    <div class="lib-comp-label">Success Toast</div>
+                </div>
+                <div class="lib-demo-block">
+                    <div class="toast" style="margin: 0; position: relative; bottom: auto; right: auto; border-color: #fbbf24;">
+                        <div style="font-weight: 600; margin-bottom: var(--s-2); color: var(--status-pending-text);">Warning</div>
+                        <div style="font-size: 13px; color: var(--status-pending-text);">Please review changes</div>
+                    </div>
+                    <div class="lib-comp-label">Warning Toast</div>
+                </div>
+            </div>
+
+            <div class="lib-group-title">FR30: Alerts</div>
+            <div class="lib-demo-row">
+                <div class="lib-demo-block">
+                    <div class="alert alert.success">
+                        <div style="font-weight: 600; margin-bottom: var(--s-2);">Success Alert</div>
+                        <div style="font-size: 13px;">All changes have been saved.</div>
+                    </div>
+                    <div class="lib-comp-label">Success Alert</div>
+                </div>
+                <div class="lib-demo-block">
+                    <div class="alert alert.error">
+                        <div style="font-weight: 600; margin-bottom: var(--s-2);">Error Alert</div>
+                        <div style="font-size: 13px;">Something went wrong. Please try again.</div>
+                    </div>
+                    <div class="lib-comp-label">Error Alert</div>
+                </div>
+            </div>
+
+            <div class="lib-group-title">FR31: Progress Bar</div>
+            <div class="lib-demo-block">
+                <div class="progress-wrap">
+                    <div style="font-size: 13px; font-weight: 600;">Upload Progress</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 65%;"></div>
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-muted);">65% Complete</div>
+                </div>
+                <div class="lib-comp-label">Progress Bar</div>
+            </div>
+
+            <div class="lib-group-title">FR32: Steps/Stepper</div>
+            <div class="lib-demo-block">
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-dot completed">✓</div>
+                    </div>
+                    <div class="step-connector active"></div>
+                    <div class="step">
+                        <div class="step-dot active">2</div>
+                    </div>
+                    <div class="step-connector"></div>
+                    <div class="step">
+                        <div class="step-dot">3</div>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Step Indicator</div>
+            </div>
+
+            <div class="lib-group-title">FR33: Status Indicator</div>
+            <div class="lib-demo-row">
+                <div class="lib-demo-block">
+                    <div style="display: flex; align-items: center; gap: var(--s-3);">
+                        <div style="width: 12px; height: 12px; border-radius: 50%; background-color: var(--accent);"></div>
+                        <span>Connected</span>
+                    </div>
+                    <div class="lib-comp-label">Active Status</div>
+                </div>
+                <div class="lib-demo-block">
+                    <div style="display: flex; align-items: center; gap: var(--s-3);">
+                        <div style="width: 12px; height: 12px; border-radius: 50%; background-color: var(--text-muted);"></div>
+                        <span>Offline</span>
+                    </div>
+                    <div class="lib-comp-label">Inactive Status</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== FRAGMENTS: OVERLAYS ===== -->
+        <section id="frag-overlays">
+            <div class="lib-tier-header">
+                <div>
+                    <div class="lib-tier-title">Fragments: Overlays</div>
+                    <div class="lib-tier-desc">Overlay components: modals, drawers, popovers, context menus, dropdowns</div>
+                </div>
+                <div class="lib-tier-badge">5 Components</div>
+            </div>
+
+            <div class="lib-group-title">FR34: Modal Shell</div>
+            <div class="lib-demo-block">
+                <div style="background-color: var(--bg-page); padding: var(--s-5); border-radius: var(--r-md); border: 2px dashed var(--border-default); text-align: center;">
+                    <div class="modal-content" style="margin: 0;">
+                        <div style="font-weight: 600; margin-bottom: var(--s-3);">Confirm Action</div>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: var(--s-4);">Are you sure you want to proceed?</p>
+                        <div style="display: flex; gap: var(--s-3);">
+                            <button class="btn btn-secondary" style="flex: 1;">Cancel</button>
+                            <button class="btn btn-primary" style="flex: 1;">Confirm</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Modal Dialog</div>
+            </div>
+
+            <div class="lib-group-title">FR35: Drawer/Sidebar Overlay</div>
+            <div class="lib-demo-block">
+                <div style="background-color: var(--bg-page); padding: var(--s-5); border-radius: var(--r-md); border: 2px dashed var(--border-default);">
+                    <div class="demo-drawer-shell" style="position: relative; right: auto; width: 100%; height: 200px; border: none; box-shadow: none; padding: var(--s-4);">
+                        <div style="font-weight: 600; margin-bottom: var(--s-3);">Edit Details</div>
+                        <div class="form-field">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="input" placeholder="Enter name">
+                        </div>
+                        <button class="btn btn-primary btn-sm">Save</button>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Drawer/Sidebar</div>
+            </div>
+
+            <div class="lib-group-title">FR36: Popover</div>
+            <div class="lib-demo-block">
+                <div style="position: relative; height: 100px;">
+                    <div class="popover" style="position: relative;">
+                        <div style="font-weight: 600; margin-bottom: var(--s-2);">Quick Info</div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">This is a popover tooltip with additional info.</div>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Popover Tooltip</div>
+            </div>
+
+            <div class="lib-group-title">FR37: Context Menu</div>
+            <div class="lib-demo-block">
+                <div style="position: relative; height: 120px;">
+                    <div class="context-menu" style="position: relative;">
+                        <div class="context-menu-item">Edit</div>
+                        <div class="context-menu-item">Duplicate</div>
+                        <div class="divider-h"></div>
+                        <div class="context-menu-item">Delete</div>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Context Menu</div>
+            </div>
+
+            <div class="lib-group-title">FR38: Dropdown Menu</div>
+            <div class="lib-demo-block">
+                <div style="position: relative; height: 100px;">
+                    <div class="popover" style="position: relative; min-width: 150px;">
+                        <div class="context-menu-item">New Order</div>
+                        <div class="context-menu-item">Bulk Import</div>
+                        <div class="context-menu-item">Settings</div>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Dropdown Selector</div>
+            </div>
+        </section>
+
+        <!-- ===== PATTERNS: LAYOUT ===== -->
+        <section id="pat-layout">
+            <div class="lib-tier-header">
+                <div>
+                    <div class="lib-tier-title">Patterns: Layout</div>
+                    <div class="lib-tier-desc">Layout patterns: app shell, master-detail, dashboard grids, form pages, full-screen modals</div>
+                </div>
+                <div class="lib-tier-badge">5 Components</div>
+            </div>
+
+            <div class="lib-group-title">P1: App Shell</div>
+            <div class="pat-demo">
+                <div class="demo-app-shell">
+                    <div class="demo-app-shell-sidebar">
+                        <div class="demo-nav-item active">Dashboard</div>
+                        <div class="demo-nav-item">Orders</div>
+                        <div class="demo-nav-item">Reports</div>
+                    </div>
+                    <div class="demo-app-shell-main">
+                        <h2 style="margin-bottom: var(--s-4);">Main Content</h2>
+                        <p style="color: var(--text-secondary);">App shell with fixed sidebar and main content area.</p>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Sidebar + Main Layout</div>
+            </div>
+
+            <div class="lib-group-title">P2: Master-Detail Layout</div>
+            <div class="pat-demo">
+                <div class="demo-master-detail">
+                    <div class="demo-master">
+                        <div class="list-item-card" style="margin-bottom: var(--s-3); cursor: pointer;">Order 1</div>
+                        <div class="list-item-card" style="margin-bottom: var(--s-3); cursor: pointer; border-color: var(--accent);">Order 2</div>
+                        <div class="list-item-card" style="cursor: pointer;">Order 3</div>
+                    </div>
+                    <div class="demo-detail">
+                        <div style="font-weight: 600; margin-bottom: var(--s-3);">Order #002</div>
+                        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: var(--s-3);">Status: <span class="badge badge-active">Active</span></div>
+                        <div style="font-size: 13px; margin-bottom: var(--s-4);">Amount: <strong>₹15,000</strong></div>
+                        <button class="btn btn-primary btn-sm">Edit</button>
+                    </div>
+                </div>
+                <div class="lib-comp-label">2-Pane Master-Detail</div>
+            </div>
+
+            <div class="lib-group-title">P3: Dashboard Grid</div>
+            <div class="pat-demo">
+                <div class="dash-grid">
+                    <div class="kpi-card">
+                        <div class="label">Orders</div>
+                        <div class="value">1,234</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="label">Revenue</div>
+                        <div class="value">₹2.4M</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="label">Growth</div>
+                        <div class="value">↑ 23%</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="label">Pending</div>
+                        <div class="value">45</div>
+                    </div>
+                </div>
+                <div class="lib-comp-label">KPI Dashboard</div>
+            </div>
+
+            <div class="lib-group-title">P4: Form Page</div>
+            <div class="pat-demo">
+                <div style="padding: var(--s-5);">
+                    <h2 style="margin-bottom: var(--s-6);">Create New Order</h2>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Customer</label>
+                            <select class="select">
+                                <option>Select customer...</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="input">
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">Notes</label>
+                        <textarea class="textarea" placeholder="Add any notes..."></textarea>
+                    </div>
+                    <div style="display: flex; gap: var(--s-3);">
+                        <button class="btn btn-primary">Save</button>
+                        <button class="btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Form Page Layout</div>
+            </div>
+
+            <div class="lib-group-title">P5: Full-Screen Modal</div>
+            <div class="pat-demo">
+                <div style="background-color: rgba(0,0,0,0.1); padding: var(--s-5); border-radius: var(--r-md); text-align: center; height: 200px; display: flex; align-items: center; justify-content: center;">
+                    <div style="color: var(--text-muted);">Full-screen overlay modal</div>
+                </div>
+                <div class="lib-comp-label">Modal Overlay</div>
+            </div>
+        </section>
+
+        <!-- ===== PATTERNS: DATA DISPLAY ===== -->
+        <section id="pat-data">
+            <div class="lib-tier-header">
+                <div>
+                    <div class="lib-tier-title">Patterns: Data Display</div>
+                    <div class="lib-tier-desc">Data display patterns: data tables, inline edit, grouped lists, bulk actions</div>
+                </div>
+                <div class="lib-tier-badge">4 Components</div>
+            </div>
+
+            <div class="lib-group-title">P6: Data Table with Filters</div>
+            <div class="pat-demo">
+                <div class="filter-bar" style="margin-bottom: var(--s-4);">
+                    <input type="text" class="input" placeholder="Search..." style="flex: 1;">
+                    <select class="select" style="flex: 0 0 150px;">
+                        <option>All Status</option>
+                        <option>Active</option>
+                        <option>Pending</option>
+                    </select>
+                    <button class="btn btn-secondary">Apply</button>
+                </div>
+                <table class="demo-table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Item A</td>
+                            <td>100</td>
+                            <td><span class="badge badge-active">Active</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="lib-comp-label">Filterable Data Table</div>
+            </div>
+
+            <div class="lib-group-title">P7: Inline Edit Table</div>
+            <div class="pat-demo">
+                <table class="demo-table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Item A</td>
+                            <td><input type="number" class="input input-number" value="100" style="width: 80px;"></td>
+                            <td><button class="btn btn-sm btn-ghost">Save</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="lib-comp-label">Inline Editable Cells</div>
+            </div>
+
+            <div class="lib-group-title">P8: Grouped List</div>
+            <div class="pat-demo">
+                <div style="margin-bottom: var(--s-5);">
+                    <div class="lib-group-title">Category A</div>
+                    <div class="list-item-card" style="margin-bottom: var(--s-3);">Item 1</div>
+                    <div class="list-item-card">Item 2</div>
+                </div>
+                <div>
+                    <div class="lib-group-title">Category B</div>
+                    <div class="list-item-card" style="margin-bottom: var(--s-3);">Item 3</div>
+                    <div class="list-item-card">Item 4</div>
+                </div>
+                <div class="lib-comp-label">Grouped Data List</div>
+            </div>
+
+            <div class="lib-group-title">P9: Bulk Action Bar</div>
+            <div class="pat-demo">
+                <div class="bulk-bar">
+                    <div style="font-weight: 600;">2 items selected</div>
+                    <div style="display: flex; gap: var(--s-3);">
+                        <button class="btn btn-sm btn-secondary">Export</button>
+                        <button class="btn btn-sm btn-destructive">Delete</button>
+                    </div>
+                </div>
+                <table class="demo-table" style="width: 100%;">
+                    <tbody>
+                        <tr class="selected">
+                            <td><input type="checkbox" checked></td>
+                            <td>Item 1</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="lib-comp-label">Bulk Selection Bar</div>
+            </div>
+        </section>
+
+        <!-- ===== PATTERNS: ERP ===== -->
+        <section id="pat-erp">
+            <div class="lib-tier-header">
+                <div>
+                    <div class="lib-tier-title">Patterns: ERP Specific</div>
+                    <div class="lib-tier-desc">ERP-specific patterns: production pipeline, voucher details, invoices, grey inward, cutting cards</div>
+                </div>
+                <div class="lib-tier-badge">5 Components</div>
+            </div>
+
+            <div class="lib-group-title">P10: Production Pipeline</div>
+            <div class="pat-demo">
+                <div class="pipeline">
+                    <div class="pipeline-stage active">
+                        <div style="font-size: 12px; font-weight: 600; margin-bottom: var(--s-2);">Order Received</div>
+                        <div style="font-size: 20px; font-weight: 700;"><i data-lucide="check-circle-2" class="icon-md"></i></div>
+                    </div>
+                    <div class="pipeline-stage active">
+                        <div style="font-size: 12px; font-weight: 600; margin-bottom: var(--s-2);">In Production</div>
+                        <div style="font-size: 20px; font-weight: 700;">2/5</div>
+                    </div>
+                    <div class="pipeline-stage">
+                        <div style="font-size: 12px; font-weight: 600; margin-bottom: var(--s-2);">Packing</div>
+                        <div style="font-size: 20px; font-weight: 700;">-</div>
+                    </div>
+                    <div class="pipeline-stage">
+                        <div style="font-size: 12px; font-weight: 600; margin-bottom: var(--s-2);">Shipped</div>
+                        <div style="font-size: 20px; font-weight: 700;">-</div>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Pipeline Tracker</div>
+            </div>
+
+            <div class="lib-group-title">P11: Voucher Detail View</div>
+            <div class="pat-demo">
+                <div style="background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--r-md); padding: var(--s-5);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: var(--s-4);">
+                        <div>
+                            <div style="font-weight: 600; font-size: 16px;">VNO-2024-001</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Date: 2024-01-15</div>
+                        </div>
+                        <span class="badge badge-active">Active</span>
+                    </div>
+                    <div style="border-top: 1px solid var(--border-subtle); padding-top: var(--s-4); margin-top: var(--s-4);">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); font-size: 13px;">
+                            <div>
+                                <div style="color: var(--text-muted); margin-bottom: var(--s-1);">Qty</div>
+                                <div style="font-weight: 600;">100</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--text-muted); margin-bottom: var(--s-1);">Amount</div>
+                                <div style="font-weight: 600;">₹10,000</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Voucher Card</div>
+            </div>
+
+            <div class="lib-group-title">P12: Invoice Viewer</div>
+            <div class="pat-demo">
+                <div style="background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--r-md); padding: var(--s-5);">
+                    <div style="text-align: center; margin-bottom: var(--s-5);">
+                        <div style="font-weight: 700; font-size: 16px; margin-bottom: var(--s-1);">INVOICE</div>
+                        <div style="color: var(--text-muted); font-size: 12px;">INV-2024-001</div>
+                    </div>
+                    <table class="demo-table" style="width: 100%; margin-bottom: var(--s-4);">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Saree Set</td>
+                                <td>10</td>
+                                <td>₹5,000</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="text-align: right; padding-top: var(--s-4); border-top: 1px solid var(--border-subtle);">
+                        <div style="font-weight: 600; font-size: 14px;">Total: ₹5,000</div>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Invoice Template</div>
+            </div>
+
+            <div class="lib-group-title">P13: Grey Inward Panel</div>
+            <div class="pat-demo">
+                <div style="background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--r-md); padding: var(--s-5);">
+                    <div style="margin-bottom: var(--s-4);">
+                        <div style="font-weight: 600; margin-bottom: var(--s-3);">Grey Cloth Inward</div>
+                        <div class="vno-card">
+                            <div class="vno-card-title">GI-2024-0001</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Date: 2024-01-15</div>
+                            <div style="margin-top: var(--s-3); padding-top: var(--s-3); border-top: 1px solid var(--border-subtle);">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); font-size: 13px;">
+                                    <div><div style="color: var(--text-muted);">Quality</div><div style="font-weight: 600;">A</div></div>
+                                    <div><div style="color: var(--text-muted);">Qty (m)</div><div style="font-weight: 600;">1000</div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Grey Inward Record</div>
+            </div>
+
+            <div class="lib-group-title">P14: Cutting Card Panel</div>
+            <div class="pat-demo">
+                <div style="background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--r-md); padding: var(--s-5);">
+                    <div style="margin-bottom: var(--s-4);">
+                        <div style="font-weight: 600; margin-bottom: var(--s-3);">Cutting Cards</div>
+                        <div class="vno-card">
+                            <div class="vno-card-title">CC-2024-0001</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Order: SO-001</div>
+                            <div style="margin-top: var(--s-3); padding-top: var(--s-3); border-top: 1px solid var(--border-subtle);">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); font-size: 13px;">
+                                    <div><div style="color: var(--text-muted);">Design</div><div style="font-weight: 600;">Peacock</div></div>
+                                    <div><div style="color: var(--text-muted);">Qty</div><div style="font-weight: 600;">50</div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Cutting Card Record</div>
+            </div>
+        </section>
+
+        <!-- ===== PATTERNS: FORMS ===== -->
+        <section id="pat-forms">
+            <div class="lib-tier-header">
+                <div>
+                    <div class="lib-tier-title">Patterns: Forms</div>
+                    <div class="lib-tier-desc">Form patterns: multi-step wizards, advanced filters, confirmations, inline validation</div>
+                </div>
+                <div class="lib-tier-badge">4 Components</div>
+            </div>
+
+            <div class="lib-group-title">P15: Multi-Step Wizard</div>
+            <div class="pat-demo">
+                <div style="margin-bottom: var(--s-6);">
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-dot completed">✓</div>
+                        </div>
+                        <div class="step-connector active"></div>
+                        <div class="step">
+                            <div class="step-dot active">2</div>
+                        </div>
+                        <div class="step-connector"></div>
+                        <div class="step">
+                            <div class="step-dot">3</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--r-md); padding: var(--s-5);">
+                    <div style="font-weight: 600; margin-bottom: var(--s-4);">Step 2: Review Details</div>
+                    <div class="form-field">
+                        <label class="form-label">Confirm Information</label>
+                        <div style="padding: var(--s-4); background-color: var(--bg-card-hover); border-radius: var(--r-sm);">
+                            <div style="font-size: 13px; color: var(--text-secondary);">All details are correct</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: var(--s-3); margin-top: var(--s-5);">
+                        <button class="btn btn-secondary">Back</button>
+                        <button class="btn btn-primary">Next</button>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Wizard Steps</div>
+            </div>
+
+            <div class="lib-group-title">P16: Advanced Filter</div>
+            <div class="pat-demo">
+                <div style="background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--r-md); padding: var(--s-5);">
+                    <div style="font-weight: 600; margin-bottom: var(--s-4);">Advanced Filters</div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Date From</label>
+                            <input type="date" class="input">
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Date To</label>
+                            <input type="date" class="input">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Status</label>
+                            <select class="select">
+                                <option>All</option>
+                                <option>Active</option>
+                                <option>Pending</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Amount Range</label>
+                            <input type="number" class="input" placeholder="Min">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: var(--s-3); margin-top: var(--s-4);">
+                        <button class="btn btn-primary">Apply</button>
+                        <button class="btn btn-secondary">Reset</button>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Multi-Field Filter Panel</div>
+            </div>
+
+            <div class="lib-group-title">P17: Confirmation Dialog</div>
+            <div class="pat-demo">
+                <div style="background-color: var(--bg-page); padding: var(--s-5); border-radius: var(--r-md); border: 2px dashed var(--border-default); text-align: center;">
+                    <div class="modal-content" style="margin: 0;">
+                        <div style="font-weight: 600; margin-bottom: var(--s-3); color: #ef4444;">Delete Order?</div>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: var(--s-4);">This action cannot be undone. All associated records will be archived.</p>
+                        <div style="display: flex; gap: var(--s-3);">
+                            <button class="btn btn-secondary" style="flex: 1;">Cancel</button>
+                            <button class="btn btn-destructive" style="flex: 1;">Delete</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Destructive Confirmation</div>
+            </div>
+
+            <div class="lib-group-title">P18: Inline Validation</div>
+            <div class="pat-demo">
+                <div class="form-field">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="input" placeholder="your@email.com" style="border-color: #ef4444;">
+                    <div style="font-size: 12px; color: #ef4444; margin-top: var(--s-2);">Invalid email format</div>
+                </div>
+                <div class="form-field">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="input" placeholder="+91 98765 43210" style="border-color: var(--accent);">
+                    <div style="font-size: 12px; color: var(--accent); margin-top: var(--s-2);">✓ Valid format</div>
+                </div>
+                <div class="lib-comp-label">Field Validation States</div>
+            </div>
+        </section>
+
+        <!-- ===== PATTERNS: DASHBOARD ===== -->
+        <section id="pat-dashboard">
+            <div class="lib-tier-header">
+                <div>
+                    <div class="lib-tier-title">Patterns: Dashboard</div>
+                    <div class="lib-tier-desc">Dashboard patterns: KPI strips, sync monitor, activity timelines</div>
+                </div>
+                <div class="lib-tier-badge">3 Components</div>
+            </div>
+
+            <div class="lib-group-title">P19: KPI Strip</div>
+            <div class="pat-demo">
+                <div class="dash-grid">
+                    <div class="kpi-card">
+                        <div class="label">Orders Today</div>
+                        <div class="value">42</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="label">Total Revenue</div>
+                        <div class="value">₹1.2M</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="label">Pending Items</div>
+                        <div class="value">18</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="label">Fulfilled</div>
+                        <div class="value">156</div>
+                    </div>
+                </div>
+                <div class="lib-comp-label">KPI Card Strip</div>
+            </div>
+
+            <div class="lib-group-title">P20: Sync Monitor Dashboard</div>
+            <div class="pat-demo">
+                <div style="background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--r-md); padding: var(--s-5);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s-4);">
+                        <div style="font-weight: 600;">Sync Status</div>
+                        <span class="badge badge-active">Connected</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--s-3); margin-bottom: var(--s-4);">
+                        <div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Last Sync</div>
+                            <div style="font-weight: 600;">2 mins ago</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Records Synced</div>
+                            <div style="font-weight: 600;">12,450</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Issues</div>
+                            <div style="font-weight: 600; color: #ef4444;">3</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-primary">Trigger Sync</button>
+                </div>
+                <div class="lib-comp-label">Sync Monitor Panel</div>
+            </div>
+
+            <div class="lib-group-title">P21: Activity Timeline</div>
+            <div class="pat-demo">
+                <div class="timeline">
+                    <div class="timeline-item active">
+                        <div class="timeline-dot"></div>
+                        <div style="font-weight: 600; margin-bottom: var(--s-1);">Order Created</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">2024-01-15 10:30 AM</div>
+                    </div>
+                    <div class="timeline-item active">
+                        <div class="timeline-dot"></div>
+                        <div style="font-weight: 600; margin-bottom: var(--s-1);">Production Started</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">2024-01-15 11:00 AM</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div style="font-weight: 600; margin-bottom: var(--s-1);">Packing</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">Pending</div>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Activity Timeline</div>
+            </div>
+        </section>
+
+        <!-- ===== PATTERNS: NAVIGATION ===== -->
+        <section id="pat-nav">
+            <div class="lib-tier-header">
+                <div>
+                    <div class="lib-tier-title">Patterns: Navigation</div>
+                    <div class="lib-tier-desc">Navigation patterns: global search, notification center, command palette, responsive nav</div>
+                </div>
+                <div class="lib-tier-badge">4 Components</div>
+            </div>
+
+            <div class="lib-group-title">P22: Global Search</div>
+            <div class="pat-demo">
+                <div style="background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--r-md); padding: var(--s-4);">
+                    <input type="text" class="input" placeholder="Search orders, items, parties..." style="width: 100%; margin-bottom: var(--s-3);">
+                    <div style="max-height: 150px; overflow-y: auto;">
+                        <div style="padding: var(--s-3); cursor: pointer; border-radius: var(--r-sm);" onmouseover="this.style.backgroundColor=getComputedStyle(document.documentElement).getPropertyValue('--bg-card-hover')" onmouseout="this.style.backgroundColor='transparent'">
+                            <div style="font-weight: 600; font-size: 13px;">SO-001</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Sales Order</div>
+                        </div>
+                        <div style="padding: var(--s-3); cursor: pointer; border-radius: var(--r-sm);" onmouseover="this.style.backgroundColor=getComputedStyle(document.documentElement).getPropertyValue('--bg-card-hover')" onmouseout="this.style.backgroundColor='transparent'">
+                            <div style="font-weight: 600; font-size: 13px;">ABC Textiles</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Customer</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Global Search with Results</div>
+            </div>
+
+            <div class="lib-group-title">P23: Notification Center</div>
+            <div class="pat-demo">
+                <div style="background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--r-md); padding: var(--s-4);">
+                    <div style="font-weight: 600; margin-bottom: var(--s-4);">Notifications</div>
+                    <div style="padding: var(--s-3); background-color: var(--bg-card-hover); border-radius: var(--r-sm); margin-bottom: var(--s-3);">
+                        <div style="font-weight: 600; font-size: 13px;">New Order Created</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: var(--s-1);">2 minutes ago</div>
+                    </div>
+                    <div style="padding: var(--s-3); background-color: var(--status-pending-bg); border-radius: var(--r-sm);">
+                        <div style="font-weight: 600; font-size: 13px;">Sync Pending</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: var(--s-1);">5 minutes ago</div>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Notification Dropdown</div>
+            </div>
+
+            <div class="lib-group-title">P24: Command Palette</div>
+            <div class="pat-demo">
+                <div style="background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--r-md); padding: var(--s-4); max-width: 400px;">
+                    <input type="text" class="cmd-palette-input" placeholder="Search commands...">
+                    <div class="cmd-palette-results">
+                        <div class="cmd-palette-item active">
+                            <div style="font-weight: 600; font-size: 13px;">New Order</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">⌘ N</div>
+                        </div>
+                        <div class="cmd-palette-item">
+                            <div style="font-weight: 600; font-size: 13px;">Search Orders</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">⌘ K</div>
+                        </div>
+                        <div class="cmd-palette-item">
+                            <div style="font-weight: 600; font-size: 13px;">Settings</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">⌘ ,</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Command Palette Menu</div>
+            </div>
+
+            <div class="lib-group-title">P25: Mobile Responsive Navigation</div>
+            <div class="pat-demo">
+                <div style="max-width: 300px; margin: 0 auto;">
+                    <div class="demo-topbar">
+                        <button class="btn btn-icon">☰</button>
+                        <div style="font-weight: 600;">Ambaji ERP</div>
+                        <button class="btn btn-icon">⚙</button>
+                    </div>
+                    <div class="tabs-pill" style="border-bottom: 1px solid var(--border-subtle); margin: 0;">
+                        <button class="tab active" style="flex: 1;">Home</button>
+                        <button class="tab" style="flex: 1;">Orders</button>
+                        <button class="tab" style="flex: 1;">Reports</button>
+                    </div>
+                </div>
+                <div class="lib-comp-label">Mobile Navigation</div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        function toggleDensity() {
+            const html = document.documentElement;
+            html.classList.toggle('density-extreme');
+            const isExtreme = html.classList.contains('density-extreme');
+            localStorage.setItem('density', isExtreme ? 'extreme' : 'standard');
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'slate-cloud' ? 'obsidian-amber' : 'slate-cloud';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            setTimeout(() => lucide.createIcons(), 10);
+        }
+
+        function navigateTo(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+                updateActiveNavItem(sectionId);
+            }
+        }
+
+        function updateActiveNavItem(sectionId) {
+            document.querySelectorAll('.lib-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const activeItem = document.querySelector(`.lib-nav-item[onclick="navigateTo('${sectionId}')"]`);
+            if (activeItem) {
+                activeItem.classList.add('active');
+            }
+        }
+
+        function switchTab(element, containerId) {
+            const container = element.parentElement;
+            container.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+
+        function qtyChange(button, delta) {
+            const input = button.parentElement.querySelector('input');
+            let value = parseInt(input.value) || 0;
+            value = Math.max(0, value + delta);
+            input.value = value;
+        }
+
+        // Restore theme from localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'slate-cloud';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            // Re-init icons
+            lucide.createIcons();
+
+            // Sidebar active state observer
+
+            // Sidebar active state observer
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        updateActiveNavItem(entry.target.id);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            document.querySelectorAll('section[id]').forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>

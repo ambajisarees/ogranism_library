@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ambaji ERP | Design System Preview v220</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            50: '#f0fdf4',
+                            500: '#3ecf8e',
+                            700: '#047857',
+                        },
+                        slate: {
+                            50: '#f8fafc',
+                            400: '#94a3b8',
+                            950: '#020617',
+                        },
+                        obsidian: {
+                            amber: '#F59E0B',
+                            dark: '#0F172A',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f8fafc; color: #020617; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .data-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; letter-spacing: -0.02em; }
+        .extreme-density td, .extreme-density th { padding: 8px 12px; }
+        .status-chip { padding: 2px 8px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
+        .status-pending { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+        .status-closed { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .card-shadow { box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }
+        .nav-item-active { background: #3ecf8e; color: white; border-radius: 6px; }
+        .sidebar { min-width: 260px; height: 100vh; background: #020617; color: white; }
+    </style>
+</head>
+<body class="flex overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar p-6 flex flex-col">
+        <div class="mb-10 flex items-center gap-3">
+            <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold">A</span>
+            </div>
+            <h1 class="text-xl font-bold tracking-tight">Ambaji <span class="text-emerald-500">ERP</span></h1>
+        </div>
+
+        <nav class="space-y-1 flex-1">
+            <a href="#" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                Dashboard
+            </a>
+            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-6 mb-2 px-3">Sales & Orders</div>
+            <a href="#" class="nav-item-active flex items-center gap-3 px-3 py-2 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                Sales Module
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.29 7 12 12 20.71 7"></polyline><line x1="12" y1="22" x2="12" y2="12"></line></svg>
+                Production Control
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Party Master
+            </a>
+        </nav>
+
+        <div class="mt-auto pt-6 border-t border-slate-800">
+            <div class="flex items-center gap-3 px-3">
+                <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-emerald-400">S</div>
+                <div>
+                    <div class="text-sm font-medium">Subham</div>
+                    <div class="text-[10px] text-slate-500">subham123</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto flex flex-col">
+        <!-- Header -->
+        <header class="h-16 border-b border-slate-200 bg-white px-8 flex items-center justify-between sticky top-0 z-10">
+            <div class="flex items-center gap-4">
+                <h2 class="text-lg font-semibold">Sales Module</h2>
+                <div class="flex border rounded-lg overflow-hidden bg-slate-50 p-1">
+                    <button class="px-4 py-1 text-xs font-medium bg-white shadow-sm rounded-md border">Invoices (S1)</button>
+                    <button class="px-4 py-1 text-xs font-medium text-slate-500 hover:text-slate-900">Orders (O1)</button>
+                    <button class="px-4 py-1 text-xs font-medium text-slate-500 hover:text-slate-900">Packing</button>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="flex items-center gap-2 bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    New Invoice
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Content -->
+        <div class="p-8 space-y-8">
+            
+            <!-- KPI Grid -->
+            <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-xl border border-slate-200 card-shadow">
+                    <div class="text-slate-500 text-xs font-bold uppercase tracking-tight mb-2">Today's Sales (S1)</div>
+                    <div class="flex items-end gap-2">
+                        <span class="text-2xl font-bold font-mono">₹ 14,25,800</span>
+                        <span class="text-emerald-500 text-xs font-bold mb-1">↑ 12%</span>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl border border-slate-200 card-shadow">
+                    <div class="text-slate-500 text-xs font-bold uppercase tracking-tight mb-2">Pending Orders (O1)</div>
+                    <div class="flex items-end gap-2">
+                        <span class="text-2xl font-bold font-mono">1,342</span>
+                        <span class="text-amber-500 text-xs font-bold mb-1">Alert</span>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl border border-slate-200 card-shadow border-l-4 border-l-emerald-500">
+                    <div class="text-slate-500 text-xs font-bold uppercase tracking-tight mb-2">Production Flux</div>
+                    <div class="flex items-end gap-2">
+                        <span class="text-2xl font-bold font-mono">82%</span>
+                        <div class="w-16 h-2 bg-slate-100 rounded-full mb-2 overflow-hidden">
+                            <div class="h-full bg-emerald-500" style="width: 82%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-emerald-500 p-6 rounded-xl border border-emerald-600 card-shadow text-white">
+                    <div class="text-emerald-100 text-xs font-bold uppercase tracking-tight mb-2">System Status</div>
+                    <div class="text-2xl font-bold">Operational</div>
+                    <div class="text-[10px] text-emerald-200 mt-1 uppercase font-mono">Schema: IMMBE2627</div>
+                </div>
+            </section>
+
+            <!-- Extreme Density Table Area -->
+            <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+                    <h3 class="font-bold text-slate-800">Recent Invoices</h3>
+                    <div class="flex items-center gap-3">
+                        <input type="text" placeholder="Search VNO, Party..." class="text-sm border rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-emerald-500/20 outline-none">
+                        <button class="p-2 border rounded-lg hover:bg-slate-50"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="4" x2="14" y2="4"></line><line x1="10" y1="4" x2="3" y2="4"></line><line x1="21" y1="12" x2="12" y2="12"></line><line x1="8" y1="12" x2="3" y2="12"></line><line x1="21" y1="20" x2="16" y2="20"></line><line x1="12" y1="20" x2="3" y2="20"></line><line x1="14" y1="2" x2="14" y2="6"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="16" y1="18" x2="16" y2="22"></line></svg></button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left extreme-density">
+                        <thead class="bg-slate-50 border-b border-slate-200">
+                            <tr class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                                <th>Date</th>
+                                <th>VNO</th>
+                                <th>Type</th>
+                                <th>Party Name</th>
+                                <th>Quality (Item)</th>
+                                <th>Pcs</th>
+                                <th>Mts</th>
+                                <th>Status</th>
+                                <th class="text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="text-xs font-medium text-slate-500">2026-04-06</td>
+                                <td class="data-mono font-bold text-slate-950">V/000124</td>
+                                <td class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">S1</td>
+                                <td class="text-sm font-semibold">Mahadev Fashion</td>
+                                <td class="text-sm text-slate-600">Dola Silk Digital</td>
+                                <td class="data-mono font-medium">100</td>
+                                <td class="data-mono font-medium">600.00</td>
+                                <td><span class="status-chip status-closed">Closed</span></td>
+                                <td class="text-right">
+                                    <button class="text-emerald-500 hover:text-emerald-700 font-bold text-xs uppercase">View</button>
+                                </td>
+                            </tr>
+                            <tr class="bg-slate-50/30 hover:bg-slate-50/50 transition-colors">
+                                <td class="text-xs font-medium text-slate-500">2026-04-06</td>
+                                <td class="data-mono font-bold text-slate-950">V/000125</td>
+                                <td class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">S1</td>
+                                <td class="text-sm font-semibold">RK Trading Co.</td>
+                                <td class="text-sm text-slate-600">Vichitra Fancy Print</td>
+                                <td class="data-mono font-medium">85</td>
+                                <td class="data-mono font-medium">510.50</td>
+                                <td><span class="status-chip status-pending">Pending</span></td>
+                                <td class="text-right">
+                                    <button class="text-emerald-500 hover:text-emerald-700 font-bold text-xs uppercase">View</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50 transition-colors text-slate-400">
+                                <td class="text-xs">2026-04-05</td>
+                                <td class="data-mono">V/000120</td>
+                                <td class="text-[10px] font-bold border border-slate-200 px-1.5 py-0.5 rounded">O1</td>
+                                <td class="text-sm">Shiv Fab</td>
+                                <td class="text-sm">Georgette Mirror Work</td>
+                                <td class="data-mono">200</td>
+                                <td class="data-mono">1,200.00</td>
+                                <td><span class="status-chip status-closed">Closed</span></td>
+                                <td class="text-right">
+                                    <button class="text-slate-400 hover:text-slate-600 font-bold text-xs uppercase">View</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
+                    <span class="text-xs text-slate-500">Showing <span class="font-bold">1-10</span> of <span class="font-bold">1,391</span> Qualities</span>
+                    <div class="flex gap-2">
+                        <button class="px-3 py-1 border rounded bg-white text-xs disabled:opacity-50">Prev</button>
+                        <button class="px-3 py-1 border rounded bg-emerald-500 text-white text-xs font-bold">1</button>
+                        <button class="px-3 py-1 border rounded bg-white text-xs">2</button>
+                        <button class="px-3 py-1 border rounded bg-white text-xs">Next</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Design Showcase Grid -->
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Color & Typography Card -->
+                <div class="bg-white p-8 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-lg font-bold mb-6 flex items-center gap-2">
+                        <span class="w-2 h-6 bg-emerald-500 rounded-full"></span>
+                        Design Tokens
+                    </h3>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Emerald Scale (Brand)</p>
+                            <div class="flex gap-4">
+                                <div class="space-y-1">
+                                    <div class="w-16 h-16 bg-emerald-50 border border-emerald-100 rounded-lg"></div>
+                                    <p class="text-[10px] text-center font-mono">#f0fdf4</p>
+                                </div>
+                                <div class="space-y-1">
+                                    <div class="w-16 h-16 bg-emerald-500 rounded-lg shadow-lg shadow-emerald-500/30"></div>
+                                    <p class="text-[10px] text-center font-mono">#3ecf8e</p>
+                                </div>
+                                <div class="space-y-1">
+                                    <div class="w-16 h-16 bg-emerald-700 rounded-lg"></div>
+                                    <p class="text-[10px] text-center font-mono">#047857</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Typography Integration</p>
+                            <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
+                                <div>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase">UI Labels (Inter)</p>
+                                    <p class="text-base font-semibold">Sales Ledger: Warehouse Bulk</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase">Technical Data (JetBrains Mono)</p>
+                                    <p class="text-xl font-bold font-mono tracking-tighter">VNO: 2026-O7-889912 | ₹ 1,22,450.00</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pattern Showcase: Glass Login Card -->
+                <div class="relative overflow-hidden bg-emerald-950 p-8 rounded-xl border border-slate-800 shadow-2xl flex items-center justify-center">
+                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-transparent"></div>
+                    <div class="relative w-full max-w-sm glass rounded-2xl p-8 border border-white/10 shadow-2xl">
+                        <div class="text-center mb-6">
+                            <div class="w-12 h-12 bg-emerald-500 rounded-xl mx-auto mb-3 flex items-center justify-center shadow-lg shadow-emerald-500/40">
+                                <span class="text-white font-bold text-xl">A</span>
+                            </div>
+                            <h4 class="text-xl font-bold text-slate-950">Secure Access</h4>
+                            <p class="text-slate-500 text-xs">Enter your textile ERP credentials</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="space-y-1.5">
+                                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Email / Username</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-3 text-slate-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                                    </span>
+                                    <input type="text" value="subham123" class="w-full pl-10 pr-4 py-2.5 bg-white/50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 text-sm font-medium">
+                                </div>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Pin Code</label>
+                                <input type="password" value="********" class="w-full px-4 py-2.5 bg-white/50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 text-sm font-medium">
+                            </div>
+                            <button class="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold transition-all shadow-xl shadow-emerald-500/20 mt-4 active:scale-95">SIGN IN</button>
+                        </div>
+                        <div class="mt-6 pt-6 border-t border-slate-200/50 text-center">
+                            <p class="text-[10px] text-slate-400 uppercase font-mono tracking-widest">v2.4.0 — PRODUCTION STABLE</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+</body>
+</html>

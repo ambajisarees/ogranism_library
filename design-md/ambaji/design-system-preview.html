@@ -1,0 +1,2005 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="supabase-dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supabase Design System — Carbon Copy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+/* ============================================================
+   DESIGN TOKENS — 5 THEMES
+   ============================================================ */
+
+[data-theme="supabase-dark"] {
+  --bg-page:        #171717;
+  --bg-card:        #1c1c1c;
+  --bg-card-hover:  #222222;
+  --bg-input:       #1f1f1f;
+  --bg-nav:         rgba(23,23,23,0.92);
+  --bg-overlay:     rgba(41,41,41,0.84);
+  --text-primary:   #fafafa;
+  --text-secondary: #b4b4b4;
+  --text-muted:     #898989;
+  --border-subtle:  #242424;
+  --border-default: #2e2e2e;
+  --border-strong:  #363636;
+  --accent:         #3ecf8e;
+  --accent-glow:    rgba(62,207,142,0.18);
+  --accent-border:  rgba(62,207,142,0.3);
+  --accent-link:    #00c573;
+  --accent-on:      #0a0a0a;
+  --btn-primary-bg:     #0f0f0f;
+  --btn-primary-text:   #fafafa;
+  --btn-primary-border: #fafafa;
+  --badge-bg:       #2e2e2e;
+  --badge-text:     #b4b4b4;
+  --badge-brand-bg: rgba(62,207,142,0.12);
+  --badge-brand-text: #3ecf8e;
+  --status-success: #3ecf8e;
+  --status-warning: #f59e0b;
+  --status-error:   #ef4444;
+  --status-info:    #3b82f6;
+  --alert-info-bg:      rgba(59,130,246,0.08);
+  --alert-info-border:  rgba(59,130,246,0.3);
+  --alert-success-bg:   rgba(62,207,142,0.08);
+  --alert-success-border: rgba(62,207,142,0.3);
+  --alert-warning-bg:   rgba(245,158,11,0.08);
+  --alert-warning-border: rgba(245,158,11,0.3);
+  --alert-error-bg:     rgba(239,68,68,0.08);
+  --alert-error-border: rgba(239,68,68,0.3);
+  --theme-name: "Supabase Dark";
+}
+
+[data-theme="supabase-light"] {
+  --bg-page:        #f9f9f9;
+  --bg-card:        #ffffff;
+  --bg-card-hover:  #f5f5f5;
+  --bg-input:       #f3f3f3;
+  --bg-nav:         rgba(255,255,255,0.92);
+  --bg-overlay:     rgba(250,250,250,0.94);
+  --text-primary:   #171717;
+  --text-secondary: #4d4d4d;
+  --text-muted:     #898989;
+  --border-subtle:  #e8e8e8;
+  --border-default: #d4d4d4;
+  --border-strong:  #bebebe;
+  --accent:         #3ecf8e;
+  --accent-glow:    rgba(62,207,142,0.15);
+  --accent-border:  rgba(62,207,142,0.4);
+  --accent-link:    #00a85a;
+  --accent-on:      #ffffff;
+  --btn-primary-bg:     #171717;
+  --btn-primary-text:   #fafafa;
+  --btn-primary-border: #171717;
+  --badge-bg:       #ececec;
+  --badge-text:     #4d4d4d;
+  --badge-brand-bg: rgba(62,207,142,0.14);
+  --badge-brand-text: #009050;
+  --status-success: #10b96a;
+  --status-warning: #d97706;
+  --status-error:   #dc2626;
+  --status-info:    #2563eb;
+  --alert-info-bg:      rgba(37,99,235,0.06);
+  --alert-info-border:  rgba(37,99,235,0.3);
+  --alert-success-bg:   rgba(16,185,106,0.06);
+  --alert-success-border: rgba(16,185,106,0.3);
+  --alert-warning-bg:   rgba(217,119,6,0.07);
+  --alert-warning-border: rgba(217,119,6,0.3);
+  --alert-error-bg:     rgba(220,38,38,0.06);
+  --alert-error-border: rgba(220,38,38,0.3);
+  --theme-name: "Supabase Light";
+}
+
+[data-theme="midnight-violet"] {
+  --bg-page:        #0c0a14;
+  --bg-card:        #130f1e;
+  --bg-card-hover:  #1a1530;
+  --bg-input:       #16122a;
+  --bg-nav:         rgba(12,10,20,0.92);
+  --bg-overlay:     rgba(20,16,36,0.84);
+  --text-primary:   #f0ebff;
+  --text-secondary: #b8a8e0;
+  --text-muted:     #7a6aaa;
+  --border-subtle:  #1c1830;
+  --border-default: #28204a;
+  --border-strong:  #362d5e;
+  --accent:         #8b5cf6;
+  --accent-glow:    rgba(139,92,246,0.2);
+  --accent-border:  rgba(139,92,246,0.35);
+  --accent-link:    #a78bfa;
+  --accent-on:      #ffffff;
+  --btn-primary-bg:     #0c0a14;
+  --btn-primary-text:   #f0ebff;
+  --btn-primary-border: #f0ebff;
+  --badge-bg:       #28204a;
+  --badge-text:     #b8a8e0;
+  --badge-brand-bg: rgba(139,92,246,0.15);
+  --badge-brand-text: #a78bfa;
+  --status-success: #34d399;
+  --status-warning: #fbbf24;
+  --status-error:   #f87171;
+  --status-info:    #60a5fa;
+  --alert-info-bg:      rgba(96,165,250,0.08);
+  --alert-info-border:  rgba(96,165,250,0.3);
+  --alert-success-bg:   rgba(52,211,153,0.08);
+  --alert-success-border: rgba(52,211,153,0.3);
+  --alert-warning-bg:   rgba(251,191,36,0.08);
+  --alert-warning-border: rgba(251,191,36,0.3);
+  --alert-error-bg:     rgba(248,113,113,0.08);
+  --alert-error-border: rgba(248,113,113,0.3);
+  --theme-name: "Midnight Violet";
+}
+
+[data-theme="arctic-blue"] {
+  --bg-page:        #080d1a;
+  --bg-card:        #0d1428;
+  --bg-card-hover:  #111b35;
+  --bg-input:       #101a30;
+  --bg-nav:         rgba(8,13,26,0.92);
+  --bg-overlay:     rgba(13,20,40,0.88);
+  --text-primary:   #e4edff;
+  --text-secondary: #8aa0cc;
+  --text-muted:     #4e6090;
+  --border-subtle:  #111d38;
+  --border-default: #1a2c50;
+  --border-strong:  #253e6e;
+  --accent:         #3b82f6;
+  --accent-glow:    rgba(59,130,246,0.2);
+  --accent-border:  rgba(59,130,246,0.35);
+  --accent-link:    #60a5fa;
+  --accent-on:      #ffffff;
+  --btn-primary-bg:     #080d1a;
+  --btn-primary-text:   #e4edff;
+  --btn-primary-border: #e4edff;
+  --badge-bg:       #1a2c50;
+  --badge-text:     #8aa0cc;
+  --badge-brand-bg: rgba(59,130,246,0.14);
+  --badge-brand-text: #60a5fa;
+  --status-success: #34d399;
+  --status-warning: #fbbf24;
+  --status-error:   #f87171;
+  --status-info:    #3b82f6;
+  --alert-info-bg:      rgba(59,130,246,0.09);
+  --alert-info-border:  rgba(59,130,246,0.3);
+  --alert-success-bg:   rgba(52,211,153,0.08);
+  --alert-success-border: rgba(52,211,153,0.3);
+  --alert-warning-bg:   rgba(251,191,36,0.08);
+  --alert-warning-border: rgba(251,191,36,0.3);
+  --alert-error-bg:     rgba(248,113,113,0.08);
+  --alert-error-border: rgba(248,113,113,0.3);
+  --theme-name: "Arctic Blue";
+}
+
+[data-theme="amber-forge"] {
+  --bg-page:        #100e07;
+  --bg-card:        #181508;
+  --bg-card-hover:  #201c0c;
+  --bg-input:       #1c190b;
+  --bg-nav:         rgba(16,14,7,0.92);
+  --bg-overlay:     rgba(24,21,8,0.88);
+  --text-primary:   #fdf4dc;
+  --text-secondary: #c8a85a;
+  --text-muted:     #8a7030;
+  --border-subtle:  #1e1a0c;
+  --border-default: #2c2710;
+  --border-strong:  #3e381a;
+  --accent:         #f59e0b;
+  --accent-glow:    rgba(245,158,11,0.2);
+  --accent-border:  rgba(245,158,11,0.35);
+  --accent-link:    #fbbf24;
+  --accent-on:      #0f0c00;
+  --btn-primary-bg:     #100e07;
+  --btn-primary-text:   #fdf4dc;
+  --btn-primary-border: #fdf4dc;
+  --badge-bg:       #2c2710;
+  --badge-text:     #c8a85a;
+  --badge-brand-bg: rgba(245,158,11,0.14);
+  --badge-brand-text: #fbbf24;
+  --status-success: #34d399;
+  --status-warning: #f59e0b;
+  --status-error:   #f87171;
+  --status-info:    #60a5fa;
+  --alert-info-bg:      rgba(96,165,250,0.08);
+  --alert-info-border:  rgba(96,165,250,0.3);
+  --alert-success-bg:   rgba(52,211,153,0.08);
+  --alert-success-border: rgba(52,211,153,0.3);
+  --alert-warning-bg:   rgba(245,158,11,0.1);
+  --alert-warning-border: rgba(245,158,11,0.35);
+  --alert-error-bg:     rgba(248,113,113,0.08);
+  --alert-error-border: rgba(248,113,113,0.3);
+  --theme-name: "Amber Forge";
+}
+
+/* ============================================================
+   GLOBAL RESET & BASE
+   ============================================================ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* ============================================================
+   THEME SWITCHER BAR
+   ============================================================ */
+.theme-bar {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: var(--bg-page);
+  border-bottom: 1px solid var(--border-default);
+  flex-wrap: wrap;
+}
+.theme-bar-label {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 11px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: var(--text-muted);
+  margin-right: 8px;
+}
+.theme-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  border: 1px solid var(--border-default);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.theme-btn:hover { border-color: var(--border-strong); color: var(--text-primary); }
+.theme-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-on);
+}
+.theme-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav {
+  position: sticky;
+  top: 45px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  height: 60px;
+  background: var(--bg-nav);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-decoration: none;
+  letter-spacing: -0.3px;
+}
+.brand-icon {
+  width: 24px; height: 24px;
+  border-radius: 6px;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--accent-on);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+.nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+.nav-links a:hover { color: var(--text-primary); }
+.nav-cta {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  padding: 7px 20px;
+  border: 1px solid var(--btn-primary-border);
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: opacity 0.15s;
+}
+.nav-cta:hover { opacity: 0.85; }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero {
+  text-align: center;
+  padding: 100px 40px 80px;
+  background: var(--bg-page);
+}
+.code-label {
+  display: inline-block;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 11px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: var(--accent);
+  margin-bottom: 24px;
+}
+.hero h1 {
+  font-size: clamp(40px, 7vw, 72px);
+  font-weight: 400;
+  line-height: 1.00;
+  letter-spacing: -1px;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+.hero h1 span { color: var(--accent); }
+.hero p {
+  color: var(--text-secondary);
+  font-size: 18px;
+  line-height: 1.6;
+  margin-bottom: 40px;
+  max-width: 540px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hero-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   SHARED LAYOUT
+   ============================================================ */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+.section {
+  padding: 80px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+.section:first-child { border-top: none; }
+.section-label {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 11px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: var(--accent);
+  margin-bottom: 10px;
+  display: block;
+}
+.section-title {
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+.section-sub {
+  font-size: 16px;
+  color: var(--text-muted);
+  margin-bottom: 48px;
+  line-height: 1.6;
+}
+.component-label {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 10px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  display: block;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 32px;
+  align-items: flex-start;
+}
+.col { flex: 1; min-width: 200px; }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: opacity 0.15s, background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Pill variants */
+.btn-primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-color: var(--btn-primary-border);
+  border-radius: 9999px;
+  padding: 8px 24px;
+  font-size: 14px;
+}
+.btn-primary:hover { opacity: 0.85; }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-default);
+  border-radius: 9999px;
+  padding: 8px 24px;
+  font-size: 14px;
+}
+.btn-secondary:hover { border-color: var(--border-strong); background: var(--bg-card); }
+
+.btn-accent {
+  background: var(--accent);
+  color: var(--accent-on);
+  border-color: var(--accent);
+  border-radius: 9999px;
+  padding: 8px 24px;
+  font-size: 14px;
+}
+.btn-accent:hover { opacity: 0.88; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+.btn-ghost:hover { background: var(--bg-card); color: var(--text-primary); }
+
+/* Sizes */
+.btn-sm { padding: 5px 16px; font-size: 12px; }
+.btn-lg { padding: 12px 32px; font-size: 16px; }
+.btn-icon { padding: 8px; border-radius: 6px; }
+
+/* Square variant */
+.btn-square { border-radius: 8px; }
+
+.btn-group { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+/* ============================================================
+   BADGES & TAGS
+   ============================================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.badge-default  { background: var(--badge-bg); color: var(--badge-text); border-color: var(--border-default); }
+.badge-brand    { background: var(--badge-brand-bg); color: var(--badge-brand-text); border-color: var(--accent-border); }
+.badge-success  { background: rgba(52,211,153,0.1); color: var(--status-success); border-color: rgba(52,211,153,0.3); }
+.badge-warning  { background: rgba(245,158,11,0.1); color: var(--status-warning); border-color: rgba(245,158,11,0.3); }
+.badge-error    { background: rgba(239,68,68,0.1); color: var(--status-error); border-color: rgba(239,68,68,0.3); }
+.badge-info     { background: rgba(59,130,246,0.1); color: var(--status-info); border-color: rgba(59,130,246,0.3); }
+.badge-dot::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+}
+
+/* ============================================================
+   FORM ELEMENTS
+   ============================================================ */
+.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+.form-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.form-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.input {
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  padding: 9px 12px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.input::placeholder { color: var(--text-muted); }
+.input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.input:disabled { opacity: 0.5; cursor: not-allowed; }
+.input-error { border-color: var(--status-error) !important; }
+.input-success { border-color: var(--status-success) !important; }
+
+.textarea { resize: vertical; min-height: 90px; }
+
+.input-with-icon { position: relative; }
+.input-with-icon .input { padding-left: 36px; }
+.input-icon {
+  position: absolute;
+  left: 11px; top: 50%; transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* Toggle */
+.toggle-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.toggle {
+  position: relative;
+  width: 36px; height: 20px;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--border-strong);
+  border-radius: 9999px;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.toggle-thumb {
+  position: absolute;
+  left: 3px; top: 3px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  transition: transform 0.2s;
+  pointer-events: none;
+}
+.toggle.on .toggle-track { background: var(--accent); }
+.toggle.on .toggle-thumb { transform: translateX(16px); }
+
+/* Select */
+.select {
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  padding: 9px 12px;
+  outline: none;
+  width: 100%;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23898989' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+.select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+/* Checkbox */
+.checkbox-wrap { display: flex; align-items: center; gap: 9px; cursor: pointer; font-size: 14px; color: var(--text-secondary); }
+.checkbox-wrap input[type="checkbox"] { display: none; }
+.checkbox-box {
+  width: 16px; height: 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--bg-input);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+.checkbox-wrap.checked .checkbox-box {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.checkbox-wrap.checked .checkbox-box::after {
+  content: '✓';
+  font-size: 10px;
+  color: var(--accent-on);
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 24px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.card:hover { border-color: var(--border-strong); background: var(--bg-card-hover); }
+.card-accent { border-color: var(--accent-border); }
+.card-accent:hover { border-color: var(--accent); }
+.card-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  letter-spacing: -0.2px;
+}
+.card-body { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Metric card */
+.metric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 20px 24px;
+}
+.metric-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 8px;
+}
+.metric-value {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 6px;
+  letter-spacing: -1px;
+}
+.metric-delta {
+  font-size: 12px;
+  color: var(--status-success);
+  display: flex; align-items: center; gap: 4px;
+}
+.metric-delta.down { color: var(--status-error); }
+
+/* Feature card */
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 28px;
+}
+.feature-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: var(--accent-glow);
+  border: 1px solid var(--accent-border);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+.feature-card-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+.feature-card-body { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
+
+/* ============================================================
+   TABS
+   ============================================================ */
+.tabs { display: flex; gap: 4px; padding: 4px; background: var(--bg-card); border: 1px solid var(--border-default); border-radius: 9999px; width: fit-content; margin-bottom: 24px; }
+.tab-item {
+  padding: 6px 18px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.tab-item:hover { color: var(--text-primary); }
+.tab-item.active {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+
+/* Underline tabs */
+.tabs-line { display: flex; border-bottom: 1px solid var(--border-default); margin-bottom: 24px; }
+.tab-line-item {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.tab-line-item:hover { color: var(--text-primary); }
+.tab-line-item.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ============================================================
+   ALERTS / ADMONITIONS
+   ============================================================ */
+.alert {
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 1px solid;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+.alert-icon { font-size: 16px; line-height: 1.4; flex-shrink: 0; }
+.alert-content { flex: 1; }
+.alert-title { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.alert-body { font-size: 13px; line-height: 1.55; color: var(--text-secondary); }
+
+.alert-info    { background: var(--alert-info-bg); border-color: var(--alert-info-border); }
+.alert-info .alert-title { color: var(--status-info); }
+.alert-success { background: var(--alert-success-bg); border-color: var(--alert-success-border); }
+.alert-success .alert-title { color: var(--status-success); }
+.alert-warning { background: var(--alert-warning-bg); border-color: var(--alert-warning-border); }
+.alert-warning .alert-title { color: var(--status-warning); }
+.alert-error   { background: var(--alert-error-bg); border-color: var(--alert-error-border); }
+.alert-error .alert-title   { color: var(--status-error); }
+
+/* ============================================================
+   TYPOGRAPHY SHOWCASE
+   ============================================================ */
+.type-row {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.type-row:last-child { border-bottom: none; }
+.type-meta {
+  width: 200px;
+  flex-shrink: 0;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+.type-sample { flex: 1; overflow: hidden; }
+
+/* ============================================================
+   COLOR PALETTE
+   ============================================================ */
+.swatch-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.swatch-block {
+  width: 56px; height: 56px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+}
+.swatch-name {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 9px;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 64px;
+  line-height: 1.3;
+}
+
+/* ============================================================
+   STATUS DOTS & INDICATORS
+   ============================================================ */
+.status-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.status-item {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 13px; color: var(--text-secondary);
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.status-dot.pulse {
+  box-shadow: 0 0 0 0 currentColor;
+  animation: pulse-ring 1.8s ease-out infinite;
+}
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(52,211,153,0.6); }
+  70%  { box-shadow: 0 0 0 6px rgba(52,211,153,0); }
+  100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
+}
+
+/* ============================================================
+   TABLE
+   ============================================================ */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.data-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-default);
+}
+.data-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--bg-card-hover); }
+.mono { font-family: 'Source Code Pro', monospace; color: var(--text-primary); }
+
+/* ============================================================
+   SEPARATOR
+   ============================================================ */
+.sep { height: 1px; background: var(--border-subtle); margin: 20px 0; }
+.sep-label {
+  display: flex; align-items: center; gap: 12px;
+  color: var(--text-muted); font-size: 12px;
+  margin: 20px 0;
+}
+.sep-label::before, .sep-label::after {
+  content: ''; flex: 1; height: 1px;
+  background: var(--border-subtle);
+}
+
+/* ============================================================
+   TOOLTIP (CSS-only demo)
+   ============================================================ */
+.tooltip-wrap { position: relative; display: inline-block; }
+.tooltip-tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-overlay);
+  color: var(--text-primary);
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  white-space: nowrap;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.15s;
+  backdrop-filter: blur(8px);
+}
+.tooltip-wrap:hover .tooltip-tip { opacity: 1; }
+
+/* ============================================================
+   AVATAR
+   ============================================================ */
+.avatar {
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600;
+  flex-shrink: 0;
+  border: 1px solid var(--border-default);
+}
+.avatar-sm { width: 28px; height: 28px; font-size: 11px; }
+.avatar-md { width: 36px; height: 36px; font-size: 14px; }
+.avatar-lg { width: 48px; height: 48px; font-size: 18px; }
+.avatar-group { display: flex; }
+.avatar-group .avatar { margin-left: -10px; border: 2px solid var(--bg-page); }
+.avatar-group .avatar:first-child { margin-left: 0; }
+
+/* ============================================================
+   PROGRESS
+   ============================================================ */
+.progress-track {
+  background: var(--border-default);
+  border-radius: 9999px;
+  height: 6px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: var(--accent);
+  transition: width 0.4s ease;
+}
+
+/* ============================================================
+   CODE BLOCK
+   ============================================================ */
+.code-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.code-block-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.code-block-title { font-family: 'Source Code Pro', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.5px; }
+.code-block-copy { font-size: 11px; color: var(--accent-link); cursor: pointer; font-weight: 500; }
+.code-block pre {
+  padding: 20px;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  overflow-x: auto;
+}
+.code-block .kw  { color: var(--accent); }
+.code-block .str { color: var(--status-warning); }
+.code-block .fn  { color: var(--status-info); }
+.code-block .cm  { color: var(--text-muted); }
+.code-block .var { color: var(--text-primary); }
+
+/* ============================================================
+   GRID LAYOUTS
+   ============================================================ */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .nav-links { display: none; }
+  .hero h1 { font-size: 36px; }
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer {
+  border-top: 1px solid var(--border-subtle);
+  padding: 48px 40px;
+  background: var(--bg-page);
+}
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; max-width: 1100px; margin: 0 auto 40px; }
+.footer-brand { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 10px; }
+.footer-tagline { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.footer-col-title { font-size: 12px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 14px; }
+.footer-links { display: flex; flex-direction: column; gap: 8px; }
+.footer-links a { font-size: 13px; color: var(--text-muted); text-decoration: none; transition: color 0.15s; }
+.footer-links a:hover { color: var(--text-primary); }
+.footer-bottom {
+  max-width: 1100px; margin: 0 auto;
+  padding-top: 24px; border-top: 1px solid var(--border-subtle);
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px; color: var(--text-muted);
+  flex-wrap: wrap; gap: 12px;
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     THEME SWITCHER
+     ============================================================ -->
+<div class="theme-bar">
+  <span class="theme-bar-label">Theme</span>
+  <button class="theme-btn active" data-theme="supabase-dark" onclick="setTheme(this)">
+    <span class="theme-dot" style="background:#3ecf8e"></span> Supabase Dark
+  </button>
+  <button class="theme-btn" data-theme="supabase-light" onclick="setTheme(this)">
+    <span class="theme-dot" style="background:#3ecf8e; border:1px solid #ccc"></span> Supabase Light
+  </button>
+  <button class="theme-btn" data-theme="midnight-violet" onclick="setTheme(this)">
+    <span class="theme-dot" style="background:#8b5cf6"></span> Midnight Violet
+  </button>
+  <button class="theme-btn" data-theme="arctic-blue" onclick="setTheme(this)">
+    <span class="theme-dot" style="background:#3b82f6"></span> Arctic Blue
+  </button>
+  <button class="theme-btn" data-theme="amber-forge" onclick="setTheme(this)">
+    <span class="theme-dot" style="background:#f59e0b"></span> Amber Forge
+  </button>
+</div>
+
+<!-- ============================================================
+     NAV
+     ============================================================ -->
+<nav class="nav">
+  <a class="nav-brand" href="#">
+    <span class="brand-icon">S</span>
+    Supabase
+  </a>
+  <div class="nav-links">
+    <a href="#">Product</a>
+    <a href="#">Developers</a>
+    <a href="#">Pricing</a>
+    <a href="#">Blog</a>
+  </div>
+  <div style="display:flex; gap:10px; align-items:center;">
+    <button class="btn btn-ghost" style="font-size:13px; padding:6px 14px;">Sign in</button>
+    <button class="nav-cta">Start your project</button>
+  </div>
+</nav>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="hero">
+  <span class="code-label">Design System — Carbon Copy</span>
+  <h1>Build in a weekend.<br><span>Scale to millions.</span></h1>
+  <p>Every component, token, and pattern from the Supabase design system. Pixel-perfect. Theme-ready.</p>
+  <div class="hero-buttons">
+    <button class="btn btn-primary btn-lg">Start your project</button>
+    <button class="btn btn-secondary btn-lg">Documentation →</button>
+  </div>
+</section>
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+<main>
+
+<!-- ————————————————————————————————————————————————
+     COLOR PALETTE
+     ———————————————————————————————————————————————— -->
+<div class="section">
+<div class="container">
+  <span class="section-label">Tokens</span>
+  <h2 class="section-title">Color Palette</h2>
+  <p class="section-sub">HSL-based color system with semantic roles. Depth through border hierarchy — not shadows.</p>
+
+  <span class="component-label">Brand / Accent</span>
+  <div class="swatch-row">
+    <div class="swatch"><div class="swatch-block" style="background:#3ecf8e"></div><span class="swatch-name">#3ecf8e brand</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:#00c573"></div><span class="swatch-name">#00c573 link</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:rgba(62,207,142,0.3)"></div><span class="swatch-name">rgba(.3) border</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:rgba(62,207,142,0.12)"></div><span class="swatch-name">rgba(.12) bg</span></div>
+  </div>
+
+  <span class="component-label">Neutral Scale (Dark → Light)</span>
+  <div class="swatch-row">
+    <div class="swatch"><div class="swatch-block" style="background:#0f0f0f"></div><span class="swatch-name">#0f0f0f near-black</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:#171717"></div><span class="swatch-name">#171717 dark</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:#242424"></div><span class="swatch-name">#242424 border-subtle</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:#2e2e2e"></div><span class="swatch-name">#2e2e2e border</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:#363636"></div><span class="swatch-name">#363636 border-strong</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:#434343"></div><span class="swatch-name">#434343 charcoal</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:#4d4d4d"></div><span class="swatch-name">#4d4d4d dark-gray</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:#898989"></div><span class="swatch-name">#898989 mid-gray</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:#b4b4b4"></div><span class="swatch-name">#b4b4b4 light-gray</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:#efefef"></div><span class="swatch-name">#efefef near-white</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:#fafafa"></div><span class="swatch-name">#fafafa off-white</span></div>
+  </div>
+
+  <span class="component-label">Radix Semantic Palette</span>
+  <div class="swatch-row">
+    <div class="swatch"><div class="swatch-block" style="background:hsl(251,63.2%,63.2%)"></div><span class="swatch-name">violet10</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:hsl(272,51%,54%)"></div><span class="swatch-name">purple5</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:hsl(226,70%,55%)"></div><span class="swatch-name">indigo</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:hsl(348,60%,50%)"></div><span class="swatch-name">crimson</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:hsl(10,78%,54%)"></div><span class="swatch-name">tomato</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:hsl(24,94%,50%)"></div><span class="swatch-name">orange6</span></div>
+    <div class="swatch"><div class="swatch-block" style="background:hsl(48,90%,55%)"></div><span class="swatch-name">yellow</span></div>
+  </div>
+
+  <span class="component-label">Current Theme Tokens</span>
+  <div class="grid-4">
+    <div class="metric-card">
+      <div class="metric-label">Background</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+        <div style="width:32px;height:32px;border-radius:6px;background:var(--bg-page);border:1px solid var(--border-default)"></div>
+        <div style="width:32px;height:32px;border-radius:6px;background:var(--bg-card);border:1px solid var(--border-default)"></div>
+        <div style="width:32px;height:32px;border-radius:6px;background:var(--bg-input);border:1px solid var(--border-default)"></div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Text Scale</div>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:4px;">
+        <span style="font-size:13px;color:var(--text-primary)">Primary</span>
+        <span style="font-size:13px;color:var(--text-secondary)">Secondary</span>
+        <span style="font-size:13px;color:var(--text-muted)">Muted</span>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Borders</div>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px;">
+        <div style="height:1px;background:var(--border-subtle)"></div>
+        <div style="height:1px;background:var(--border-default)"></div>
+        <div style="height:1px;background:var(--border-strong)"></div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Accent</div>
+      <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+        <div style="width:32px;height:32px;border-radius:6px;background:var(--accent)"></div>
+        <div style="width:32px;height:32px;border-radius:6px;background:var(--accent-glow);border:1px solid var(--accent-border)"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ————————————————————————————————————————————————
+     TYPOGRAPHY
+     ———————————————————————————————————————————————— -->
+<div class="section">
+<div class="container">
+  <span class="section-label">Typography</span>
+  <h2 class="section-title">Type System</h2>
+  <p class="section-sub">Inter for UI. Source Code Pro for technical labels and data. Weight restraint: 400 base, 500 interactive only.</p>
+
+  <div style="border: 1px solid var(--border-default); border-radius:10px; overflow:hidden;">
+    <div class="type-row" style="padding:20px 24px; background:var(--bg-card);">
+      <div class="type-meta">display hero<br>72px / wt 400 / lh 1.00</div>
+      <div class="type-sample" style="font-size:clamp(32px,5vw,56px);font-weight:400;line-height:1.00;color:var(--text-primary);letter-spacing:-1px">Build fast.</div>
+    </div>
+    <div class="type-row" style="padding:16px 24px; background:var(--bg-card);">
+      <div class="type-meta">section heading<br>36px / wt 400 / lh 1.25</div>
+      <div class="type-sample" style="font-size:36px;font-weight:400;line-height:1.25;color:var(--text-primary);letter-spacing:-0.5px">Ship to production.</div>
+    </div>
+    <div class="type-row" style="padding:14px 24px; background:var(--bg-card);">
+      <div class="type-meta">card title<br>24px / wt 400 / ls -0.16px</div>
+      <div class="type-sample" style="font-size:24px;font-weight:400;line-height:1.33;color:var(--text-primary);letter-spacing:-0.16px">Authentication & users</div>
+    </div>
+    <div class="type-row" style="padding:12px 24px; background:var(--bg-card);">
+      <div class="type-meta">sub-heading<br>18px / wt 400 / lh 1.56</div>
+      <div class="type-sample" style="font-size:18px;font-weight:400;line-height:1.56;color:var(--text-primary)">Open source Firebase alternative</div>
+    </div>
+    <div class="type-row" style="padding:12px 24px; background:var(--bg-card);">
+      <div class="type-meta">body<br>16px / wt 400 / lh 1.50</div>
+      <div class="type-sample" style="font-size:16px;font-weight:400;line-height:1.50;color:var(--text-secondary)">Supabase is an open source Firebase alternative. Start your project with a Postgres database, Authentication, instant APIs, Edge Functions, Realtime subscriptions, and Storage.</div>
+    </div>
+    <div class="type-row" style="padding:12px 24px; background:var(--bg-card);">
+      <div class="type-meta">nav / button<br>14px / wt 500 / lh 1.43</div>
+      <div class="type-sample" style="font-size:14px;font-weight:500;line-height:1.43;color:var(--text-primary)">Documentation &nbsp;·&nbsp; Pricing &nbsp;·&nbsp; Start your project</div>
+    </div>
+    <div class="type-row" style="padding:12px 24px; background:var(--bg-card);">
+      <div class="type-meta">caption / tag<br>12px / wt 400 / lh 1.33</div>
+      <div class="type-sample" style="font-size:12px;font-weight:400;line-height:1.33;color:var(--text-muted)">Last updated 3 minutes ago &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; v2.41.1</div>
+    </div>
+    <div class="type-row" style="padding:12px 24px; background:var(--bg-card); border-bottom:none;">
+      <div class="type-meta">code label<br>SCP 12px / UPPERCASE / ls 1.2px</div>
+      <div class="type-sample" style="font-family:'Source Code Pro',monospace;font-size:12px;font-weight:400;text-transform:uppercase;letter-spacing:1.2px;color:var(--accent)">Database &nbsp; Edge Functions &nbsp; Realtime</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ————————————————————————————————————————————————
+     BUTTONS
+     ———————————————————————————————————————————————— -->
+<div class="section">
+<div class="container">
+  <span class="section-label">Components</span>
+  <h2 class="section-title">Buttons</h2>
+  <p class="section-sub">Pill (9999px) for primary CTAs. 6px for ghost/utility. Never bold — weight 500 maximum.</p>
+
+  <span class="component-label">Primary Variants</span>
+  <div class="btn-group" style="margin-bottom:24px;">
+    <button class="btn btn-primary">Start your project</button>
+    <button class="btn btn-secondary">Documentation</button>
+    <button class="btn btn-accent">Get started free</button>
+    <button class="btn btn-ghost">Learn more →</button>
+  </div>
+
+  <span class="component-label">Sizes</span>
+  <div class="btn-group" style="margin-bottom:24px;">
+    <button class="btn btn-primary btn-sm">Small</button>
+    <button class="btn btn-primary">Default</button>
+    <button class="btn btn-primary btn-lg">Large</button>
+    <button class="btn btn-secondary btn-sm">Small</button>
+    <button class="btn btn-secondary">Default</button>
+    <button class="btn btn-secondary btn-lg">Large</button>
+  </div>
+
+  <span class="component-label">Square & Icon Buttons</span>
+  <div class="btn-group" style="margin-bottom:24px;">
+    <button class="btn btn-primary btn-square">Deploy</button>
+    <button class="btn btn-secondary btn-square">Settings</button>
+    <button class="btn btn-ghost btn-icon">⚙</button>
+    <button class="btn btn-ghost btn-icon">✕</button>
+    <button class="btn btn-ghost btn-icon">↗</button>
+  </div>
+
+  <span class="component-label">States</span>
+  <div class="btn-group">
+    <button class="btn btn-primary">Active</button>
+    <button class="btn btn-primary" disabled>Disabled</button>
+    <button class="btn btn-secondary" disabled>Disabled</button>
+    <button class="btn btn-accent" style="position:relative;">
+      Loading&nbsp;
+      <span style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;"></span>
+    </button>
+  </div>
+</div>
+</div>
+
+<!-- ————————————————————————————————————————————————
+     BADGES & TAGS
+     ———————————————————————————————————————————————— -->
+<div class="section">
+<div class="container">
+  <span class="section-label">Components</span>
+  <h2 class="section-title">Badges & Status</h2>
+  <p class="section-sub">Semantic status indicators using the radix color palette. Always pill-shaped.</p>
+
+  <span class="component-label">Badge Variants</span>
+  <div class="row" style="align-items:center;gap:10px;margin-bottom:24px;">
+    <span class="badge badge-default">Default</span>
+    <span class="badge badge-brand">Brand</span>
+    <span class="badge badge-success">Success</span>
+    <span class="badge badge-warning">Warning</span>
+    <span class="badge badge-error">Error</span>
+    <span class="badge badge-info">Info</span>
+  </div>
+
+  <span class="component-label">Badges with Dots</span>
+  <div class="row" style="align-items:center;gap:10px;margin-bottom:24px;">
+    <span class="badge badge-success badge-dot">Active</span>
+    <span class="badge badge-warning badge-dot">Degraded</span>
+    <span class="badge badge-error badge-dot">Offline</span>
+    <span class="badge badge-muted badge-dot" style="background:var(--badge-bg);color:var(--badge-text)">Unknown</span>
+  </div>
+
+  <span class="component-label">Status Indicators</span>
+  <div class="status-row">
+    <div class="status-item">
+      <div class="status-dot" style="background:var(--status-success);"></div>
+      API Healthy
+    </div>
+    <div class="status-item">
+      <div class="status-dot pulse" style="background:var(--status-success); color:var(--status-success);"></div>
+      Live syncing
+    </div>
+    <div class="status-item">
+      <div class="status-dot" style="background:var(--status-warning);"></div>
+      High latency
+    </div>
+    <div class="status-item">
+      <div class="status-dot" style="background:var(--status-error);"></div>
+      Auth down
+    </div>
+    <div class="status-item">
+      <div class="status-dot" style="background:var(--text-muted);"></div>
+      Unknown
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ————————————————————————————————————————————————
+     CARDS
+     ———————————————————————————————————————————————— -->
+<div class="section">
+<div class="container">
+  <span class="section-label">Components</span>
+  <h2 class="section-title">Cards & Containers</h2>
+  <p class="section-sub">Borders define space — no shadows. 8px–16px radius. Dark surfaces differentiated by border intensity.</p>
+
+  <span class="component-label">Feature Cards</span>
+  <div class="grid-3" style="margin-bottom:32px;">
+    <div class="feature-card">
+      <div class="feature-icon">🗄</div>
+      <div class="feature-card-title">Database</div>
+      <div class="feature-card-body">Every project is a full Postgres database. Create tables, query with SQL, or use our auto-generated APIs.</div>
+    </div>
+    <div class="feature-card" style="border-color:var(--accent-border)">
+      <div class="feature-icon">🔐</div>
+      <div class="feature-card-title">Authentication</div>
+      <div class="feature-card-body">Add user sign-ups and logins. Supports email, OAuth, magic links, and phone authentication.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-card-title">Edge Functions</div>
+      <div class="feature-card-body">Deploy server-side functions globally. Write TypeScript, deploy in seconds, no Docker needed.</div>
+    </div>
+  </div>
+
+  <span class="component-label">Metric Cards</span>
+  <div class="grid-4" style="margin-bottom:32px;">
+    <div class="metric-card">
+      <div class="metric-label">Active Users</div>
+      <div class="metric-value">28.4k</div>
+      <div class="metric-delta">↑ 12.4% this week</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">DB Requests</div>
+      <div class="metric-value">1.2M</div>
+      <div class="metric-delta">↑ 4.1% today</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Storage Used</div>
+      <div class="metric-value">84 GB</div>
+      <div class="metric-delta down">↓ 2.3% freed</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Auth Tokens</div>
+      <div class="metric-value">99.9%</div>
+      <div class="metric-delta">↑ Uptime 30d</div>
+    </div>
+  </div>
+
+  <span class="component-label">Content Card with Footer</span>
+  <div class="grid-2">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+        <div class="card-title">supabase/supabase</div>
+        <span class="badge badge-brand">Public</span>
+      </div>
+      <div class="card-body">The open source Firebase alternative. Supabase gives you a dedicated Postgres database to build your web, mobile, and AI applications.</div>
+      <div class="card-footer">
+        <div style="display:flex;gap:16px;font-size:12px;color:var(--text-muted);">
+          <span>⭐ 74.2k</span>
+          <span>🔀 6.4k forks</span>
+          <span>TypeScript</span>
+        </div>
+        <a href="#" style="font-size:12px;color:var(--accent-link);text-decoration:none;">View →</a>
+      </div>
+    </div>
+    <div class="card card-accent">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+        <div class="card-title">Edge Function deployed</div>
+        <span class="badge badge-success badge-dot">Active</span>
+      </div>
+      <div class="card-body">Your function is live at the edge. Average cold start: 50ms. Region: US East. Last deployed 3 minutes ago.</div>
+      <div class="card-footer">
+        <div style="font-family:'Source Code Pro',monospace;font-size:11px;color:var(--text-muted)">fn/send-welcome-email</div>
+        <button class="btn btn-ghost" style="font-size:12px;padding:4px 10px;">Logs</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ————————————————————————————————————————————————
+     FORM ELEMENTS
+     ———————————————————————————————————————————————— -->
+<div class="section">
+<div class="container">
+  <span class="section-label">Components</span>
+  <h2 class="section-title">Form Elements</h2>
+  <p class="section-sub">Focus states use accent ring (3px glow). Placeholder text at muted opacity. 6px border-radius standard.</p>
+
+  <div class="grid-2">
+    <div>
+      <div class="form-group">
+        <label class="form-label">Project name</label>
+        <input class="input" type="text" placeholder="my-awesome-project">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Region</label>
+        <select class="select">
+          <option>East US (Northern Virginia)</option>
+          <option>West US (Oregon)</option>
+          <option>Europe (Frankfurt)</option>
+          <option>Asia Pacific (Singapore)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Database password</label>
+        <div class="input-with-icon">
+          <span class="input-icon">🔑</span>
+          <input class="input" type="password" placeholder="Strong password required">
+        </div>
+        <span class="form-hint">Minimum 8 characters. Cannot be changed later.</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Error state</label>
+        <input class="input input-error" type="text" value="invalid-name!" placeholder="">
+        <span style="font-size:12px;color:var(--status-error)">Project names can only contain letters, numbers, and hyphens.</span>
+      </div>
+    </div>
+    <div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="input textarea" placeholder="Describe your project..."></textarea>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
+        <label class="checkbox-wrap checked">
+          <span class="checkbox-box"></span>
+          Enable Row Level Security (recommended)
+        </label>
+        <label class="checkbox-wrap">
+          <span class="checkbox-box"></span>
+          Enable Realtime for all tables
+        </label>
+        <label class="checkbox-wrap">
+          <span class="checkbox-box"></span>
+          Automatically run migrations
+        </label>
+      </div>
+      <div style="margin-top:20px;display:flex;flex-direction:column;gap:12px;">
+        <div class="toggle-wrap">
+          <label class="toggle on">
+            <input type="checkbox" checked>
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+          <span style="font-size:14px;color:var(--text-secondary)">Database pooling</span>
+        </div>
+        <div class="toggle-wrap">
+          <label class="toggle">
+            <input type="checkbox">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+          <span style="font-size:14px;color:var(--text-secondary)">Point-in-time recovery</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ————————————————————————————————————————————————
+     TABS
+     ———————————————————————————————————————————————— -->
+<div class="section">
+<div class="container">
+  <span class="section-label">Components</span>
+  <h2 class="section-title">Tabs</h2>
+  <p class="section-sub">Pill tabs on dark surface panel. Underline tabs for content navigation. Pill is the Supabase signature.</p>
+
+  <span class="component-label">Pill Tabs (Primary)</span>
+  <div class="tabs">
+    <div class="tab-item active">Overview</div>
+    <div class="tab-item">Database</div>
+    <div class="tab-item">Auth</div>
+    <div class="tab-item">Storage</div>
+    <div class="tab-item">Functions</div>
+  </div>
+  <div style="padding:20px;background:var(--bg-card);border:1px solid var(--border-default);border-radius:10px;font-size:14px;color:var(--text-muted);">
+    Tab content panel — This area renders based on the active tab selection above.
+  </div>
+
+  <div style="margin-top:32px;">
+  <span class="component-label">Underline Tabs (Secondary)</span>
+  <div class="tabs-line">
+    <div class="tab-line-item active">Table editor</div>
+    <div class="tab-line-item">SQL editor</div>
+    <div class="tab-line-item">Extensions</div>
+    <div class="tab-line-item">Backups</div>
+  </div>
+  <div style="padding:16px;font-size:14px;color:var(--text-muted);">
+    Secondary tab content panel.
+  </div>
+  </div>
+</div>
+</div>
+
+<!-- ————————————————————————————————————————————————
+     ALERTS
+     ———————————————————————————————————————————————— -->
+<div class="section">
+<div class="container">
+  <span class="section-label">Components</span>
+  <h2 class="section-title">Alerts & Admonitions</h2>
+  <p class="section-sub">Semantic callouts using translucent color fills on dark backgrounds. Thin accent borders. No icons required.</p>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">ℹ</span>
+    <div class="alert-content">
+      <div class="alert-title">Info — Read-only access</div>
+      <div class="alert-body">You are viewing a read-only version of this project. Contact the owner to request editor access.</div>
+    </div>
+  </div>
+  <div class="alert alert-success">
+    <span class="alert-icon">✓</span>
+    <div class="alert-content">
+      <div class="alert-title">Success — Migration applied</div>
+      <div class="alert-body">20240115_add_users_table.sql was executed successfully. 3 tables created, 0 errors.</div>
+    </div>
+  </div>
+  <div class="alert alert-warning">
+    <span class="alert-icon">⚠</span>
+    <div class="alert-content">
+      <div class="alert-title">Warning — Approaching storage limit</div>
+      <div class="alert-body">You are using 84% of your storage quota. Consider upgrading your plan or clearing unused assets.</div>
+    </div>
+  </div>
+  <div class="alert alert-error">
+    <span class="alert-icon">✕</span>
+    <div class="alert-content">
+      <div class="alert-title">Error — Connection failed</div>
+      <div class="alert-body">Unable to connect to the database. Check your connection string and ensure the host is reachable. Error: ECONNREFUSED 127.0.0.1:5432</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ————————————————————————————————————————————————
+     DATA TABLE
+     ———————————————————————————————————————————————— -->
+<div class="section">
+<div class="container">
+  <span class="section-label">Components</span>
+  <h2 class="section-title">Data Table</h2>
+  <p class="section-sub">Monospace for technical data columns. Subtle row separators. Hover state via background shift.</p>
+
+  <div style="border:1px solid var(--border-default);border-radius:10px;overflow:hidden;">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border-subtle);background:var(--bg-card);">
+      <div>
+        <span style="font-size:14px;font-weight:500;color:var(--text-primary)">users</span>
+        <span style="font-size:12px;color:var(--text-muted);margin-left:8px;">1,284 rows</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px;">Filter</button>
+        <button class="btn btn-accent btn-square" style="font-size:12px;padding:5px 14px;">+ Insert row</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>id</th>
+          <th>email</th>
+          <th>role</th>
+          <th>created_at</th>
+          <th>status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono">usr_01J3K8X</td>
+          <td>alice@example.com</td>
+          <td><span class="badge badge-brand" style="font-size:10px;">admin</span></td>
+          <td class="mono" style="font-size:12px;">2024-01-15 09:41:22</td>
+          <td><span class="badge badge-success badge-dot" style="font-size:10px;">active</span></td>
+        </tr>
+        <tr>
+          <td class="mono">usr_01J3K8Y</td>
+          <td>bob@example.com</td>
+          <td><span class="badge badge-default" style="font-size:10px;">member</span></td>
+          <td class="mono" style="font-size:12px;">2024-01-16 14:22:05</td>
+          <td><span class="badge badge-success badge-dot" style="font-size:10px;">active</span></td>
+        </tr>
+        <tr>
+          <td class="mono">usr_01J3K8Z</td>
+          <td>carol@example.com</td>
+          <td><span class="badge badge-default" style="font-size:10px;">member</span></td>
+          <td class="mono" style="font-size:12px;">2024-01-18 11:05:33</td>
+          <td><span class="badge badge-warning badge-dot" style="font-size:10px;">pending</span></td>
+        </tr>
+        <tr>
+          <td class="mono">usr_01J3K9A</td>
+          <td>dave@example.com</td>
+          <td><span class="badge badge-default" style="font-size:10px;">viewer</span></td>
+          <td class="mono" style="font-size:12px;">2024-01-20 08:14:10</td>
+          <td><span class="badge badge-error badge-dot" style="font-size:10px;">banned</span></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ————————————————————————————————————————————————
+     CODE BLOCK
+     ———————————————————————————————————————————————— -->
+<div class="section">
+<div class="container">
+  <span class="section-label">Components</span>
+  <h2 class="section-title">Code Block</h2>
+  <p class="section-sub">Source Code Pro at 13px. Syntax coloring using semantic accent palette — no themes needed.</p>
+
+  <div class="code-block">
+    <div class="code-block-header">
+      <span class="code-block-title">supabase/functions/send-email/index.ts</span>
+      <span class="code-block-copy">Copy</span>
+    </div>
+    <pre><span class="cm">// Edge Function — Runs globally at the edge</span>
+<span class="kw">import</span> { <span class="var">serve</span> } <span class="kw">from</span> <span class="str">'https://deno.land/std/http/server.ts'</span>
+
+<span class="fn">serve</span>(<span class="kw">async</span> (<span class="var">req</span>) =&gt; {
+  <span class="kw">const</span> { <span class="var">email</span>, <span class="var">name</span> } = <span class="kw">await</span> <span class="var">req</span>.<span class="fn">json</span>()
+
+  <span class="cm">// Send via Resend</span>
+  <span class="kw">const</span> <span class="var">res</span> = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'https://api.resend.com/emails'</span>, {
+    method: <span class="str">'POST'</span>,
+    headers: { Authorization: <span class="str">`Bearer <span class="var">${Deno.env.get('RESEND_KEY')}</span>`</span> },
+    body: <span class="var">JSON</span>.<span class="fn">stringify</span>({ to: <span class="var">email</span>, subject: <span class="str">`Welcome, <span class="var">${name}</span>!`</span> })
+  })
+
+  <span class="kw">return new</span> <span class="fn">Response</span>(<span class="kw">await</span> <span class="var">res</span>.<span class="fn">json</span>(), { status: <span class="var">res</span>.status })
+})</pre>
+  </div>
+</div>
+</div>
+
+<!-- ————————————————————————————————————————————————
+     DEPTH & SEPARATORS
+     ———————————————————————————————————————————————— -->
+<div class="section">
+<div class="container">
+  <span class="section-label">Foundations</span>
+  <h2 class="section-title">Depth System</h2>
+  <p class="section-sub">No box-shadows. Depth through border color progression. Green accent border = highest priority surface.</p>
+
+  <div class="grid-4" style="margin-bottom:32px;">
+    <div style="padding:20px;border-radius:10px;border:1px solid var(--border-subtle);background:var(--bg-page);">
+      <div style="font-family:'Source Code Pro',monospace;font-size:10px;color:var(--text-muted);margin-bottom:8px;">LEVEL 0 — FLAT</div>
+      <div style="font-size:13px;color:var(--text-secondary)">border: border-subtle<br>bg: bg-page</div>
+    </div>
+    <div style="padding:20px;border-radius:10px;border:1px solid var(--border-default);background:var(--bg-card);">
+      <div style="font-family:'Source Code Pro',monospace;font-size:10px;color:var(--text-muted);margin-bottom:8px;">LEVEL 1 — CARD</div>
+      <div style="font-size:13px;color:var(--text-secondary)">border: border-default<br>bg: bg-card</div>
+    </div>
+    <div style="padding:20px;border-radius:10px;border:1px solid var(--border-strong);background:var(--bg-card-hover);">
+      <div style="font-family:'Source Code Pro',monospace;font-size:10px;color:var(--text-muted);margin-bottom:8px;">LEVEL 2 — HOVER</div>
+      <div style="font-size:13px;color:var(--text-secondary)">border: border-strong<br>bg: bg-card-hover</div>
+    </div>
+    <div style="padding:20px;border-radius:10px;border:1px solid var(--accent-border);background:var(--accent-glow);">
+      <div style="font-family:'Source Code Pro',monospace;font-size:10px;color:var(--accent);margin-bottom:8px;">LEVEL 3 — ACCENT</div>
+      <div style="font-size:13px;color:var(--text-secondary)">border: accent-border<br>bg: accent-glow</div>
+    </div>
+  </div>
+
+  <div class="sep-label">horizontal rule</div>
+
+  <span class="component-label">Progress Bars</span>
+  <div style="max-width:500px;margin-top:12px;">
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">Database storage — 84%</div>
+    <div class="progress-track"><div class="progress-fill" style="width:84%"></div></div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">Bandwidth — 42%</div>
+    <div class="progress-track"><div class="progress-fill" style="width:42%;background:var(--status-info)"></div></div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">Auth users — 91%</div>
+    <div class="progress-track"><div class="progress-fill" style="width:91%;background:var(--status-warning)"></div></div>
+  </div>
+</div>
+</div>
+
+<!-- ————————————————————————————————————————————————
+     AVATARS & TOOLTIPS
+     ———————————————————————————————————————————————— -->
+<div class="section">
+<div class="container">
+  <span class="section-label">Components</span>
+  <h2 class="section-title">Avatars & Tooltips</h2>
+
+  <span class="component-label">Avatar Sizes</span>
+  <div class="row" style="align-items:center;gap:12px;margin-bottom:24px;">
+    <div class="avatar avatar-sm" style="background:var(--accent-glow);color:var(--accent)">A</div>
+    <div class="avatar avatar-md" style="background:var(--badge-brand-bg);color:var(--badge-brand-text)">BS</div>
+    <div class="avatar avatar-lg" style="background:rgba(139,92,246,0.15);color:#a78bfa">CD</div>
+    <div class="avatar avatar-lg" style="background:rgba(59,130,246,0.15);color:var(--status-info)">EF</div>
+  </div>
+
+  <span class="component-label">Avatar Group</span>
+  <div class="avatar-group" style="margin-bottom:24px;">
+    <div class="avatar avatar-md" style="background:var(--accent-glow);color:var(--accent)">A</div>
+    <div class="avatar avatar-md" style="background:rgba(139,92,246,0.15);color:#a78bfa">B</div>
+    <div class="avatar avatar-md" style="background:rgba(59,130,246,0.15);color:var(--status-info)">C</div>
+    <div class="avatar avatar-md" style="background:var(--badge-bg);color:var(--text-muted)">+4</div>
+  </div>
+
+  <span class="component-label">Tooltip (hover to see)</span>
+  <div class="row" style="gap:16px;padding:32px 0 8px;">
+    <div class="tooltip-wrap">
+      <button class="btn btn-secondary">Hover me</button>
+      <div class="tooltip-tip">Deploys to 285+ edge locations worldwide</div>
+    </div>
+    <div class="tooltip-wrap">
+      <button class="btn btn-ghost btn-icon" style="font-size:16px;">ℹ</button>
+      <div class="tooltip-tip">Row Level Security is required for production</div>
+    </div>
+    <div class="tooltip-wrap">
+      <span class="badge badge-warning">93%</span>
+      <div class="tooltip-tip">You have used 93% of your free tier quota</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ————————————————————————————————————————————————
+     BORDER RADIUS SCALE
+     ———————————————————————————————————————————————— -->
+<div class="section">
+<div class="container">
+  <span class="section-label">Foundations</span>
+  <h2 class="section-title">Spacing & Radius</h2>
+  <p class="section-sub">Base unit 8px. Pill (9999px) exclusive to primary CTAs and tabs. Never use 16px+ on buttons.</p>
+
+  <div class="row" style="gap:20px;align-items:flex-end;margin-bottom:40px;">
+    <div style="text-align:center;">
+      <div style="width:48px;height:48px;background:var(--bg-card);border:1px solid var(--border-default);border-radius:4px;margin:0 auto 8px;"></div>
+      <div style="font-family:'Source Code Pro',monospace;font-size:10px;color:var(--text-muted);">4px</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="width:56px;height:56px;background:var(--bg-card);border:1px solid var(--border-default);border-radius:6px;margin:0 auto 8px;"></div>
+      <div style="font-family:'Source Code Pro',monospace;font-size:10px;color:var(--text-muted);">6px</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="width:64px;height:64px;background:var(--bg-card);border:1px solid var(--border-default);border-radius:8px;margin:0 auto 8px;"></div>
+      <div style="font-family:'Source Code Pro',monospace;font-size:10px;color:var(--text-muted);">8px</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="width:72px;height:72px;background:var(--bg-card);border:1px solid var(--border-default);border-radius:12px;margin:0 auto 8px;"></div>
+      <div style="font-family:'Source Code Pro',monospace;font-size:10px;color:var(--text-muted);">12px</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="width:80px;height:80px;background:var(--bg-card);border:1px solid var(--border-default);border-radius:16px;margin:0 auto 8px;"></div>
+      <div style="font-family:'Source Code Pro',monospace;font-size:10px;color:var(--text-muted);">16px</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="width:88px;height:40px;background:var(--accent-glow);border:1px solid var(--accent-border);border-radius:9999px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;">
+        <span style="font-size:12px;color:var(--accent);">CTA</span>
+      </div>
+      <div style="font-family:'Source Code Pro',monospace;font-size:10px;color:var(--text-muted);">9999px pill</div>
+    </div>
+  </div>
+
+  <span class="component-label">Spacing Scale</span>
+  <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;font-family:'Source Code Pro',monospace;font-size:9px;color:var(--text-muted);">
+      <div style="background:var(--accent);border-radius:2px;width:4px;height:4px;"></div>4
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;font-family:'Source Code Pro',monospace;font-size:9px;color:var(--text-muted);">
+      <div style="background:var(--accent);border-radius:2px;width:8px;height:8px;"></div>8
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;font-family:'Source Code Pro',monospace;font-size:9px;color:var(--text-muted);">
+      <div style="background:var(--accent);border-radius:2px;width:12px;height:12px;"></div>12
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;font-family:'Source Code Pro',monospace;font-size:9px;color:var(--text-muted);">
+      <div style="background:var(--accent);border-radius:2px;width:16px;height:16px;"></div>16
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;font-family:'Source Code Pro',monospace;font-size:9px;color:var(--text-muted);">
+      <div style="background:var(--accent);border-radius:2px;width:24px;height:24px;"></div>24
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;font-family:'Source Code Pro',monospace;font-size:9px;color:var(--text-muted);">
+      <div style="background:var(--accent);border-radius:2px;width:32px;height:32px;"></div>32
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;font-family:'Source Code Pro',monospace;font-size:9px;color:var(--text-muted);">
+      <div style="background:var(--accent);border-radius:2px;width:40px;height:40px;"></div>40
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;font-family:'Source Code Pro',monospace;font-size:9px;color:var(--text-muted);">
+      <div style="background:var(--accent);border-radius:2px;width:48px;height:48px;"></div>48
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;font-family:'Source Code Pro',monospace;font-size:9px;color:var(--text-muted);">
+      <div style="background:var(--accent);opacity:0.6;border-radius:2px;width:80px;height:80px;"></div>80
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;font-family:'Source Code Pro',monospace;font-size:9px;color:var(--text-muted);">
+      <div style="background:var(--accent);opacity:0.4;border-radius:2px;width:96px;height:96px;"></div>96
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ————————————————————————————————————————————————
+     THEMES OVERVIEW
+     ———————————————————————————————————————————————— -->
+<div class="section">
+<div class="container">
+  <span class="section-label">Themes</span>
+  <h2 class="section-title">5 Theme Variants</h2>
+  <p class="section-sub">Switch themes at the top of the page. Each shares the same token structure — only accent hue and base palette change.</p>
+
+  <div class="grid-3" style="gap:20px;">
+    <div style="padding:20px;border-radius:12px;background:#171717;border:1px solid #2e2e2e;">
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <div style="width:10px;height:10px;border-radius:50%;background:#3ecf8e;"></div>
+        <span style="font-family:'Source Code Pro',monospace;font-size:11px;color:#898989;text-transform:uppercase;letter-spacing:1px;">Supabase Dark</span>
+      </div>
+      <div style="font-size:14px;color:#fafafa;margin-bottom:4px;">The canonical dark mode.</div>
+      <div style="font-size:12px;color:#898989;">Emerald green on near-black. The developer's default. Clean, focused, professional.</div>
+    </div>
+    <div style="padding:20px;border-radius:12px;background:#ffffff;border:1px solid #d4d4d4;">
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <div style="width:10px;height:10px;border-radius:50%;background:#3ecf8e;border:1px solid #ccc;"></div>
+        <span style="font-family:'Source Code Pro',monospace;font-size:11px;color:#898989;text-transform:uppercase;letter-spacing:1px;">Supabase Light</span>
+      </div>
+      <div style="font-size:14px;color:#171717;margin-bottom:4px;">Bright & accessible.</div>
+      <div style="font-size:12px;color:#898989;">Same emerald system on white/light-gray backgrounds. Ideal for dashboards shown in bright office environments.</div>
+    </div>
+    <div style="padding:20px;border-radius:12px;background:#0c0a14;border:1px solid #28204a;">
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <div style="width:10px;height:10px;border-radius:50%;background:#8b5cf6;"></div>
+        <span style="font-family:'Source Code Pro',monospace;font-size:11px;color:#7a6aaa;text-transform:uppercase;letter-spacing:1px;">Midnight Violet</span>
+      </div>
+      <div style="font-size:14px;color:#f0ebff;margin-bottom:4px;">Premium, editorial feel.</div>
+      <div style="font-size:12px;color:#7a6aaa;">Deep purple-black with violet accent. Evokes luxury SaaS — great for AI/product landing pages.</div>
+    </div>
+    <div style="padding:20px;border-radius:12px;background:#080d1a;border:1px solid #1a2c50;">
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <div style="width:10px;height:10px;border-radius:50%;background:#3b82f6;"></div>
+        <span style="font-family:'Source Code Pro',monospace;font-size:11px;color:#4e6090;text-transform:uppercase;letter-spacing:1px;">Arctic Blue</span>
+      </div>
+      <div style="font-size:14px;color:#e4edff;margin-bottom:4px;">Linear-inspired precision.</div>
+      <div style="font-size:12px;color:#4e6090;">Deep navy with electric blue accent. The productivity tool aesthetic — focused, no-nonsense, fast.</div>
+    </div>
+    <div style="padding:20px;border-radius:12px;background:#100e07;border:1px solid #2c2710;">
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <div style="width:10px;height:10px;border-radius:50%;background:#f59e0b;"></div>
+        <span style="font-family:'Source Code Pro',monospace;font-size:11px;color:#8a7030;text-transform:uppercase;letter-spacing:1px;">Amber Forge</span>
+      </div>
+      <div style="font-size:14px;color:#fdf4dc;margin-bottom:4px;">Warm, industrial character.</div>
+      <div style="font-size:12px;color:#8a7030;">Near-black warm base with amber gold. Distinctive texture — great for ops tools, manufacturing, ERP contexts.</div>
+    </div>
+    <div style="padding:20px;border-radius:12px;background:var(--bg-card);border:1px solid var(--accent-border);">
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--accent);"></div>
+        <span style="font-family:'Source Code Pro',monospace;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">Current Theme</span>
+      </div>
+      <div style="font-size:14px;color:var(--text-primary);margin-bottom:4px;">Live preview above.</div>
+      <div style="font-size:12px;color:var(--text-muted);">Use the switcher at the top of the page to change themes and see every component update in real time.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+</main>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">⚡ Supabase</div>
+      <div class="footer-tagline">The open source Firebase alternative. Build in a weekend. Scale to millions. Start with a generous free tier.</div>
+    </div>
+    <div>
+      <div class="footer-col-title">Product</div>
+      <div class="footer-links">
+        <a href="#">Database</a>
+        <a href="#">Authentication</a>
+        <a href="#">Storage</a>
+        <a href="#">Edge Functions</a>
+        <a href="#">Realtime</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Developers</div>
+      <div class="footer-links">
+        <a href="#">Documentation</a>
+        <a href="#">API Reference</a>
+        <a href="#">Changelog</a>
+        <a href="#">GitHub</a>
+        <a href="#">Status</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Company</div>
+      <div class="footer-links">
+        <a href="#">Blog</a>
+        <a href="#">Pricing</a>
+        <a href="#">About</a>
+        <a href="#">Careers</a>
+        <a href="#">Privacy</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 Supabase, Inc. — Design System Carbon Copy</span>
+    <div style="display:flex;gap:16px;">
+      <span>Built on Radix UI</span>
+      <span>·</span>
+      <span>Inter + Source Code Pro</span>
+      <span>·</span>
+      <span style="color:var(--accent)">5 Themes</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================
+     JAVASCRIPT — Theme Switcher & Interactions
+     ============================================================ -->
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+<script>
+function setTheme(btn) {
+  const theme = btn.getAttribute('data-theme');
+  document.documentElement.setAttribute('data-theme', theme);
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// Tabs: make them interactive
+document.querySelectorAll('.tab-item').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const group = tab.closest('.tabs');
+    group.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+  });
+});
+document.querySelectorAll('.tab-line-item').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const group = tab.closest('.tabs-line');
+    group.querySelectorAll('.tab-line-item').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+  });
+});
+
+// Toggles: make them interactive
+document.querySelectorAll('.toggle').forEach(toggle => {
+  const wrap = toggle.closest('.toggle-wrap') || toggle;
+  toggle.addEventListener('click', () => {
+    toggle.classList.toggle('on');
+  });
+});
+
+// Checkboxes: make them interactive
+document.querySelectorAll('.checkbox-wrap').forEach(cb => {
+  cb.addEventListener('click', () => cb.classList.toggle('checked'));
+});
+
+// Code copy button
+document.querySelectorAll('.code-block-copy').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    navigator.clipboard?.writeText(pre.innerText).then(() => {
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 1500);
+    });
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+name: textile_erp
+description: A new Flutter project.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.1.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  google_fonts: ^6.1.0
+  supabase_flutter: ^2.4.0
+  intl: ^0.19.0
+  window_manager: ^0.3.9
+  lucide_icons: ^0.257.0
+  shadcn_flutter: ^0.0.47
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+  flutter_launcher_icons: ^0.13.1
+  msix: ^3.16.1
+
+msix_config:
+  display_name: Ambaji Sarees ERP
+  publisher_display_name: Ambaji Sarees
+  publisher: CN=AmbajiSarees, O=AmbajiSarees, L=Surat, S=Gujarat, C=IN
+  identity_name: com.ambajisaree.erp
+  msix_version: 1.0.0.0
+  logo_path: assets/icons/app_icon_source.png
+  capabilities: internetClient, location, privateNetworkClientServer
+
+flutter:
+  uses-material-design: true
