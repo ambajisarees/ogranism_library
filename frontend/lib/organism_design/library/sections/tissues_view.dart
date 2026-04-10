@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../theme.dart';
-import '../index.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import '../../index.dart';
 import '../widgets/library_header.dart';
 
 class TissuesView extends StatefulWidget {
@@ -13,6 +13,7 @@ class TissuesView extends StatefulWidget {
 class _TissuesViewState extends State<TissuesView> {
   DateTime? _selectedDate;
   String? _selectedValue;
+  int _activeTabIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -53,39 +54,46 @@ class _TissuesViewState extends State<TissuesView> {
           children: [
             Expanded(
               child: TissueCard(
-                title: 'Density Container (TissueCard)',
-                child: Column(
-                  children: [
-                    Text('Standard ERP data density rules applied here via padding and border tokens.', 
-                         style: OrganismTheme.bodyMedium),
-                    const SizedBox(height: OrganismTheme.spacingLg),
-                    const TissueReadOnlyField(label: 'Unique Hash', value: 'f72-99-A0'),
-                  ],
-                ),
+                children: [
+                   const TissueCardHeader(
+                    title: 'Density Container (TissueCard)',
+                    description: 'Standard ERP data density rules applied here.',
+                  ),
+                  const TissueCardContent(
+                    child: TissueReadOnlyField(label: 'Unique Hash', value: 'f72-99-A0'),
+                  ),
+                ],
               ),
             ),
             const SizedBox(width: OrganismTheme.spacing2Xl),
             Expanded(
               child: Column(
                 children: [
-                  TissueFormField(
+                  const TissueFormField(
                     label: 'Client Legal Entity Name',
                     isRequired: true,
-                    child: const CellInput(placeholder: 'e.g. Reliance Retail'),
+                    inputCell: CellInput(placeholder: 'e.g. Reliance Retail'),
                   ),
                   const SizedBox(height: OrganismTheme.spacingLg),
-                  TissueDropdown<String>(
+                  TissueFormField(
                     label: 'Fiscal Year Target',
-                    value: _selectedValue,
-                    items: const ['IMMBE2425', 'IMMBE2526', 'IMMBE2627'],
-                    onChanged: (v) => setState(() => _selectedValue = v),
-                    placeholder: 'Select Year',
+                    inputCell: TissueDropdown<String>(
+                      value: _selectedValue,
+                      items: const ['IMMBE2425', 'IMMBE2526', 'IMMBE2627'].map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (v) => setState(() => _selectedValue = v),
+                      placeholder: 'Select Year',
+                    ),
                   ),
                   const SizedBox(height: OrganismTheme.spacingLg),
                   TissueDatePicker(
                     label: 'Bill Date',
-                    selectedDate: _selectedDate,
-                    onDateChanged: (d) => setState(() => _selectedDate = d),
+                    value: _selectedDate,
+                    onChanged: (d) => setState(() => _selectedDate = d),
                   ),
                 ],
               ),
@@ -106,14 +114,24 @@ class _TissuesViewState extends State<TissuesView> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(
+            SizedBox(
               width: 400,
-              child: TissueTabs(
-                tabs: ['History', 'Metadata', 'Logs'],
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(padding: EdgeInsets.all(16), child: Text('Audit history will appear here...')),
-                  Padding(padding: EdgeInsets.all(16), child: Text('Raw object metadata view.')),
-                  Padding(padding: EdgeInsets.all(16), child: Text('Live system sync logs.')),
+                  TissueTabs(
+                    tabs: const ['History', 'Metadata', 'Logs'],
+                    initialIndex: _activeTabIndex,
+                    onChanged: (i) => setState(() => _activeTabIndex = i),
+                  ),
+                  IndexedStack(
+                    index: _activeTabIndex,
+                    children: const [
+                      Padding(padding: EdgeInsets.all(16), child: Text('Audit history will appear here...')),
+                      Padding(padding: EdgeInsets.all(16), child: Text('Raw object metadata view.')),
+                      Padding(padding: EdgeInsets.all(16), child: Text('Live system sync logs.')),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -130,7 +148,7 @@ class _TissuesViewState extends State<TissuesView> {
                 const SizedBox(height: OrganismTheme.spacing2Xl),
                 const TissueAccordion(
                   title: 'Advanced Filtering Settings',
-                  child: Padding(
+                  content: Padding(
                     padding: EdgeInsets.all(16),
                     child: Text('Toggle advanced search parameters to refine grid results.'),
                   ),
@@ -157,7 +175,8 @@ class _TissuesViewState extends State<TissuesView> {
               child: TissueAlert(
                 title: 'Data Synchronization In Progress',
                 message: 'The system is currently fetching latest ledger movements from Supabase Cloud.',
-                variant: TissueAlertVariant.primary,
+                variant: CellBadgeVariant.primary,
+                icon: LucideIcons.refreshCw,
               ),
             ),
             const SizedBox(width: OrganismTheme.spacing2Xl),
@@ -165,6 +184,7 @@ class _TissuesViewState extends State<TissuesView> {
               child: TissueEmptyState(
                 title: 'No Invoices Found',
                 message: 'Adjust your search parameters or check the selected fiscal year.',
+                icon: LucideIcons.search,
               ),
             ),
           ],
@@ -187,16 +207,16 @@ class _TissuesViewState extends State<TissuesView> {
           child: Column(
             children: [
               TissueListCard(
-                title: 'Mahadev Fashion',
-                subtitle: 'VNO: V/000124 | QUALITY: Dola Silk',
+                title: Text('Mahadev Fashion', style: OrganismTheme.titleMedium),
+                subtitle: Text('VNO: V/000124 | QUALITY: Dola Silk', style: OrganismTheme.bodySmall),
                 trailing: const CellBadge(text: 'Closed', variant: CellBadgeVariant.success),
                 onTap: () {},
                 isSelected: true,
               ),
               const SizedBox(height: OrganismTheme.spacingMd),
               TissueListCard(
-                title: 'RK Trading Co.',
-                subtitle: 'VNO: V/000125 | QUALITY: Vichitra Fancy',
+                title: Text('RK Trading Co.', style: OrganismTheme.titleMedium),
+                subtitle: Text('VNO: V/000125 | QUALITY: Vichitra Fancy', style: OrganismTheme.bodySmall),
                 trailing: const CellBadge(text: 'Pending', variant: CellBadgeVariant.warning),
                 onTap: () {},
               ),

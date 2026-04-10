@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../theme.dart';
-import '../index.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import '../../index.dart';
 import '../widgets/library_header.dart';
 
 class OrgansView extends StatelessWidget {
@@ -49,10 +49,13 @@ class OrgansView extends StatelessWidget {
               onPressed: () {
                 showDialog(
                   context: context,
-                  builder: (c) => const TissueAlert(
-                    title: 'System Confirmation',
-                    message: 'Are you sure you want to commit these changes to the master ledger?',
-                    variant: TissueAlertVariant.warning,
+                  builder: (c) => const Dialog(
+                    child: TissueAlert(
+                      title: 'System Confirmation',
+                      message: 'Are you sure you want to commit these changes to the master ledger?',
+                      variant: CellBadgeVariant.warning,
+                      icon: LucideIcons.alertTriangle,
+                    ),
                   ),
                 );
               },
@@ -75,17 +78,21 @@ class OrgansView extends StatelessWidget {
       children: [
         Text('Multi-Stage Organelles', style: OrganismTheme.titleLarge),
         const SizedBox(height: OrganismTheme.spacing2Xl),
-        
-        const SizedBox(
-          width: 500,
+        SizedBox(
+          width: 250,
           child: TissueMenu(
+            child: const CellButton(
+              text: 'Open Action Menu',
+              variant: CellButtonVariant.outline,
+              icon: LucideIcons.moreVertical,
+            ),
             items: [
-              TissueMenuItem(label: 'Edit Record', icon: Icons.edit),
-              TissueMenuItem(label: 'Download PDF', icon: Icons.download),
-              TissueMenuItem(label: 'Delete', icon: Icons.trash_can, isDestructive: true),
+              TissueMenuItemData(label: 'Edit Record', icon: LucideIcons.edit, onTap: () {}),
+              TissueMenuItemData(label: 'Download PDF', icon: LucideIcons.download, onTap: () {}),
+              TissueMenuItemData(label: 'Delete', icon: LucideIcons.trash2, isDestructive: true, onTap: () {}),
             ],
           ),
-        )
+        ),
       ],
     );
   }
@@ -107,14 +114,8 @@ class OrgansView extends StatelessWidget {
           child: ClipRRect(
             borderRadius: OrganismTheme.borderLg,
             child: NavBoat(
-              items: const [
-                NavBoatItem(label: 'Dashboard', icon: Icons.dashboard),
-                NavBoatItem(label: 'Sales', icon: Icons.shopping_cart),
-                NavBoatItem(label: 'Production', icon: Icons.precision_manufacturing),
-              ],
               selectedIndex: 0,
-              onDestinationSelected: (i) {},
-              child: const Center(child: Text('Page Content Workspace')),
+              onItemSelected: (i) {},
             ),
           ),
         ),

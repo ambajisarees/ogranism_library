@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import '../theme.dart';
-import '../index.dart';
+import '../../theme.dart';
+import '../../index.dart';
 import '../widgets/library_header.dart';
 
 class CellsView extends StatelessWidget {
@@ -353,7 +353,7 @@ class CellsView extends StatelessWidget {
                 children: [
                   Text('<CellKbd />', style: OrganismTheme.labelLarge),
                   const SizedBox(height: OrganismTheme.spacingMd),
-                  const CellKbd(label: 'ESC'),
+                  const CellKbd(keyString: 'ESC'),
                 ],
               ),
             ),

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import '../theme.dart';
-import '../../cells/cells.dart'; // assuming CellDivider is here or index.dart
-import '../index.dart';
-import '../widgets/library_header.dart'; // wait, it's relative to this file
+import 'package:lucide_icons/lucide_icons.dart';
+import '../../index.dart';
 import '../widgets/library_header.dart';
 
 class PlasmaView extends StatelessWidget {
