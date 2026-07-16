@@ -5,6 +5,34 @@
 
 ---
 
+## 2026-07-16 · Cutting Card Creation Dialog Visual Refinements & Popover Constraint Fixes
+
+Shipped visual layout, density, and functional enhancements to the Cutting Card creation overlay:
+
+### Dual-Row Lot Selector (Left Pane)
+- **Inline Title Layout**: Replaced the compact selector layout with a structured dual-row interface:
+  - Row 1: Left-aligned label `Select Quality` next to the full Quality autocomplete field.
+  - Row 2: Label `Select Mill` followed by the Mill autocomplete, Search input, and a 3-icon button bar for Group By toggles (ban, calendar, palette).
+- **Zero-Padding Accordions**: Set the ListView's vertical padding inside `_buildGroupedLotCards` to `EdgeInsets.zero` to remove all empty spacing.
+
+### Compact Cards & Header Contrast
+- **Overflow Fix**: Adjusted the card aspect ratio to `1.05` and set compact padding (`horizontal: 8, vertical: 6`) to eliminate bottom overflows.
+- **Pane Headers Contrast**: Refined `_buildPaneHeader` and the inline lot selection header to use `colors.textPrimary` at `FontWeight.w900` for bold, highly readable headers.
+
+### Date Picker Segment Typing & Calendar Popover
+- **Visual Spacing**: Increased segment text fields' widths (`36`/`36`/`56`) and added spacing around the `/` dividers.
+- **Typing Overwrite Fix**: Modified `didUpdateWidget` so text fields are not overwritten or padded while typing multi-digit dates (e.g. `15`).
+- **Popover Width Constraints**: Passed `explicitWidth: 280.0` to `PlasmaPopover` to resolve the calendar `RenderFlex` width constraint propagation overflow.
+- **Tap Intercept Fix**: Removed the tap-absorbing `InkWell` wrapper on the calendar icon trigger.
+
+### Full-Width Cut Length Row
+- **Unified Layout**: Shifted the Cut Length row into a vertical layout structure: a clean label `CUT LENGTH` on top, with a custom full-width `Row` of `Expanded` segments underneath.
+
+### Trailing Field Suffixes
+- **Inline Suffix Text**: Extended `CellInput` and `CellInputNumber` to support inline suffixes. Both **Saree Weight** and **Fent Weight** fields now display `grams` inside the input box.
+
+---
+
 ## 2026-07-16 · Central Media Library Explorer, Inline Scans, Overlay Progress & Popover Fixes
 
 Shipped the central Media Library Explorer module, Supabase Storage integration, Postgres RPC migration, inline photo scan attachment features, unified `'cutting_card'` classification, single-step Link & Auto-Rename storage logic, live progress dialog overlays, context popup unmounted crashes, and git syncing.

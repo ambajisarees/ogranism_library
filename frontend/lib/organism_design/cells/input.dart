@@ -37,6 +37,7 @@ class CellInput extends StatefulWidget {
   final TextStyle? textStyle;
   final TextEditingController? controller;
   final TextAlign textAlign;
+  final String? suffixText;
 
   const CellInput({
     super.key,
@@ -64,6 +65,7 @@ class CellInput extends StatefulWidget {
     this.textStyle,
     this.controller,
     this.textAlign = TextAlign.start,
+    this.suffixText,
   });
 
   @override
@@ -150,6 +152,14 @@ class _CellInputState extends State<CellInput> {
         child: MouseRegion(
           cursor: widget.onSuffixPressed != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
           child: Icon(widget.suffixIcon, color: colors.textMuted, size: 16),
+        ),
+      );
+    } else if (widget.suffixText != null) {
+      suffix = Text(
+        widget.suffixText!,
+        style: OrganismTheme.bodyMedium(context).copyWith(
+          color: colors.textMuted,
+          fontWeight: FontWeight.w600,
         ),
       );
     }

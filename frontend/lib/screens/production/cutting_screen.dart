@@ -23,6 +23,8 @@ class _CuttingScreenState extends State<CuttingScreen> {
   List<CuttingBatchSummaryModel> _cards = [];
   CuttingBatchSummaryModel? _selectedCard;
   bool _isLoading = true;
+  bool _isSaving = false;
+  bool _isUploadingScan = false;
 
   // Pagination State
   int _currentPage = 1;
@@ -372,6 +374,7 @@ class _CuttingScreenState extends State<CuttingScreen> {
   }
 
   Future<void> _onCardSelected(CuttingBatchSummaryModel batch) async {
+    if (!mounted) return;
     setState(() {
       _selectedCard = batch;
       _batchSummary = batch;
@@ -388,7 +391,7 @@ class _CuttingScreenState extends State<CuttingScreen> {
     }
   }
 
-  Future<void> _saveBatch() async {
+  Future<void> _saveBatch({VoidCallback? onStateChanged}) async {
     if (_selectedQualities.isEmpty || _selectedMill == null) {
       PlasmaToastManager.instance.show(context, 'Please select at least one Quality and a Mill first.', variant: CellBadgeVariant.warning);
       return;
@@ -404,6 +407,11 @@ class _CuttingScreenState extends State<CuttingScreen> {
       return;
     }
 
+    if (mounted) {
+      setState(() => _isSaving = true);
+      if (onStateChanged != null) onStateChanged();
+    }
+
     try {
       final payload = {
         'mill': _selectedMill,
@@ -413,7 +421,7 @@ class _CuttingScreenState extends State<CuttingScreen> {
         'avg_wt': (double.tryParse(_sareeWtController.text) ?? 400.0) / 1000.0, // convert g to kg
         'total_fresh_pcs': totalFresh.toInt(),
         'total_second_pcs': (double.tryParse(_secondPcsController.text) ?? 0.0).toInt(),
-        'total_fent_wt': double.tryParse(_fentWtController.text) ?? 0.0,
+        'total_fent_wt': (double.tryParse(_fentWtController.text) ?? 0.0) / 1000.0, // convert grams back to kg
         'job_type': _selectedJobType,
         'value_addition': _selectedValueAddition,
         'screen': _screenController.text.isNotEmpty ? _screenController.text : null,
@@ -427,33 +435,35 @@ class _CuttingScreenState extends State<CuttingScreen> {
 
       final result = await _service.saveCuttingBatch(payload);
 
-      if (mounted) {
-        final targetMultiVno = (result?['multi_vno'] as num?)?.toInt();
+      if (!mounted) return;
 
-        PlasmaToastManager.instance.show(
-          context, 
-          _editingMultiVno != null
-              ? 'Saved successfully! Batch #$_editingMultiVno updated.'
-              : 'Saved successfully! Batch #$targetMultiVno created.', 
-          variant: CellBadgeVariant.success
+      final targetMultiVno = (result?['multi_vno'] as num?)?.toInt();
+
+      PlasmaToastManager.instance.show(
+        context, 
+        _editingMultiVno != null
+            ? 'Saved successfully! Batch #$_editingMultiVno updated.'
+            : 'Saved successfully! Batch #$targetMultiVno created.', 
+        variant: CellBadgeVariant.success
+      );
+
+      setState(() {
+        _selectedCard = null;
+        _batchSummary = null;
+        _siblingCards = [];
+      });
+
+      KineticWorkspaceProvider.of(context).hideOverlay();
+      await _loadCards();
+
+      if (!mounted) return;
+
+      if (targetMultiVno != null && _cards.isNotEmpty) {
+        final updatedBatch = _cards.firstWhere(
+          (c) => c.multiVno == targetMultiVno,
+          orElse: () => _cards.first,
         );
-
-        setState(() {
-          _selectedCard = null;
-          _batchSummary = null;
-          _siblingCards = [];
-        });
-
-        KineticWorkspaceProvider.of(context).hideOverlay();
-        await _loadCards();
-
-        if (targetMultiVno != null && _cards.isNotEmpty) {
-          final updatedBatch = _cards.firstWhere(
-            (c) => c.multiVno == targetMultiVno,
-            orElse: () => _cards.first,
-          );
-          _onCardSelected(updatedBatch);
-        }
+        _onCardSelected(updatedBatch);
       }
     } catch (e) {
       if (mounted) {
@@ -466,6 +476,11 @@ class _CuttingScreenState extends State<CuttingScreen> {
           'Failed to save batch: $cleanError', 
           variant: CellBadgeVariant.error
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+        if (onStateChanged != null) onStateChanged();
       }
     }
   }
@@ -484,7 +499,7 @@ class _CuttingScreenState extends State<CuttingScreen> {
       _freshPcsController.text = batch.totalFreshPcs.toString();
       _secondPcsController.text = batch.totalSecondPcs.toString();
       _sareeWtController.text = (batch.avgWt * 1000.0).round().toString(); // Kg to Grams
-      _fentWtController.text = batch.totalFentWt.toString();
+      _fentWtController.text = (batch.totalFentWt * 1000.0).toStringAsFixed(2); // convert kg back to grams for editing
       _screenController.text = batch.screen ?? '';
       _picController.text = batch.sbCardPic ?? '';
       _startMultiVnoController.text = batch.multiVno.toString();
@@ -513,11 +528,21 @@ class _CuttingScreenState extends State<CuttingScreen> {
   }
 
   Future<void> _attachCuttingCardScan() async {
+    final summary = _batchSummary;
+    if (summary == null) return;
     try {
       final result = await FilePicker.pickFiles(type: FileType.image);
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
-        final bytes = file.bytes ?? await File(file.path!).readAsBytes();
+        final filePath = file.path;
+        final bytes = file.bytes ?? (filePath != null ? await File(filePath).readAsBytes() : null);
+        if (bytes == null) {
+          throw Exception('No file data available.');
+        }
+
+        if (mounted) {
+          setState(() => _isUploadingScan = true);
+        }
         
         PlasmaToastManager.instance.show(context, 'Uploading scan...', variant: CellBadgeVariant.primary);
         
@@ -526,13 +551,13 @@ class _CuttingScreenState extends State<CuttingScreen> {
           file.name,
           bucket: 'production',
           entityType: 'cutting_batch',
-          entityId: _batchSummary!.multiVno.toString(),
-          entityLabel: 'Batch #${_batchSummary!.multiVno}',
+          entityId: summary.multiVno.toString(),
+          entityLabel: 'Batch #${summary.multiVno}',
           mediaType: 'cutting_card_front',
         );
         
         // Reload batch summary
-        final updatedSummary = await _service.getBatchSummary(_batchSummary!.multiVno);
+        final updatedSummary = await _service.getBatchSummary(summary.multiVno);
         if (mounted && updatedSummary != null) {
           setState(() {
             _batchSummary = updatedSummary;
@@ -547,10 +572,17 @@ class _CuttingScreenState extends State<CuttingScreen> {
       if (mounted) {
         PlasmaToastManager.instance.show(context, 'Upload failed: $e', variant: CellBadgeVariant.error);
       }
+    } finally {
+      if (mounted) {
+        setState(() => _isUploadingScan = false);
+      }
     }
   }
 
   Future<void> _removeCuttingCardScan() async {
+    final summary = _batchSummary;
+    if (summary == null) return;
+
     try {
       final confirm = await PlasmaAlertDialog.show(
         context: context,
@@ -560,7 +592,11 @@ class _CuttingScreenState extends State<CuttingScreen> {
       );
       if (confirm != true) return;
 
-      final mediaList = await MediaService().getMediaForEntity('cutting_batch', _batchSummary!.multiVno.toString());
+      if (mounted) {
+        setState(() => _isUploadingScan = true);
+      }
+
+      final mediaList = await MediaService().getMediaForEntity('cutting_batch', summary.multiVno.toString());
       for (final m in mediaList) {
         await MediaService().archiveMedia(m.id);
       }
@@ -570,15 +606,15 @@ class _CuttingScreenState extends State<CuttingScreen> {
           .schema('IMMBE2627')
           .from('sb_cutdet_summary')
           .update({'sb_cardpic': null})
-          .eq('MULTI_VNO', _batchSummary!.multiVno);
+          .eq('MULTI_VNO', summary.multiVno);
 
       await Supabase.instance.client
           .schema('IMMBE2627')
           .from('sb_cutdet')
           .update({'sb_cardpic': null})
-          .eq('MULTI_VNO', _batchSummary!.multiVno);
+          .eq('MULTI_VNO', summary.multiVno);
 
-      final updatedSummary = await _service.getBatchSummary(_batchSummary!.multiVno);
+      final updatedSummary = await _service.getBatchSummary(summary.multiVno);
       if (mounted && updatedSummary != null) {
         setState(() {
           _batchSummary = updatedSummary;
@@ -589,6 +625,13 @@ class _CuttingScreenState extends State<CuttingScreen> {
       }
     } catch (e) {
       print('Error removing scan: $e');
+      if (mounted) {
+        PlasmaToastManager.instance.show(context, 'Failed to detach scan: $e', variant: CellBadgeVariant.error);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isUploadingScan = false);
+      }
     }
   }
 
@@ -725,8 +768,8 @@ class _CuttingScreenState extends State<CuttingScreen> {
             ? (totalReceivedMts / totalInputMts * 100)
             : 0.0;
 
-        final double avgWtKg =
-            (double.tryParse(_sareeWtController.text) ?? 400.0) / 1000.0;
+        final double avgWtGrams =
+            double.tryParse(_sareeWtController.text) ?? 400.0;
         final double totalFreshPcs =
             double.tryParse(_freshPcsController.text) ?? 0.0;
         final double totalSecondPcs =
@@ -746,9 +789,9 @@ class _CuttingScreenState extends State<CuttingScreen> {
             ? (calculatedSecondMts / totalReceivedMts * 100)
             : 0.0;
 
-        // Fent Fabric (derived by weight)
-        final double calculatedFentMts = avgWtKg > 0
-            ? (totalFentWt / avgWtKg) * _cutLength
+        // Fent Fabric (derived by weight, both in grams now)
+        final double calculatedFentMts = avgWtGrams > 0
+            ? (totalFentWt / avgWtGrams) * _cutLength
             : 0.0;
         final double fentPct = totalReceivedMts > 0
             ? (calculatedFentMts / totalReceivedMts * 100)
@@ -757,7 +800,7 @@ class _CuttingScreenState extends State<CuttingScreen> {
         final int rollCount = _selectedTakaRows.length;
 
         return OrganThreePaneCanvas(
-          title: 'New Cutting Card Batch',
+          title: 'Create a new Batch',
           onClose: _handleCloseAddRequest,
 
           // ── Header Actions (Button Bar) ─────────────────────────────
@@ -768,66 +811,17 @@ class _CuttingScreenState extends State<CuttingScreen> {
                 text: 'Cancel',
                 icon: LucideIcons.x,
                 variant: CellButtonVariant.outline,
-                onPressed: () => _handleCloseAddRequest(),
+                onPressed: _isSaving ? null : () => _handleCloseAddRequest(),
               ),
               const SizedBox(width: OrganismTheme.spacingSm),
               CellButton(
-                text: rollCount > 0
-                    ? 'Confirm Batch · $rollCount rolls'
-                    : 'Confirm Batch',
+                text: 'Confirm',
                 icon: LucideIcons.check,
                 variant: CellButtonVariant.primary,
-                onPressed: rollCount > 0 ? () => _saveBatch() : null,
-              ),
-            ],
-          ),
-
-          stepBar: ThreePaneStepBar(
-            steps: [
-              ThreePaneStep(
-                label: 'GREY QUALITY',
-                isComplete: _selectedQualities.isNotEmpty,
-                child: CellAutocomplete<String>(
-                  isCompact: true,
-                  placeholder: 'Search Quality...',
-                  items: _qualities,
-                  isMultiSelect: true,
-                  selectedValues: _selectedQualities,
-                  onSelectedValuesChanged: (qList) async {
-                    await _onQualitiesChanged(qList);
-                    setStateOverlay(() {});
-                  },
-                  labelBuilder: (v) => v,
-                ),
-              ),
-              ThreePaneStep(
-                label: 'PROCESSING MILL',
-                isComplete: _selectedMill != null,
-                child: CellAutocomplete<String>(
-                  isCompact: true,
-                  placeholder: _selectedQualities.isEmpty
-                      ? 'Select quality first'
-                      : 'Search Mill...',
-                  items: _mills,
-                  value: _selectedMill,
-                  onChanged: (v) async {
-                    await _onMillChanged(v);
-                    setStateOverlay(() {});
-                  },
-                  labelBuilder: (v) => v,
-                ),
-              ),
-              ThreePaneStep(
-                label: 'CUT DATE',
-                isComplete: true,
-                child: CellDatePicker(
-                  isCompact: true,
-                  value: _batchDate,
-                  onChanged: (d) {
-                    setState(() => _batchDate = d);
-                    setStateOverlay(() {});
-                  },
-                ),
+                isLoading: _isSaving,
+                onPressed: (rollCount > 0 && !_isSaving)
+                    ? () => _saveBatch(onStateChanged: () => setStateOverlay(() {}))
+                    : null,
               ),
             ],
           ),
@@ -836,34 +830,112 @@ class _CuttingScreenState extends State<CuttingScreen> {
           leftPane: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Consistent Header Bar for Left Pane (FIFO)
-              _buildPaneHeader(
-                context,
-                colors,
-                title: 'Available Takas',
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
+              // Shifting Quality and Mill selectors inside the Left Pane
+              Container(
+                padding: const EdgeInsets.all(OrganismTheme.spacingMd),
+                decoration: BoxDecoration(
+                  color: colors.surfaceSubtle,
+                  border: Border(bottom: BorderSide(color: colors.border)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Group By: ',
+                      'LOT SELECTION',
                       style: OrganismTheme.bodySmall(context).copyWith(
-                        color: colors.textMuted,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w900,
+                        color: colors.textPrimary,
+                        letterSpacing: 1.1,
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    CellToggleGroup<String>(
-                      value: _groupBy,
-                      items: const ['NONE', 'DATE', 'DESNO'],
-                      itemBuilder: (v) => Text(
-                        v,
-                        style: const TextStyle(fontSize: 10),
-                      ),
-                      onChanged: (v) {
-                        setStateOverlay(() {
-                          _groupBy = v;
-                        });
-                      },
+                    const SizedBox(height: OrganismTheme.spacingMd),
+                    // Row 1: Select Quality autocomplete fully inline
+                    Row(
+                      children: [
+                        Text(
+                          'Select Quality',
+                          style: OrganismTheme.bodySmall(context).copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: CellAutocomplete<String>(
+                            isCompact: false,
+                            placeholder: 'Search Quality...',
+                            items: _qualities,
+                            isMultiSelect: true,
+                            selectedValues: _selectedQualities,
+                            onSelectedValuesChanged: (qList) async {
+                              await _onQualitiesChanged(qList);
+                              setStateOverlay(() {});
+                            },
+                            labelBuilder: (v) => v,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: OrganismTheme.spacingSm),
+                    // Row 2: Select Mill, search, and Group By toggle buttons
+                    Row(
+                      children: [
+                        Text(
+                          'Select Mill',
+                          style: OrganismTheme.bodySmall(context).copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          flex: 2,
+                          child: CellAutocomplete<String>(
+                            isCompact: false,
+                            placeholder: _selectedQualities.isEmpty
+                                ? 'Select quality first'
+                                : 'Search Mill...',
+                            items: _mills,
+                            value: _selectedMill,
+                            onChanged: (v) async {
+                              await _onMillChanged(v);
+                              setStateOverlay(() {});
+                            },
+                            labelBuilder: (v) => v,
+                          ),
+                        ),
+                        const SizedBox(width: OrganismTheme.spacingSm),
+                        const Expanded(
+                          flex: 2,
+                          child: CellInput(
+                            placeholder: 'Search lots...',
+                            prefixIcon: LucideIcons.search,
+                          ),
+                        ),
+                        const SizedBox(width: OrganismTheme.spacingSm),
+                        CellToggleGroup<String>(
+                          value: _groupBy,
+                          items: const ['NONE', 'DATE', 'DESNO'],
+                          itemBuilder: (v) {
+                            IconData icon;
+                            if (v == 'DATE') {
+                              icon = LucideIcons.calendar;
+                            } else if (v == 'DESNO') {
+                              icon = LucideIcons.palette;
+                            } else {
+                              icon = LucideIcons.ban;
+                            }
+                            return Icon(icon, size: 16);
+                          },
+                          onChanged: (v) {
+                            if (v != null) {
+                              setStateOverlay(() {
+                                _groupBy = v;
+                              });
+                            }
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -877,17 +949,15 @@ class _CuttingScreenState extends State<CuttingScreen> {
                         ? TissueEmptyState(
                             icon: LucideIcons.search,
                             title: 'Pending Selection',
-                            message:
-                                'Select Quality then Mill above to load available taka cards.',
+                            message: 'Select Quality then Mill above to load available lots.',
                           )
                         : _availableTakas.isEmpty
                             ? TissueEmptyState(
                                 icon: LucideIcons.checkSquare,
-                                title: 'No Pending Takas',
-                                message:
-                                    'All rolls for this Quality + Mill are already cut.',
+                                title: 'No Pending Lots',
+                                message: 'All rolls for selected Quality + Mill are cut.',
                               )
-                            : _buildGroupedTakaList(context, colors, setStateOverlay),
+                            : _buildGroupedLotCards(context, colors, setStateOverlay),
               ),
             ],
           ),
@@ -906,110 +976,155 @@ class _CuttingScreenState extends State<CuttingScreen> {
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(OrganismTheme.spacingMd),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Multi Card No
-                      TissueFormField(
-                        label: 'MULTI CARD NO',
-                        inputCell: CellInput(
-                          controller: _startMultiVnoController,
-                          isNumeric: true,
-                          placeholder: 'Auto-generating...',
-                          onChanged: (v) {
-                            setStateOverlay(() {});
-                            setState(() {});
-                          },
+                  child: Form(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Cut Date Selector (Relocated)
+                        TissueFormField(
+                          label: 'CUT DATE',
+                          inputCell: CellDatePicker(
+                            isCompact: false,
+                            value: _batchDate,
+                            onChanged: (d) {
+                              setState(() => _batchDate = d);
+                              setStateOverlay(() {});
+                            },
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: OrganismTheme.spacingLg),
+                        const SizedBox(height: OrganismTheme.spacingLg),
 
-                      // Cut Length field
-                      TissueFormField(
-                        label: 'CUT LENGTH (MTS)',
-                        inputCell: CellInputNumber(
-                          initialValue: _cutLength,
-                          onChanged: (v) {
-                            if (v != null) {
-                              setStateOverlay(() => _cutLength = v);
+                        // Batch No
+                        TissueFormField(
+                          label: 'BATCH NO',
+                          inputCell: CellInput(
+                            controller: _startMultiVnoController,
+                            isNumeric: true,
+                            placeholder: 'Auto-generating...',
+                            onChanged: (v) {
+                              setStateOverlay(() {});
                               setState(() {});
-                            }
-                          },
+                            },
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: OrganismTheme.spacingSm),
-                      CellToggleGroup<double?>(
-                        value: [5.20, 5.35, 6.00, 6.25].contains(_cutLength) ? _cutLength : null,
-                        items: const [5.20, 5.35, 6.00, 6.25],
-                        itemBuilder: (v) => Text(v!.toStringAsFixed(2)),
-                        onChanged: (v) {
-                          if (v != null) {
-                            setStateOverlay(() => _cutLength = v);
-                            setState(() {});
-                          }
-                        },
-                      ),
-                      const SizedBox(height: OrganismTheme.spacingLg),
+                        const SizedBox(height: OrganismTheme.spacingLg),
 
-                      // Fresh Pieces
-                      TissueFormField(
-                        label: 'TOTAL FRESH PIECES',
-                        inputCell: CellInputNumber(
-                          initialValue: double.tryParse(_freshPcsController.text) ?? 0.0,
-                          suffix: 'PCS',
-                          onChanged: (v) {
-                            _freshPcsController.text = (v ?? 0).toInt().toString();
-                            setStateOverlay(() {});
-                            setState(() {});
-                          },
+                        // Cut Length title row and full width next row selector
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'CUT LENGTH',
+                              style: OrganismTheme.labelSmall(context).copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: OrganismTheme.spacingSm),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: colors.surface,
+                                border: Border.all(color: colors.border),
+                                borderRadius: OrganismTheme.borderSm,
+                              ),
+                              child: Row(
+                                children: [5.20, 5.35, 6.00, 6.25].asMap().entries.map((entry) {
+                                  final v = entry.value;
+                                  final isSelected = v == _cutLength;
+                                  final isLast = entry.key == 3;
+                                  return Expanded(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setStateOverlay(() => _cutLength = v);
+                                        setState(() {});
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(vertical: 8),
+                                        decoration: BoxDecoration(
+                                          color: isSelected ? colors.surfaceSubtle : Colors.transparent,
+                                          border: Border(
+                                            right: isLast ? BorderSide.none : BorderSide(color: colors.border),
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            v.toStringAsFixed(2),
+                                            style: OrganismTheme.bodyMedium(context).copyWith(
+                                              color: colors.textPrimary,
+                                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: OrganismTheme.spacingLg),
+                        const SizedBox(height: OrganismTheme.spacingLg),
 
-                      // Second Pieces
-                      TissueFormField(
-                        label: 'TOTAL SECOND PIECES',
-                        inputCell: CellInputNumber(
-                          initialValue: double.tryParse(_secondPcsController.text) ?? 0.0,
-                          suffix: 'PCS',
-                          onChanged: (v) {
-                            _secondPcsController.text = (v ?? 0).toInt().toString();
-                            setStateOverlay(() {});
-                            setState(() {});
-                          },
+                        // Fresh Pieces
+                        TissueFormField(
+                          label: 'FRESH PCS',
+                          inputCell: CellInputNumber(
+                            initialValue: double.tryParse(_freshPcsController.text) ?? 0.0,
+                            suffix: 'PCS',
+                            onChanged: (v) {
+                              _freshPcsController.text = (v ?? 0).toInt().toString();
+                              setStateOverlay(() {});
+                              setState(() {});
+                            },
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: OrganismTheme.spacingLg),
+                        const SizedBox(height: OrganismTheme.spacingLg),
 
-                      // Saree Weight
-                      TissueFormField(
-                        label: 'SAREE WEIGHT (GRAMS)',
-                        inputCell: CellInputNumber(
-                          initialValue: double.tryParse(_sareeWtController.text) ?? 400.0,
-                          suffix: 'G',
-                          onChanged: (v) {
-                            _sareeWtController.text = (v ?? 400).toInt().toString();
-                            setStateOverlay(() {});
-                            setState(() {});
-                          },
+                        // Second Pieces
+                        TissueFormField(
+                          label: 'SECOND PCS',
+                          inputCell: CellInputNumber(
+                            initialValue: double.tryParse(_secondPcsController.text) ?? 0.0,
+                            suffix: 'PCS',
+                            onChanged: (v) {
+                              _secondPcsController.text = (v ?? 0).toInt().toString();
+                              setStateOverlay(() {});
+                              setState(() {});
+                            },
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: OrganismTheme.spacingLg),
+                        const SizedBox(height: OrganismTheme.spacingLg),
 
-                      // Fent Weight
-                      TissueFormField(
-                        label: 'FENT WEIGHT (KG)',
-                        inputCell: CellInputNumber(
-                          initialValue: double.tryParse(_fentWtController.text) ?? 0.0,
-                          suffix: 'KG',
-                          onChanged: (v) {
-                            _fentWtController.text = (v ?? 0.0).toStringAsFixed(2);
-                            setStateOverlay(() {});
-                            setState(() {});
-                          },
+                        // Saree Weight
+                        TissueFormField(
+                          label: 'SAREE WEIGHT',
+                          inputCell: CellInputNumber(
+                            initialValue: double.tryParse(_sareeWtController.text) ?? 400.0,
+                            suffix: 'grams',
+                            onChanged: (v) {
+                              _sareeWtController.text = (v ?? 400).toInt().toString();
+                              setStateOverlay(() {});
+                              setState(() {});
+                            },
+                          ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: OrganismTheme.spacingLg),
+
+                        // Fent Weight
+                        TissueFormField(
+                          label: 'FENT WEIGHT',
+                          inputCell: CellInputNumber(
+                            initialValue: double.tryParse(_fentWtController.text) ?? 0.0,
+                            suffix: 'grams',
+                            onChanged: (v) {
+                              _fentWtController.text = (v ?? 0.0).toStringAsFixed(2);
+                              setStateOverlay(() {});
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -1202,26 +1317,9 @@ class _CuttingScreenState extends State<CuttingScreen> {
           ],
         ),
         const SizedBox(height: 6),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: Container(
-            height: 8,
-            width: double.infinity,
-            color: colors.border,
-            child: Row(
-              children: [
-                if (percentage > 0)
-                  Expanded(
-                    flex: (percentage.clamp(0.0, 100.0) * 10).toInt(),
-                    child: Container(color: color),
-                  ),
-                Expanded(
-                  flex: ((100.0 - percentage.clamp(0.0, 100.0)) * 10).toInt(),
-                  child: const SizedBox.shrink(),
-                ),
-              ],
-            ),
-          ),
+        CellProgressBar(
+          value: percentage / 100.0,
+          color: color,
         ),
         const SizedBox(height: OrganismTheme.spacingMd),
       ],
@@ -1250,8 +1348,8 @@ class _CuttingScreenState extends State<CuttingScreen> {
           Text(
             title.toUpperCase(),
             style: OrganismTheme.bodySmall(context).copyWith(
-              fontWeight: FontWeight.w700,
-              color: colors.textMuted,
+              fontWeight: FontWeight.w900,
+              color: colors.textPrimary,
               letterSpacing: 1.1,
             ),
           ),
@@ -1261,14 +1359,14 @@ class _CuttingScreenState extends State<CuttingScreen> {
     );
   }
 
-  Widget _buildGroupedTakaList(
+  Widget _buildGroupedLotCards(
       BuildContext context, OrganismColors colors, StateSetter setStateOverlay) {
     Map<String, List<Map<String, dynamic>>> groupedTakas = {};
     for (var card in _availableTakas) {
       final double jobRate = (card['JOBRATE'] as num?)?.toDouble() ??
           (card['jobrate'] as num?)?.toDouble() ??
           0.0;
-      final String rateStr = 'Rate: ₹${jobRate.toStringAsFixed(1)}';
+      final String rateStr = 'Rate: ₹${jobRate.toStringAsFixed(2)}';
 
       String groupName;
       if (_groupBy == 'DATE') {
@@ -1287,14 +1385,31 @@ class _CuttingScreenState extends State<CuttingScreen> {
     }
 
     return ListView(
-      padding: const EdgeInsets.symmetric(vertical: OrganismTheme.spacingSm),
+      padding: EdgeInsets.zero,
       children: groupedTakas.entries.map((entry) {
         final groupName = entry.key;
         final groupItems = entry.value;
         final isExpanded = _expandedGroups[groupName] ?? true;
 
+        // Retrieve job rate and details from first item to build the dynamic title
+        final firstItem = groupItems.first;
+        final double jobRate = (firstItem['JOBRATE'] as num?)?.toDouble() ??
+            (firstItem['jobrate'] as num?)?.toDouble() ??
+            0.0;
+        
+        String groupTitle = '${groupItems.length} roll${groupItems.length == 1 ? "" : "s"} · Rate: ₹${jobRate.toStringAsFixed(2)}';
+        if (_groupBy == 'DATE') {
+          final ddateStr = firstItem['DDATE'] != null
+              ? firstItem['DDATE'].toString().split('T')[0]
+              : 'N/A';
+          groupTitle += ' · $ddateStr';
+        } else if (_groupBy == 'DESNO') {
+          final desNo = firstItem['SAREEDES']?.toString() ?? 'N/A';
+          groupTitle += ' · Design #$desNo';
+        }
+
         return _GroupWidget(
-          title: groupName,
+          title: groupTitle,
           items: groupItems,
           selectedItems: _selectedTakaRows,
           isExpanded: isExpanded,
@@ -1327,45 +1442,39 @@ class _CuttingScreenState extends State<CuttingScreen> {
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.all(OrganismTheme.spacingMd),
             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 140,
+              maxCrossAxisExtent: 180,
               mainAxisSpacing: OrganismTheme.spacingMd,
               crossAxisSpacing: OrganismTheme.spacingMd,
-              childAspectRatio: 0.95,
+              childAspectRatio: 1.05,
             ),
             itemCount: groupItems.length,
             itemBuilder: (context, index) {
               final card = groupItems[index];
               final cardNo = (card['CARDNO'] as num?)?.toInt() ?? 0;
               final lot = card['LOT'] as String? ?? 'N/A';
-              final double cardJobRate = (card['JOBRATE'] as num?)?.toDouble() ??
-                  (card['jobrate'] as num?)?.toDouble() ??
-                  0.0;
               final rmts = (card['PMTS'] as num?)?.toDouble() ??
                   (card['WMTS'] as num?)?.toDouble() ??
                   (card['RMTS'] as num?)?.toDouble() ??
                   0.0;
               final rpcs = (card['RPCS'] as num?)?.toInt() ?? 0;
-              final ddateStr = card['DDATE'] != null
-                  ? card['DDATE'].toString().split('T')[0]
-                  : 'N/A';
-              final remark = (card['RECRMK'] as String? ?? '').trim();
+              final ddateVal = card['DDATE'];
               final isChecked = _selectedTakaRows
                   .any((row) => (row['CARDNO'] as num?)?.toInt() == cardNo);
 
-              Color badgeColor = colors.textMuted;
-              if (remark.toLowerCase().contains('raw')) {
-                badgeColor = colors.textMuted;
-              } else if (remark.toLowerCase().contains('emr')) {
-                badgeColor = const Color(0xFF2E7D52);
-              } else if (remark.toLowerCase().contains('must')) {
-                badgeColor = const Color(0xFFB8860B);
-              } else if (remark.toLowerCase().contains('mar') ||
-                  remark.toLowerCase().contains('bur')) {
-                badgeColor = const Color(0xFF8B2252);
-              } else if (remark.toLowerCase().contains('ivo')) {
-                badgeColor = const Color(0xFF8B7355);
-              } else if (remark.isNotEmpty) {
-                badgeColor = colors.primary;
+              // Days ago calculation
+              String daysAgoText = 'N/A';
+              if (ddateVal != null) {
+                try {
+                  final date = DateTime.parse(ddateVal.toString());
+                  final diff = DateTime.now().difference(date).inDays;
+                  if (diff <= 0) {
+                    daysAgoText = 'Today';
+                  } else if (diff == 1) {
+                    daysAgoText = '1 day ago';
+                  } else {
+                    daysAgoText = '$diff days ago';
+                  }
+                } catch (_) {}
               }
 
               return GestureDetector(
@@ -1382,7 +1491,7 @@ class _CuttingScreenState extends State<CuttingScreen> {
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
-                  padding: const EdgeInsets.all(OrganismTheme.spacingSm),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                   decoration: BoxDecoration(
                     color: isChecked
                         ? colors.primary.withValues(alpha: 0.08)
@@ -1394,84 +1503,119 @@ class _CuttingScreenState extends State<CuttingScreen> {
                     ),
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      // Checkbox + CardNo (reccardno chip)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Expanded(
-                            child: Text(
-                              '$cardNo',
-                              style: OrganismTheme.bodyMedium(context).copyWith(
-                                fontWeight: FontWeight.w700,
-                                fontFamily: 'Mono',
-                                color: colors.textPrimary,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CellCheckbox(
+                              value: isChecked,
+                              onChanged: (val) {
+                                setStateOverlay(() {
+                                  if (isChecked) {
+                                    _selectedTakaRows.removeWhere(
+                                        (row) => (row['CARDNO'] as num?)?.toInt() == cardNo);
+                                  } else {
+                                    _selectedTakaRows.add(card);
+                                  }
+                                });
+                                setState(() {});
+                              },
                             ),
                           ),
-                          Icon(
-                            isChecked
-                                ? LucideIcons.circleCheck
-                                : LucideIcons.circle,
-                            size: 14,
-                            color: isChecked ? colors.primary : colors.textMuted,
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: colors.surfaceSubtle,
+                              borderRadius: BorderRadius.circular(OrganismTheme.radiusSm),
+                              border: Border.all(color: colors.border),
+                            ),
+                            child: Text(
+                              '$cardNo',
+                              style: OrganismTheme.bodySmall(context).copyWith(
+                                fontFamily: 'Mono',
+                                fontWeight: FontWeight.w600,
+                                color: colors.textSecondary,
+                              ),
+                            ),
                           ),
                         ],
                       ),
+                      const SizedBox(height: 6),
+                      // Lot Label and Lotno (using Mono font for value)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Lot',
+                            style: OrganismTheme.bodySmall(context).copyWith(
+                              color: colors.textMuted,
+                            ),
+                          ),
+                          Text(
+                            lot,
+                            style: OrganismTheme.bodyMedium(context).copyWith(
+                              fontFamily: 'Mono',
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Divider(height: 8),
+                      // Mts vs Pcs Label Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Mts',
+                            style: OrganismTheme.labelSmall(context).copyWith(
+                              color: colors.textMuted,
+                            ),
+                          ),
+                          Text(
+                            'Pcs',
+                            style: OrganismTheme.labelSmall(context).copyWith(
+                              color: colors.textMuted,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      // Mts vs Pcs Value Row (using Mono font for both values)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            rmts.toStringAsFixed(1),
+                            style: OrganismTheme.bodyMedium(context).copyWith(
+                              fontFamily: 'Mono',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            '$rpcs',
+                            style: OrganismTheme.bodyMedium(context).copyWith(
+                              fontFamily: 'Mono',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Divider(height: 8),
+                      // Days Ago calculation (larger font size)
                       Text(
-                        'Lot $lot · ₹${cardJobRate.toStringAsFixed(1)}',
+                        daysAgoText,
+                        textAlign: TextAlign.center,
                         style: OrganismTheme.bodySmall(context).copyWith(
+                          fontStyle: FontStyle.italic,
                           color: colors.textMuted,
-                          fontSize: 10,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const Spacer(),
-                      Text(
-                        '${rmts.toStringAsFixed(1)} mts',
-                        style: OrganismTheme.bodySmall(context).copyWith(
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'Mono',
+                          fontSize: 11,
                         ),
                       ),
-                      if (rpcs > 0)
-                        Text(
-                          '$rpcs pcs',
-                          style: OrganismTheme.bodySmall(context).copyWith(
-                            color: colors.textMuted,
-                            fontSize: 10,
-                          ),
-                        ),
-                      Text(
-                        ddateStr,
-                        style: OrganismTheme.bodySmall(context).copyWith(
-                          fontSize: 9,
-                          color: colors.textMuted,
-                        ),
-                      ),
-                      if (remark.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 4, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: badgeColor.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(3),
-                            border: Border.all(
-                                color: badgeColor.withValues(alpha: 0.35)),
-                          ),
-                          child: Text(
-                            remark.length > 10
-                                ? remark.substring(0, 10)
-                                : remark,
-                            style: OrganismTheme.labelSmall(context)
-                                .copyWith(color: badgeColor, fontSize: 8),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ),
@@ -1485,8 +1629,8 @@ class _CuttingScreenState extends State<CuttingScreen> {
 
 
   Widget _buildSectionCanvas(BuildContext context, OrganismColors colors) {
-
-    if (_selectedCard == null) return const SizedBox.shrink();
+    final summary = _batchSummary;
+    if (_selectedCard == null || summary == null) return const SizedBox.shrink();
 
     final card = _selectedCard!;
 
@@ -1494,167 +1638,165 @@ class _CuttingScreenState extends State<CuttingScreen> {
       padding: const EdgeInsets.all(OrganismTheme.spacingLg),
       children: [
         // Sibling Roll Batch Header Card (Dashboard summary)
-        if (_batchSummary != null) ...[
-          CellBox(
-            padding: const EdgeInsets.all(OrganismTheme.spacingLg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('BATCH CUTTING SUMMARY',
-                            style: OrganismTheme.labelSmall(context)
-                                .copyWith(color: colors.textMuted)),
-                        Text(_batchSummary!.ccCode,
-                            style: OrganismTheme.displayLarge(context)),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        CellButton(
-                          text: 'Edit Batch',
-                          icon: LucideIcons.edit2,
-                          variant: CellButtonVariant.outline,
-                          isCompact: true,
-                          onPressed: () => _startEditBatch(_batchSummary!),
+        CellBox(
+          padding: const EdgeInsets.all(OrganismTheme.spacingLg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('BATCH CUTTING SUMMARY',
+                          style: OrganismTheme.labelSmall(context)
+                              .copyWith(color: colors.textMuted)),
+                      Text(summary.ccCode,
+                          style: OrganismTheme.displayLarge(context)),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      CellButton(
+                        text: 'Edit Batch',
+                        icon: LucideIcons.edit2,
+                        variant: CellButtonVariant.outline,
+                        isCompact: true,
+                        onPressed: () => _startEditBatch(summary),
+                      ),
+                      const SizedBox(width: OrganismTheme.spacingSm),
+                      CellBadge(
+                        text: summary.sbStatus,
+                        variant: CellBadgeVariant.primary,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const Divider(height: OrganismTheme.spacingXl),
+              
+              Row(
+                children: [
+                  Expanded(child: _buildDetailedRow(context, 'Mill Processing House', summary.mill)),
+                  const SizedBox(width: OrganismTheme.spacingLg),
+                  Expanded(child: _buildDetailedRow(context, 'Base Grey Quality', summary.greyQual)),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(child: _buildDetailedRow(context, 'Selected Slicing Cut', '${summary.cutLength.toStringAsFixed(2)} Mts')),
+                  const SizedBox(width: OrganismTheme.spacingLg),
+                  Expanded(child: _buildDetailedRow(context, 'Avg Saree Weight', '${(summary.avgWt * 1000).toInt()} Grams')),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(child: _buildDetailedRow(context, 'Job Cost Type', summary.jobType)),
+                  const SizedBox(width: OrganismTheme.spacingLg),
+                  Expanded(child: _buildDetailedRow(context, 'Value Addition', summary.valueAddition)),
+                ],
+              ),
+              if (summary.screen != null)
+                _buildDetailedRow(context, 'Printing Screen Reference', summary.screen!),
+
+              const SizedBox(height: OrganismTheme.spacingLg),
+              const Divider(),
+              const SizedBox(height: OrganismTheme.spacingMd),
+              
+              // Aggregates Grid
+              Text('BATCH QUANTITATIVE PERFORMANCES', style: OrganismTheme.labelSmall(context).copyWith(color: colors.textMuted)),
+              const SizedBox(height: OrganismTheme.spacingMd),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildMetricCard(context, colors, 'TOTAL FRESH PCS',
+                        '${summary.totalFreshPcs} Pcs', LucideIcons.layers),
+                  ),
+                  const SizedBox(width: OrganismTheme.spacingMd),
+                  Expanded(
+                    child: _buildMetricCard(context, colors, 'TOTAL FRESH METERS',
+                        '${summary.totalFreshMts.toStringAsFixed(1)} Mts', LucideIcons.ruler),
+                  ),
+                  const SizedBox(width: OrganismTheme.spacingMd),
+                  Expanded(
+                    child: _buildMetricCard(context, colors, 'TOTAL SAREE WEIGHT',
+                        '${summary.totalSareeWt.toStringAsFixed(1)} KG', LucideIcons.scale),
+                  ),
+                ],
+              ),
+              const SizedBox(height: OrganismTheme.spacingMd),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildMetricCard(context, colors, 'TOTAL SECOND PCS',
+                        '${summary.totalSecondPcs} Pcs', LucideIcons.alertCircle),
+                  ),
+                  const SizedBox(width: OrganismTheme.spacingMd),
+                  Expanded(
+                    child: _buildMetricCard(context, colors, 'TOTAL SECOND METERS',
+                        '${summary.totalSecondMts.toStringAsFixed(1)} Mts', LucideIcons.alertOctagon),
+                  ),
+                  const SizedBox(width: OrganismTheme.spacingMd),
+                  Expanded(
+                    child: _buildMetricCard(context, colors, 'TOTAL FENT WASTE',
+                        '${summary.totalFentMts.toStringAsFixed(1)} Mts', LucideIcons.trash2),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: OrganismTheme.spacingXl),
+
+              // Recovery Splitting chart
+              Text('BATCH RECOVERY SPLITTING', style: OrganismTheme.labelSmall(context).copyWith(color: colors.textMuted)),
+              const SizedBox(height: OrganismTheme.spacingSm),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: Container(
+                  height: 16,
+                  width: double.infinity,
+                  color: colors.border,
+                  child: Row(
+                    children: [
+                      if (summary.freshPct > 0)
+                        Expanded(
+                          flex: summary.freshPct.toInt(),
+                          child: Container(color: colors.primary, child: const Center(child: Text('F', style: TextStyle(fontSize: 8, color: Colors.white, fontWeight: FontWeight.bold)))),
                         ),
-                        const SizedBox(width: OrganismTheme.spacingSm),
-                        CellBadge(
-                          text: _batchSummary!.sbStatus,
-                          variant: CellBadgeVariant.primary,
+                      if (summary.secondPct > 0)
+                        Expanded(
+                          flex: summary.secondPct.toInt(),
+                          child: Container(color: colors.warning, child: const Center(child: Text('S', style: TextStyle(fontSize: 8, color: Colors.white, fontWeight: FontWeight.bold)))),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-                const Divider(height: OrganismTheme.spacingXl),
-                
-                Row(
-                  children: [
-                    Expanded(child: _buildDetailedRow(context, 'Mill Processing House', _batchSummary!.mill)),
-                    const SizedBox(width: OrganismTheme.spacingLg),
-                    Expanded(child: _buildDetailedRow(context, 'Base Grey Quality', _batchSummary!.greyQual)),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(child: _buildDetailedRow(context, 'Selected Slicing Cut', '${_batchSummary!.cutLength.toStringAsFixed(2)} Mts')),
-                    const SizedBox(width: OrganismTheme.spacingLg),
-                    Expanded(child: _buildDetailedRow(context, 'Avg Saree Weight', '${(_batchSummary!.avgWt * 1000).toInt()} Grams')),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(child: _buildDetailedRow(context, 'Job Cost Type', _batchSummary!.jobType)),
-                    const SizedBox(width: OrganismTheme.spacingLg),
-                    Expanded(child: _buildDetailedRow(context, 'Value Addition', _batchSummary!.valueAddition)),
-                  ],
-                ),
-                if (_batchSummary!.screen != null)
-                  _buildDetailedRow(context, 'Printing Screen Reference', _batchSummary!.screen!),
-
-                const SizedBox(height: OrganismTheme.spacingLg),
-                const Divider(),
-                const SizedBox(height: OrganismTheme.spacingMd),
-                
-                // Aggregates Grid
-                Text('BATCH QUANTITATIVE PERFORMANCES', style: OrganismTheme.labelSmall(context).copyWith(color: colors.textMuted)),
-                const SizedBox(height: OrganismTheme.spacingMd),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildMetricCard(context, colors, 'TOTAL FRESH PCS',
-                          '${_batchSummary!.totalFreshPcs} Pcs', LucideIcons.layers),
-                    ),
-                    const SizedBox(width: OrganismTheme.spacingMd),
-                    Expanded(
-                      child: _buildMetricCard(context, colors, 'TOTAL FRESH METERS',
-                          '${_batchSummary!.totalFreshMts.toStringAsFixed(1)} Mts', LucideIcons.ruler),
-                    ),
-                    const SizedBox(width: OrganismTheme.spacingMd),
-                    Expanded(
-                      child: _buildMetricCard(context, colors, 'TOTAL SAREE WEIGHT',
-                          '${_batchSummary!.totalSareeWt.toStringAsFixed(1)} KG', LucideIcons.scale),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: OrganismTheme.spacingMd),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildMetricCard(context, colors, 'TOTAL SECOND PCS',
-                          '${_batchSummary!.totalSecondPcs} Pcs', LucideIcons.alertCircle),
-                    ),
-                    const SizedBox(width: OrganismTheme.spacingMd),
-                    Expanded(
-                      child: _buildMetricCard(context, colors, 'TOTAL SECOND METERS',
-                          '${_batchSummary!.totalSecondMts.toStringAsFixed(1)} Mts', LucideIcons.alertOctagon),
-                    ),
-                    const SizedBox(width: OrganismTheme.spacingMd),
-                    Expanded(
-                      child: _buildMetricCard(context, colors, 'TOTAL FENT WASTE',
-                          '${_batchSummary!.totalFentMts.toStringAsFixed(1)} Mts', LucideIcons.trash2),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: OrganismTheme.spacingXl),
-
-                // Recovery Splitting chart
-                Text('BATCH RECOVERY SPLITTING', style: OrganismTheme.labelSmall(context).copyWith(color: colors.textMuted)),
-                const SizedBox(height: OrganismTheme.spacingSm),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: Container(
-                    height: 16,
-                    width: double.infinity,
-                    color: colors.border,
-                    child: Row(
-                      children: [
-                        if (_batchSummary!.freshPct > 0)
-                          Expanded(
-                            flex: _batchSummary!.freshPct.toInt(),
-                            child: Container(color: colors.primary, child: const Center(child: Text('F', style: TextStyle(fontSize: 8, color: Colors.white, fontWeight: FontWeight.bold)))),
-                          ),
-                        if (_batchSummary!.secondPct > 0)
-                          Expanded(
-                            flex: _batchSummary!.secondPct.toInt(),
-                            child: Container(color: colors.warning, child: const Center(child: Text('S', style: TextStyle(fontSize: 8, color: Colors.white, fontWeight: FontWeight.bold)))),
-                          ),
-                        if (_batchSummary!.fentPct > 0)
-                          Expanded(
-                            flex: _batchSummary!.fentPct.toInt(),
-                            child: Container(color: colors.error, child: const Center(child: Text('W', style: TextStyle(fontSize: 8, color: Colors.white, fontWeight: FontWeight.bold)))),
-                          ),
-                      ],
-                    ),
+                      if (summary.fentPct > 0)
+                        Expanded(
+                          flex: summary.fentPct.toInt(),
+                          child: Container(color: colors.error, child: const Center(child: Text('W', style: TextStyle(fontSize: 8, color: Colors.white, fontWeight: FontWeight.bold)))),
+                        ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: OrganismTheme.spacingXs),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Fresh Recovery: ${_batchSummary!.freshPct.toStringAsFixed(1)}%', style: OrganismTheme.bodySmall(context).copyWith(color: colors.primary, fontWeight: FontWeight.bold)),
-                    Text('Seconds Recovery: ${_batchSummary!.secondPct.toStringAsFixed(1)}%', style: OrganismTheme.bodySmall(context).copyWith(color: colors.warning, fontWeight: FontWeight.bold)),
-                    Text('Fent Waste: ${_batchSummary!.fentPct.toStringAsFixed(1)}%', style: OrganismTheme.bodySmall(context).copyWith(color: colors.error, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: OrganismTheme.spacingXs),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Fresh Recovery: ${summary.freshPct.toStringAsFixed(1)}%', style: OrganismTheme.bodySmall(context).copyWith(color: colors.primary, fontWeight: FontWeight.bold)),
+                  Text('Seconds Recovery: ${summary.secondPct.toStringAsFixed(1)}%', style: OrganismTheme.bodySmall(context).copyWith(color: colors.warning, fontWeight: FontWeight.bold)),
+                  Text('Fent Waste: ${summary.fentPct.toStringAsFixed(1)}%', style: OrganismTheme.bodySmall(context).copyWith(color: colors.error, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ],
           ),
-          const SizedBox(height: OrganismTheme.spacingLg),
-        ],
+        ),
+        const SizedBox(height: OrganismTheme.spacingLg),
 
         // CUTTING CARD PHOTO ATTACHMENT SECTION
         Text('CUTTING CARD SCAN', style: OrganismTheme.titleMedium(context)),
         const SizedBox(height: OrganismTheme.spacingSm),
         CellBox(
           padding: const EdgeInsets.all(OrganismTheme.spacingMd),
-          child: _batchSummary!.sbCardPic != null && _batchSummary!.sbCardPic!.isNotEmpty
+          child: summary.sbCardPic != null && summary.sbCardPic!.isNotEmpty
               ? Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1667,7 +1809,7 @@ class _CuttingScreenState extends State<CuttingScreen> {
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: Image.network(
-                        MediaService().getPublicUrl(_batchSummary!.sbCardPic!, width: 240, height: 240),
+                        MediaService().getPublicUrl(summary.sbCardPic!, width: 240, height: 240),
                         fit: BoxFit.cover,
                         errorBuilder: (c, e, s) => const Icon(LucideIcons.fileImage, size: 36),
                       ),
@@ -1679,7 +1821,7 @@ class _CuttingScreenState extends State<CuttingScreen> {
                         children: [
                           const Text('A photo scan is attached to this cutting batch.', style: TextStyle(fontWeight: FontWeight.bold)),
                           const SizedBox(height: 4),
-                          Text('Path: ${_batchSummary!.sbCardPic}', style: OrganismTheme.bodySmall(context).copyWith(color: colors.textMuted)),
+                          Text('Path: ${summary.sbCardPic}', style: OrganismTheme.bodySmall(context).copyWith(color: colors.textMuted)),
                           const SizedBox(height: 12),
                           Row(
                             children: [
@@ -1688,7 +1830,8 @@ class _CuttingScreenState extends State<CuttingScreen> {
                                 icon: LucideIcons.refreshCw,
                                 variant: CellButtonVariant.outline,
                                 isCompact: true,
-                                onPressed: _attachCuttingCardScan,
+                                isLoading: _isUploadingScan,
+                                onPressed: _isUploadingScan ? null : _attachCuttingCardScan,
                               ),
                               const SizedBox(width: 8),
                               CellButton(
@@ -1696,7 +1839,7 @@ class _CuttingScreenState extends State<CuttingScreen> {
                                 icon: LucideIcons.trash2,
                                 variant: CellButtonVariant.destructive,
                                 isCompact: true,
-                                onPressed: _removeCuttingCardScan,
+                                onPressed: _isUploadingScan ? null : _removeCuttingCardScan,
                               ),
                             ],
                           ),
@@ -1719,7 +1862,8 @@ class _CuttingScreenState extends State<CuttingScreen> {
                           icon: LucideIcons.plus,
                           variant: CellButtonVariant.outline,
                           isCompact: true,
-                          onPressed: _attachCuttingCardScan,
+                          isLoading: _isUploadingScan,
+                          onPressed: _isUploadingScan ? null : _attachCuttingCardScan,
                         ),
                       ],
                     ),
@@ -1791,54 +1935,63 @@ class _CuttingScreenState extends State<CuttingScreen> {
         field: 'cut_card_no',
         type: PlutoColumnType.number(),
         width: 140,
+        enableEditingMode: false,
       ),
       PlutoColumn(
         title: 'GREY CARD (TAKA)',
         field: 'card_no',
         type: PlutoColumnType.number(),
         width: 160,
+        enableEditingMode: false,
       ),
       PlutoColumn(
         title: 'LOT',
         field: 'lot',
         type: PlutoColumnType.text(),
         width: 110,
+        enableEditingMode: false,
       ),
       PlutoColumn(
         title: 'INPUT RMTS',
         field: 'rmts',
         type: PlutoColumnType.number(format: '#,##0.00'),
         width: 130,
+        enableEditingMode: false,
       ),
       PlutoColumn(
         title: 'FRESH CPCS',
         field: 'cpcs',
         type: PlutoColumnType.number(),
         width: 130,
+        enableEditingMode: false,
       ),
       PlutoColumn(
         title: 'FRESH CMTS',
         field: 'cmts',
         type: PlutoColumnType.number(format: '#,##0.00'),
         width: 130,
+        enableEditingMode: false,
       ),
       PlutoColumn(
         title: 'SECONDS',
         field: 'seconds',
         type: PlutoColumnType.number(),
         width: 120,
+        enableEditingMode: false,
       ),
       PlutoColumn(
         title: 'FENT MTS',
         field: 'fent_mts',
         type: PlutoColumnType.number(format: '#,##0.00'),
         width: 120,
+        enableEditingMode: false,
       ),
       PlutoColumn(
         title: 'FENT WT (KG)',
         field: 'fent_wt',
         type: PlutoColumnType.number(format: '0.000'),
         width: 130,
+        enableEditingMode: false,
       ),
     ];
 
@@ -1969,7 +2122,7 @@ class _GroupWidget extends StatelessWidget {
               const SizedBox(width: OrganismTheme.spacingSm),
               Expanded(
                 child: Text(
-                  '$title (${items.length} rolls)',
+                  title,
                   style: OrganismTheme.bodyMedium(context).copyWith(
                     fontWeight: FontWeight.bold,
                     color: colors.textPrimary,

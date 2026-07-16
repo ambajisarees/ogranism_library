@@ -96,6 +96,7 @@ class _CellInputNumberState extends State<CellInputNumber> {
       isDisabled: widget.isDisabled,
       isCompact: widget.isCompact,
       placeholder: widget.placeholder,
+      suffixText: widget.suffix,
       prefixIcon: widget.prefix != null ? null : null, // Future: custom text affixes
       onChanged: (val) {
         // We don't update _currentValue here to avoid fighting the formatter while typing
