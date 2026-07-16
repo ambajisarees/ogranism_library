@@ -5,52 +5,15 @@
 
 ---
 
-## 2026-07-16 (Evening) · CC Code Convention, Smart Linker F/B Detection & Media Material Fixes
+## 2026-07-16 · Central Media Library Explorer, Inline Scans, Overlay Progress & Popover Fixes
 
-Shipped cutting card human-readable code migration, Smart Linker file-side (FRONT/BACK) detection, CC code storage rename automation, and a deep-dive fix of the `ListTile` Material ancestor cascade that was causing black screens.
-
-### CC Code Migration — `sb_cutdet_summary`
-- **Generated Columns**: Applied DB migration to add two `GENERATED ALWAYS AS` columns to `sb_cutdet_summary`:
-  - `cc_no TEXT` — zero-padded 4-digit serial (e.g. `0001`)
-  - `cc_code TEXT` — human-readable label (e.g. `CC-0001`) for display and search
-- **Model + Service**: Updated `CuttingBatchSummaryModel` with `ccNo` and `ccCode` fields. Updated `CuttingService` sort/search logic to handle CC code ordering.
-- **UI**: Cutting card list now renders `CC-0001` badges; detail view headers use CC code as the primary identifier.
-- **Pattern**: Future modules should follow `GENERATED ALWAYS AS ('PREFIX-' || LPAD("VNO"::text, 4, '0'))` for all human-readable code columns.
-
-### Smart Linker — Front/Back Detection
-- **Side Field**: Added `side TEXT` column to `sb_media` (values: `F` = front, `B` = back, `null` = other doc types). Updated `insert_media` RPC with `p_side DEFAULT NULL` parameter.
-- **Filename Convention**: Smart Linker now detects `(2)` or `_2` suffix → `B` (BACK); clean numeric name → `F` (FRONT). Detection lives in `getSmartLinkSuggestions()` alongside `mediaType` classification.
-- **Model Updates**: `MediaModel` and `SmartLinkSuggestion` both carry the `side` field with `sideLabel` getter (`'FRONT'` / `'BACK'` / `''`).
-- **UI Badges**: Suggestion rows now render `▲ FRONT` (primary) and `▼ BACK` (warning) badges next to context badges.
-
-### Rename to CC Code Feature
-- **`renameToCcCode()` Service Method**: After Smart Linker assigns cutting card links, this method atomically:
-  1. `storage.copy(old → CC-XXXX-F/B.ext)` + `storage.remove(old)` for both main file and thumbnail
-  2. Updates `sb_media.file_path`, `file_name`, `display_name` ("CC-0001 · Front"), `thumb_path`
-- **UI Button**: "Rename to CC Code" button appears in Smart Linker header whenever checked cutting card suggestions with F/B sides are present. Confirm dialog shows example mapping before executing.
-- **Side Persistence**: `bulkLinkSuggestions()` now writes `side` to `sb_media` alongside `media_type` when linking.
-
-### Bug Fixes
-- **`insert_media` Overload Ambiguity (PGRST203)**: Adding `p_side` created a second overloaded function. Fixed by dropping the old 14-parameter version — only the 15-param version with `p_side DEFAULT NULL` remains.
-- **Smart Linker 0 Results**: Two bugs: (1) `_deriveFolderContext` only matched `/cutting/` and `cutting_report` — added `cutting_card`, `cutting_card_front`, `cutting_card_back` path variants. (2) The cutting bulk query had `.lt('VNO', 100000)` on `sb_cutdet_summary` which has no `VNO` column — removed the invalid filter.
-- **`ListTile` Material Ancestor Black Screen**: Flutter's `ListTile` requires a `Material` widget ancestor (not just `Container(color:...)` / `DecoratedBox`) to paint ink splashes. Systematically fixed all 5 `ListTile` instances in `media_screen.dart`:
-  - `_buildLeftPane` — wrapped entire pane in `Material(color: surfaceSubtle)`
-  - `_buildSmartLinkerSidebarItem` — replaced `Container(decoration:BoxDecoration(color:...))` with `Material(color:...)` outer
-  - Autocomplete results list — `ClipRRect` + `Material(surface)` wrapper
-  - Manual linker dialog list — `ClipRRect` + `Material(transparent)` wrapper
-  - `_BulkLinkDialog` search result list — `ClipRRect` + `Material(transparent)` wrapper
-
----
-
-## 2026-07-16 · Central Media Library Explorer & Inline Scans Attachment
-
-Shipped the central Media Library Explorer module, Supabase Storage integration, Postgres RPC migration, and inline photo scan attachment features inside the Production Cutting and Job Work screens.
+Shipped the central Media Library Explorer module, Supabase Storage integration, Postgres RPC migration, inline photo scan attachment features, unified `'cutting_card'` classification, single-step Link & Auto-Rename storage logic, live progress dialog overlays, context popup unmounted crashes, and git syncing.
 
 ### Client-Side Image Compression & Thumbnails
 - **App-Side Compression Pipeline**: Added the pure Dart `image` package to pre-process images locally prior to upload. Downscales images exceeding `1600px` (preserving aspect ratio) and outputs `80%` quality JPEGs (typically compressing 5MB raw files to ~250KB).
 - **In-App Thumbnailing**: Dynamically generates `200px` thumbnail slices at `70%` quality and uploads them asynchronously to `/thumbnails` paths in Supabase Storage.
 - **RPC Param Extension**: Redefined `"IMMBE2627".insert_media` in Postgres to take a backward-compatible `p_thumb_path DEFAULT NULL` argument, linking thumbnails to metadata records automatically.
-- **Redundant View Optimizations**: Conconfigured grid views and preview boxes to fetch `thumbPath` objects first, falling back to CDN-resized `200x200` transformations (`TransformOptions`) to save massive egress bandwidth and load screens instantly.
+- **Redundant View Optimizations**: Configured grid views and preview boxes to fetch `thumbPath` objects first, falling back to CDN-resized `200x200` transformations (`TransformOptions`) to save massive egress bandwidth and load screens instantly.
 
 ### Central Media Library & Explorer Screen
 - **Central Media Screen**: Designed and deployed the Standalone Media Screen (`media_screen.dart`) registered as route case 10 and linked to navigation rails/boats.
@@ -63,7 +26,30 @@ Shipped the central Media Library Explorer module, Supabase Storage integration,
 ### Supabase Storage & Postgres RPC Migration
 - **Bucket Configuration**: Set up folder structures inside `ambaji-media` bucket (`sales/`, `production/cutting/`, `production/jobcard/`).
 - **Postgres DDL & Triggers**: Applied `sb_media` migrations with automated table constraints, index performance optimizations, and RLS policies.
-- **Transactional DB RPCs**: Deployed custom Postgres procedures (`insert_media`, `link_media_to_entity`, `archive_media`, `bulk_link_media_to_entity`, and `bulk_archive_media`) to handle all database operations transactionally from the client without direct `.insert()` or `.update()` permissions.
+- **Transactional DB RPCs**: Deployed custom Postgres procedures (`insert_media`, `link_media_to_entity`, `archive_media`, `bulk_link_media_to_entity`, and `bulk_archive_media`) to handle all database operations transactionally from the client.
+- **Overload Ambiguity Fix (PGRST203)**: Dropped the legacy 14-parameter `insert_media` overload, keeping only the 15-parameter version with `p_side DEFAULT NULL` to resolve PostgREST candidates routing conflicts.
+
+### CC Code Migration & Unified Classification
+- **Generated Columns**: Applied DB migration to add two `GENERATED ALWAYS AS` columns (`cc_no`, `cc_code`) to `sb_cutdet_summary` for zero-padded 4-digit serial formatting (e.g. `CC-0001`).
+- **Unified Category**: Merged `cutting_card_front` and `cutting_card_back` into a single `'cutting_card'` category across all DB schemas and upload dialog selections.
+- **Front/Back Side Detection**: Autodetects target sides (F/B) during suggestion generation based on filename suffix tags (e.g., `(2)` or `_2` mapped to back `'B'`, and clean serials to front `'F'`).
+
+### Consolidated Link & Auto-Rename Action
+- **One-Step Execution**: Removed the separate "Rename to CC Code" header button. Linking now triggers both metadata mapping and storage renaming/relocation atomically.
+- **Dynamic Proposed Renames**: Displays the target filename (e.g., `➔ Rename to: CC-0001-F.jpg`) directly below the item matching dropdown inside the row UI.
+- **Relocation Pathing**: Pushes the linked files directly to the `'production/cutting/$entityId/'` subdirectory in storage on connection mapping.
+- **Bulk Delinking**: Ran database reset query to delink 47 legacy records from `sb_media` metadata tables so they show up under the Smart Linker dashboard for automated rename migration.
+
+### Detailed Progress Overlay Dialogs
+- **Dynamic Visual Counters**: Added glassmorphic progress overlay widgets containing linear progress bars and precise status messages (e.g. `Uploading 01.jpg`, `1 of 43 · 3% completed` or `Linking 01.jpg (1 of 43 · 3% completed)`).
+- **Callback Integration**: Added progress reporting callback parameters (`onProgress`) inside `bulkLinkSuggestions` to feed current counts and renaming phases back to the UI.
+
+### Popover Overlay & ListTile Bug Fixes
+- **Material Ancestors**: Wrapped `ListTile` options across the navigation sidebar, autocomplete search dialogs, bulk linker dropdowns, and `TissueDropdown` list choices inside proper opaque `Material` widgets to satisfy Flutter ink-ripple requirements.
+- **Safe Context Closes**: Swapped unmounted Navigator pops (`Navigator.of(context).pop()`) inside dropdown triggers and `_buildSortPopover` (in `cutting_screen.dart`) for key state controller closes (`_popoverKey.currentState?.close()`) to avoid unmounted context errors and black screens.
+
+### Git Syncing
+- **Commit & Remote Push**: Staged all untracked files and changes, creating commit `feat: central media library, smart linker rename automations, auth gate, and job work screens` and pushing it to remote origin master branch.
 
 ### Inline Cutting Cards Scan Attachment
 - **Inline Scanner Row**: Added a dedicated `CUTTING CARD SCAN` section to the batch details pane inside `cutting_screen.dart`.

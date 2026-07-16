@@ -337,32 +337,34 @@ class _CuttingScreenState extends State<CuttingScreen> {
 
         return CellBox(
           padding: const EdgeInsets.symmetric(vertical: OrganismTheme.spacingSm),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: sortOptions.map((opt) {
-              final isSelected = _sortBy == opt['value'];
-              return ListTile(
-                dense: true,
-                leading: Icon(opt['icon'] as IconData, size: 14, color: isSelected ? colors.primary : colors.textMuted),
-                title: Text(
-                  opt['label'] as String,
-                  style: OrganismTheme.bodyMedium(context).copyWith(
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                    color: isSelected ? colors.primary : colors.textPrimary,
+          child: Material(
+            color: Colors.transparent,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: sortOptions.map((opt) {
+                final isSelected = _sortBy == opt['value'];
+                return ListTile(
+                  dense: true,
+                  leading: Icon(opt['icon'] as IconData, size: 14, color: isSelected ? colors.primary : colors.textMuted),
+                  title: Text(
+                    opt['label'] as String,
+                    style: OrganismTheme.bodyMedium(context).copyWith(
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      color: isSelected ? colors.primary : colors.textPrimary,
+                    ),
                   ),
-                ),
-                trailing: isSelected ? Icon(LucideIcons.check, size: 14, color: colors.primary) : null,
-                onTap: () {
-                  setState(() {
-                    _sortBy = opt['value'] as String;
-                    _currentPage = 1;
-                  });
-                  setPopoverState(() {});
-                  _loadCards();
-                  Navigator.of(context).pop(); // Close popover
-                },
-              );
-            }).toList(),
+                  trailing: isSelected ? Icon(LucideIcons.check, size: 14, color: colors.primary) : null,
+                  onTap: () {
+                    setState(() {
+                      _sortBy = opt['value'] as String;
+                      _currentPage = 1;
+                    });
+                    setPopoverState(() {});
+                    _loadCards();
+                  },
+                );
+              }).toList(),
+            ),
           ),
         );
       },
