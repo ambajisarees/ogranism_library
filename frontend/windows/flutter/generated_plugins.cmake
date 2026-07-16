@@ -4,7 +4,8 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
-  screen_retriever
+  desktop_drop
+  screen_retriever_windows
   url_launcher_windows
   window_manager
 )

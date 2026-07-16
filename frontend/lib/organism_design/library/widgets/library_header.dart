@@ -13,14 +13,15 @@ class LibraryHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = OrganismTheme.colorsOf(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(OrganismTheme.spacingXl),
       decoration: BoxDecoration(
-        color: OrganismTheme.stone50,
+        color: colors.stone50,
         border: Border(
           left: BorderSide(
-            color: OrganismTheme.primary,
+            color: colors.primary,
             width: 4,
           ),
         ),
@@ -30,14 +31,14 @@ class LibraryHeader extends StatelessWidget {
         children: [
           Text(
             title,
-            style: OrganismTheme.displayLarge.copyWith(fontSize: 28),
+            style: OrganismTheme.displayLarge(context),
           ),
           const SizedBox(height: OrganismTheme.spacingSm),
           Text(
             description,
-            style: OrganismTheme.bodyLarge.copyWith(
+            style: OrganismTheme.bodyLarge(context).copyWith(
               height: 1.6,
-              color: OrganismTheme.textSecondary,
+              color: colors.textSecondary,
             ),
           ),
         ],
