@@ -36,3 +36,6 @@ _backups/
 
 # Supabase
 backend/supabase/.temp/
+
+# Graphify
+graphify-out/

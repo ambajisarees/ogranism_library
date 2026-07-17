@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 
 /// [DomainLedgerType] — Standard financial mapping for the Textile ERP.
 enum DomainLedgerType {

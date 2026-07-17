@@ -30,6 +30,8 @@ class _TissueFileUploadState extends State<TissueFileUpload> {
   bool _isDragging = false;
 
   Future<void> _pickFiles() async {
+    // Yield thread to let current gesture arena & button hover states settle
+    await Future.delayed(Duration.zero);
     final result = await FilePicker.pickFiles(
       allowMultiple: widget.allowMultiple,
       withData: true,
@@ -73,7 +75,7 @@ class _TissueFileUploadState extends State<TissueFileUpload> {
           duration: OrganismTheme.durationFast,
           padding: const EdgeInsets.all(OrganismTheme.spacingXl),
           decoration: BoxDecoration(
-            color: _isDragging ? colors.primary.withOpacity(0.05) : colors.surface,
+            color: _isDragging ? colors.primary.withValues(alpha: 0.05) : colors.surface,
             border: Border.all(
               color: _isDragging ? colors.primary : colors.border,
               width: 2,

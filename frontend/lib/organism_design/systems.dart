@@ -16,9 +16,8 @@
 ///
 /// Hierarchy: Theme → Plasma → Cells → Tissues → Organs → **Systems**
 /// ============================================================
+library;
 
-import 'package:flutter/material.dart';
-import 'theme.dart';
 
 export 'systems/app_shell.dart';
 export 'systems/master_layout.dart';

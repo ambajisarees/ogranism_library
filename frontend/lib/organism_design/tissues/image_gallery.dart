@@ -20,7 +20,7 @@ class TissueImageGallery extends StatelessWidget {
   void _openLightbox(BuildContext context, int initialIndex) {
     showGeneralDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.9),
+      barrierColor: Colors.black.withValues(alpha: 0.9),
       barrierDismissible: true,
       barrierLabel: 'Close Image',
       pageBuilder: (context, _, __) {
@@ -112,7 +112,7 @@ class _LightboxViewState extends State<_LightboxView> {
           child: SafeArea(
             child: Container(
               padding: const EdgeInsets.all(OrganismTheme.spacingMd),
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -138,7 +138,7 @@ class _LightboxViewState extends State<_LightboxView> {
             right: 0,
             child: SafeArea(
               child: Container(
-                color: Colors.black.withOpacity(0.5),
+                color: Colors.black.withValues(alpha: 0.5),
                 padding: const EdgeInsets.symmetric(vertical: OrganismTheme.spacingMd),
                 child: CarouselSlider(
                   options: CarouselOptions(

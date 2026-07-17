@@ -1,6 +1,5 @@
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../theme.dart';
-import '../../cells.dart';
 import 'package:flutter/material.dart';
 
 class LibrarySection extends StatelessWidget {

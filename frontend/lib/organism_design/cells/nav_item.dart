@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
-import 'spatial.dart'; // Direct import for CellGap
+// Direct import for CellGap
 
 /// [CellNavItem] — Global navigation entry atom.
 ///

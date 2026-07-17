@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../theme.dart';
 import 'badge.dart'; // Direct import for CellBadgeVariant
 import 'box.dart';   // Direct import for CellBox

@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image/image.dart' as img;
 import '../../models/production/model_media.dart';
@@ -78,7 +78,7 @@ class MediaService {
         limit: limit,
       );
     } catch (e) {
-      print('MediaService.getMedia error: $e');
+      debugPrint('MediaService.getMedia error: $e');
       return PaginatedResult(data: [], totalCount: 0, offset: offset, limit: limit, error: e.toString());
     }
   }
@@ -99,7 +99,7 @@ class MediaService {
           .map((json) => MediaModel.fromJson(json))
           .toList();
     } catch (e) {
-      print('MediaService.getMediaForEntity error: $e');
+      debugPrint('MediaService.getMediaForEntity error: $e');
       return [];
     }
   }
@@ -161,7 +161,7 @@ class MediaService {
               height = decoded.height;
             }
           } catch (e) {
-            print('Failed to decode uploaded image dimensions: $e');
+            debugPrint('Failed to decode uploaded image dimensions: $e');
           }
           
           // Generate thumbnail path (e.g. production/cutting/123/thumbnails/01.jpg)
@@ -187,7 +187,7 @@ class MediaService {
               height = decoded.height;
             }
           } catch (e) {
-            print('Failed to decode original image dimensions: $e');
+            debugPrint('Failed to decode original image dimensions: $e');
           }
         }
       }
@@ -226,7 +226,7 @@ class MediaService {
       }
       return id;
     } catch (e) {
-      print('MediaService.uploadFile error: $e');
+      debugPrint('MediaService.uploadFile error: $e');
       rethrow;
     }
   }
@@ -245,7 +245,24 @@ class MediaService {
         'p_linked_by': userId,
       });
     } catch (e) {
-      print('MediaService.linkToEntity error: $e');
+      debugPrint('MediaService.linkToEntity error: $e');
+      rethrow;
+    }
+  }
+
+  /// Delink a media record from any associated entity.
+  Future<void> delinkFromEntity(String mediaId) async {
+    try {
+      await _db.client.schema('IMMBE2627').from('sb_media').update({
+        'is_linked': false,
+        'entity_type': null,
+        'entity_id': null,
+        'entity_label': null,
+        'side': null,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', mediaId);
+    } catch (e) {
+      debugPrint('MediaService.delinkFromEntity error: $e');
       rethrow;
     }
   }
@@ -264,7 +281,7 @@ class MediaService {
         'p_linked_by': userId,
       });
     } catch (e) {
-      print('MediaService.bulkLinkToEntity error: $e');
+      debugPrint('MediaService.bulkLinkToEntity error: $e');
       rethrow;
     }
   }
@@ -278,7 +295,7 @@ class MediaService {
           .update({'tags': tags, 'updated_at': DateTime.now().toIso8601String()})
           .eq('id', mediaId);
     } catch (e) {
-      print('MediaService.updateTags error: $e');
+      debugPrint('MediaService.updateTags error: $e');
       rethrow;
     }
   }
@@ -296,7 +313,7 @@ class MediaService {
           })
           .eq('id', mediaId);
     } catch (e) {
-      print('MediaService.moveToBucket error: $e');
+      debugPrint('MediaService.moveToBucket error: $e');
       rethrow;
     }
   }
@@ -308,7 +325,7 @@ class MediaService {
         'p_media_id': mediaId,
       });
     } catch (e) {
-      print('MediaService.archiveMedia error: $e');
+      debugPrint('MediaService.archiveMedia error: $e');
       rethrow;
     }
   }
@@ -320,7 +337,7 @@ class MediaService {
         'p_media_ids': mediaIds,
       });
     } catch (e) {
-      print('MediaService.bulkArchive error: $e');
+      debugPrint('MediaService.bulkArchive error: $e');
       rethrow;
     }
   }
@@ -346,7 +363,7 @@ class MediaService {
     try {
       return await _db.client.storage.from('ambaji-media').createSignedUrl(filePath, expiry.inSeconds);
     } catch (e) {
-      print('MediaService.getSignedUrl error: $e');
+      debugPrint('MediaService.getSignedUrl error: $e');
       return getPublicUrl(filePath); // fallback to public URL if signed fails
     }
   }
@@ -363,8 +380,14 @@ class MediaService {
       return 'challan';
     } else if (lowerPath.contains('bilty')) {
       return 'bilty';
-    } else if (lowerPath.contains('job card') || lowerPath.contains('jobcard')) {
+    } else if (lowerPath.contains('job card') || lowerPath.contains('jobcard') || lowerPath.contains('job_card')) {
       return 'job_card';
+    } else if (lowerPath.contains('inward') ||
+        lowerPath.contains('job inward') ||
+        lowerPath.contains('job_inward') ||
+        lowerPath.contains('receive') ||
+        lowerPath.contains('receipt')) {
+      return 'job_inward';
     }
     return 'general';
   }
@@ -373,8 +396,13 @@ class MediaService {
     final cleanName = fileName.split('.').first; // strip extension
     final List<int> numbers = [];
 
-    if (context == 'cutting_report') {
-      // e.g. "147 (2)" or "147" -> match leading number
+    if (context == 'cutting_report' || context == 'job_card' || context == 'job_inward') {
+      // Skip date patterns (e.g. "17-07-2026" or "20260717") to prevent small VNO false matches on Job Sarees
+      if (RegExp(r'^\d{1,2}[-./]\d{1,2}[-./]\d{2,4}').hasMatch(cleanName) ||
+          RegExp(r'^\d{8}$').hasMatch(cleanName)) {
+        return [];
+      }
+      // e.g. "147 (2)" or "01 (2)" or "147" -> match leading number
       final match = RegExp(r'^(\d+)').firstMatch(cleanName);
       if (match != null) {
         final val = int.tryParse(match.group(1)!);
@@ -513,18 +541,33 @@ class MediaService {
             final typeCode = b['TYPE'] as String? ?? '';
             final codeLabel = b['code'] as String? ?? 'N/A';
             
+            // Skip O5/O6 matching suggestions if context is cutting card bucket
+            if (context == 'cutting_report' && (typeCode == 'O5' || typeCode == 'O6')) {
+              continue;
+            }
+
+            // Job Cards reference ONLY O5 (Stitching Dispatch)
+            if (context == 'job_card' && typeCode != 'O5') {
+              continue;
+            }
+
+            // Job Inward pertains ONLY to O6 (Stitching Receive)
+            if (context == 'job_inward' && typeCode != 'O6') {
+              continue;
+            }
+
             if (typeCode == 'O5') {
               options.add(MatchedEntityOption(
                 entityType: 'stitching_dispatch',
                 entityId: numVal.toString(),
-                entityLabel: 'Stitching Dispatch O5 #$numVal ($codeLabel)',
+                entityLabel: 'Job Work ${numVal.toString().padLeft(4, '0')} ($codeLabel)',
                 typeCode: 'O5',
               ));
             } else if (typeCode == 'O6') {
               options.add(MatchedEntityOption(
                 entityType: 'stitching_receive',
                 entityId: numVal.toString(),
-                entityLabel: 'Stitching Receive O6 #$numVal ($codeLabel)',
+                entityLabel: 'Job Inward ${numVal.toString().padLeft(4, '0')} ($codeLabel)',
                 typeCode: 'O6',
               ));
             } else if (context == 'bilty' && ['S1', 'P1', 'S2', 'P2'].contains(typeCode)) {
@@ -537,8 +580,11 @@ class MediaService {
             }
           }
 
-          // Fallback matches if not matched yet
-          if (context != 'cutting_report' && existingCuttingVnos.contains(numVal)) {
+          // Fallback matches if not matched yet (only for other contexts like bilty or general, skip job_card/inward)
+          if (context != 'cutting_report' &&
+              context != 'job_card' &&
+              context != 'job_inward' &&
+              existingCuttingVnos.contains(numVal)) {
             options.add(MatchedEntityOption(
               entityType: 'cutting_batch',
               entityId: numVal.toString(),
@@ -555,6 +601,18 @@ class MediaService {
                          media.fileName.toLowerCase().contains('_2');
           side = isBack ? 'B' : 'F';
           classifiedMediaType = 'cutting_card';
+        } else if (context == 'job_card') {
+          final isBack = media.fileName.contains('(2)') ||
+                         media.fileName.toLowerCase().contains('_2') ||
+                         media.fileName.toLowerCase().contains('back');
+          side = isBack ? 'B' : 'F';
+          classifiedMediaType = 'job_card';
+        } else if (context == 'job_inward') {
+          final isBack = media.fileName.contains('(2)') ||
+                         media.fileName.toLowerCase().contains('_2') ||
+                         media.fileName.toLowerCase().contains('back');
+          side = isBack ? 'B' : 'F';
+          classifiedMediaType = 'job_inward';
         }
 
         suggestions.add(SmartLinkSuggestion(
@@ -568,7 +626,7 @@ class MediaService {
 
       return suggestions;
     } catch (e) {
-      print('MediaService.getSmartLinkSuggestions error: $e');
+      debugPrint('MediaService.getSmartLinkSuggestions error: $e');
       rethrow;
     }
   }
@@ -616,52 +674,73 @@ class MediaService {
         }
       }
 
-      // Automatically rename and move storage objects to CC-XXXX-F/B layout inside production/cutting/
+      // Automatically rename and move storage objects to CC-XXXX-F/B or JOB-XXXX-F/B layouts in storage
       try {
         onProgress?.call(total, total, 'Relocating & renaming files in storage...');
-        await renameToCcCode(mappings);
+        await renameLinkedMediaInStorage(mappings);
       } catch (e) {
-        print('Warning: Automatic CC rename failed post-link: $e');
+        debugPrint('Warning: Automatic file rename failed post-link: $e');
       }
     } catch (e) {
-      print('MediaService.bulkLinkSuggestions error: $e');
+      debugPrint('MediaService.bulkLinkSuggestions error: $e');
       rethrow;
     }
   }
 
-  /// Renames linked cutting card files in Storage to the CC code convention:
-  ///   CC-XXXX-F.jpg  (front)  and  CC-XXXX-B.jpg  (back)
-  ///
-  /// For each [suggestion] that is a cutting_batch with a side set, this method:
-  ///   1. Copies the existing storage object to the new CC-coded path
-  ///   2. Removes the old object
-  ///   3. Updates sb_media.file_path, file_name, display_name, thumb_path
-  ///
-  /// Returns a map of {mediaId: newPath} for successfully renamed files.
-  Future<Map<String, String>> renameToCcCode(List<SmartLinkSuggestion> suggestions) async {
+  /// Renames linked files in Storage to the standard code conventions:
+  ///   Cutting batches -> CC-XXXX-F.jpg / CC-XXXX-B.jpg
+  ///   Stitching dispatches -> JOB-XXXX-F.jpg / JOB-XXXX-B.jpg
+  ///   Stitching receives -> JOB-XXXX-F.jpg / JOB-XXXX-B.jpg
+  Future<Map<String, String>> renameLinkedMediaInStorage(List<SmartLinkSuggestion> suggestions) async {
     final Map<String, String> renamed = {};
     final List<String> errors = [];
 
     for (final s in suggestions) {
-      // Only process cutting card suggestions with a resolved entity and side
-      if (s.selectedOption?.entityType != 'cutting_batch') continue;
       if (s.side == null) continue;
       if (!s.isChecked) continue;
+      if (s.selectedOption == null) continue;
 
+      final entityType = s.selectedOption!.entityType;
       final entityId = s.selectedOption!.entityId;
       final side = s.side!; // 'F' or 'B'
       final media = s.media;
 
-      // Build the CC code (e.g. CC-0001)
-      final multiVno = int.tryParse(entityId) ?? 0;
-      final ccCode = 'CC-${multiVno.toString().padLeft(4, '0')}';
-
-      // Preserve original extension
+      final numId = int.tryParse(entityId) ?? 0;
+      final padId = numId.toString().padLeft(4, '0');
       final ext = media.fileName.contains('.') ? media.fileName.split('.').last.toLowerCase() : 'jpg';
-      final newFileName = '$ccCode-$side.$ext';
 
-      // Build new storage path inside production/cutting/$entityId/
-      final newFilePath = 'production/cutting/$entityId/$newFileName';
+      String newFileName;
+      String newFilePath;
+      String? newThumbPath;
+      String displayLabel;
+
+      if (entityType == 'cutting_batch') {
+        final ccCode = 'CC-$padId';
+        newFileName = '$ccCode-$side.$ext';
+        newFilePath = 'production/cutting/$entityId/$newFileName';
+        displayLabel = '$ccCode · ${side == 'F' ? 'Front' : 'Back'}';
+        if (media.thumbPath != null && media.thumbPath!.isNotEmpty) {
+          newThumbPath = 'production/cutting/$entityId/thumbnails/$newFileName';
+        }
+      } else if (entityType == 'stitching_dispatch') {
+        final jobCode = 'JOB-$padId';
+        newFileName = '$jobCode-$side.$ext';
+        newFilePath = 'production/jobcard/${entityId}_O5/$newFileName';
+        displayLabel = '$jobCode · ${side == 'F' ? 'Front' : 'Back'}';
+        if (media.thumbPath != null && media.thumbPath!.isNotEmpty) {
+          newThumbPath = 'production/jobcard/${entityId}_O5/thumbnails/$newFileName';
+        }
+      } else if (entityType == 'stitching_receive') {
+        final jobCode = 'JOB-$padId';
+        newFileName = '$jobCode-$side.$ext';
+        newFilePath = 'production/jobcard/${entityId}_O6/$newFileName';
+        displayLabel = '$jobCode · ${side == 'F' ? 'Front' : 'Back'}';
+        if (media.thumbPath != null && media.thumbPath!.isNotEmpty) {
+          newThumbPath = 'production/jobcard/${entityId}_O6/thumbnails/$newFileName';
+        }
+      } else {
+        continue;
+      }
 
       // Skip if already at the correct name
       if (media.filePath == newFilePath) {
@@ -677,9 +756,7 @@ class MediaService {
         await _db.client.storage.from('ambaji-media').remove([media.filePath]);
 
         // 3. Handle thumbnail rename if present
-        String? newThumbPath;
-        if (media.thumbPath != null && media.thumbPath!.isNotEmpty) {
-          newThumbPath = 'production/cutting/$entityId/thumbnails/$newFileName';
+        if (newThumbPath != null) {
           try {
             await _db.client.storage.from('ambaji-media').copy(media.thumbPath!, newThumbPath);
             await _db.client.storage.from('ambaji-media').remove([media.thumbPath!]);
@@ -692,7 +769,7 @@ class MediaService {
         await _db.client.schema('IMMBE2627').from('sb_media').update({
           'file_path': newFilePath,
           'file_name': newFileName,
-          'display_name': '$ccCode · ${side == 'F' ? 'Front' : 'Back'}',
+          'display_name': displayLabel,
           if (newThumbPath != null) 'thumb_path': newThumbPath,
           'updated_at': DateTime.now().toIso8601String(),
         }).eq('id', media.id);
@@ -700,12 +777,12 @@ class MediaService {
         renamed[media.id] = newFilePath;
       } catch (e) {
         errors.add('${media.fileName}: $e');
-        print('renameToCcCode error for ${media.fileName}: $e');
+        debugPrint('renameLinkedMediaInStorage error for ${media.fileName}: $e');
       }
     }
 
     if (errors.isNotEmpty) {
-      print('renameToCcCode completed with ${errors.length} error(s): ${errors.join(', ')}');
+      debugPrint('renameLinkedMediaInStorage completed with ${errors.length} error(s): ${errors.join(', ')}');
     }
     return renamed;
   }
@@ -761,7 +838,7 @@ class ImageProcessor {
 
       return CompressedMediaResult(mainBytes: mainBytes, thumbBytes: thumbBytes);
     } catch (e) {
-      print('Image compression error: $e');
+      debugPrint('Image compression error: $e');
       return null;
     }
   }

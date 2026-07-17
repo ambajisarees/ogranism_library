@@ -5,6 +5,7 @@
 /// Type-safe model for the Account Ledger (sq_MASTER).
 /// Maps all 79 columns into functional clusters.
 /// ============================================================
+library;
 
 class PartyModel {
   // 1. IDENTITY & TYPE

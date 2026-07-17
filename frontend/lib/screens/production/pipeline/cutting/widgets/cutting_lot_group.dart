@@ -170,7 +170,7 @@ class CuttingGroupedLotCards extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                       decoration: BoxDecoration(
                         color: isChecked
-                            ? colors.primary.withOpacity(0.08)
+                            ? colors.primary.withValues(alpha: 0.08)
                             : colors.surface,
                         borderRadius: BorderRadius.circular(OrganismTheme.radiusSm),
                         border: Border.all(

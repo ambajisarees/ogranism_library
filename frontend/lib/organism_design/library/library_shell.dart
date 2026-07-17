@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
-import '../plasma.dart';
-import '../cells.dart';
 import '../tissues.dart';
-import '../organs.dart';
-import '../domain.dart';
 import 'sections/theme_view.dart';
 import 'sections/plasma_view.dart';
 import 'sections/cells_view.dart';

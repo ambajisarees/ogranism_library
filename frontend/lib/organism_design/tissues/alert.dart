@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme.dart';
 import '../cells/alert.dart'; // Direct import for CellAlert
 import '../cells/badge.dart'; // Direct import for CellBadgeVariant
 

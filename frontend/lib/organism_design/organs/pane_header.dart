@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../theme.dart';
 import '../cells.dart';
-import '../tissues.dart';
 import '../plasma.dart';
 import 'workspace_controller.dart';
 

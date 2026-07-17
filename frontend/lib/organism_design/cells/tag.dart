@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../theme.dart';
-import 'spatial.dart'; // Direct import for CellPad/CellGap
+// Direct import for CellPad/CellGap
 
 /// [CellTag] — Removable labeled tag chip atom.
 ///

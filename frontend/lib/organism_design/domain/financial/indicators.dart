@@ -18,8 +18,6 @@ class DomainDueDateBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final isOverdue = date.isBefore(DateTime(now.year, now.month, now.day));
-    final colors = OrganismTheme.colorsOf(context);
-
     return CellBadge(
       text: '${date.day}/${date.month}/${date.year}',
       variant: isOverdue ? CellBadgeVariant.error : CellBadgeVariant.secondary,

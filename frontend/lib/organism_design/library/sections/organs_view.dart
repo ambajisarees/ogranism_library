@@ -179,16 +179,16 @@ class OrgansView extends StatelessWidget {
                 SizedBox(
                   width: 200,
                   child: TissueMenu(
-                    child: const CellButton(
-                      text: 'Action Menu',
-                      variant: CellButtonVariant.outline,
-                      icon: LucideIcons.moreVertical,
-                    ),
                     items: [
                       TissueMenuItemData(label: 'Edit Record', icon: LucideIcons.edit, onTap: () {}),
                       TissueMenuItemData(label: 'Download PDF', icon: LucideIcons.download, onTap: () {}),
                       TissueMenuItemData(label: 'Delete', icon: LucideIcons.trash2, isDestructive: true, onTap: () {}),
                     ],
+                    child: const CellButton(
+                      text: 'Action Menu',
+                      variant: CellButtonVariant.outline,
+                      icon: LucideIcons.moreVertical,
+                    ),
                   ),
                 ),
               ],

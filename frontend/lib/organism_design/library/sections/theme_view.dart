@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../theme.dart';
-import '../../theme.dart';
-import '../../cells.dart';
 import '../widgets/library_section.dart';
 
 class ThemeView extends StatelessWidget {

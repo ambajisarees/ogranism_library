@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../theme.dart';
 import '../cells/box.dart';     // Direct import for CellBox
 import '../cells/spatial.dart'; // Direct import for CellGap/CellPad

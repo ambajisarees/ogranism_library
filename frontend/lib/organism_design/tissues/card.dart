@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme.dart';
 import '../cells/box.dart'; // Direct import for CellBox
 
 /// [TissueCard] — Composable layout boundary molecule.

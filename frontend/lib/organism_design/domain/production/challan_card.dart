@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../theme.dart';
 import '../../cells.dart';
 import '../../tissues.dart';
 import '../types.dart';
@@ -33,8 +32,6 @@ class DomainChallanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = OrganismTheme.colorsOf(context);
-
     return TissueListCard(
       isSelected: isSelected,
       onTap: onTap,

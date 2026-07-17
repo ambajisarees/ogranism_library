@@ -6,7 +6,6 @@ import 'dart:io';
 
 // NEW ORGANISM DESIGN IMPORT
 import 'organism_design/index.dart';
-import 'screens/home.dart';
 import 'screens/auth/auth_gate.dart';
 import 'config/supabase_config.dart';
 
@@ -15,16 +14,16 @@ void main() async {
 
   await Supabase.initialize(
     url: SupabaseConfig.url,
-    anonKey: SupabaseConfig.anonKey,
+    publishableKey: SupabaseConfig.anonKey,
   );
 
   // Desktop configuration
   if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
     await windowManager.ensureInitialized();
     WindowOptions windowOptions = const WindowOptions(
-      size: Size(1920, 1080),
-      minimumSize: Size(1920, 1080),
-      maximumSize: Size(1920, 1080),
+      size: Size(1920, 1200),
+      minimumSize: Size(1920, 1200),
+      maximumSize: Size(1920, 1200),
       center: true,
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.normal,

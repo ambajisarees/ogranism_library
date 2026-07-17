@@ -15,6 +15,7 @@
 ///
 /// Usage: Import via `package:textile_erp/organism_design/index.dart`
 /// ============================================================
+library;
 
 // ── NAVIGATION SHELL ─────────────────────────────────────────
 

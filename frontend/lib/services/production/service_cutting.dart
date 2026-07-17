@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../../models/production/model_cutting.dart';
 import '../core/service_supabase.dart';
 
@@ -78,7 +79,7 @@ class CuttingService {
         limit: limit,
       );
     } catch (e) {
-      print('Error in getCuttingBatches: $e');
+      debugPrint('Error in getCuttingBatches: $e');
       return PaginatedResult(
         data: [],
         totalCount: 0,
@@ -104,7 +105,7 @@ class CuttingService {
       list.sort();
       return list;
     } catch (e) {
-      print('Error getUniqueQualities: $e');
+      debugPrint('Error getUniqueQualities: $e');
       return [];
     }
   }
@@ -124,7 +125,7 @@ class CuttingService {
       list.sort();
       return list;
     } catch (e) {
-      print('Error getUniqueMills: $e');
+      debugPrint('Error getUniqueMills: $e');
       return [];
     }
   }
@@ -163,7 +164,7 @@ class CuttingService {
       list.sort();
       return list;
     } catch (e) {
-      print('Error getUniqueMillsForQuality: $e');
+      debugPrint('Error getUniqueMillsForQuality: $e');
       return [];
     }
   }
@@ -208,7 +209,7 @@ class CuttingService {
         return row;
       }).toList();
     } catch (e) {
-      print('Error getAvailableTakas: $e');
+      debugPrint('Error getAvailableTakas: $e');
       return [];
     }
   }
@@ -227,7 +228,7 @@ class CuttingService {
 
       return Map<String, dynamic>.from(response.data as Map);
     } catch (e) {
-      print('Error saveCuttingBatch: $e');
+      debugPrint('Error saveCuttingBatch: $e');
       rethrow;
     }
   }
@@ -245,7 +246,7 @@ class CuttingService {
       if (response == null) return null;
       return CuttingBatchSummaryModel.fromJson(response);
     } catch (e) {
-      print('Error getBatchSummary: $e');
+      debugPrint('Error getBatchSummary: $e');
       return null;
     }
   }
@@ -298,7 +299,7 @@ class CuttingService {
         return CuttingCardModel.fromJson(row);
       }).toList();
     } catch (e) {
-      print('Error getSiblingCards: $e');
+      debugPrint('Error getSiblingCards: $e');
       return [];
     }
   }
@@ -318,7 +319,7 @@ class CuttingService {
       }
       return null;
     } catch (e) {
-      print('Error fetching card $cutCardNo: $e');
+      debugPrint('Error fetching card $cutCardNo: $e');
       return null;
     }
   }
@@ -342,7 +343,7 @@ class CuttingService {
 
       return sbMax > 0 ? sbMax + 1 : 1;
     } catch (e) {
-      print('Error getNextMultiVno: $e');
+      debugPrint('Error getNextMultiVno: $e');
       return 1;
     }
   }
@@ -365,7 +366,7 @@ class CuttingService {
         'job_received': map['job_received'] as String?,
       };
     } catch (e) {
-      print('Error getBatchTimeline: $e');
+      debugPrint('Error getBatchTimeline: $e');
       return {};
     }
   }

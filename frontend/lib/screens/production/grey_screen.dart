@@ -4,7 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:textile_erp/organism_design/index.dart';
 import '../../models/production/model_grey.dart';
 import '../../services/production/service_grey.dart';
-import 'pipeline/dialogs/grey_deal_dialog.dart';
+import 'pipeline/deals/grey_deal_dialog.dart';
 
 class GreyScreen extends StatefulWidget {
   const GreyScreen({super.key});

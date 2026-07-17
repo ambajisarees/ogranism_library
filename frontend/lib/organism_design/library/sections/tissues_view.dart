@@ -4,7 +4,6 @@ import 'package:pluto_grid/pluto_grid.dart';
 import '../../theme.dart';
 import '../../cells.dart';
 import '../../tissues.dart';
-import '../../theme.dart';
 import '../widgets/library_section.dart';
 
 class TissuesView extends StatefulWidget {
@@ -488,7 +487,7 @@ class _TissuesViewState extends State<TissuesView> {
                 ],
                 onCommentSubmitted: (v) {
                   // Simulate add
-                  print("Submitted: $v");
+                  debugPrint("Submitted: $v");
                 },
               ),
             ),
@@ -637,7 +636,7 @@ class _TissuesViewState extends State<TissuesView> {
               filePath: 'organism_design/tissues/barcode_scanner.dart',
               description: 'Input interceptor mapping wedge gun carriage loops.',
               child: TissueBarcodeScanner(
-                onScanned: (s) => print(s),
+                onScanned: (s) => debugPrint(s),
               ),
             ),
           ),

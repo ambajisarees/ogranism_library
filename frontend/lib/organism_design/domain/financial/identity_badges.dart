@@ -11,8 +11,6 @@ class DomainPartyTypeBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = OrganismTheme.colorsOf(context);
-    
     String label;
     CellBadgeVariant variant;
 

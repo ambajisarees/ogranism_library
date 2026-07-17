@@ -29,7 +29,6 @@ class _PlasmaContextMenuState extends State<PlasmaContextMenu> {
     _closeMenu(); // Safety first
 
     final capturedTheme = Theme.of(context);
-    final colors = OrganismTheme.colorsOf(context);
 
     _overlayEntry = OverlayEntry(
       builder: (context) => Theme(

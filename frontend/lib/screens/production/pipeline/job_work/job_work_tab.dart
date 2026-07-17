@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:textile_erp/organism_design/index.dart';
@@ -46,6 +45,13 @@ class _JobDispatchTabState extends State<JobDispatchTab> {
   int _totalCount = 0;
   final int _limit = 50;
   String _searchTerm = '';
+
+  // Filter & Sort State
+  String? _selectedFilterKhata;
+  String? _selectedFilterFabric;
+  String _sortBy = 'DATE_DESC';
+  List<String> _uniqueFilterKhatas = [];
+  List<String> _uniqueFilterFabrics = [];
   
   final TextEditingController _searchController = TextEditingController();
 
@@ -53,12 +59,28 @@ class _JobDispatchTabState extends State<JobDispatchTab> {
   void initState() {
     super.initState();
     _loadData();
+    _loadFilterOptions();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadFilterOptions() async {
+    try {
+      final tailors = await _service.getUniqueTailors();
+      final fabrics = await _service.getUniqueFabrics();
+      if (mounted) {
+        setState(() {
+          _uniqueFilterKhatas = tailors;
+          _uniqueFilterFabrics = fabrics;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading filter options: $e');
+    }
   }
 
   Future<void> _loadData() async {
@@ -70,6 +92,9 @@ class _JobDispatchTabState extends State<JobDispatchTab> {
         offset: (_currentPage - 1) * _limit,
         limit: _limit,
         searchTerm: _searchTerm,
+        filterKhata: _selectedFilterKhata,
+        filterFabric: _selectedFilterFabric,
+        sortBy: _sortBy,
       );
       if (mounted) {
         setState(() {
@@ -136,11 +161,13 @@ class _JobDispatchTabState extends State<JobDispatchTab> {
 
   Future<void> _attachChallanScan(int vno) async {
     try {
+      // Yield thread to let current gesture arena & button hover states settle
+      await Future.delayed(Duration.zero);
       final result = await FilePicker.pickFiles(type: FileType.image);
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
         final bytes = file.bytes ?? await File(file.path!).readAsBytes();
-
+        if (!mounted) return;
         PlasmaToastManager.instance.show(context, 'Uploading scan...', variant: CellBadgeVariant.primary);
 
         await MediaService().uploadFile(
@@ -180,7 +207,7 @@ class _JobDispatchTabState extends State<JobDispatchTab> {
       if (confirm != true) return;
 
       await MediaService().archiveMedia(mediaId);
-
+      if (!mounted) return;
       final media = await MediaService().getMediaForEntity('stitching_dispatch', vno.toString());
       if (mounted) {
         setState(() {
@@ -300,6 +327,122 @@ class _JobDispatchTabState extends State<JobDispatchTab> {
     );
   }
 
+  Widget _buildFilterPopover(BuildContext context) {
+    return StatefulBuilder(
+      builder: (context, setPopoverState) {
+        final colors = OrganismTheme.colorsOf(context);
+        return CellBox(
+          padding: const EdgeInsets.all(OrganismTheme.spacingMd),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'FILTER BY KHATA',
+                style: OrganismTheme.labelSmall(context).copyWith(color: colors.textMuted),
+              ),
+              const SizedBox(height: 8),
+              TissueDropdown<String?>(
+                items: [null, ..._uniqueFilterKhatas],
+                value: _selectedFilterKhata,
+                itemLabelBuilder: (val) => val ?? 'All Khatas',
+                onChanged: (val) {
+                  setState(() {
+                    _selectedFilterKhata = val;
+                    _currentPage = 1;
+                    _selectedDispatch = null;
+                  });
+                  setPopoverState(() {});
+                  _loadData();
+                },
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'FILTER BY FABRIC',
+                style: OrganismTheme.labelSmall(context).copyWith(color: colors.textMuted),
+              ),
+              const SizedBox(height: 8),
+              TissueDropdown<String?>(
+                items: [null, ..._uniqueFilterFabrics],
+                value: _selectedFilterFabric,
+                itemLabelBuilder: (val) => val ?? 'All Fabrics',
+                onChanged: (val) {
+                  setState(() {
+                    _selectedFilterFabric = val;
+                    _currentPage = 1;
+                    _selectedDispatch = null;
+                  });
+                  setPopoverState(() {});
+                  _loadData();
+                },
+              ),
+              if (_selectedFilterKhata != null || _selectedFilterFabric != null) ...[
+                const SizedBox(height: 16),
+                CellButton(
+                  text: 'Clear Filters',
+                  variant: CellButtonVariant.outline,
+                  onPressed: () {
+                    setState(() {
+                      _selectedFilterKhata = null;
+                      _selectedFilterFabric = null;
+                      _currentPage = 1;
+                      _selectedDispatch = null;
+                    });
+                    setPopoverState(() {});
+                    _loadData();
+                  },
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSortPopover(BuildContext context) {
+    return StatefulBuilder(
+      builder: (context, setPopoverState) {
+        final colors = OrganismTheme.colorsOf(context);
+        final List<Map<String, dynamic>> sortOptions = [
+          {'label': 'Date: Latest First', 'value': 'DATE_DESC', 'icon': LucideIcons.calendarRange},
+          {'label': 'Date: Oldest First', 'value': 'DATE_ASC', 'icon': LucideIcons.calendarRange},
+          {'label': 'Job No: High to Low', 'value': 'JOBNO_DESC', 'icon': LucideIcons.hash},
+          {'label': 'Job No: Low to High', 'value': 'JOBNO_ASC', 'icon': LucideIcons.hash},
+        ];
+
+        return CellBox(
+          padding: const EdgeInsets.symmetric(vertical: OrganismTheme.spacingSm),
+          child: Material(
+            color: Colors.transparent,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: sortOptions.map<Widget>((opt) {
+                final isSelected = opt['value'] == _sortBy;
+                return Container(
+                  color: isSelected ? colors.primary.withValues(alpha: 0.04) : null,
+                  child: CellListTile(
+                    title: opt['label'],
+                    leading: Icon(opt['icon'], size: 14, color: isSelected ? colors.primary : colors.textMuted),
+                    onTap: () {
+                      setState(() {
+                        _sortBy = opt['value'];
+                        _currentPage = 1;
+                        _selectedDispatch = null;
+                      });
+                      setPopoverState(() {});
+                      _loadData();
+                    },
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = OrganismTheme.colorsOf(context);
@@ -308,7 +451,7 @@ class _JobDispatchTabState extends State<JobDispatchTab> {
     return SystemAppMasterLayout(
       isDetailVisible: _selectedDispatch != null,
       paneHeader: OrganPaneHeader(
-        title: 'Job Dispatch (O5)',
+        title: 'Job Work',
         searchController: _searchController,
         onSearchChanged: (val) {
           setState(() {
@@ -319,6 +462,17 @@ class _JobDispatchTabState extends State<JobDispatchTab> {
           _loadData();
         },
         searchPlaceholder: 'Search by Tailor...',
+        primaryAction: const CellButton(
+          text: 'Add',
+          icon: LucideIcons.plus,
+          variant: CellButtonVariant.primary,
+          isCompact: true,
+          onPressed: null, // Disabled
+        ),
+        filterContent: _buildFilterPopover(context),
+        filterWidth: 260.0,
+        sortContent: _buildSortPopover(context),
+        sortWidth: 260.0,
       ),
       paneList: OrganPaneList(
         isLoading: _isLoading,
@@ -338,43 +492,21 @@ class _JobDispatchTabState extends State<JobDispatchTab> {
           final item = _dispatches[index];
           final isSelected = _selectedDispatch?.vno == item.vno;
 
-          return TissueListCard(
+          return TissueListCard.registry(
             isSelected: isSelected,
-            isCompact: false,
-            showDivider: true,
             onTap: () => _onDispatchSelected(item),
-            leading: CellCardAvatar(date: item.date),
-            title: Text(
-              item.tailorName ?? item.tailorCode,
-              style: OrganismTheme.bodyLarge(context).copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            subtitle: Text('Challan No: ${item.vno} • ${item.totPcs} Pieces', style: OrganismTheme.bodySmall(context)),
-            trailing: Text(
-              'O5',
-              style: monoStyle.copyWith(
-                color: colors.primary,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            footer: Row(
-              children: [
-                Text('${item.totMts.toStringAsFixed(1)} Mts', style: monoStyle.copyWith(fontSize: 12, color: colors.textSecondary)),
-                const Spacer(),
-                Text(
-                  item.date.toIso8601String().split('T')[0],
-                  style: monoStyle.copyWith(fontSize: 11, color: colors.textMuted),
-                ),
-              ],
-            ),
+            showDivider: true,
+            registryDate: item.date,
+            registryTitle: item.tailorName ?? item.tailorCode,
+            registrySubtitle: item.itemDispatched ?? 'No Items Dispatched',
+            registryBadgeText: '${item.vno}',
+            registryMetricText: '${item.totPcs} PCS',
           );
         },
       ),
       sectionCanvas: _selectedDispatch == null ? null : _buildSectionCanvas(colors, monoStyle),
-      emptyTitle: 'No Job Dispatch Record Selected',
-      emptyMessage: 'Select a job dispatch record from the list to view detailed fabric dispatches.',
+      emptyTitle: 'No Job Record Selected',
+      emptyMessage: 'Select a job work record from the list to view details, linked receives, and attached challan scans.',
       emptyIcon: LucideIcons.truck,
     );
   }

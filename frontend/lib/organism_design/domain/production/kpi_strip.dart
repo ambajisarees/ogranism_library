@@ -39,13 +39,11 @@ class OrganKpiStrip extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       physics: const NeverScrollableScrollPhysics(),
       child: Row(
-        children: List.generate(4, (index) => Padding(
-          padding: const EdgeInsets.only(right: OrganismTheme.spacingLg),
-          child: Container(
-            child: const CellSkeleton(
-              width: 200,
-              height: 100,
-            ),
+        children: List.generate(4, (index) => const Padding(
+          padding: EdgeInsets.only(right: OrganismTheme.spacingLg),
+          child: CellSkeleton(
+            width: 200,
+            height: 100,
           ),
         )),
       ),

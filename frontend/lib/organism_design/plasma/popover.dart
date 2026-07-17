@@ -122,7 +122,6 @@ class PlasmaPopoverState extends State<PlasmaPopover> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = OrganismTheme.colorsOf(context);
     return CompositedTransformTarget(
       link: _layerLink,
       child: GestureDetector(

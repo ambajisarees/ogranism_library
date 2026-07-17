@@ -2,9 +2,14 @@
 # Automates timestamped backups for the Textile ERP project.
 # Excludes heavy/transient folders (build, .dart_tool, node_modules, .git) and active lockfiles.
 
+# Determine script directories
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+if ([string]::IsNullOrEmpty($scriptDir)) { $scriptDir = "." }
+$projectRoot = (Resolve-Path (Join-Path $scriptDir "..")).Path
+
 $timestamp = Get-Date -Format "yyyyMMdd_HHmm"
-$backupDir = "_backups"
-$zipFile = "$backupDir\textile_erp_backup_$timestamp.zip"
+$backupDir = Join-Path $projectRoot "_backups"
+$zipFile = Join-Path $backupDir "textile_erp_backup_$timestamp.zip"
 
 # Create backup directory if it doesn't exist
 if (!(Test-Path $backupDir)) {
@@ -12,11 +17,11 @@ if (!(Test-Path $backupDir)) {
     Write-Host "Created backup folder: $backupDir" -ForegroundColor Cyan
 }
 
-Write-Host "Gathering files for backup..." -ForegroundColor Yellow
+Write-Host "Gathering files for backup in $projectRoot..." -ForegroundColor Yellow
 
 # Get all source files, excluding the unwanted folders
-$files = Get-ChildItem -Path . -Recurse -File | Where-Object {
-    $relPath = $_.FullName.Replace((Get-Location).Path, "")
+$files = Get-ChildItem -Path $projectRoot -Recurse -File | Where-Object {
+    $relPath = $_.FullName.Replace($projectRoot, "")
     $relPath -notmatch '^\\_backups' -and
     $relPath -notmatch '\\node_modules\\' -and
     $relPath -notmatch '\\\.git\\' -and
@@ -36,7 +41,7 @@ try {
     $zipArchive = [System.IO.Compression.ZipFile]::Open($zipFile, [System.IO.Compression.ZipArchiveMode]::Create)
     foreach ($file in $files) {
         # Calculate relative path inside the zip
-        $relativePath = $file.FullName.Replace((Get-Location).Path + "\", "").Replace("\", "/")
+        $relativePath = $file.FullName.Replace($projectRoot + "\", "").Replace("\", "/")
         [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zipArchive, $file.FullName, $relativePath) | Out-Null
     }
     $zipArchive.Dispose()

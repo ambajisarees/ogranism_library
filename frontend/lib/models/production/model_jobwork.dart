@@ -15,6 +15,8 @@ class JobDispatchModel {
   final String? challanNo;
   final String? billNo;
 
+  final String? itemDispatched;
+
   const JobDispatchModel({
     required this.vno,
     required this.type,
@@ -27,7 +29,38 @@ class JobDispatchModel {
     required this.finalAmt,
     this.challanNo,
     this.billNo,
+    this.itemDispatched,
   });
+
+  JobDispatchModel copyWith({
+    int? vno,
+    String? type,
+    int? cno,
+    DateTime? date,
+    String? tailorCode,
+    String? tailorName,
+    double? totMts,
+    int? totPcs,
+    double? finalAmt,
+    String? challanNo,
+    String? billNo,
+    String? itemDispatched,
+  }) {
+    return JobDispatchModel(
+      vno: vno ?? this.vno,
+      type: type ?? this.type,
+      cno: cno ?? this.cno,
+      date: date ?? this.date,
+      tailorCode: tailorCode ?? this.tailorCode,
+      tailorName: tailorName ?? this.tailorName,
+      totMts: totMts ?? this.totMts,
+      totPcs: totPcs ?? this.totPcs,
+      finalAmt: finalAmt ?? this.finalAmt,
+      challanNo: challanNo ?? this.challanNo,
+      billNo: billNo ?? this.billNo,
+      itemDispatched: itemDispatched ?? this.itemDispatched,
+    );
+  }
 
   factory JobDispatchModel.fromJson(Map<String, dynamic> json) {
     return JobDispatchModel(
@@ -42,6 +75,7 @@ class JobDispatchModel {
       finalAmt: (json['finalamt'] as num?)?.toDouble() ?? 0.0,
       challanNo: json['CHALLAN'] as String?,
       billNo: json['BILL'] as String?,
+      itemDispatched: json['item_dispatched'] as String?,
     );
   }
 }
@@ -60,6 +94,7 @@ class JobReceiveModel {
   final double finalAmt;
   final String? challanNo;
   final String? billNo;
+  final String? itemReceived;
 
   const JobReceiveModel({
     required this.vno,
@@ -73,7 +108,38 @@ class JobReceiveModel {
     required this.finalAmt,
     this.challanNo,
     this.billNo,
+    this.itemReceived,
   });
+
+  JobReceiveModel copyWith({
+    int? vno,
+    String? type,
+    int? cno,
+    DateTime? date,
+    String? tailorCode,
+    String? tailorName,
+    double? totMts,
+    int? totPcs,
+    double? finalAmt,
+    String? challanNo,
+    String? billNo,
+    String? itemReceived,
+  }) {
+    return JobReceiveModel(
+      vno: vno ?? this.vno,
+      type: type ?? this.type,
+      cno: cno ?? this.cno,
+      date: date ?? this.date,
+      tailorCode: tailorCode ?? this.tailorCode,
+      tailorName: tailorName ?? this.tailorName,
+      totMts: totMts ?? this.totMts,
+      totPcs: totPcs ?? this.totPcs,
+      finalAmt: finalAmt ?? this.finalAmt,
+      challanNo: challanNo ?? this.challanNo,
+      billNo: billNo ?? this.billNo,
+      itemReceived: itemReceived ?? this.itemReceived,
+    );
+  }
 
   factory JobReceiveModel.fromJson(Map<String, dynamic> json) {
     return JobReceiveModel(
@@ -88,6 +154,7 @@ class JobReceiveModel {
       finalAmt: (json['finalamt'] as num?)?.toDouble() ?? 0.0,
       challanNo: json['CHALLAN'] as String?,
       billNo: json['BILL'] as String?,
+      itemReceived: json['item_received'] as String?,
     );
   }
 }

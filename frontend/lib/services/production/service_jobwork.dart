@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../models/production/model_jobwork.dart';
 import '../core/service_supabase.dart';
@@ -12,14 +13,34 @@ class JobWorkService {
 
   final _db = SupabaseService();
 
-  /// Fetch Stitching Dispatches (O5) registry headers.
+  /// Fetch Stitching Dispatches (O5) registry headers with filters and sorting.
   Future<PaginatedResult<JobDispatchModel>> getJobDispatches({
     int offset = 0,
     int limit = 50,
     String? searchTerm,
+    String? filterKhata,
+    String? filterFabric,
+    String? sortBy = 'DATE_DESC',
   }) async {
     try {
-      var query = _db.client
+      // 1. Handle fabric filter lookup via child table (sq_BILLDET)
+      List<int>? vnoFilterList;
+      if (filterFabric != null && filterFabric.isNotEmpty) {
+        final linesResponse = await _db.client
+            .schema('IMMBE2627')
+            .from('sq_BILLDET')
+            .select('VNO')
+            .eq('TYPE', 'O5')
+            .eq('qual', filterFabric);
+        
+        final List<dynamic> linesList = linesResponse as List<dynamic>;
+        vnoFilterList = linesList.map((e) => (e['VNO'] as num).toInt()).toList();
+        if (vnoFilterList.isEmpty) {
+          return PaginatedResult(data: [], totalCount: 0, offset: offset, limit: limit);
+        }
+      }
+
+      dynamic query = _db.client
           .schema('IMMBE2627')
           .from('sq_BILLS')
           .select('*')
@@ -30,14 +51,58 @@ class JobWorkService {
         query = query.or('code.ilike.%$searchTerm%,CHALLAN.ilike.%$searchTerm%');
       }
 
+      if (filterKhata != null && filterKhata.isNotEmpty) {
+        query = query.eq('code', filterKhata);
+      }
+
+      if (vnoFilterList != null) {
+        query = query.inFilter('VNO', vnoFilterList);
+      }
+
+      // 2. Apply Custom Sorting
+      if (sortBy == 'DATE_ASC') {
+        query = query.order('DATE', ascending: true).order('VNO', ascending: true);
+      } else if (sortBy == 'JOBNO_DESC') {
+        query = query.order('VNO', ascending: false);
+      } else if (sortBy == 'JOBNO_ASC') {
+        query = query.order('VNO', ascending: true);
+      } else {
+        // Default: DATE_DESC
+        query = query.order('DATE', ascending: false).order('VNO', ascending: false);
+      }
+
       final response = await query
-          .order('VNO', ascending: false)
           .range(offset, offset + limit - 1)
           .count(CountOption.exact);
 
-      final data = (response.data as List)
+      var data = (response.data as List)
           .map((json) => JobDispatchModel.fromJson(json))
           .toList();
+
+      // Fetch qualities for the dispatches currently on the page to resolve "item dispatched"
+      final vnos = data.map((d) => d.vno).toList();
+      if (vnos.isNotEmpty) {
+        final linesResponse = await _db.client
+            .schema('IMMBE2627')
+            .from('sq_BILLDET')
+            .select('VNO, qual')
+            .eq('TYPE', 'O5')
+            .inFilter('VNO', vnos);
+        
+        final Map<int, List<String>> vnoQualities = {};
+        for (var line in linesResponse as List) {
+          final v = (line['VNO'] as num).toInt();
+          final q = line['qual'] as String? ?? '';
+          if (q.isNotEmpty) {
+            vnoQualities.putIfAbsent(v, () => []).add(q);
+          }
+        }
+        
+        data = data.map((d) {
+          final quals = vnoQualities[d.vno]?.toSet().toList() ?? [];
+          return d.copyWith(itemDispatched: quals.join(', '));
+        }).toList();
+      }
 
       return PaginatedResult(
         data: data,
@@ -46,19 +111,40 @@ class JobWorkService {
         limit: limit,
       );
     } catch (e) {
-      print('JobWorkService.getJobDispatches error: $e');
+      debugPrint('JobWorkService.getJobDispatches error: $e');
       return PaginatedResult(data: [], totalCount: 0, offset: offset, limit: limit, error: e.toString());
     }
   }
 
   /// Fetch Stitching Receives (O6) registry headers.
+  /// Fetch Stitching Receives (O6) registry headers with filters and sorting.
   Future<PaginatedResult<JobReceiveModel>> getJobReceives({
     int offset = 0,
     int limit = 50,
     String? searchTerm,
+    String? filterKhata,
+    String? filterFabric,
+    String? sortBy = 'DATE_DESC',
   }) async {
     try {
-      var query = _db.client
+      // 1. Handle fabric filter lookup via child table (sq_BILLDET)
+      List<int>? vnoFilterList;
+      if (filterFabric != null && filterFabric.isNotEmpty) {
+        final linesResponse = await _db.client
+            .schema('IMMBE2627')
+            .from('sq_BILLDET')
+            .select('VNO')
+            .eq('TYPE', 'O6')
+            .eq('qual', filterFabric);
+        
+        final List<dynamic> linesList = linesResponse as List<dynamic>;
+        vnoFilterList = linesList.map((e) => (e['VNO'] as num).toInt()).toList();
+        if (vnoFilterList.isEmpty) {
+          return PaginatedResult(data: [], totalCount: 0, offset: offset, limit: limit);
+        }
+      }
+
+      dynamic query = _db.client
           .schema('IMMBE2627')
           .from('sq_BILLS')
           .select('*')
@@ -69,14 +155,58 @@ class JobWorkService {
         query = query.or('code.ilike.%$searchTerm%,CHALLAN.ilike.%$searchTerm%');
       }
 
+      if (filterKhata != null && filterKhata.isNotEmpty) {
+        query = query.eq('code', filterKhata);
+      }
+
+      if (vnoFilterList != null) {
+        query = query.inFilter('VNO', vnoFilterList);
+      }
+
+      // 2. Apply Custom Sorting
+      if (sortBy == 'DATE_ASC') {
+        query = query.order('DATE', ascending: true).order('VNO', ascending: true);
+      } else if (sortBy == 'JOBNO_DESC') {
+        query = query.order('VNO', ascending: false);
+      } else if (sortBy == 'JOBNO_ASC') {
+        query = query.order('VNO', ascending: true);
+      } else {
+        // Default: DATE_DESC
+        query = query.order('DATE', ascending: false).order('VNO', ascending: false);
+      }
+
       final response = await query
-          .order('VNO', ascending: false)
           .range(offset, offset + limit - 1)
           .count(CountOption.exact);
 
-      final data = (response.data as List)
+      var data = (response.data as List)
           .map((json) => JobReceiveModel.fromJson(json))
           .toList();
+
+      // Fetch qualities for the receives currently on the page to resolve "item received"
+      final vnos = data.map((d) => d.vno).toList();
+      if (vnos.isNotEmpty) {
+        final linesResponse = await _db.client
+            .schema('IMMBE2627')
+            .from('sq_BILLDET')
+            .select('VNO, qual')
+            .eq('TYPE', 'O6')
+            .inFilter('VNO', vnos);
+        
+        final Map<int, List<String>> vnoQualities = {};
+        for (var line in linesResponse as List) {
+          final v = (line['VNO'] as num).toInt();
+          final q = line['qual'] as String? ?? '';
+          if (q.isNotEmpty) {
+            vnoQualities.putIfAbsent(v, () => []).add(q);
+          }
+        }
+        
+        data = data.map((d) {
+          final quals = vnoQualities[d.vno]?.toSet().toList() ?? [];
+          return d.copyWith(itemReceived: quals.join(', '));
+        }).toList();
+      }
 
       return PaginatedResult(
         data: data,
@@ -85,7 +215,7 @@ class JobWorkService {
         limit: limit,
       );
     } catch (e) {
-      print('JobWorkService.getJobReceives error: $e');
+      debugPrint('JobWorkService.getJobReceives error: $e');
       return PaginatedResult(data: [], totalCount: 0, offset: offset, limit: limit, error: e.toString());
     }
   }
@@ -105,7 +235,7 @@ class JobWorkService {
           .map((json) => JobWorkDetailLineModel.fromJson(json))
           .toList();
     } catch (e) {
-      print('JobWorkService.getJobWorkLines (VNO: $vno, TYPE: $type) error: $e');
+      debugPrint('JobWorkService.getJobWorkLines (VNO: $vno, TYPE: $type) error: $e');
       return [];
     }
   }
@@ -127,7 +257,7 @@ class JobWorkService {
           .map((json) => JobWorkDetailLineModel.fromJson(json))
           .toList();
     } catch (e) {
-      print('JobWorkService.getDispatchesForCuttingCard (Card: $cutCardNo) error: $e');
+      debugPrint('JobWorkService.getDispatchesForCuttingCard (Card: $cutCardNo) error: $e');
       return [];
     }
   }
@@ -149,7 +279,47 @@ class JobWorkService {
           .map((json) => JobWorkDetailLineModel.fromJson(json))
           .toList();
     } catch (e) {
-      print('JobWorkService.getReceivesForDispatch (Parent VNO: $parentVno) error: $e');
+      debugPrint('JobWorkService.getReceivesForDispatch (Parent VNO: $parentVno) error: $e');
+      return [];
+    }
+  }
+
+  /// Fetch all unique Tailors (Khatas) from sq_BILLS with TYPE = 'O5' or 'O6'
+  Future<List<String>> getUniqueTailors({String type = 'O5'}) async {
+    try {
+      final response = await _db.client
+          .schema('IMMBE2627')
+          .from('sq_BILLS')
+          .select('code')
+          .eq('TYPE', type)
+          .lt('VNO', 100000);
+      
+      final List<dynamic> list = response as List<dynamic>;
+      final codes = list.map((e) => e['code'] as String? ?? '').where((e) => e.isNotEmpty).toSet().toList();
+      codes.sort();
+      return codes;
+    } catch (e) {
+      debugPrint('JobWorkService.getUniqueTailors error: $e');
+      return [];
+    }
+  }
+
+  /// Fetch all unique Fabrics (Qualities) from sq_BILLDET with TYPE = 'O5' or 'O6'
+  Future<List<String>> getUniqueFabrics({String type = 'O5'}) async {
+    try {
+      final response = await _db.client
+          .schema('IMMBE2627')
+          .from('sq_BILLDET')
+          .select('qual')
+          .eq('TYPE', type)
+          .lt('VNO', 100000);
+      
+      final List<dynamic> list = response as List<dynamic>;
+      final qualities = list.map((e) => e['qual'] as String? ?? 'N/A').where((e) => e != 'N/A' && e.isNotEmpty).toSet().toList();
+      qualities.sort();
+      return qualities;
+    } catch (e) {
+      debugPrint('JobWorkService.getUniqueFabrics error: $e');
       return [];
     }
   }

@@ -74,7 +74,7 @@ class _GreyDealAddCanvasState extends State<GreyDealAddCanvas> {
         });
       }
     } catch (e) {
-      print('Error loading lookups for GreyDealAddCanvas: $e');
+      debugPrint('Error loading lookups for GreyDealAddCanvas: $e');
       if (mounted) {
         setState(() => _isLoadingLookups = false);
       }

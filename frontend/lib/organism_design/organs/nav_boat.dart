@@ -121,20 +121,6 @@ class _NavBoatState extends State<NavBoat> {
                       onTap: () => widget.onItemSelected(5),
                     ),
                     CellNavItem(
-                      icon: LucideIcons.scissors,
-                      label: 'Cutting',
-                      isSelected: widget.selectedIndex == 6,
-                      isCollapsed: isPersistentCollapsed && !isPeeking,
-                      onTap: () => widget.onItemSelected(6),
-                    ),
-                    CellNavItem(
-                      icon: LucideIcons.settings,
-                      label: 'Job Work',
-                      isSelected: widget.selectedIndex == 7,
-                      isCollapsed: isPersistentCollapsed && !isPeeking,
-                      onTap: () => widget.onItemSelected(7),
-                    ),
-                    CellNavItem(
                       icon: LucideIcons.activity,
                       label: 'Admin & Sync',
                       isSelected: widget.selectedIndex == 8,

@@ -7,6 +7,7 @@
 ///
 /// Hierarchy: Theme → Plasma → Cells → Tissues → Organs → **Domain** → Systems
 /// ============================================================
+library;
 
 export 'domain/types.dart';
 export 'domain/amounts.dart';

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:intl/intl.dart';
 import '../../theme.dart';
-import '../../cells.dart';
 
 /// [DomainCuttingTimeline] — Horizontal 6-stage production tracking visualizer for Cutting batches.
 /// Stages: Grey Purchase → Print Program → Stock Received → Batch Cut → Job Issued → Job Received

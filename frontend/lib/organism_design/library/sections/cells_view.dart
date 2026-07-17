@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../theme.dart';
 import '../../cells.dart';
-import '../../tissues.dart';
-import '../../organs.dart';
 import '../widgets/library_section.dart';
 
 /// Full cells catalogue — all 33 active cells, grouped by function.
@@ -315,7 +313,7 @@ class _CellsViewState extends State<CellsView> {
                   children: [
                     CellCheckbox(
                       value: _checkboxVal,
-                      onChanged: (v) => setState(() => _checkboxVal = v ?? false),
+                      onChanged: (v) => setState(() => _checkboxVal = v),
                     ),
                     const SizedBox(width: OrganismTheme.spacingMd),
                     const CellCheckbox(value: true),

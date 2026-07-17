@@ -4,16 +4,16 @@ import '../cells.dart';
 
 /// [OrganSectionCanvas] — The unified detail view experience for the ERP.
 ///
-/// Presents the entire detail view as a SINGLE, full-height card floating 
-/// on the canvas with 16px padding. 
-///   • Header is sticky and pinned to the top of the card.
-///   • Tabs are integrated directly below the title.
-///   • Content sections are separated by dividers within the same card.
-///   • CARD is slightly elevated using shadowMd.
+/// Presents the entire detail view as a SINGLE, full-height card floating
+/// on the canvas with 24px outer padding. Pins the header (with optional sub-headers
+/// and badges) at the top, followed by a divider, and an expanded scrollable body.
 class OrganSectionCanvas extends StatelessWidget {
   final String title;
   final List<Widget> actions;
+  final Widget? headerBadge;
+  final Widget? subHeader;
   final Widget? tabs;
+  final Widget? footer;
   final List<Widget> children;
   final EdgeInsetsGeometry padding;
 
@@ -21,9 +21,12 @@ class OrganSectionCanvas extends StatelessWidget {
     super.key,
     required this.title,
     this.actions = const [],
+    this.headerBadge,
+    this.subHeader,
     this.tabs,
+    this.footer,
     required this.children,
-    this.padding = const EdgeInsets.all(OrganismTheme.spacingMd),
+    this.padding = const EdgeInsets.all(OrganismTheme.spacingLg),
   });
 
   @override
@@ -31,139 +34,117 @@ class OrganSectionCanvas extends StatelessWidget {
     final colors = OrganismTheme.colorsOf(context);
 
     return Container(
-      color: colors.surfaceSubtle, 
-      padding: padding, 
+      color: colors.surfaceSubtle,
+      padding: const EdgeInsets.all(OrganismTheme.spacingLg), // High-density desktop outer margins
       child: Container(
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: colors.surface,
-          borderRadius: BorderRadius.circular(OrganismTheme.radiusLg),
+          borderRadius: BorderRadius.circular(OrganismTheme.radiusMd), // Sharp, clean MD borders
           border: Border.all(color: colors.border),
           boxShadow: [
-             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
+            BoxShadow(
+              color: colors.textPrimary.withValues(alpha: 0.04), // Clean low-opacity shadow
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
-             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 2,
-              offset: const Offset(0, 1),
-            )
           ],
         ),
-        child: CustomScrollView(
-          slivers: [
-            // ── STICKY HEADER ──────────────────────────────────────────
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _SectionCanvasHeaderDelegate(
-                title: title,
-                actions: actions,
-                tabs: tabs,
-                colors: colors,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── 1. PINNED HEADER (Architecture from Cutting Cards) ──────────
+            Container(
+              padding: const EdgeInsets.fromLTRB(
+                OrganismTheme.spacingLg,
+                OrganismTheme.spacingLg,
+                OrganismTheme.spacingLg,
+                OrganismTheme.spacingMd,
               ),
-            ),
-
-            // ── SCROLLABLE SECTIONS ─────────────────────────────────────
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final isLast = index == children.length - 1;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      children[index],
-                      if (!isLast) const CellDivider(),
+                      Expanded(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              title,
+                              style: OrganismTheme.titleLarge(context).copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            if (headerBadge != null) ...[
+                              const SizedBox(width: 12),
+                              headerBadge!,
+                            ],
+                          ],
+                        ),
+                      ),
+                      if (actions.isNotEmpty)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: actions
+                              .map((a) => Padding(
+                                    padding: const EdgeInsets.only(left: OrganismTheme.spacingSm),
+                                    child: a,
+                                  ))
+                              .toList(),
+                        ),
                     ],
-                  );
-                },
-                childCount: children.length,
-              ),
-            ),
-            
-            const SliverToBoxAdapter(
-              child: SizedBox(height: OrganismTheme.spacingLg),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SectionCanvasHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final String title;
-  final List<Widget> actions;
-  final Widget? tabs;
-  final OrganismColors colors;
-
-  _SectionCanvasHeaderDelegate({
-    required this.title,
-    required this.actions,
-    this.tabs,
-    required this.colors,
-  });
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      height: maxExtent,
-      padding: const EdgeInsets.symmetric(horizontal: OrganismTheme.spacingMd),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(
-           bottom: BorderSide(color: colors.border),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: OrganismTheme.titleLarge(context).copyWith(
-                    fontWeight: FontWeight.w700,
                   ),
+                  if (subHeader != null) ...[
+                    const SizedBox(height: OrganismTheme.spacingMd),
+                    subHeader!,
+                  ],
+                  if (tabs != null) ...[
+                    const SizedBox(height: OrganismTheme.spacingSm),
+                    SizedBox(
+                      height: 40.0,
+                      child: tabs!,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            Divider(color: colors.border, height: 1, thickness: 1),
+
+            // ── 2. SCROLLABLE BODY ──────────────────────────────────────────
+            Expanded(
+              child: SingleChildScrollView(
+                padding: padding,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (int i = 0; i < children.length; i++) ...[
+                      children[i],
+                      if (i < children.length - 1) ...[
+                        const SizedBox(height: OrganismTheme.spacingLg),
+                        const CellDivider(),
+                        const SizedBox(height: OrganismTheme.spacingLg),
+                      ],
+                    ],
+                  ],
                 ),
               ),
-              if (actions.isNotEmpty)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: actions
-                      .map((a) => Padding(
-                            padding: const EdgeInsets.only(left: OrganismTheme.spacingSm),
-                            child: a,
-                          ))
-                      .toList(),
-                ),
-            ],
-          ),
-          if (tabs != null) ...[
-            const SizedBox(height: OrganismTheme.spacingSm),
-            SizedBox(
-              height: 40.0,
-              child: tabs!,
             ),
+
+            // ── 3. PINNED FOOTER (Architecture from Cutting Cards) ──────────
+            if (footer != null) ...[
+              Divider(color: colors.border, height: 1, thickness: 1),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: OrganismTheme.spacingLg,
+                  vertical: OrganismTheme.spacingMd,
+                ),
+                child: footer!,
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
-  }
-
-  @override
-  double get maxExtent => tabs != null ? 128.0 : 88.0;
-
-  @override
-  double get minExtent => tabs != null ? 128.0 : 88.0;
-
-  @override
-  bool shouldRebuild(covariant _SectionCanvasHeaderDelegate oldDelegate) {
-    return oldDelegate.title != title || 
-           oldDelegate.actions != actions ||
-           oldDelegate.tabs != tabs;
   }
 }

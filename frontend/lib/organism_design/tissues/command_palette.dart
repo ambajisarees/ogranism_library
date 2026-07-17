@@ -159,7 +159,7 @@ class _TissueCommandPaletteState extends State<TissueCommandPalette> {
                       action.onSelect();
                     },
                     child: Container(
-                      color: isSelected ? colors.primary.withOpacity(0.05) : Colors.transparent,
+                      color: isSelected ? colors.primary.withValues(alpha: 0.05) : Colors.transparent,
                       padding: const EdgeInsets.symmetric(
                         horizontal: OrganismTheme.spacingLg,
                         vertical: OrganismTheme.spacingMd,

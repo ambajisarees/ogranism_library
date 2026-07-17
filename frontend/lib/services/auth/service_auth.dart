@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/service_supabase.dart';
 
@@ -32,7 +33,7 @@ class AuthService {
           .rpc('check_email_exists', params: {'email_to_check': email});
       return response as bool;
     } catch (e) {
-      print('Error checking email exists: $e');
+      debugPrint('Error checking email exists: $e');
       return true; // Fallback: assume it exists to prevent unauthorized signup
     }
   }
@@ -51,7 +52,7 @@ class AuthService {
           .maybeSingle();
       return response;
     } catch (e) {
-      print('Error fetching user profile: $e');
+      debugPrint('Error fetching user profile: $e');
       return null;
     }
   }

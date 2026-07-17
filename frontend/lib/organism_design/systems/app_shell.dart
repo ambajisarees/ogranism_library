@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
-import '../organs/nav_rail.dart';
 import '../organs/workspace_controller.dart';
 
 /// [OrganAppShell] — The standard Level 5 assembly shell for the ERP.
@@ -106,7 +105,7 @@ class OrganAppShell extends StatelessWidget {
                   right: 0,
                   top: overlayVisible ? topOffset : screenHeight,
                   bottom: 0,
-                  child: overlayContent!,
+                  child: overlayContent,
                 );
               },
             ),

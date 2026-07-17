@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../types.dart';
 import '../../cells.dart';
-import '../../theme.dart';
 
 /// [DomainStageBadge] — High-fidelity production status indicator.
 ///
@@ -22,8 +21,6 @@ class DomainStageBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Stage-specific glyph/color logic (The Vision)
-    final colors = OrganismTheme.colorsOf(context);
-    
     // Convert enum name to readable title (e.g. dispatchStitching -> Dispatch Stitching)
     final label = stage.name
         .replaceAllMapped(RegExp(r'([A-Z])'), (match) => ' ${match.group(1)}')

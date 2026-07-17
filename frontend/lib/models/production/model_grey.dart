@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 /// [GreyProductionCard] — Represents an individual Job Card from Mill Dispatch.
 class GreyProductionCard {

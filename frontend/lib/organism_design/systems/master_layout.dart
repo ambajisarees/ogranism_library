@@ -73,15 +73,15 @@ class SystemAppMasterLayout extends StatelessWidget {
                         ? sectionCanvas!
                         : Container(
                             color: colors.surfaceSubtle,
-                            padding: const EdgeInsets.all(OrganismTheme.spacingMd),
+                            padding: const EdgeInsets.all(OrganismTheme.spacingLg),
                             child: Container(
                               decoration: BoxDecoration(
                                 color: colors.surface,
-                                borderRadius: BorderRadius.circular(OrganismTheme.radiusLg),
+                                borderRadius: BorderRadius.circular(OrganismTheme.radiusMd),
                                 border: Border.all(color: colors.border),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.08),
+                                    color: colors.textPrimary.withValues(alpha: 0.04),
                                     blurRadius: 12,
                                     offset: const Offset(0, 4),
                                   ),

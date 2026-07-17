@@ -17,23 +17,7 @@ class TissueAccordionGroup extends StatefulWidget {
 }
 
 class _TissueAccordionGroupState extends State<TissueAccordionGroup> {
-  String? _openId;
 
-  @override
-  void initState() {
-    super.initState();
-    _openId = widget.defaultOpenId;
-  }
-
-  void _handleToggle(String id) {
-    setState(() {
-      if (_openId == id) {
-        _openId = null; // Close if it was open
-      } else {
-        _openId = id; // Open new one
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +40,7 @@ class _TissueAccordionGroupState extends State<TissueAccordionGroup> {
           // Note: TissueAccordion needs an ID property or we use index as ID.
           // Since TissueAccordion is pre-existing, we might not be able to change its constructor easily.
           // We will mock the state overriding. 
-          final String currentId = 'acc_idx_$index';
-          final isOpen = _openId == currentId;
+
 
           // Note: This ideally requires modifying TissueAccordion to accept isOpen and onToggle.
           // Since we control it from here, we will ignore its internal state by rebuilding.

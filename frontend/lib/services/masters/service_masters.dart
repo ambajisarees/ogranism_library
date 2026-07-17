@@ -45,7 +45,7 @@ class MastersService {
           .count(CountOption.exact);
 
       final List<dynamic> dataList = response.data as List<dynamic>;
-      final int totalCount = response.count ?? 0;
+      final int totalCount = response.count;
 
       return PaginatedResult(
         data: dataList.map((j) => PartyModel.fromJson(j)).toList(),
@@ -88,7 +88,7 @@ class MastersService {
           .count(CountOption.exact);
 
       final List<dynamic> dataList = response.data as List<dynamic>;
-      final int totalCount = response.count ?? 0;
+      final int totalCount = response.count;
 
       return PaginatedResult(
         data: dataList.map((j) => QualityModel.fromJson(j)).toList(),

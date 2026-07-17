@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
-import '../cells/spatial.dart';
 
 class TissueKanbanColumnData {
   final String title;

@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../theme.dart';
-import '../../cells.dart';
 import '../types.dart';
 import 'stage_icon.dart';
-import 'stage_badge.dart';
 
 /// [DomainProductionTimeline] — Linear progression of a Saree Slip.
 ///

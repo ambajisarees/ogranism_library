@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -49,7 +48,6 @@ class _MediaScreenState extends State<MediaScreen> {
 
   // Autocomplete Link State inside right pane
   String _linkEntityType = 'cutting_batch'; // 'quality', 'cutting_batch', 'stitching_dispatch', 'stitching_receive'
-  String _linkSearchTerm = '';
   List<Map<String, String>> _autocompleteResults = [];
   bool _isAutocompleteLoading = false;
   Map<String, String>? _selectedEntityResult;
@@ -108,7 +106,7 @@ class _MediaScreenState extends State<MediaScreen> {
       }
       await _loadSuggestionsCount();
     } catch (e) {
-      print('Error loading bucket counts: $e');
+      debugPrint('Error loading bucket counts: $e');
     }
   }
 
@@ -122,7 +120,7 @@ class _MediaScreenState extends State<MediaScreen> {
         });
       }
     } catch (e) {
-      print('Error loading suggestions count: $e');
+      debugPrint('Error loading suggestions count: $e');
     }
   }
 
@@ -141,7 +139,7 @@ class _MediaScreenState extends State<MediaScreen> {
         });
       }
     } catch (e) {
-      print('Error loading suggestions: $e');
+      debugPrint('Error loading suggestions: $e');
       if (mounted) {
         setState(() => _isLoading = false);
       }
@@ -175,7 +173,7 @@ class _MediaScreenState extends State<MediaScreen> {
         });
       }
     } catch (e) {
-      print('Error loading media: $e');
+      debugPrint('Error loading media: $e');
       if (mounted) {
         setState(() => _isLoading = false);
       }
@@ -229,7 +227,7 @@ class _MediaScreenState extends State<MediaScreen> {
         });
       }
     } catch (e) {
-      print('Error loading autocomplete results: $e');
+      debugPrint('Error loading autocomplete results: $e');
       if (mounted) {
         setState(() {
           _autocompleteResults = [];
@@ -282,7 +280,7 @@ class _MediaScreenState extends State<MediaScreen> {
         );
         uploadCount++;
       } catch (e) {
-        print('Upload failed for ${file.name}: $e');
+        debugPrint('Upload failed for ${file.name}: $e');
         if (mounted) {
           PlasmaToastManager.instance.show(
             context,
@@ -309,6 +307,8 @@ class _MediaScreenState extends State<MediaScreen> {
 
   void _triggerFilePicker() async {
     try {
+      // Yield thread to let current gesture arena & button hover states settle
+      await Future.delayed(Duration.zero);
       final result = await FilePicker.pickFiles(
         allowMultiple: true,
         type: FileType.image,
@@ -322,7 +322,7 @@ class _MediaScreenState extends State<MediaScreen> {
         _handleUpload(files);
       }
     } catch (e) {
-      print('File picking error: $e');
+      debugPrint('File picking error: $e');
     }
   }
 
@@ -385,9 +385,8 @@ class _MediaScreenState extends State<MediaScreen> {
                           });
                           await _loadData();
                           await _loadBucketCounts();
-                          if (mounted) {
-                            PlasmaToastManager.instance.show(context, 'Media registry refreshed.', variant: CellBadgeVariant.success);
-                          }
+                          if (!context.mounted) return;
+                          PlasmaToastManager.instance.show(context, 'Media registry refreshed.', variant: CellBadgeVariant.success);
                         },
                       ),
                     ],
@@ -565,7 +564,7 @@ class _MediaScreenState extends State<MediaScreen> {
             Text('SORT ORDER', style: OrganismTheme.labelMedium(context).copyWith(color: colors.textMuted)),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              value: _sortBy,
+              initialValue: _sortBy,
               items: const [
                 DropdownMenuItem(value: 'created_at_desc', child: Text('Upload Date (Newest)')),
                 DropdownMenuItem(value: 'file_name_asc', child: Text('Name (A-Z)')),
@@ -911,7 +910,7 @@ class _MediaScreenState extends State<MediaScreen> {
                           PlasmaToastManager.instance.show(context, 'Successfully renamed.', variant: CellBadgeVariant.success);
                         }
                       } catch (e) {
-                        print('Rename failed: $e');
+                        debugPrint('Rename failed: $e');
                       }
                     },
                   ),
@@ -963,7 +962,7 @@ class _MediaScreenState extends State<MediaScreen> {
                   ] else ...[
                     // Selection autocomplete form
                     DropdownButtonFormField<String>(
-                      value: _linkEntityType,
+                      initialValue: _linkEntityType,
                       items: const [
                         DropdownMenuItem(value: 'cutting_batch', child: Text('Cutting Batch')),
                         DropdownMenuItem(value: 'stitching_dispatch', child: Text('Stitching Dispatch (O5)')),
@@ -987,7 +986,6 @@ class _MediaScreenState extends State<MediaScreen> {
                         prefixIcon: Icon(LucideIcons.search, size: 14),
                       ),
                       onChanged: (val) {
-                        _linkSearchTerm = val;
                         _searchAutocomplete(val);
                       },
                     ),
@@ -1602,37 +1600,38 @@ class _MediaScreenState extends State<MediaScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      children: [
-                        Radio<String>(
-                          value: 'cutting_batch',
-                          groupValue: selectedType,
-                          onChanged: (v) => setDialogState(() => selectedType = v!),
-                        ),
-                        const Text('Cutting'),
-                        Radio<String>(
-                          value: 'stitching_dispatch',
-                          groupValue: selectedType,
-                          onChanged: (v) => setDialogState(() => selectedType = v!),
-                        ),
-                        const Text('Dispatch O5'),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Radio<String>(
-                          value: 'stitching_receive',
-                          groupValue: selectedType,
-                          onChanged: (v) => setDialogState(() => selectedType = v!),
-                        ),
-                        const Text('Receive O6'),
-                        Radio<String>(
-                          value: 'bill',
-                          groupValue: selectedType,
-                          onChanged: (v) => setDialogState(() => selectedType = v!),
-                        ),
-                        const Text('Bill Invoice'),
-                      ],
+                    RadioGroup<String>(
+                      groupValue: selectedType,
+                      onChanged: (v) => setDialogState(() => selectedType = v!),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            children: [
+                              Radio<String>(
+                                value: 'cutting_batch',
+                              ),
+                              const Text('Cutting'),
+                              Radio<String>(
+                                value: 'stitching_dispatch',
+                              ),
+                              const Text('Dispatch O5'),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Radio<String>(
+                                value: 'stitching_receive',
+                              ),
+                              const Text('Receive O6'),
+                              Radio<String>(
+                                value: 'bill',
+                              ),
+                              const Text('Bill Invoice'),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 12),
                     TissueFormField(
@@ -1676,7 +1675,7 @@ class _MediaScreenState extends State<MediaScreen> {
                               }).toList();
                             }
                           } catch (e) {
-                            print('Manual search error: $e');
+                            debugPrint('Manual search error: $e');
                           }
                           setDialogState(() {
                             localResults = results;
@@ -1776,6 +1775,7 @@ class _MediaScreenState extends State<MediaScreen> {
         },
       );
 
+      if (!mounted) return;
       PlasmaToastManager.instance.show(
         context,
         'Successfully linked ${checked.length} files.',
@@ -1790,6 +1790,7 @@ class _MediaScreenState extends State<MediaScreen> {
       await _loadData();
       await _loadBucketCounts();
     } catch (e) {
+      if (!mounted) return;
       PlasmaToastManager.instance.show(
         context,
         'Failed to link suggestions: $e',
@@ -1823,6 +1824,7 @@ class _MediaScreenState extends State<MediaScreen> {
           });
         },
       );
+      if (!mounted) return;
       PlasmaToastManager.instance.show(
         context,
         'Successfully linked ${suggestion.media.fileName}.',
@@ -1837,6 +1839,7 @@ class _MediaScreenState extends State<MediaScreen> {
       });
       await _loadBucketCounts();
     } catch (e) {
+      if (!mounted) return;
       PlasmaToastManager.instance.show(
         context,
         'Failed to link media: $e',
@@ -1871,7 +1874,6 @@ class _BulkLinkDialog extends StatefulWidget {
 
 class _BulkLinkDialogState extends State<_BulkLinkDialog> {
   String _type = 'cutting_batch';
-  String _search = '';
   List<Map<String, String>> _results = [];
   bool _isLoading = false;
   Map<String, String>? _selected;
@@ -1917,7 +1919,7 @@ class _BulkLinkDialogState extends State<_BulkLinkDialog> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           DropdownButtonFormField<String>(
-            value: _type,
+            initialValue: _type,
             items: const [
               DropdownMenuItem(value: 'cutting_batch', child: Text('Cutting Batch')),
               DropdownMenuItem(value: 'stitching_dispatch', child: Text('Stitching Dispatch (O5)')),
@@ -1937,7 +1939,6 @@ class _BulkLinkDialogState extends State<_BulkLinkDialog> {
           TextField(
             decoration: const InputDecoration(labelText: 'Search Entity...'),
             onChanged: (val) {
-              _search = val;
               _runSearch(val);
             },
           ),
@@ -2014,7 +2015,7 @@ class _UploadConfigDialogState extends State<_UploadConfigDialog> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           DropdownButtonFormField<String>(
-            value: _bucket,
+            initialValue: _bucket,
             decoration: const InputDecoration(labelText: 'Category Bucket'),
             items: const [
               DropdownMenuItem(value: 'general', child: Text('General / Unsorted')),
@@ -2034,19 +2035,20 @@ class _UploadConfigDialogState extends State<_UploadConfigDialog> {
           const SizedBox(height: 16),
           if (_bucket == 'production') ...[
             DropdownButtonFormField<String>(
-              value: _mediaType,
+              initialValue: _mediaType,
               decoration: const InputDecoration(labelText: 'Classification Type'),
               items: const [
                 DropdownMenuItem(value: 'none', child: Text('Unclassified (default)')),
                 DropdownMenuItem(value: 'cutting_card', child: Text('Cutting Card')),
-                DropdownMenuItem(value: 'mill_programming', child: Text('Mill Programming')),
-                DropdownMenuItem(value: 'recipe', child: Text('Dye Recipe')),
+                DropdownMenuItem(value: 'job_card', child: Text('Job Card')),
+                DropdownMenuItem(value: 'job_saree', child: Text('Job Saree')),
+                DropdownMenuItem(value: 'job_inward', child: Text('Job Inward')),
               ],
               onChanged: (val) => setState(() => _mediaType = val!),
             ),
           ] else if (_bucket == 'billing') ...[
             DropdownButtonFormField<String>(
-              value: _mediaType,
+              initialValue: _mediaType,
               decoration: const InputDecoration(labelText: 'Classification Type'),
               items: const [
                 DropdownMenuItem(value: 'none', child: Text('Unclassified (default)')),
@@ -2057,7 +2059,7 @@ class _UploadConfigDialogState extends State<_UploadConfigDialog> {
             ),
           ] else if (_bucket == 'sales') ...[
             DropdownButtonFormField<String>(
-              value: _mediaType,
+              initialValue: _mediaType,
               decoration: const InputDecoration(labelText: 'Classification Type'),
               items: const [
                 DropdownMenuItem(value: 'none', child: Text('Unclassified (default)')),

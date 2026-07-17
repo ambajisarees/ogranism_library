@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/service_supabase.dart';
 import '../../models/admin/model_sync.dart';
@@ -67,7 +68,7 @@ class SyncService {
       final List<dynamic> data = response as List<dynamic>;
       return data.map((json) => SyncLogModel.fromJson(json)).toList();
     } catch (e) {
-      print('SyncService.getRecentLogs error: $e');
+      debugPrint('SyncService.getRecentLogs error: $e');
       return [];
     }
   }
@@ -107,7 +108,7 @@ class SyncService {
           maxExtractionTime = DateTime.tryParse(extResponse[0]['_airbyte_extracted_at'] ?? '');
         }
       } catch (e) {
-        print('Error fetching live maxExtractionTime: $e');
+        debugPrint('Error fetching live maxExtractionTime: $e');
       }
 
       // 3. Fetch exact row counts for high-vol volatile tables in parallel (Standard API)
@@ -125,13 +126,13 @@ class SyncService {
           _db.client.schema('IMMBE2627').from('sq_MASTER').select('code').range(0, 0).count(CountOption.exact),
           _db.client.schema('IMMBE2627').from('sq_BILLDET').select('VNO').range(0, 0).count(CountOption.exact),
         ]);
-        liveBills = counts[0].count ?? 19640;
-        livePinv = counts[1].count ?? 3490;
-        liveChal = counts[2].count ?? 25371;
-        liveMaster = counts[3].count ?? 4970;
-        liveBilldet = counts[4].count ?? 9891;
+        liveBills = counts[0].count;
+        livePinv = counts[1].count;
+        liveChal = counts[2].count;
+        liveMaster = counts[3].count;
+        liveBilldet = counts[4].count;
       } catch (e) {
-        print('Error fetching live counts: $e');
+        debugPrint('Error fetching live counts: $e');
       }
 
       final List<SyncGroupSummary> summaries = [];
@@ -216,7 +217,7 @@ class SyncService {
 
       return summaries;
     } catch (e) {
-      print('SyncService.getDashboardSummaries error: $e. Falling back to default data.');
+      debugPrint('SyncService.getDashboardSummaries error: $e. Falling back to default data.');
       return _getFallbackSummaries();
     }
   }
@@ -242,15 +243,7 @@ class SyncService {
     }
   }
 
-  int _getDefaultGroupRowCount(String group) {
-    switch (group) {
-      case 'Masters & Accounts': return 7191;
-      case 'Billing & Accounting': return 45796;
-      case 'Inventory & Production': return 38120;
-      case 'System & Audits': return 1080;
-      default: return 5000;
-    }
-  }
+
 
   /// Grabs high fidelity mock details when database is disconnected.
   List<SyncGroupSummary> _getFallbackSummaries() {

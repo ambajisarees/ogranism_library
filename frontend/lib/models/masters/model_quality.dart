@@ -5,6 +5,7 @@
 /// Type-safe model for the Quality Master (vwsq_qual).
 /// Handles fabric taxonomy, pricing lists, and production specs.
 /// ============================================================
+library;
 
 class QualityModel {
   // 1. IDENTITY & TAXONOMY

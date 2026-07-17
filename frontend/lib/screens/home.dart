@@ -6,6 +6,7 @@ import 'masters/parties_screen.dart';
 import 'production/pipeline/pipeline_screen.dart';
 import 'admin/sync_dashboard_screen.dart';
 import 'production/media/media_screen.dart';
+import 'production/designs/designs_screen.dart';
 import '../services/auth/service_auth.dart';
 
 
@@ -150,12 +151,14 @@ class _HomeScreenState extends State<HomeScreen> {
         return const PartiesScreen();
       case 2:
         return const ItemsScreen();
+      case 3:
+        return const DesignsScreen();
       case 5:
         return const PipelineScreen(defaultTabIndex: 0);
       case 6:
-        return const PipelineScreen(defaultTabIndex: 2);
-      case 7:
         return const PipelineScreen(defaultTabIndex: 3);
+      case 7:
+        return const PipelineScreen(defaultTabIndex: 4);
       case 8:
         return const SyncDashboardScreen();
       case 9:

@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:textile_erp/organism_design/index.dart';
@@ -34,6 +33,13 @@ class _InwardTabState extends State<InwardTab> {
   int _totalCount = 0;
   final int _limit = 50;
   String _searchTerm = '';
+
+  // Filter & Sort State
+  String? _selectedFilterKhata;
+  String? _selectedFilterFabric;
+  String _sortBy = 'DATE_DESC';
+  List<String> _uniqueFilterKhatas = [];
+  List<String> _uniqueFilterFabrics = [];
   
   final TextEditingController _searchController = TextEditingController();
 
@@ -41,12 +47,28 @@ class _InwardTabState extends State<InwardTab> {
   void initState() {
     super.initState();
     _loadData();
+    _loadFilterOptions();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadFilterOptions() async {
+    try {
+      final tailors = await _service.getUniqueTailors(type: 'O6');
+      final fabrics = await _service.getUniqueFabrics(type: 'O6');
+      if (mounted) {
+        setState(() {
+          _uniqueFilterKhatas = tailors;
+          _uniqueFilterFabrics = fabrics;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading filter options: $e');
+    }
   }
 
   Future<void> _loadData() async {
@@ -58,6 +80,9 @@ class _InwardTabState extends State<InwardTab> {
         offset: (_currentPage - 1) * _limit,
         limit: _limit,
         searchTerm: _searchTerm,
+        filterKhata: _selectedFilterKhata,
+        filterFabric: _selectedFilterFabric,
+        sortBy: _sortBy,
       );
       if (mounted) {
         setState(() {
@@ -107,11 +132,13 @@ class _InwardTabState extends State<InwardTab> {
 
   Future<void> _attachChallanScan(int vno) async {
     try {
+      // Yield thread to let current gesture arena & button hover states settle
+      await Future.delayed(Duration.zero);
       final result = await FilePicker.pickFiles(type: FileType.image);
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
         final bytes = file.bytes ?? await File(file.path!).readAsBytes();
-
+        if (!mounted) return;
         PlasmaToastManager.instance.show(context, 'Uploading scan...', variant: CellBadgeVariant.primary);
 
         await MediaService().uploadFile(
@@ -151,7 +178,7 @@ class _InwardTabState extends State<InwardTab> {
       if (confirm != true) return;
 
       await MediaService().archiveMedia(mediaId);
-
+      if (!mounted) return;
       final media = await MediaService().getMediaForEntity('stitching_receive', vno.toString());
       if (mounted) {
         setState(() {
@@ -271,6 +298,122 @@ class _InwardTabState extends State<InwardTab> {
     );
   }
 
+  Widget _buildFilterPopover(BuildContext context) {
+    return StatefulBuilder(
+      builder: (context, setPopoverState) {
+        final colors = OrganismTheme.colorsOf(context);
+        return CellBox(
+          padding: const EdgeInsets.all(OrganismTheme.spacingMd),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'FILTER BY KHATA',
+                style: OrganismTheme.labelSmall(context).copyWith(color: colors.textMuted),
+              ),
+              const SizedBox(height: 8),
+              TissueDropdown<String?>(
+                items: [null, ..._uniqueFilterKhatas],
+                value: _selectedFilterKhata,
+                itemLabelBuilder: (val) => val ?? 'All Khatas',
+                onChanged: (val) {
+                  setState(() {
+                    _selectedFilterKhata = val;
+                    _currentPage = 1;
+                    _selectedReceive = null;
+                  });
+                  setPopoverState(() {});
+                  _loadData();
+                },
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'FILTER BY FABRIC',
+                style: OrganismTheme.labelSmall(context).copyWith(color: colors.textMuted),
+              ),
+              const SizedBox(height: 8),
+              TissueDropdown<String?>(
+                items: [null, ..._uniqueFilterFabrics],
+                value: _selectedFilterFabric,
+                itemLabelBuilder: (val) => val ?? 'All Fabrics',
+                onChanged: (val) {
+                  setState(() {
+                    _selectedFilterFabric = val;
+                    _currentPage = 1;
+                    _selectedReceive = null;
+                  });
+                  setPopoverState(() {});
+                  _loadData();
+                },
+              ),
+              if (_selectedFilterKhata != null || _selectedFilterFabric != null) ...[
+                const SizedBox(height: 16),
+                CellButton(
+                  text: 'Clear Filters',
+                  variant: CellButtonVariant.outline,
+                  onPressed: () {
+                    setState(() {
+                      _selectedFilterKhata = null;
+                      _selectedFilterFabric = null;
+                      _currentPage = 1;
+                      _selectedReceive = null;
+                    });
+                    setPopoverState(() {});
+                    _loadData();
+                  },
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSortPopover(BuildContext context) {
+    return StatefulBuilder(
+      builder: (context, setPopoverState) {
+        final colors = OrganismTheme.colorsOf(context);
+        final List<Map<String, dynamic>> sortOptions = [
+          {'label': 'Date: Latest First', 'value': 'DATE_DESC', 'icon': LucideIcons.calendarRange},
+          {'label': 'Date: Oldest First', 'value': 'DATE_ASC', 'icon': LucideIcons.calendarRange},
+          {'label': 'Job No: High to Low', 'value': 'JOBNO_DESC', 'icon': LucideIcons.hash},
+          {'label': 'Job No: Low to High', 'value': 'JOBNO_ASC', 'icon': LucideIcons.hash},
+        ];
+
+        return CellBox(
+          padding: const EdgeInsets.symmetric(vertical: OrganismTheme.spacingSm),
+          child: Material(
+            color: Colors.transparent,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: sortOptions.map<Widget>((opt) {
+                final isSelected = opt['value'] == _sortBy;
+                return Container(
+                  color: isSelected ? colors.primary.withValues(alpha: 0.04) : null,
+                  child: CellListTile(
+                    title: opt['label'],
+                    leading: Icon(opt['icon'], size: 14, color: isSelected ? colors.primary : colors.textMuted),
+                    onTap: () {
+                      setState(() {
+                        _sortBy = opt['value'];
+                        _currentPage = 1;
+                        _selectedReceive = null;
+                      });
+                      setPopoverState(() {});
+                      _loadData();
+                    },
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = OrganismTheme.colorsOf(context);
@@ -279,7 +422,7 @@ class _InwardTabState extends State<InwardTab> {
     return SystemAppMasterLayout(
       isDetailVisible: _selectedReceive != null,
       paneHeader: OrganPaneHeader(
-        title: 'Job Receive (O6)',
+        title: 'Job Inward',
         searchController: _searchController,
         onSearchChanged: (val) {
           setState(() {
@@ -290,6 +433,17 @@ class _InwardTabState extends State<InwardTab> {
           _loadData();
         },
         searchPlaceholder: 'Search by Tailor...',
+        primaryAction: const CellButton(
+          text: 'Add',
+          icon: LucideIcons.plus,
+          variant: CellButtonVariant.primary,
+          isCompact: true,
+          onPressed: null, // Disabled
+        ),
+        filterContent: _buildFilterPopover(context),
+        filterWidth: 260.0,
+        sortContent: _buildSortPopover(context),
+        sortWidth: 260.0,
       ),
       paneList: OrganPaneList(
         isLoading: _isLoading,
@@ -309,43 +463,22 @@ class _InwardTabState extends State<InwardTab> {
           final item = _receives[index];
           final isSelected = _selectedReceive?.vno == item.vno;
 
-          return TissueListCard(
+          return TissueListCard.registry(
             isSelected: isSelected,
-            isCompact: false,
-            showDivider: true,
             onTap: () => _onReceiveSelected(item),
-            leading: CellCardAvatar(date: item.date),
-            title: Text(
-              item.tailorName ?? item.tailorCode,
-              style: OrganismTheme.bodyLarge(context).copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            subtitle: Text('Receipt No: ${item.vno} • ${item.totPcs} Pieces', style: OrganismTheme.bodySmall(context)),
-            trailing: Text(
-              'O6',
-              style: monoStyle.copyWith(
-                color: colors.success,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            footer: Row(
-              children: [
-                Text('${item.totMts.toStringAsFixed(1)} Mts', style: monoStyle.copyWith(fontSize: 12, color: colors.textSecondary)),
-                const Spacer(),
-                Text(
-                  item.date.toIso8601String().split('T')[0],
-                  style: monoStyle.copyWith(fontSize: 11, color: colors.textMuted),
-                ),
-              ],
-            ),
+            showDivider: true,
+            badgeColor: colors.success, // success green color for receives
+            registryDate: item.date,
+            registryTitle: item.tailorName ?? item.tailorCode,
+            registrySubtitle: item.itemReceived ?? 'No Items Received',
+            registryBadgeText: '${item.vno}',
+            registryMetricText: '${item.totPcs} PCS',
           );
         },
       ),
       sectionCanvas: _selectedReceive == null ? null : _buildSectionCanvas(colors, monoStyle),
-      emptyTitle: 'No Job Receive Record Selected',
-      emptyMessage: 'Select a job receive record from the list to view stitching metrics and lines.',
+      emptyTitle: 'No Job Inward Record Selected',
+      emptyMessage: 'Select a job inward record from the list to view stitching metrics and lines.',
       emptyIcon: LucideIcons.packageCheck,
     );
   }

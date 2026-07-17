@@ -5,11 +5,21 @@
 
 ---
 
-## 2026-07-17 · Cutting Card Registry, Timeline & KPI Redesign and Database Denormalization
+## 2026-07-17 · Cutting Card Registry, Stitching Linker & Designs Catalog Dashboard
 
-Shipped major UI redesigns and visual enhancements to the Cutting Cards registry list pane and details canvas, coupled with database schema denormalization to resolve PostgREST function overloading conflicts. We also modularized the 2,300+ line screen into smaller, scoped widgets using a native ChangeNotifier state provider architecture.
+Shipped major UI redesigns and visual enhancements to the Cutting Cards registry, implemented the Stitching Tasks Reconciliation view, and built the new Designs SKU Catalog Dashboard. All frontend code is re-engineered to be 100% theme-compliant (Light/Dark modes) using native Organism library color tokens and widgets.
 
-### Code Splitting & Scoped State Refactoring
+### Designs Catalog Dashboard & Media Library
+- **Designs Table & RPC**: Created Supabase table `sb_designs` with columns for status constraints, media paths, opening stock balances, and a thread-safe `create_auto_design` Postgres RPC function to calculate next sequential indices per quality (e.g. `ALISHA-09`).
+- **Dashboard UI Layout**: Built the Designs page using a high-density, multi-pane layout containing header action buttons, a row of 6 metrics panels using `DomainKpiTile` widgets, a search/filter bar using `CellInput`, `TissueDropdown`, and `CellCheckbox`, a 2/3 width media card grid utilizing `CellBox` containers and `CellBadge` status pills, and a 1/3 width details sidebar utilizing `TissueEmptyState` and themed media picker boxes.
+- **Theme Standardization**: Cleaned up all hardcoded colors and typography getters, replacing them with dynamic semantic tokens (`colors.background`, `colors.surface`, `colors.border`, `colors.textPrimary`, `colors.textSecondary`, `colors.warning`, etc.) to resolve contrast regression issues.
+- **Static Analysis Compliance**: Resolved all async BuildContext gap warnings, deprecated FormField and Switch parameters, and `.withOpacity` calls to maintain a clean static analyzer output.
+
+### Stitching Tasks Reconciliation & Smart Linker
+- **Client-Side Merging**: Created `service_tasks.dart` and `tasks_tab.dart` to reconcile Stitching dispatches with Cutting cards. Merges data in Dart to prevent Postgrest cache relational query exceptions.
+- **Array Mapping**: Added `jobCardVnos` array mapper to Cutting Card model to associate many-to-many linkages once approved.
+
+### Code Splitting & Scoped State Refactoring (Cutting)
 - **Modular Directory Structure**: Created package folder structure under `lib/screens/production/cutting/` to organize the workstation.
 - **ChangeNotifier Scoped Provider**: Created `widgets/cutting_form_state.dart` containing all creation/edit specs controllers, input values, selection state lists, and live mathematical calculations. Wraps overlays in a native `InheritedNotifier` to eliminate widget parameter prop-drilling.
 - **Details Card Viewer**: Created `widgets/cutting_detail_canvas.dart` containing timeline progress bars, KPI tiles, and list grids.

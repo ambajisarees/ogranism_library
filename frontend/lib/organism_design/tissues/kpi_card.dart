@@ -90,7 +90,7 @@ class TissueKpiCard extends StatelessWidget {
                       dotData: const FlDotData(show: false),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: colors.primary.withOpacity(0.1),
+                        color: colors.primary.withValues(alpha: 0.1),
                       ),
                     ),
                   ],

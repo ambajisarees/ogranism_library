@@ -15,6 +15,8 @@ class CuttingDetailCanvas extends StatelessWidget {
   final Map<String, DateTime?> timelineDates;
   final VoidCallback onEdit;
   final Function(String side) onUploadScan;
+  final Function(String side) onPickScan;
+  final Function(String side, MediaModel media) onDelinkScan;
 
   const CuttingDetailCanvas({
     super.key,
@@ -26,6 +28,8 @@ class CuttingDetailCanvas extends StatelessWidget {
     required this.timelineDates,
     required this.onEdit,
     required this.onUploadScan,
+    required this.onPickScan,
+    required this.onDelinkScan,
   });
 
   @override
@@ -85,275 +89,209 @@ class CuttingDetailCanvas extends StatelessWidget {
       }
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(OrganismTheme.spacingLg),
-      child: Container(
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(OrganismTheme.radiusMd),
-          border: Border.all(color: colors.border),
-          boxShadow: [
-            BoxShadow(
-              color: colors.textPrimary.withOpacity(0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // ── 1. STICKY HEADER ──────────────────────────────────────
-            Container(
-              color: colors.surface,
-              padding: const EdgeInsets.fromLTRB(
-                OrganismTheme.spacingLg,
-                OrganismTheme.spacingLg,
-                OrganismTheme.spacingLg,
-                OrganismTheme.spacingMd,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            summary.ccCode,
-                            style: OrganismTheme.displayLarge(context),
-                          ),
-                          const SizedBox(width: 12),
-                          CellBadge(
-                            text: summary.sbStatus.toUpperCase(),
-                            variant: summary.sbStatus.toUpperCase() == 'COMPLETED'
-                                ? CellBadgeVariant.success
-                                : CellBadgeVariant.primary,
-                          ),
-                        ],
-                      ),
-                      TissueButtonBar(
-                        children: [
-                          CellButton(
-                            text: 'Print',
-                            icon: LucideIcons.printer,
-                            variant: CellButtonVariant.outline,
-                            onPressed: null, // disabled for now
-                          ),
-                          CellButton(
-                            text: 'Edit',
-                            icon: LucideIcons.edit2,
-                            variant: CellButtonVariant.primary,
-                            onPressed: onEdit,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: OrganismTheme.spacingMd),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: TissueReadOnlyField(
-                          label: 'Mill Processing House',
-                          value: summary.mill,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: TissueReadOnlyField(
-                          label: 'Base Grey Quality',
-                          value: summary.greyQual,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildScanThumbnail(
-                          context: context,
-                          colors: colors,
-                          title: 'FRONT SCAN',
-                          side: 'F',
-                          media: frontMedia,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildScanThumbnail(
-                          context: context,
-                          colors: colors,
-                          title: 'BACK SCAN',
-                          side: 'B',
-                          media: backMedia,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Divider(color: colors.border, height: 1, thickness: 1),
-
-            // ── 2. SCROLLABLE BODY ────────────────────────────────────
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(OrganismTheme.spacingLg),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Production Lifecycle Timeline
-                    Text(
-                      'PRODUCTION LIFECYCLE PROGRESS',
-                      style: OrganismTheme.titleMedium(context).copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: colors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    loadingTimeline
-                        ? const Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 24.0),
-                              child: CircularProgressIndicator(),
-                            ),
-                          )
-                        : DomainCuttingTimeline(stageDates: timelineDates),
-                    const SizedBox(height: OrganismTheme.spacingLg),
-                    const Divider(),
-                    const SizedBox(height: OrganismTheme.spacingLg),
-
-                    // KPI Cards
-                    Text(
-                      'METRICS',
-                      style: OrganismTheme.titleMedium(context).copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: colors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: DomainKpiTile(
-                            label: 'Fresh output'.toUpperCase(),
-                            value: OrganismFormat.number(summary.totalFreshPcs),
-                            unit: 'pcs',
-                          ),
-                        ),
-                        const SizedBox(width: OrganismTheme.spacingMd),
-                        Expanded(
-                          child: DomainKpiTile(
-                            label: 'Second output'.toUpperCase(),
-                            value: OrganismFormat.number(summary.totalSecondPcs),
-                            unit: 'pcs',
-                          ),
-                        ),
-                        const SizedBox(width: OrganismTheme.spacingMd),
-                        Expanded(
-                          child: DomainKpiTile(
-                            label: 'cut length'.toUpperCase(),
-                            value: summary.cutLength.toStringAsFixed(2),
-                            unit: 'mts',
-                          ),
-                        ),
-                        const SizedBox(width: OrganismTheme.spacingMd),
-                        Expanded(
-                          child: DomainKpiTile(
-                            label: 'saree weight'.toUpperCase(),
-                            value: '${(summary.avgWt * 1000).toInt()}',
-                            unit: 'g',
-                          ),
-                        ),
-                        const SizedBox(width: OrganismTheme.spacingMd),
-                        Expanded(
-                          child: DomainKpiTile(
-                            label: 'total investment'.toUpperCase(),
-                            value: totalInvestment >= 100000 
-                                ? (totalInvestment / 100000).toStringAsFixed(2)
-                                : OrganismFormat.number(totalInvestment),
-                            unit: totalInvestment >= 100000 ? 'Lakhs' : 'inr',
-                          ),
-                        ),
-                        const SizedBox(width: OrganismTheme.spacingMd),
-                        Expanded(
-                          child: DomainKpiTile(
-                            label: 'cost per pc'.toUpperCase(),
-                            value: OrganismFormat.currency(costPerPc, decimals: 2),
-                            unit: '/ saree',
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: OrganismTheme.spacingLg),
-                    const Divider(),
-                    const SizedBox(height: OrganismTheme.spacingLg),
-
-                    // Selected Lot Rolls
-                    Text(
-                      'SELECTED GREY LOT ROLLS (${siblingCards.length})',
-                      style: OrganismTheme.titleMedium(context).copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: colors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    loadingBatchDetail
-                        ? const Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 24.0),
-                              child: CircularProgressIndicator(),
-                            ),
-                          )
-                        : siblingCards.isEmpty
-                            ? TissueEmptyState(
-                                icon: LucideIcons.layers,
-                                title: 'No Lot Cards',
-                                message: 'No rolls selected for this batch.',
-                              )
-                            : Column(
-                                children: lotRows,
-                              ),
-                    const SizedBox(height: 24),
-                  ],
-                ),
-              ),
-            ),
-            Divider(color: colors.border, height: 1, thickness: 1),
-
-            // ── 3. STICKY FOOTER ──────────────────────────────────────
-            Container(
-              color: colors.surface,
-              padding: const EdgeInsets.symmetric(
-                horizontal: OrganismTheme.spacingLg,
-                vertical: OrganismTheme.spacingMd,
-              ),
-              child: Row(
-                children: [
-                  Icon(LucideIcons.user, size: 14, color: colors.textMuted),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Creator: ${(siblingCards.isNotEmpty && siblingCards.first.creator.isNotEmpty ? siblingCards.first.creator : "N/A").toUpperCase()}',
-                    style: OrganismTheme.bodySmall(context).copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colors.primary,
-                    ),
-                  ),
-                  const Spacer(),
-                  Icon(LucideIcons.calendar, size: 14, color: colors.textMuted),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Create Time: ${siblingCards.isNotEmpty && siblingCards.first.createTime != null ? OrganismFormat.dateTime(siblingCards.first.createTime!) : OrganismFormat.dateTime(summary.cutDate)}',
-                    style: OrganismTheme.bodySmall(context),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+    return OrganSectionCanvas(
+      title: summary.ccCode,
+      headerBadge: CellBadge(
+        text: summary.sbStatus.toUpperCase(),
+        variant: summary.sbStatus.toUpperCase() == 'COMPLETED'
+            ? CellBadgeVariant.success
+            : CellBadgeVariant.primary,
       ),
+      actions: [
+        CellButton(
+          text: 'Print',
+          icon: LucideIcons.printer,
+          variant: CellButtonVariant.outline,
+          onPressed: null, // disabled for now
+        ),
+        CellButton(
+          text: 'Edit',
+          icon: LucideIcons.edit2,
+          variant: CellButtonVariant.primary,
+          onPressed: onEdit,
+        ),
+      ],
+      subHeader: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: TissueReadOnlyField(
+              label: 'Mill Worker',
+              value: summary.mill,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: TissueReadOnlyField(
+              label: 'Fabrics',
+              value: summary.greyQual,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: _buildScanThumbnail(
+              context: context,
+              colors: colors,
+              title: 'FRONT SCAN',
+              side: 'F',
+              media: frontMedia,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: _buildScanThumbnail(
+              context: context,
+              colors: colors,
+              title: 'BACK SCAN',
+              side: 'B',
+              media: backMedia,
+            ),
+          ),
+        ],
+      ),
+      footer: Row(
+        children: [
+          Icon(LucideIcons.user, size: 14, color: colors.textMuted),
+          const SizedBox(width: 6),
+          Text(
+            'Creator: ${(siblingCards.isNotEmpty && siblingCards.first.creator.isNotEmpty ? siblingCards.first.creator : "N/A").toUpperCase()}',
+            style: OrganismTheme.bodySmall(context).copyWith(
+              fontWeight: FontWeight.bold,
+              color: colors.primary,
+            ),
+          ),
+          const Spacer(),
+          Icon(LucideIcons.calendar, size: 14, color: colors.textMuted),
+          const SizedBox(width: 6),
+          Text(
+            'Create Time: ${siblingCards.isNotEmpty && siblingCards.first.createTime != null ? OrganismFormat.dateTime(siblingCards.first.createTime!) : OrganismFormat.dateTime(summary.cutDate)}',
+            style: OrganismTheme.bodySmall(context),
+          ),
+        ],
+      ),
+      children: [
+        // 1. Timeline Section
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'TIMELINE',
+              style: OrganismTheme.titleMedium(context).copyWith(
+                fontWeight: FontWeight.bold,
+                color: colors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            loadingTimeline
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                : DomainCuttingTimeline(stageDates: timelineDates),
+          ],
+        ),
+
+        // 2. Metrics KPI Section
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'METRICS',
+              style: OrganismTheme.titleMedium(context).copyWith(
+                fontWeight: FontWeight.bold,
+                color: colors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: DomainKpiTile(
+                    label: 'Fresh output'.toUpperCase(),
+                    value: OrganismFormat.number(summary.totalFreshPcs),
+                    unit: 'pcs',
+                  ),
+                ),
+                const SizedBox(width: OrganismTheme.spacingMd),
+                Expanded(
+                  child: DomainKpiTile(
+                    label: 'Second output'.toUpperCase(),
+                    value: OrganismFormat.number(summary.totalSecondPcs),
+                    unit: 'pcs',
+                  ),
+                ),
+                const SizedBox(width: OrganismTheme.spacingMd),
+                Expanded(
+                  child: DomainKpiTile(
+                    label: 'cut length'.toUpperCase(),
+                    value: summary.cutLength.toStringAsFixed(2),
+                    unit: 'mts',
+                  ),
+                ),
+                const SizedBox(width: OrganismTheme.spacingMd),
+                Expanded(
+                  child: DomainKpiTile(
+                    label: 'saree weight'.toUpperCase(),
+                    value: '${(summary.avgWt * 1000).toInt()}',
+                    unit: 'g',
+                  ),
+                ),
+                const SizedBox(width: OrganismTheme.spacingMd),
+                Expanded(
+                  child: DomainKpiTile(
+                    label: 'total investment'.toUpperCase(),
+                    value: totalInvestment >= 100000 
+                        ? (totalInvestment / 100000).toStringAsFixed(2)
+                        : OrganismFormat.number(totalInvestment),
+                    unit: totalInvestment >= 100000 ? 'Lakhs' : 'inr',
+                  ),
+                ),
+                const SizedBox(width: OrganismTheme.spacingMd),
+                Expanded(
+                  child: DomainKpiTile(
+                    label: 'cost per pc'.toUpperCase(),
+                    value: OrganismFormat.currency(costPerPc, decimals: 2),
+                    unit: '/ saree',
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+
+        // 3. Selected Grey Lot Rolls Section
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'LINKED LOTS (${siblingCards.length})',
+              style: OrganismTheme.titleMedium(context).copyWith(
+                fontWeight: FontWeight.bold,
+                color: colors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            loadingBatchDetail
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                : siblingCards.isEmpty
+                    ? TissueEmptyState(
+                        icon: LucideIcons.layers,
+                        title: 'No Lot Cards',
+                        message: 'No rolls selected for this batch.',
+                      )
+                    : Column(
+                        children: lotRows,
+                      ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -378,61 +316,110 @@ class CuttingDetailCanvas extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        GestureDetector(
-          onTap: media != null 
-              ? () => _openMediaOverlay(context, publicUrl) 
-              : () => onUploadScan(side),
-          child: Container(
-            height: 44,
-            decoration: BoxDecoration(
-              color: colors.surfaceSubtle,
-              borderRadius: BorderRadius.circular(OrganismTheme.radiusSm),
-              border: Border.all(color: colors.border),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: media != null
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.network(
-                        MediaService().getPublicUrl(media.filePath, width: 100, height: 100),
-                        width: 44,
-                        height: 44,
-                        fit: BoxFit.cover,
-                        errorBuilder: (c, e, s) => const Icon(LucideIcons.fileImage, size: 16),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          media.fileName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: OrganismTheme.bodySmall(context).copyWith(color: colors.textMuted),
-                        ),
-                      ),
-                    ],
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(LucideIcons.uploadCloud, size: 16, color: colors.textMuted),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Upload',
-                        style: OrganismTheme.bodySmall(context).copyWith(color: colors.textMuted),
-                      ),
-                    ],
+        Container(
+          height: 44,
+          decoration: BoxDecoration(
+            color: colors.surfaceSubtle,
+            borderRadius: BorderRadius.circular(OrganismTheme.radiusSm),
+            border: Border.all(color: colors.border),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Row(
+            children: [
+              // 1. Thumbnail widget (wrapped in GestureDetector to open preview)
+              GestureDetector(
+                onTap: media != null ? () => _openMediaOverlay(context, publicUrl) : null,
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: colors.border.withValues(alpha: 0.2),
+                    border: Border(right: BorderSide(color: colors.border)),
                   ),
+                  child: media != null
+                      ? Image.network(
+                          MediaService().getPublicUrl(media.filePath, width: 100, height: 100),
+                          fit: BoxFit.cover,
+                          errorBuilder: (c, e, s) => const Icon(LucideIcons.fileImage, size: 16),
+                        )
+                      : Icon(LucideIcons.imageOff, size: 16, color: colors.textMuted),
+                ),
+              ),
+              const SizedBox(width: 12),
+              
+              // 2. Name Display
+              Expanded(
+                child: Text(
+                  media != null ? media.fileName : 'Unlinked',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: OrganismTheme.bodySmall(context).copyWith(
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              
+              // 3. Multi-Button Action Bar
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Upload local file button
+                  _buildActionIcon(
+                    icon: LucideIcons.upload,
+                    tooltip: 'Upload direct scan',
+                    color: colors.textSecondary,
+                    onTap: () => onUploadScan(side),
+                  ),
+                  // Pick from media library button
+                  _buildActionIcon(
+                    icon: LucideIcons.search,
+                    tooltip: 'Pick from library',
+                    color: colors.textSecondary,
+                    onTap: () => onPickScan(side),
+                  ),
+                  // Delink button
+                  if (media != null)
+                    _buildActionIcon(
+                      icon: LucideIcons.unlink,
+                      tooltip: 'Delink scan',
+                      color: colors.error,
+                      onTap: () => onDelinkScan(side, media),
+                    ),
+                  const SizedBox(width: 4),
+                ],
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 
+  Widget _buildActionIcon({
+    required IconData icon,
+    required String tooltip,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(4),
+        child: Padding(
+          padding: const EdgeInsets.all(6.0),
+          child: Icon(icon, size: 14, color: color),
+        ),
+      ),
+    );
+  }
+
   void _openMediaOverlay(BuildContext context, String url) {
     showGeneralDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.9),
+      barrierColor: Colors.black.withValues(alpha: 0.9),
       barrierDismissible: true,
       barrierLabel: 'Close Image',
       pageBuilder: (context, _, __) {
@@ -451,7 +438,7 @@ class CuttingDetailCanvas extends StatelessWidget {
               right: 20,
               child: SafeArea(
                 child: Material(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withValues(alpha: 0.5),
                   shape: const CircleBorder(),
                   child: IconButton(
                     icon: const Icon(LucideIcons.x, color: Colors.white),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme.dart';
 import '../cells/spatial.dart'; // Direct import for CellGap/CellPad
 
 /// [TissueButtonBar] — Horizontal action group molecule.

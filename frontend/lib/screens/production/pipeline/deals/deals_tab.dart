@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:textile_erp/organism_design/index.dart';
 import '../../../../models/production/model_grey.dart';
@@ -97,6 +96,7 @@ class _DealsTabState extends State<DealsTab> {
     }
   }
 
+  // ignore: unused_element
   void _triggerAddDeal() {
     final controller = KineticWorkspaceProvider.of(context);
     controller.showOverlay(
@@ -159,8 +159,13 @@ class _DealsTabState extends State<DealsTab> {
           _loadData();
         },
         searchPlaceholder: 'Search by Weaver, Quality...',
-        onAddPressed: _triggerAddDeal,
-        addLabel: 'Add Deal',
+        primaryAction: const CellButton(
+          text: 'Add',
+          icon: LucideIcons.plus,
+          variant: CellButtonVariant.primary,
+          isCompact: true,
+          onPressed: null, // Disabled
+        ),
       ),
       paneList: OrganPaneList(
         isLoading: _isLoading,
@@ -184,9 +189,6 @@ class _DealsTabState extends State<DealsTab> {
               ? (item.pcs ?? 0).toDouble()
               : (item.mts ?? 0.0) * (item.lots ?? 1);
 
-          final displayQty = item.unit == 'PCS'
-              ? '${item.pcs} PCS'
-              : '${orderedVal.toStringAsFixed(1)} M';
           final receivedQty = item.unit == 'PCS'
               ? '${item.rcvPcs} PCS'
               : '${item.rcvMts.toStringAsFixed(1)} M';
@@ -194,22 +196,26 @@ class _DealsTabState extends State<DealsTab> {
           final double rcvVal = item.unit == 'PCS' ? item.rcvPcs.toDouble() : item.rcvMts;
           final progress = orderedVal > 0 ? (rcvVal / orderedVal).clamp(0.0, 1.0) : 0.0;
 
-          return TissueListCard(
+          return TissueListCard.registry(
             isSelected: isSelected,
-            isCompact: false,
-            showDivider: true,
             onTap: () => _onDealSelected(item),
-            leading: CellCardAvatar(date: item.date),
-            title: Text(
-              item.weaverGroupName ?? item.gcode,
-              style: OrganismTheme.bodyLarge(context).copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            subtitle: Column(
+            showDivider: true,
+            badgeColor: item.closed == 'Y' ? colors.success : colors.primary,
+            registryDate: item.date,
+            registryTitle: item.weaverGroupName ?? item.gcode,
+            registryBadgeText: '${item.orderNo}',
+            registryMetricText: 'RCVD: $receivedQty',
+            registrySubtitleWidget: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Order #${item.orderNo} • ${item.qual}', style: OrganismTheme.bodySmall(context)),
+                Text(
+                  'ORDER #${item.orderNo} • ${item.qual}'.toUpperCase(),
+                  style: OrganismTheme.labelMedium(context).copyWith(
+                    fontFamily: 'JetBrainsMono',
+                    fontSize: 10,
+                    color: isSelected ? colors.primary.withValues(alpha: 0.8) : colors.textSecondary,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(2),
@@ -226,30 +232,6 @@ class _DealsTabState extends State<DealsTab> {
                         ),
                       ),
                     ),
-                  ),
-                ),
-              ],
-            ),
-            trailing: CellBadge(
-              text: item.closed == 'Y' ? 'CLOSED' : 'OPEN',
-              variant: item.closed == 'Y' ? CellBadgeVariant.success : CellBadgeVariant.primary,
-            ),
-            footer: Row(
-              children: [
-                Text(
-                  'Rcvd: $receivedQty / $displayQty',
-                  style: monoStyle.copyWith(
-                    fontSize: 12,
-                    color: colors.textSecondary,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  '₹${item.rate.toStringAsFixed(2)}',
-                  style: monoStyle.copyWith(
-                    fontSize: 12,
-                    color: colors.primary,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],

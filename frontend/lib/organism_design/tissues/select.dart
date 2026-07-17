@@ -53,7 +53,7 @@ class TissueSelect<T> extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  value != null ? itemLabelBuilder(value!) : (placeholder ?? 'Select option'),
+                  value != null ? itemLabelBuilder(value as T) : (placeholder ?? 'Select option'),
                   style: OrganismTheme.bodyLarge(context).copyWith(
                     color: value != null ? colors.textPrimary : colors.textMuted,
                   ),

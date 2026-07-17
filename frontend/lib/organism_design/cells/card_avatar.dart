@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
 
+enum CellCardAvatarSize { small, medium }
+
 /// [CellCardAvatar] — A signature date/identity capsule.
 ///
 /// Implements the "12-Month Color Logic" where the theme shifts based on the month (1-12).
 /// Used in registries to provide immediate temporal context.
 class CellCardAvatar extends StatelessWidget {
   final DateTime date;
-  final double size;
+  final double? size;
+  final CellCardAvatarSize sizeVariant;
 
   const CellCardAvatar({
     super.key,
     required this.date,
-    this.size = 40,
+    this.size,
+    this.sizeVariant = CellCardAvatarSize.small,
   });
 
   static const List<String> _months = [
@@ -22,16 +26,21 @@ class CellCardAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = OrganismTheme.colorsOf(context);
     final monthColor = _getMonthColor(context, date.month);
+    
+    // Resolve final container dimensions
+    final actualSize = size ?? (sizeVariant == CellCardAvatarSize.medium ? 44.0 : 40.0);
     
     // Day string: 01, 02, ..., 31
     final dayStr = date.day.toString().padLeft(2, '0');
     final monthStr = _months[date.month - 1];
 
+    final dayFontSize = actualSize >= 44.0 ? 15.0 : 13.0;
+    final monthFontSize = actualSize >= 44.0 ? 9.0 : 8.0;
+
     return Container(
-      width: size,
-      height: size,
+      width: actualSize,
+      height: actualSize,
       decoration: BoxDecoration(
         color: monthColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(OrganismTheme.radiusMd),
@@ -50,7 +59,7 @@ class CellCardAvatar extends StatelessWidget {
             style: TextStyle(
               color: monthColor,
               fontWeight: FontWeight.w800,
-              fontSize: 13,
+              fontSize: dayFontSize,
               height: 1.0,
               fontFamily: 'JetBrainsMono',
             ),
@@ -61,7 +70,7 @@ class CellCardAvatar extends StatelessWidget {
             style: TextStyle(
               color: monthColor.withValues(alpha: 0.8),
               fontWeight: FontWeight.w700,
-              fontSize: 8,
+              fontSize: monthFontSize,
               height: 1.0,
               fontFamily: 'JetBrainsMono',
             ),

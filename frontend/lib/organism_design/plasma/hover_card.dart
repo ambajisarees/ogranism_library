@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../theme.dart';
-import 'popover.dart';
 
 /// [PlasmaHoverCard] — Non-destructive data peeking overlay.
 ///
@@ -34,7 +33,7 @@ class _PlasmaHoverCardState extends State<PlasmaHoverCard> {
   Timer? _closeTimer;
   bool _isVisible = false;
 
-  void _onEnter(_) {
+  void _onEnter(PointerEvent _) {
     _closeTimer?.cancel();
     if (_isVisible) return;
 
@@ -43,7 +42,7 @@ class _PlasmaHoverCardState extends State<PlasmaHoverCard> {
     });
   }
 
-  void _onExit(_) {
+  void _onExit(PointerEvent _) {
     _openTimer?.cancel();
     if (!_isVisible) return;
 

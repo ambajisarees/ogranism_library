@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../theme.dart';
 import '../cells/button.dart';
-import '../cells/multi_button.dart';
-import '../cells/spatial.dart';
 import '../cells/input.dart';
 
 /// [TissuePagination] — High-density consolidated registry control bar.
@@ -103,7 +101,7 @@ class TissuePagination extends StatelessWidget {
 
           // 2. Status
           Text(
-            '$totalCount records',
+            '$start - $end of $totalCount records',
             style: OrganismTheme.labelMedium(context).copyWith(
               color: colors.textSecondary,
               fontWeight: FontWeight.w600,

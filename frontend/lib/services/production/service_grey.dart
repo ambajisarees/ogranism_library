@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../models/production/model_grey.dart';
 import '../core/service_supabase.dart';
@@ -35,7 +36,7 @@ class GreyService {
     final data = (response.data as List).map((json) => GreyPurchaseModel.fromJson(json)).toList();
     return PaginatedResult(
       data: data,
-      totalCount: response.count ?? 0,
+      totalCount: response.count,
       offset: offset,
       limit: limit,
     );
@@ -65,12 +66,12 @@ class GreyService {
       final List<dynamic> data = response.data as List<dynamic>;
       return PaginatedResult(
         data: data.map((json) => GreyProductionCard.fromJson(json)).toList(),
-        totalCount: response.count ?? 0,
+        totalCount: response.count,
         offset: offset,
         limit: limit,
       );
     } catch (e) {
-      print('GreyService.getDispatchRegistry error: $e');
+      debugPrint('GreyService.getDispatchRegistry error: $e');
       return PaginatedResult(data: [], totalCount: 0, offset: offset, limit: limit);
     }
   }
@@ -101,12 +102,12 @@ class GreyService {
       final data = (response.data as List).map((json) => MillInwardModel.fromJson(json)).toList();
       return PaginatedResult(
         data: data,
-        totalCount: response.count ?? 0,
+        totalCount: response.count,
         offset: offset,
         limit: limit,
       );
     } catch (e) {
-      print('GreyService.getMillInwardBills error: $e');
+      debugPrint('GreyService.getMillInwardBills error: $e');
       return PaginatedResult(data: [], totalCount: 0, offset: offset, limit: limit);
     }
   }
@@ -126,7 +127,7 @@ class GreyService {
           .map((json) => TakaModel.fromJson(json))
           .toList();
     } catch (e) {
-      print('GreyService.getBillDetails error: $e');
+      debugPrint('GreyService.getBillDetails error: $e');
       return [];
     }
   }
@@ -160,12 +161,12 @@ class GreyService {
       final data = (response.data as List).map((json) => GreyDealModel.fromJson(json)).toList();
       return PaginatedResult(
         data: data,
-        totalCount: response.count ?? 0,
+        totalCount: response.count,
         offset: offset,
         limit: limit,
       );
     } catch (e) {
-      print('GreyService.getGreyDeals error: $e');
+      debugPrint('GreyService.getGreyDeals error: $e');
       return PaginatedResult(data: [], totalCount: 0, offset: offset, limit: limit);
     }
   }
@@ -189,7 +190,7 @@ class GreyService {
       list.sort((a, b) => a['name']!.compareTo(b['name']!));
       return list;
     } catch (e) {
-      print('GreyService.getWeavers error: $e');
+      debugPrint('GreyService.getWeavers error: $e');
       return [];
     }
   }
@@ -214,7 +215,7 @@ class GreyService {
       list.sort();
       return list;
     } catch (e) {
-      print('GreyService.getFirmsForWeaverGroup error: $e');
+      debugPrint('GreyService.getFirmsForWeaverGroup error: $e');
       return [];
     }
   }
@@ -238,7 +239,7 @@ class GreyService {
       list.sort((a, b) => a['name']!.compareTo(b['name']!));
       return list;
     } catch (e) {
-      print('GreyService.getBrokers error: $e');
+      debugPrint('GreyService.getBrokers error: $e');
       return [];
     }
   }
@@ -257,7 +258,7 @@ class GreyService {
 
       return Map<String, dynamic>.from(response.data as Map);
     } catch (e) {
-      print('GreyService.saveGreyOrder error: $e');
+      debugPrint('GreyService.saveGreyOrder error: $e');
       rethrow;
     }
   }
@@ -301,7 +302,7 @@ class GreyService {
         };
       }).toList();
     } catch (e) {
-      print('GreyService.getReceivedBillsForDeal error: $e');
+      debugPrint('GreyService.getReceivedBillsForDeal error: $e');
       return [];
     }
   }

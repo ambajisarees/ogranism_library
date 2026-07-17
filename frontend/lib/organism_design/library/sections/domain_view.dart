@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:textile_erp/organism_design/theme.dart';
-import 'package:textile_erp/organism_design/cells.dart';
-import 'package:textile_erp/organism_design/tissues.dart';
 import 'package:textile_erp/organism_design/domain.dart';
 import 'package:textile_erp/organism_design/library/widgets/library_section.dart';
 

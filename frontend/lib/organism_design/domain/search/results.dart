@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../theme.dart';
 import '../../cells.dart';
 
@@ -70,8 +69,6 @@ class DomainFilterPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = OrganismTheme.colorsOf(context);
-
     return CellTag(
       label: '${category.toUpperCase()}: $value',
       variant: CellTagVariant.accent,

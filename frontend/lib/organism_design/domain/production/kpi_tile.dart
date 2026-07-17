@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../theme.dart';
-import '../../cells.dart';
 
 enum DomainKpiTrend { up, down, neutral }
 
@@ -26,7 +25,10 @@ class DomainKpiTile extends StatelessWidget {
     final colors = OrganismTheme.colorsOf(context);
 
     return Container(
-      padding: const EdgeInsets.all(OrganismTheme.spacingLg),
+      padding: const EdgeInsets.symmetric(
+        horizontal: OrganismTheme.spacingMd,
+        vertical: OrganismTheme.spacingLg,
+      ),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: OrganismTheme.borderMd,
@@ -44,27 +46,31 @@ class DomainKpiTile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: OrganismTheme.spacingSm),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                value,
-                style: OrganismTheme.numericLarge(context).copyWith(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              if (unit != null) ...[
-                const SizedBox(width: 4),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.bottomLeft,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
                 Text(
-                  unit!,
-                  style: OrganismTheme.labelSmall(context).copyWith(
-                    color: colors.textMuted,
+                  value,
+                  style: OrganismTheme.numericLarge(context).copyWith(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
+                if (unit != null) ...[
+                  const SizedBox(width: 4),
+                  Text(
+                    unit!,
+                    style: OrganismTheme.labelSmall(context).copyWith(
+                      color: colors.textMuted,
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
           if (delta != null) ...[
             const SizedBox(height: OrganismTheme.spacingSm),

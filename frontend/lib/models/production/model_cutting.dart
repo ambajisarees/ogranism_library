@@ -150,6 +150,7 @@ class CuttingBatchSummaryModel {
   final DateTime? jobReceivedDate;
   final double? totalInvestment;
   final double? costPerPc;
+  final List<int> jobCardVnos;
 
   const CuttingBatchSummaryModel({
     required this.id,
@@ -185,6 +186,7 @@ class CuttingBatchSummaryModel {
     this.jobReceivedDate,
     this.totalInvestment,
     this.costPerPc,
+    this.jobCardVnos = const [],
   });
 
   factory CuttingBatchSummaryModel.fromJson(Map<String, dynamic> json) {
@@ -223,6 +225,9 @@ class CuttingBatchSummaryModel {
       jobReceivedDate: json['job_received_date'] != null ? DateTime.tryParse(json['job_received_date'].toString()) : null,
       totalInvestment: json['total_investment'] != null ? _parseDouble(json['total_investment']) : null,
       costPerPc: json['cost_per_pc'] != null ? _parseDouble(json['cost_per_pc']) : null,
+      jobCardVnos: json['job_card_vnos'] != null
+          ? List<int>.from((json['job_card_vnos'] as List).map((x) => _parseInt(x)))
+          : const [],
     );
   }
 

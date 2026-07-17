@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../theme.dart';
-import '../../cells.dart';
 import '../amounts.dart';
 import 'identity_badges.dart';
 

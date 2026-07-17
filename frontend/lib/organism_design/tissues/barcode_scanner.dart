@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../theme.dart';
 import '../cells.dart';
-import '../cells/spatial.dart';
 
 class TissueBarcodeScanner extends StatefulWidget {
   final ValueChanged<String> onScanned;

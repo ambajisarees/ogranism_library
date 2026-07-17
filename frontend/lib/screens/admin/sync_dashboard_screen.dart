@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../organism_design/index.dart';
-import '../../organism_design/theme.dart';
-import '../../organism_design/cells.dart';
-import '../../organism_design/tissues.dart';
-import '../../organism_design/organs.dart';
-import '../../organism_design/domain.dart';
 import '../../services/admin/service_sync.dart';
 import '../../models/admin/model_sync.dart';
 
@@ -156,8 +151,8 @@ class _SyncDashboardScreenState extends State<SyncDashboardScreen> {
           vertical: OrganismTheme.spacingMd,
         ),
         decoration: BoxDecoration(
-          color: colors.success.withOpacity(0.08),
-          border: Border.all(color: colors.success.withOpacity(0.4), width: 1.5),
+          color: colors.success.withValues(alpha: 0.08),
+          border: Border.all(color: colors.success.withValues(alpha: 0.4), width: 1.5),
           borderRadius: OrganismTheme.borderSm,
         ),
         child: Row(
@@ -207,8 +202,8 @@ class _SyncDashboardScreenState extends State<SyncDashboardScreen> {
         vertical: OrganismTheme.spacingMd,
       ),
       decoration: BoxDecoration(
-        color: colors.error.withOpacity(0.08),
-        border: Border.all(color: colors.error.withOpacity(0.4), width: 1.5),
+        color: colors.error.withValues(alpha: 0.08),
+        border: Border.all(color: colors.error.withValues(alpha: 0.4), width: 1.5),
         borderRadius: OrganismTheme.borderSm,
       ),
       child: Row(
@@ -295,7 +290,7 @@ class _SyncDashboardScreenState extends State<SyncDashboardScreen> {
             value: '$stagnantTables / $totalTables',
             subtitle: 'Stagnant Tables (No updates > 14 days) ⚠️',
             icon: LucideIcons.cloudOff,
-            borderColor: colors.error.withOpacity(0.3),
+            borderColor: colors.error.withValues(alpha: 0.3),
             textColor: colors.error,
           ),
         ),

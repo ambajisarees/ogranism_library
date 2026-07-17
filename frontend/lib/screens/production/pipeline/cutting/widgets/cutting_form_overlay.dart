@@ -182,9 +182,7 @@ class _CuttingFormOverlayState extends State<CuttingFormOverlay> {
                               return Icon(icon, size: 16);
                             },
                             onChanged: (v) {
-                              if (v != null) {
-                                _state.updateGroupBy(v);
-                              }
+                              _state.updateGroupBy(v);
                             },
                           ),
                         ],
@@ -460,9 +458,9 @@ class _CuttingFormOverlayState extends State<CuttingFormOverlay> {
                             Container(
                               padding: const EdgeInsets.all(OrganismTheme.spacingSm),
                               decoration: BoxDecoration(
-                                color: colors.warning.withOpacity(0.1),
+                                color: colors.warning.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(OrganismTheme.radiusSm),
-                                border: Border.all(color: colors.warning.withOpacity(0.4)),
+                                border: Border.all(color: colors.warning.withValues(alpha: 0.4)),
                               ),
                               child: Row(
                                 children: [

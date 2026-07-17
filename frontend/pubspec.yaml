@@ -25,6 +25,7 @@ dependencies:
   image: ^4.8.0
   graphify: ^1.2.1
 
+  meta: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
