@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'dart:async';
 import '../../organism_design/index.dart';
-import '../../services/service_auth.dart';
+import '../../services/auth/service_auth.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

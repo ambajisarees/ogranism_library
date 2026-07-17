@@ -16,7 +16,9 @@ Each `.md` file in this directory is a self-contained task brief with:
 
 | # | File | Feature | Status |
 |---|------|---------|--------|
-| 01 | [01_media_library.md](file:///c:/Users/smitt/.gemini/antigravity/scratch/textile_erp/docs/plans/01_media_library.md) | Media Library — Central File Management Hub | 🟡 Draft |
+| 01 | [01_media_library.md](file:///c:/Users/smitt/.gemini/antigravity/scratch/textile_erp/docs/plans/01_media_library.md) | Media Library — Central File Management Hub | ✅ Shipped |
+| 02 | [02_print_recipes.md](file:///c:/Users/smitt/.gemini/antigravity/scratch/textile_erp/docs/plans/02_print_recipes.md) | Print Recipes — Mill Job Rates & Production Costing | 🟡 Draft |
+| 03 | [03_production_pipeline.md](file:///c:/Users/smitt/.gemini/antigravity/scratch/textile_erp/docs/plans/03_production_pipeline.md) | Production Pipeline — Complete Module Architecture | 🟡 Questions Pending |
 
 ---
 

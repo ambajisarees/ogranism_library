@@ -6,8 +6,9 @@ import '../../organism_design/cells.dart';
 import '../../organism_design/tissues.dart';
 import '../../organism_design/organs.dart';
 import '../../organism_design/domain.dart';
-import '../../services/service_sync.dart';
-import '../../models/model_sync.dart';
+import '../../services/admin/service_sync.dart';
+import '../../models/admin/model_sync.dart';
+
 
 class SyncDashboardScreen extends StatefulWidget {
   const SyncDashboardScreen({super.key});

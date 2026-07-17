@@ -249,6 +249,78 @@ Deno.serve(async (req) => {
         INSERT INTO "${tx.unsafe(SCHEMA)}"."sb_cutdet" ${tx(detailInserts)}
       `
 
+      // 4.1 Fetch average grey purchase date
+      let greyPurchaseDate: string | null = null
+      if (reccardNos.length > 0) {
+        const [{ avg_epoch }] = await tx`
+          SELECT AVG(EXTRACT(EPOCH FROM p."DDATE"::timestamp))::double precision AS avg_epoch
+          FROM "${tx.unsafe(SCHEMA)}"."sq_MILLREC" m
+          JOIN "${tx.unsafe(SCHEMA)}"."sq_PINVTRN" p ON m."CARDNO" = p."CARDNO"
+          WHERE m."RECCARDNO" = ANY(${reccardNos})
+        `
+        if (avg_epoch) {
+          greyPurchaseDate = new Date(avg_epoch * 1000).toISOString()
+        }
+      }
+
+      // 4.2 Fetch average stock received date
+      let stockReceivedDate: string | null = null
+      if (reccardNos.length > 0) {
+        const [{ avg_epoch }] = await tx`
+          SELECT AVG(EXTRACT(EPOCH FROM b."DATE"))::double precision AS avg_epoch
+          FROM "${tx.unsafe(SCHEMA)}"."sq_MILLREC" m
+          JOIN "${tx.unsafe(SCHEMA)}"."sq_BILLS" b ON m."VNO" = b."VNO" AND m."TYPE" = b."TYPE" AND m."CNO" = b."CNO"
+          WHERE m."RECCARDNO" = ANY(${reccardNos}) AND m."TYPE" = 'J1'
+        `
+        if (avg_epoch) {
+          stockReceivedDate = new Date(avg_epoch * 1000).toISOString()
+        }
+      }
+
+      // 4.3 Fetch latest job issued date
+      let jobIssuedDate: string | null = null
+      if (cutCardNos.length > 0) {
+        const [{ max_date }] = await tx`
+          SELECT MAX(b."DATE") AS max_date
+          FROM "${tx.unsafe(SCHEMA)}"."sq_BILLDET" d
+          JOIN "${tx.unsafe(SCHEMA)}"."sq_BILLS" b ON d."VNO" = b."VNO" AND d."TYPE" = b."TYPE" AND d."CNO" = b."CNO"
+          WHERE d."orderno" = ANY(${cutCardNos}) AND d."ORDTYPE" = 'O3' AND d."TYPE" = 'O5'
+        `
+        if (max_date) {
+          jobIssuedDate = new Date(max_date).toISOString()
+        }
+      }
+
+      // 4.4 Fetch latest job received date
+      let jobReceivedDate: string | null = null
+      if (cutCardNos.length > 0) {
+        const [{ max_date }] = await tx`
+          SELECT MAX(b."DATE") AS max_date
+          FROM "${tx.unsafe(SCHEMA)}"."sq_BILLDET" d
+          JOIN "${tx.unsafe(SCHEMA)}"."sq_BILLS" b ON d."VNO" = b."VNO" AND d."TYPE" = b."TYPE" AND d."CNO" = b."CNO"
+          WHERE d."TYPE" = 'O6' AND d."STAGE_TYPE" = 'O5' AND d."STAGE_VNO" IN (
+            SELECT DISTINCT "VNO" FROM "${tx.unsafe(SCHEMA)}"."sq_BILLDET" WHERE "orderno" = ANY(${cutCardNos}) AND "ORDTYPE" = 'O3' AND "TYPE" = 'O5'
+          )
+        `
+        if (max_date) {
+          jobReceivedDate = new Date(max_date).toISOString()
+        }
+      }
+
+      // 4.5 Calculate total investment
+      let totalInvestment = 0
+      if (reccardNos.length > 0) {
+        const [{ total_inv }] = await tx`
+          SELECT COALESCE(SUM((m."WMTS" * p."RATE"::numeric) + (m."RMTS" * m."JOBRATE"::numeric)), 0)::double precision AS total_inv
+          FROM "${tx.unsafe(SCHEMA)}"."sq_MILLREC" m
+          LEFT JOIN "${tx.unsafe(SCHEMA)}"."sq_PINVTRN" p ON m."CARDNO" = p."CARDNO"
+          WHERE m."RECCARDNO" = ANY(${reccardNos})
+        `
+        totalInvestment = total_inv || 0
+      }
+
+      const costPerPc = totalFreshPcs > 0 ? (totalInvestment / totalFreshPcs) : 0
+
       // 5. Insert summary row
       const summaryInsert = {
         MULTI_VNO: nextMultiVno,
@@ -276,6 +348,12 @@ Deno.serve(async (req) => {
         RECCARDNOS: reccardNos,
         sb_status: 'COMPLETED',
         sb_created_by: userId,
+        grey_purchase_date: greyPurchaseDate,
+        stock_received_date: stockReceivedDate,
+        job_issued_date: jobIssuedDate,
+        job_received_date: jobReceivedDate,
+        total_investment: totalInvestment,
+        cost_per_pc: costPerPc,
       }
 
       await tx`

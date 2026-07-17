@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../organism_design/index.dart';
-import '../../models/model_party.dart';
-import '../../services/service_masters.dart';
+import '../../models/masters/model_party.dart';
+import '../../services/masters/service_masters.dart';
+
 import '../../constants/legacy_constants.dart';
 
 class PartiesScreen extends StatefulWidget {

@@ -17,6 +17,7 @@ export 'domain/production/stage_icon.dart';
 export 'domain/production/challan_card.dart';
 export 'domain/production/stock_indicator.dart';
 export 'domain/production/production_timeline.dart';
+export 'domain/production/cutting_timeline.dart';
 export 'domain/production/identity.dart';
 export 'domain/production/status.dart';
 export 'domain/production/kpi_tile.dart';

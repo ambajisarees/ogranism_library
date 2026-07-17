@@ -34,14 +34,23 @@ Never write UI code without understanding the data first. This is the law of the
 4. **Build services** — `service_*.dart` singletons using `SupabaseService.client`
 5. **Assemble the screen** — `screen_*.dart` composing Organism components
 
-## File Naming (Mandatory)
+## File Naming & Modularization (Mandatory)
 
 Every Dart file follows strict role-based prefixing:
 - `model_*.dart` — Immutable data classes with `fromJson` factories
 - `service_*.dart` — Singleton API logic, one per domain
 - `screen_*.dart` — Page-level StatefulWidgets
 
-Do NOT create standalone widget files. If a domain-specific visual component is needed, place it in `organism_design/domain/`.
+**Registry Screen Modularization (large screens >1,000 lines)**:
+Do not write monolithic screen files if complexity exceeds 1,000 lines. Instead, split the screen into a nested package folder under `lib/screens/<domain>/<feature>/` containing:
+- `[feature]_screen.dart` — main registry list and split-pane orchestrator.
+- `widgets/` folder containing:
+  - `[feature]_form_state.dart` — local `ChangeNotifier` state class and concrete `[Feature]FormStateProvider` (`InheritedNotifier`) wrapper containing overlay inputs, text controllers, loaders, and real-time calculations. Access via `[Feature]FormState.of(context)`.
+  - `[feature]_detail_canvas.dart` — read-only detail view showing timelines, metric tiles, and rolls list.
+  - `[feature]_form_overlay.dart` — the create/edit composite dialog overlay.
+  - `[feature]_lot_group.dart` / other helpers — sub-components supporting selection views.
+
+If a standalone visual component is general-purpose (shared across features), place it in `organism_design/domain/`.
 
 ## Data Safety Patterns
 

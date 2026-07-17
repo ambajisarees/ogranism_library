@@ -1,0 +1,2 @@
+class KpiMetricModel {}
+class ReportRowModel {}

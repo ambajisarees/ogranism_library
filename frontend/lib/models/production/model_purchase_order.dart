@@ -1,0 +1,2 @@
+class PurchaseOrderModel {}
+class PurchaseOrderIntentModel {}

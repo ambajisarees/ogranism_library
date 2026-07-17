@@ -5,6 +5,46 @@
 
 ---
 
+## 2026-07-17 · Cutting Card Registry, Timeline & KPI Redesign and Database Denormalization
+
+Shipped major UI redesigns and visual enhancements to the Cutting Cards registry list pane and details canvas, coupled with database schema denormalization to resolve PostgREST function overloading conflicts. We also modularized the 2,300+ line screen into smaller, scoped widgets using a native ChangeNotifier state provider architecture.
+
+### Code Splitting & Scoped State Refactoring
+- **Modular Directory Structure**: Created package folder structure under `lib/screens/production/cutting/` to organize the workstation.
+- **ChangeNotifier Scoped Provider**: Created `widgets/cutting_form_state.dart` containing all creation/edit specs controllers, input values, selection state lists, and live mathematical calculations. Wraps overlays in a native `InheritedNotifier` to eliminate widget parameter prop-drilling.
+- **Details Card Viewer**: Created `widgets/cutting_detail_canvas.dart` containing timeline progress bars, KPI tiles, and list grids.
+- **specs Form Workspace**: Created `widgets/cutting_form_overlay.dart` containing the left roll selector pane, center inputs form, and right shortage progress metrics panel.
+- **Group list Accordions**: Created `widgets/cutting_lot_group.dart` containing selectable taka grids grouped by rate, date, or design number.
+- **Backward-Compatible Exports**: Retained a forwarding export in the legacy `screens/production/cutting_screen.dart` file to prevent system compiler breakages, and updated `home.dart` import paths.
+
+### Database Denormalization & Function Choice Fix
+- **Overloading Resolved**: Dropped overloaded versions of `get_cutting_batch_timeline` from schema `IMMBE2627` and created a single unified function accepting a `bigint` parameter to eliminate the PostgREST candidate conflict.
+- **Table Extension**: Added `grey_purchase_date`, `stock_received_date`, `job_issued_date`, `job_received_date`, `total_investment`, and `cost_per_pc` to `sb_cutdet_summary` to store resolved data at creation time.
+- **Historical Backfill**: Executed an update query to calculate and populate these metrics for all historical records in the database.
+- **Edge Function Sync**: Updated the `create-cutting-batch` Edge Function to query and save these calculated columns during batch creation or edit transactions.
+
+### Frontend Model & Timeline API Optimization
+- Extended `CuttingBatchSummaryModel` in [model_cutting.dart](file:///c:/Users/smitt/.gemini/antigravity/scratch/textile_erp/frontend/lib/models/model_cutting.dart) to parse the new denormalized database columns.
+- Updated `_onCardSelected` in [cutting_screen.dart](file:///c:/Users/smitt/.gemini/antigravity/scratch/textile_erp/frontend/lib/screens/production/cutting_screen.dart) to load the timeline stepper directly from the pre-loaded fields, completely eliminating the need for subsequent timeline RPC database calls on selection.
+
+### Detail Canvas Layout & Metric Polishes
+- **Matched Investment Value/Unit Format**: Split the investment KPI card into value (e.g. `2.73`) and unit (e.g. `Lakhs`), mirroring the structure of `pcs` and `mtrs` cards to solve layout overlaps.
+- **Inlined Header & Footer**: Moved the header divider and footer inside the card container itself so they share the exact white background (`colors.surface`) and stretch edge-to-edge with full-width dividers.
+- **All Lot Cards Displayed**: Removed the `take(8)` constraint on the sibling cards builder so that all selected rolls (e.g. all 12 cards in your screenshot) are rendered.
+- **Single Saree Weight**: Adjusted the KPI block to display the weight of a **single saree in grams** (`summary.avgWt * 1000`) instead of the total saree weight of all fresh pieces in kg.
+
+### Panelist Cards Style Alignment
+- **Zero Card Margins**: Removed all vertical margins between list card rows in the left panel.
+- **Divider Separation**: Enabled `showDivider: true` on each `TissueListCard` to show a clean divider line separating items.
+- **Typography & Slots**:
+  - Quality name rendered in **bold monospace** title slot.
+  - Mill name rendered in **monospace** subtitle slot.
+  - Left leading slot retains the date icon.
+  - **No Trailing slot** elements to match the styling.
+  - **Unified Footer Row**: Left-aligned CC-code badge and right-aligned pieces count.
+
+---
+
 ## 2026-07-16 · Cutting Card Creation Dialog Visual Refinements & Popover Constraint Fixes
 
 Shipped visual layout, density, and functional enhancements to the Cutting Card creation overlay:

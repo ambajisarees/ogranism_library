@@ -3,12 +3,11 @@ import 'package:flutter/services.dart';
 import '../organism_design/index.dart';
 import 'items/items_screen.dart';
 import 'masters/parties_screen.dart';
-import 'production/grey_screen.dart';
-import 'production/cutting_screen.dart';
-import 'production/job_work_screen.dart';
+import 'production/pipeline/pipeline_screen.dart';
 import 'admin/sync_dashboard_screen.dart';
-import 'media/media_screen.dart';
-import '../services/service_auth.dart';
+import 'production/media/media_screen.dart';
+import '../services/auth/service_auth.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -152,11 +151,11 @@ class _HomeScreenState extends State<HomeScreen> {
       case 2:
         return const ItemsScreen();
       case 5:
-        return GreyScreen();
+        return const PipelineScreen(defaultTabIndex: 0);
       case 6:
-        return const CuttingScreen();
+        return const PipelineScreen(defaultTabIndex: 2);
       case 7:
-        return const JobWorkScreen();
+        return const PipelineScreen(defaultTabIndex: 3);
       case 8:
         return const SyncDashboardScreen();
       case 9:

@@ -1,0 +1,2 @@
+class RecipeModel {}
+class RecipeRateCardModel {}
