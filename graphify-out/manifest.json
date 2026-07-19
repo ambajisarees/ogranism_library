@@ -1700,13 +1700,13 @@
     "semantic_hash": ""
   },
   "frontend/lib/ant_design/widgets/page_header.dart": {
-    "mtime": 1784374005.0925055,
+    "mtime": 1784474236.6725025,
     "ast_hash": "da5d4f0891b08b99fbd2a97ceecc77a1",
     "semantic_hash": ""
   },
   "frontend/lib/screens/admin/demo_screen.dart": {
-    "mtime": 1784459967.5655737,
-    "ast_hash": "296183ab64a71366f13eea43f97b6c1d",
+    "mtime": 1784479205.4484105,
+    "ast_hash": "c1cd1d012c19dbe078c9fd6e31626647",
     "semantic_hash": ""
   },
   "skills-lock.json": {
@@ -2394,9 +2394,74 @@
     "ast_hash": "a54fae6b16d5415c1b38fe61763ad2a2",
     "semantic_hash": ""
   },
-  "frontend/lib/ant_design/widgets/dynamic_action_bar.dart": {
-    "mtime": 1784461136.564483,
-    "ast_hash": "e2b4c1f8008312962ec68cde118ed559",
+  "frontend/lib/ant_design/widgets/dab/date_popover.dart": {
+    "mtime": 1784473487.482488,
+    "ast_hash": "4b29853f5892a8d7e8d968f0b1d26e13",
+    "semantic_hash": ""
+  },
+  "frontend/lib/ant_design/widgets/dab/dynamic_action_bar.dart": {
+    "mtime": 1784474145.8750794,
+    "ast_hash": "895b1312344fd74d85dc9b3c5249b042",
+    "semantic_hash": ""
+  },
+  "frontend/lib/ant_design/widgets/dab/dynamic_action_row.dart": {
+    "mtime": 1784473587.002799,
+    "ast_hash": "c8c6dbf3b1200e788b8e88c32c7f7dd8",
+    "semantic_hash": ""
+  },
+  "frontend/lib/ant_design/widgets/dab/filter_popover.dart": {
+    "mtime": 1784472777.464093,
+    "ast_hash": "92f9029ab5915963a0e083135d0ad24f",
+    "semantic_hash": ""
+  },
+  "frontend/lib/ant_design/widgets/dab/sort_popover.dart": {
+    "mtime": 1784472782.0862594,
+    "ast_hash": "29a29b3f0fcddc0f3e8b6ecfb163dccd",
+    "semantic_hash": ""
+  },
+  "frontend/lib/ant_design/widgets/list/dynamic_content_area.dart": {
+    "mtime": 1784476223.6252978,
+    "ast_hash": "00c01d931406fccf41d8e8ee2e0ad63f",
+    "semantic_hash": ""
+  },
+  "frontend/lib/ant_design/widgets/list/dynamic_list.dart": {
+    "mtime": 1784475205.370737,
+    "ast_hash": "7e1afa99f8d9e5bdb97fc9c9d641aad9",
+    "semantic_hash": ""
+  },
+  "frontend/lib/ant_design/widgets/list/dynamic_list_card.dart": {
+    "mtime": 1784475212.3667557,
+    "ast_hash": "62a7197ba923ce017c56825fe4f4c69c",
+    "semantic_hash": ""
+  },
+  "frontend/lib/ant_design/widgets/list/form_data_list.dart": {
+    "mtime": 1784478136.2599785,
+    "ast_hash": "422b240e9313128680c35bf829451732",
+    "semantic_hash": ""
+  },
+  "frontend/lib/ant_design/widgets/list/item_header.dart": {
+    "mtime": 1784476216.407061,
+    "ast_hash": "634da802a9759acce415f727ac628f1b",
+    "semantic_hash": ""
+  },
+  "frontend/lib/ant_design/widgets/list/metric_card.dart": {
+    "mtime": 1784479316.3026743,
+    "ast_hash": "a2f61e75c79e7a43b9b3afc3a3e33455",
+    "semantic_hash": ""
+  },
+  "frontend/lib/ant_design/widgets/list/metric_card_list.dart": {
+    "mtime": 1784478130.7012708,
+    "ast_hash": "1359023f453ac3c7622125993ed7c130",
+    "semantic_hash": ""
+  },
+  "frontend/lib/ant_design/widgets/list/timeline.dart": {
+    "mtime": 1784478120.5047119,
+    "ast_hash": "bc5abd4a1d47602560051804687f859d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/spacing_data.md": {
+    "mtime": 1784462327.0154,
+    "ast_hash": "351c986cb453e690de856051c8f57e25",
     "semantic_hash": ""
   }
 }
