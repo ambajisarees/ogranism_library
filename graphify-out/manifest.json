@@ -1705,8 +1705,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/screens/admin/demo_screen.dart": {
-    "mtime": 1784368360.4058576,
-    "ast_hash": "649d7a6bc49b3611c397fee072032426",
+    "mtime": 1784459967.5655737,
+    "ast_hash": "296183ab64a71366f13eea43f97b6c1d",
     "semantic_hash": ""
   },
   "skills-lock.json": {
@@ -2392,6 +2392,11 @@
   ".agents/skills/shadcn-flutter/icons/radix_icons.md": {
     "mtime": 1784356665.0761518,
     "ast_hash": "a54fae6b16d5415c1b38fe61763ad2a2",
+    "semantic_hash": ""
+  },
+  "frontend/lib/ant_design/widgets/dynamic_action_bar.dart": {
+    "mtime": 1784461136.564483,
+    "ast_hash": "e2b4c1f8008312962ec68cde118ed559",
     "semantic_hash": ""
   }
 }
