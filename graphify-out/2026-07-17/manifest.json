@@ -495,8 +495,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/organism_design/organs/nav_boat.dart": {
-    "mtime": 1784205515.2012193,
-    "ast_hash": "8d11f0e254113a9282c3733456b6ecaa",
+    "mtime": 1784295421.0182302,
+    "ast_hash": "c1ce313f909f5afce936da3e074a868b",
     "semantic_hash": ""
   },
   "frontend/lib/organism_design/organs/nav_rail.dart": {
@@ -740,8 +740,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/organism_design/tissues/list_card.dart": {
-    "mtime": 1784289869.536309,
-    "ast_hash": "af382665187c50c4b083a6a9b47b4f9e",
+    "mtime": 1784290039.5961714,
+    "ast_hash": "0969186808e5a2e3cffa8d83d6b95c63",
     "semantic_hash": ""
   },
   "frontend/lib/organism_design/tissues/menu.dart": {
@@ -825,8 +825,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/screens/home.dart": {
-    "mtime": 1784279879.6117165,
-    "ast_hash": "3cc9604ef9de7c572bb6851c865563a6",
+    "mtime": 1784299415.825126,
+    "ast_hash": "ffaa0ae2b6f72cb9bd46dc6b454f54cd",
     "semantic_hash": ""
   },
   "frontend/lib/screens/items/items_screen.dart": {
@@ -1445,8 +1445,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/models/production/model_cutting.dart": {
-    "mtime": 1784259884.3636327,
-    "ast_hash": "3cc18b17ab756a62e5f56475dee6d14f",
+    "mtime": 1784296594.3119655,
+    "ast_hash": "6b8e51fe9554b56c4a8ecccfacfa6814",
     "semantic_hash": ""
   },
   "frontend/lib/models/production/model_grey.dart": {
@@ -1455,8 +1455,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/models/production/model_jobwork.dart": {
-    "mtime": 1784289906.462642,
-    "ast_hash": "a154e5265e25a26ac5757fa9b2950e8d",
+    "mtime": 1784290096.6354222,
+    "ast_hash": "88ae089d24b33623799dcd7c310c83b8",
     "semantic_hash": ""
   },
   "frontend/lib/models/production/model_media.dart": {
@@ -1505,13 +1505,13 @@
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/media/media_screen.dart": {
-    "mtime": 1784288892.75388,
-    "ast_hash": "1cce201383b85585312952d31970146f",
+    "mtime": 1784290318.2811298,
+    "ast_hash": "3f5fdd7e672e86cf40c6a603744effc8",
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/pipeline/cutting/cutting_screen.dart": {
-    "mtime": 1784289881.9752948,
-    "ast_hash": "e8c651abcb5d891b8511a5dc78bfc067",
+    "mtime": 1784290133.0105984,
+    "ast_hash": "168d3bcc8b06839ef2f91ab9145a5a97",
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/pipeline/cutting/widgets/cutting_detail_canvas.dart": {
@@ -1535,8 +1535,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/pipeline/deals/deals_tab.dart": {
-    "mtime": 1784289973.3138752,
-    "ast_hash": "5866921834772dcd21bf78bfbe0f0f6a",
+    "mtime": 1784290140.8982573,
+    "ast_hash": "33ec8f895eb137a464ad40a213c048ea",
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/pipeline/deals/grey_deal_dialog.dart": {
@@ -1545,8 +1545,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/pipeline/inward/inward_tab.dart": {
-    "mtime": 1784289956.0161133,
-    "ast_hash": "a6affe0431614ebb486b122298b7e5d1",
+    "mtime": 1784290111.3099427,
+    "ast_hash": "773652bd922683b3470573f1dd6f12a3",
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/pipeline/job_work/job_work_tab.dart": {
@@ -1555,13 +1555,13 @@
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/pipeline/orders/orders_tab.dart": {
-    "mtime": 1784278680.6736834,
-    "ast_hash": "021dac7306a0267c24e097c850ffe669",
+    "mtime": 1784295091.32041,
+    "ast_hash": "f4d219837c8bf148ac6fc447d22d91db",
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/pipeline/pipeline_screen.dart": {
-    "mtime": 1784282278.9842303,
-    "ast_hash": "9c2e73b555c51e868013c4cb80ccb775",
+    "mtime": 1784296245.259437,
+    "ast_hash": "0e7400e9fa196146e09f38e77a2e706c",
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/pipeline/programs/programs_tab.dart": {
@@ -1625,8 +1625,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/services/production/service_media.dart": {
-    "mtime": 1784286941.404401,
-    "ast_hash": "c2879f1695cf8514b0a612d2a9996da9",
+    "mtime": 1784291184.5233037,
+    "ast_hash": "c433d7031378fa33513493d7157ca469",
     "semantic_hash": ""
   },
   "frontend/lib/services/production/service_recipe.dart": {
@@ -1662,6 +1662,41 @@
   "docs/plans/03_production_pipeline.md": {
     "mtime": 1784277695.98462,
     "ast_hash": "0aa30e8941f9aab226bc8896859133f3",
+    "semantic_hash": ""
+  },
+  "frontend/lib/models/production/model_design.dart": {
+    "mtime": 1784298764.4442637,
+    "ast_hash": "173664d47ee3bb89427fd36773666a36",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/production/designs/designs_screen.dart": {
+    "mtime": 1784299494.0358887,
+    "ast_hash": "f570ec1f1442cfa4d33f42ab3f37bcf3",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/production/pipeline/orders/widgets/orders_detail_canvas.dart": {
+    "mtime": 1784295057.2501009,
+    "ast_hash": "11abfcda24228e816dd2c0e6990e7694",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/production/pipeline/tasks/tasks_tab.dart": {
+    "mtime": 1784296287.307174,
+    "ast_hash": "c4102e27ea14caba36fed31db4e8829d",
+    "semantic_hash": ""
+  },
+  "frontend/lib/services/production/service_designs.dart": {
+    "mtime": 1784299369.465716,
+    "ast_hash": "680d3a25b409ae1f5b0286977b876a4d",
+    "semantic_hash": ""
+  },
+  "frontend/lib/services/production/service_orders.dart": {
+    "mtime": 1784295084.6371665,
+    "ast_hash": "00427bf4cf21210f37f5104ad4fb4faf",
+    "semantic_hash": ""
+  },
+  "frontend/lib/services/production/service_tasks.dart": {
+    "mtime": 1784296727.9626153,
+    "ast_hash": "b073cd85a5b348b798d8fe9f004a9756",
     "semantic_hash": ""
   }
 }

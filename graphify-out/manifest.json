@@ -20,8 +20,8 @@
     "semantic_hash": ""
   },
   "backend/supabase/functions/create-cutting-batch/index.ts": {
-    "mtime": 1784259876.721153,
-    "ast_hash": "e678067b67ee058be46c600b69cc1b5e",
+    "mtime": 1784373620.0408301,
+    "ast_hash": "f25f41304b61f8120090b4fed117ec59",
     "semantic_hash": ""
   },
   "backend/supabase/functions/create-grey-order/index.ts": {
@@ -95,8 +95,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/main.dart": {
-    "mtime": 1784287050.5483773,
-    "ast_hash": "769d1251abef51915d2205e620435797",
+    "mtime": 1784366023.6187992,
+    "ast_hash": "e22d757dab5fbf869c6bc7a69fd2296c",
     "semantic_hash": ""
   },
   "frontend/lib/organism_design/cells.dart": {
@@ -495,8 +495,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/organism_design/organs/nav_boat.dart": {
-    "mtime": 1784295421.0182302,
-    "ast_hash": "c1ce313f909f5afce936da3e074a868b",
+    "mtime": 1784359613.578575,
+    "ast_hash": "f79f3c9327bbcc673dfc2f1afdbbfdca",
     "semantic_hash": ""
   },
   "frontend/lib/organism_design/organs/nav_rail.dart": {
@@ -525,7 +525,7 @@
     "semantic_hash": ""
   },
   "frontend/lib/organism_design/organs/topbar.dart": {
-    "mtime": 1784101323.164425,
+    "mtime": 1784355711.2725956,
     "ast_hash": "b1c3cf210cd78ce3c63934f89e0eb042",
     "semantic_hash": ""
   },
@@ -825,8 +825,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/screens/home.dart": {
-    "mtime": 1784299415.825126,
-    "ast_hash": "ffaa0ae2b6f72cb9bd46dc6b454f54cd",
+    "mtime": 1784359679.7608778,
+    "ast_hash": "6d9e749e134359f11d86008c3ceb580b",
     "semantic_hash": ""
   },
   "frontend/lib/screens/items/items_screen.dart": {
@@ -1175,8 +1175,8 @@
     "semantic_hash": ""
   },
   "docs/dev_log.md": {
-    "mtime": 1784269801.6843767,
-    "ast_hash": "4543bd1a970e1a834c38aa099aa16d98",
+    "mtime": 1784436295.6958518,
+    "ast_hash": "9b9d5737a5dd0664164c7925d74111e6",
     "semantic_hash": ""
   },
   "docs/legacy_modules_guide.md": {
@@ -1250,8 +1250,8 @@
     "semantic_hash": ""
   },
   "frontend/pubspec.yaml": {
-    "mtime": 1784286277.8436537,
-    "ast_hash": "cbb67c88c701b603afcbc0e882225829",
+    "mtime": 1784356287.4125538,
+    "ast_hash": "b6686e48c46b1666bf122db3fccbbfb5",
     "semantic_hash": ""
   },
   "frontend/web/index.html": {
@@ -1640,8 +1640,8 @@
     "semantic_hash": ""
   },
   "tasks/backup_erp.ps1": {
-    "mtime": 1784280622.0598474,
-    "ast_hash": "a7495cde7633d1d3b5ae57ffedb1d94e",
+    "mtime": 1784300261.5999844,
+    "ast_hash": "a5553e0159a4eeaba9e4ff579fd91705",
     "semantic_hash": ""
   },
   "tasks/flutter_upgrade.ps1": {
@@ -1670,8 +1670,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/designs/designs_screen.dart": {
-    "mtime": 1784299494.0358887,
-    "ast_hash": "f570ec1f1442cfa4d33f42ab3f37bcf3",
+    "mtime": 1784300009.6691034,
+    "ast_hash": "97ce96e62603a5f04cfcc8793058a4e6",
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/pipeline/orders/widgets/orders_detail_canvas.dart": {
@@ -1697,6 +1697,701 @@
   "frontend/lib/services/production/service_tasks.dart": {
     "mtime": 1784296727.9626153,
     "ast_hash": "b073cd85a5b348b798d8fe9f004a9756",
+    "semantic_hash": ""
+  },
+  "frontend/lib/ant_design/widgets/page_header.dart": {
+    "mtime": 1784374005.0925055,
+    "ast_hash": "da5d4f0891b08b99fbd2a97ceecc77a1",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/admin/demo_screen.dart": {
+    "mtime": 1784368360.4058576,
+    "ast_hash": "649d7a6bc49b3611c397fee072032426",
+    "semantic_hash": ""
+  },
+  "skills-lock.json": {
+    "mtime": 1784356670.39768,
+    "ast_hash": "95d2f62efe4e3be96bfdcd724bc1bc5c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/SKILL.md": {
+    "mtime": 1784356664.9735608,
+    "ast_hash": "0ed14d50f85a8e56be2bf585aea9034c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/animation/number_ticker.md": {
+    "mtime": 1784356664.9735608,
+    "ast_hash": "64e4fd32e60618ba2cf93fc32d52daac",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/application/wrapper.md": {
+    "mtime": 1784356664.9735608,
+    "ast_hash": "d054cd5098166f6f75db0926c939e357",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/control/button.md": {
+    "mtime": 1784356664.9735608,
+    "ast_hash": "8cc7dde81e5d7d4a42fe870835ff75c9",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/disclosure/accordion.md": {
+    "mtime": 1784356664.9735608,
+    "ast_hash": "eb99a644b63c0f6bff694cda17e013c8",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/disclosure/collapsible.md": {
+    "mtime": 1784356664.9735608,
+    "ast_hash": "5c41242d7d832717ce02a1d5ccc749ef",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/display/avatar.md": {
+    "mtime": 1784356664.9735608,
+    "ast_hash": "977f12ca1436d133e6ec5cdca3b4716d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/display/chat.md": {
+    "mtime": 1784356664.9735608,
+    "ast_hash": "68e73ca6598fb308f3ea3ea8b567eb07",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/display/code_snippet.md": {
+    "mtime": 1784356664.9735608,
+    "ast_hash": "8f2a5d83a5d4118ec0b085a93fa8f0de",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/display/table.md": {
+    "mtime": 1784356664.9735608,
+    "ast_hash": "0f22758da7d6a6ed4772d07f6d066a12",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/display/tracker.md": {
+    "mtime": 1784356664.9735608,
+    "ast_hash": "25406e7b0d59d60181dd302db00a2142",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/feedback/alert.md": {
+    "mtime": 1784356664.9735608,
+    "ast_hash": "f31eb36158627552ab7a23b8bbc66f52",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/feedback/alert_dialog.md": {
+    "mtime": 1784356664.9735608,
+    "ast_hash": "c63aa25c2561433ba8a819442357b12c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/feedback/progress.md": {
+    "mtime": 1784356664.9735608,
+    "ast_hash": "d47f58fcbdf056e839c062e8ab827990",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/feedback/skeleton.md": {
+    "mtime": 1784356664.9735608,
+    "ast_hash": "acc75b18d004b35ff4c2a306e4687362",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/feedback/toast.md": {
+    "mtime": 1784356664.9842067,
+    "ast_hash": "2d198fe7c8f5d53f85770b2caed37f5e",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/autocomplete.md": {
+    "mtime": 1784356664.9848127,
+    "ast_hash": "789aba12f2e2c4a1c8e929f615231348",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/checkbox.md": {
+    "mtime": 1784356664.9848127,
+    "ast_hash": "0ee9c73ff056cb9985f8937ce05a0770",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/chip_input.md": {
+    "mtime": 1784356664.9868178,
+    "ast_hash": "0b106b838f66227100ff1433116b48b3",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/color_picker.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "73905019595ae948ffbfa17604707cbe",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/date_picker.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "37c39a24b8e171db1c37cb8ae5d3e74a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/form.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "6657cfa07ec0bda69045950e54392f0e",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/formatted_input.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "dd49cd9ebb9bd6aec7dcc5933b821aad",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/input.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "5e1684d3caad84472f624db980a8551a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/input_otp.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "6806c692cac63986a9893a131471c881",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/item_picker.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "fe13006dfef848e39791afabc2cdc111",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/phone_input.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "76bb61311064accd8d9ce177d845c23b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/radio_group.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "ad3edfacf742d8ae50e8e399b057e204",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/select.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "c5e60241d35fa6339de3ead2260d798f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/slider.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "e4fb54132b390de5fa2498c3b53331c7",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/star_rating.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "98506fbc73f007876fe71da5ea5cc895",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/switch.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "6a96834ae8f0c923b3b939989e17fc25",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/text_area.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "617f66f2164e752f932850b6c9b78a80",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/form/time_picker.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "b2233ed0fdac985ac21f670e177e71d4",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/getting_started/theme.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "437a69bb7045cf43c7f29e6f9e974cf5",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/layout/card.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "54caf3219319c7d5c9d787e9b36814b2",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/layout/card_image.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "a651d1f612231e36886f505fb6b52a9e",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/layout/carousel.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "f62f974bc62aebc7c08acb2d9532dc56",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/layout/divider.md": {
+    "mtime": 1784356664.9888244,
+    "ast_hash": "550f95694e2f98ffcce1f9aa0bfa91f2",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/layout/resizable.md": {
+    "mtime": 1784356665.0025852,
+    "ast_hash": "aa705beaacbb6dc475f22318193477a6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/layout/scaffold.md": {
+    "mtime": 1784356665.0031068,
+    "ast_hash": "1a0884ffa997152f6b8f7034c7245619",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/layout/sortable.md": {
+    "mtime": 1784356665.0047932,
+    "ast_hash": "f59770c462f3f13b73765e7d5d2cc427",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/layout/stepper.md": {
+    "mtime": 1784356665.00591,
+    "ast_hash": "90c39d5278455132ad2344fc583f7147",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/layout/steps.md": {
+    "mtime": 1784356665.0064313,
+    "ast_hash": "afd9a10488b87159b694bfa019783f14",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/layout/timeline.md": {
+    "mtime": 1784356665.0118096,
+    "ast_hash": "f8359f44b68ab2d75fc647c035674b74",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/navigation/breadcrumb.md": {
+    "mtime": 1784356665.0118096,
+    "ast_hash": "c9f34a554bb588823da0e259f845d3e4",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/navigation/dot_indicator.md": {
+    "mtime": 1784356665.0118096,
+    "ast_hash": "62debc338d2cce461ab8aed01809e7af",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/navigation/menubar.md": {
+    "mtime": 1784356665.0118096,
+    "ast_hash": "059bb4154f75ed8f27e552282801cd9e",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/navigation/navigation_menu.md": {
+    "mtime": 1784356665.0157888,
+    "ast_hash": "f67cc7c899024ed5ebb25fd84223b4c8",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/navigation/pagination.md": {
+    "mtime": 1784356665.0157888,
+    "ast_hash": "4764c7afd6185f48c2c4a00c862e7b3a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/navigation/switcher.md": {
+    "mtime": 1784356665.0157888,
+    "ast_hash": "e03dd0403898f32f613f1909d856b2bf",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/navigation/tab_list.md": {
+    "mtime": 1784356665.0157888,
+    "ast_hash": "e96b213fb5b52ed907aaabe45865752f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/navigation/tab_pane.md": {
+    "mtime": 1784356665.019536,
+    "ast_hash": "36f699b844d53e6a2136f42a66170df6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/navigation/tabs.md": {
+    "mtime": 1784356665.0203013,
+    "ast_hash": "e4ab84fc53d09c8689c9c334f847c67e",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/navigation/tree.md": {
+    "mtime": 1784356665.0314567,
+    "ast_hash": "0d9f9613f7868757f95a3ff0aa452aac",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/alpha.md": {
+    "mtime": 1784356665.0334723,
+    "ast_hash": "f4a5f863b733fb604530a25aaebcbefc",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/bar.md": {
+    "mtime": 1784356665.0334723,
+    "ast_hash": "e68020237b5c56325d231fe7e1261694",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/basic.md": {
+    "mtime": 1784356665.0346773,
+    "ast_hash": "4135e959d9065d901515f1736f807741",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/circular_progress_indicator.md": {
+    "mtime": 1784356665.0355275,
+    "ast_hash": "c35c34074c635ef9455ba079a72e08ff",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/clickable.md": {
+    "mtime": 1784356665.0365262,
+    "ast_hash": "cdd5d9e618b56a4abce4d6394674323d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/color.md": {
+    "mtime": 1784356665.0365262,
+    "ast_hash": "40bb11e0ec0f633967efa36b44c3df08",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/color_input.md": {
+    "mtime": 1784356665.0400677,
+    "ast_hash": "70cefbc6606bedc5dc282de3f7219674",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/control.md": {
+    "mtime": 1784356665.0410776,
+    "ast_hash": "bdfaff5f6b2b5971f24103bdd87e622e",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/data.md": {
+    "mtime": 1784356665.0420785,
+    "ast_hash": "a9178f51f3f447052d906ad559dffc5a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/eye_dropper.md": {
+    "mtime": 1784356665.0420785,
+    "ast_hash": "4a4e1a70f26ba87a902cb3116cf61cd2",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/fade_scroll.md": {
+    "mtime": 1784356665.0430772,
+    "ast_hash": "1fea8f49b09477abc37016b6b97fcf77",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/file_input.md": {
+    "mtime": 1784356665.0440767,
+    "ast_hash": "9c5c5db9a3a1e08537dc92222063538c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/file_picker.md": {
+    "mtime": 1784356665.0450768,
+    "ast_hash": "1406c26635e30310c75a3c86d470c34a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/flex.md": {
+    "mtime": 1784356665.0450768,
+    "ast_hash": "6b7307665be07b17869c4710cbf1e784",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/focus_outline.md": {
+    "mtime": 1784356665.050879,
+    "ast_hash": "9c1f57e771308febcde183a346c37cc6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/form_field.md": {
+    "mtime": 1784356665.0528786,
+    "ast_hash": "560fef77c7a614de6ebaf1d5fd618a05",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/formatter.md": {
+    "mtime": 1784356665.0528786,
+    "ast_hash": "a6ed79d6b4f5769272217bd92df24efa",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/group.md": {
+    "mtime": 1784356665.0528786,
+    "ast_hash": "f92c6dfce2cf107d896b1a874df09ce0",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/hidden.md": {
+    "mtime": 1784356665.0538783,
+    "ast_hash": "984abce1d0896b8c8434ebc9776f8355",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/history.md": {
+    "mtime": 1784356665.0548854,
+    "ast_hash": "3e1e22e6b0b0fb8fa7e2de7c39c29b28",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/hover.md": {
+    "mtime": 1784356665.0548854,
+    "ast_hash": "51e656032626b88deaca63a25cd89d2c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/hsl.md": {
+    "mtime": 1784356665.0558827,
+    "ast_hash": "ca4a9cab665ea2d28d8239375465de08",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/hsv.md": {
+    "mtime": 1784356665.0568833,
+    "ast_hash": "143f6eb7d0371c06382feb8d90640329",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/icon.md": {
+    "mtime": 1784356665.0568833,
+    "ast_hash": "8846c157fc2e544579c7598244344ff2",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/item.md": {
+    "mtime": 1784356665.0579042,
+    "ast_hash": "af999edbc2d2b77a744379129fbea877",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/keyboard_shortcut.md": {
+    "mtime": 1784356665.0579042,
+    "ast_hash": "2eb97937d544a065a6d969b124f37721",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/linear_progress_indicator.md": {
+    "mtime": 1784356665.0588994,
+    "ast_hash": "4940d09e50344f9af6e10bf1b7d6b980",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/locale_utils.md": {
+    "mtime": 1784356665.0598888,
+    "ast_hash": "0aa858928edea586287d6334f67dcdf3",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/media_query.md": {
+    "mtime": 1784356665.0598888,
+    "ast_hash": "8f2aad64548a87732f7e1eaae2eec7f9",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/menu.md": {
+    "mtime": 1784356665.0598888,
+    "ast_hash": "8c1f3bf61332bf9bd00b1bd3213786bb",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/misc.md": {
+    "mtime": 1784356665.0598888,
+    "ast_hash": "2bb33a2772f6927805d36b6efb7b27fa",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/multiple_choice.md": {
+    "mtime": 1784356665.0598888,
+    "ast_hash": "02896d2730455f921ca9d64f28af9541",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/object_input.md": {
+    "mtime": 1784356665.0598888,
+    "ast_hash": "20f09a9fdead8918e6cd866d959b6b06",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/outlined_container.md": {
+    "mtime": 1784356665.0598888,
+    "ast_hash": "f5dfd1bcb28d2800bbd956414b3c6b4f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/overlay.md": {
+    "mtime": 1784356665.0598888,
+    "ast_hash": "a5e510c8959979391686d5e4aad40f2d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/patch.md": {
+    "mtime": 1784356665.0598888,
+    "ast_hash": "9ec767a89e65c669bce9806b94cb657a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/popup.md": {
+    "mtime": 1784356665.0598888,
+    "ast_hash": "429204d388de7f5cb3d7efb712d8a0bf",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/rail.md": {
+    "mtime": 1784356665.0598888,
+    "ast_hash": "42d3d966244175fb06c7745d64a7ef23",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/scrollable.md": {
+    "mtime": 1784356665.0598888,
+    "ast_hash": "0f82ddd9edf42f09ff0ec3f5cf3cde50",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/scrollable_client.md": {
+    "mtime": 1784356665.064533,
+    "ast_hash": "b2e2a53a4bb54321a1a1f2011998669b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/scrollbar.md": {
+    "mtime": 1784356665.064533,
+    "ast_hash": "cc2424eb90c63f9f80f6b95db07e8e81",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/scrollview.md": {
+    "mtime": 1784356665.064533,
+    "ast_hash": "b0f868574cf6ce22b76a7a14c66056f4",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/selectable.md": {
+    "mtime": 1784356665.064533,
+    "ast_hash": "3d635900aea7f2019ebf2f2ec93a96c0",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/sidebar.md": {
+    "mtime": 1784356665.064533,
+    "ast_hash": "b8aefe3655f06f5dd247f520e368234a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/spinner.md": {
+    "mtime": 1784356665.064533,
+    "ast_hash": "45176d7267d1e773cfb333d602025ba2",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/stage_container.md": {
+    "mtime": 1784356665.064533,
+    "ast_hash": "232feb15b92b90fa10e7179a8f62a8ec",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/subfocus.md": {
+    "mtime": 1784356665.064533,
+    "ast_hash": "ea173c82ed56a708483da1e282b36821",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/tab_container.md": {
+    "mtime": 1784356665.064533,
+    "ast_hash": "6eac1bcedcccdc2441f5533a6e86d6c5",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/text.md": {
+    "mtime": 1784356665.064533,
+    "ast_hash": "46e0e2446f00582acf4d3933dd544bef",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/text_field.md": {
+    "mtime": 1784356665.0697982,
+    "ast_hash": "57b317958c2b6074602b94a6fd1daae7",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/triple_dots.md": {
+    "mtime": 1784356665.0697982,
+    "ast_hash": "a437eddabf8726b29c5856bea94ce720",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/other/validated.md": {
+    "mtime": 1784356665.0697982,
+    "ast_hash": "f54af6b68eda3c2e1be73f860e76c907",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/overlay/dialog.md": {
+    "mtime": 1784356665.0697982,
+    "ast_hash": "ae98f9a9d47ad93d7b78e5e360a0779b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/overlay/drawer.md": {
+    "mtime": 1784356665.0697982,
+    "ast_hash": "4ef82ff4c6254da885ad2c7ab997522b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/overlay/hover_card.md": {
+    "mtime": 1784356665.0697982,
+    "ast_hash": "3a3eb99b2b0847af8ec5e2faae83db91",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/overlay/popover.md": {
+    "mtime": 1784356665.07378,
+    "ast_hash": "ce95f3deb397c411387ceae52054c38a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/overlay/swiper.md": {
+    "mtime": 1784356665.07378,
+    "ast_hash": "a53acf2bfd5b828c41c02f3bb76623fd",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/overlay/tooltip.md": {
+    "mtime": 1784356665.07378,
+    "ast_hash": "dcaeb44c5564281c688927aa41321fa2",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/overlay/window.md": {
+    "mtime": 1784356665.0755558,
+    "ast_hash": "0ddde175d945c1cb830c322916259ad1",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/utility/badge.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "26f5121f7c660bbbeeb2a8e06a6a61bf",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/utility/calendar.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "225a64c519546bf8c78ef60f19a7cf9e",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/utility/chip.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "2e65947f3e8cdeefaf519ad6afe4fe7b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/utility/command.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "acb9b3da30ea58ca284ed4f4d7078149",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/utility/context_menu.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "ccabc8744975bfff7b993b09ef771557",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/utility/dropdown_menu.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "70fa1230db6a962ea46ac3c3c6e75547",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/utility/overflow_marquee.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "b69f4685b49b492a40dc73c1fb8f3928",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/components/utility/refresh_trigger.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "74975a8f16a2e4e3c866062bf46fdc18",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/guides/colors.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "6c77ea564e742a3e784a7463fac3b469",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/guides/icons.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "c279a85157db38bd12eb7b6b48970ccb",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/guides/installation.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "b851ee9830efce166a303984b84f42fa",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/guides/interop.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "f7d2a943e8ba17bec5b3bf676aa0bb3d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/guides/introduction.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "6a15bd7e27734e507ae95581f398c2d5",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/guides/layout.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "89f433175a0b36dfee397182dafffaa5",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/guides/setup.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "9a3861da161f8913104555e880181c4f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/guides/state_management.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "32c9633cbb876323ab5b716337c571a6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/guides/theming.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "1f3df5f88b43e9153f7b029a70a2344d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/guides/typography.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "c38a86219b10eb35f5baba8ee33500e4",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/guides/web_preloader.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "6d0d70f2c513d0225395b74eaa150310",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/icons/bootstrap_icons.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "0b546453c07792fac3ff34c3ddfc17e1",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/icons/lucide_icons.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "125a6a15d0e5379ac7676398b92ea52f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/shadcn-flutter/icons/radix_icons.md": {
+    "mtime": 1784356665.0761518,
+    "ast_hash": "a54fae6b16d5415c1b38fe61763ad2a2",
     "semantic_hash": ""
   }
 }

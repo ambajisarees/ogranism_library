@@ -229,6 +229,7 @@ Deno.serve(async (req) => {
           FENT_WT: fentWt,
           AVG_WT: avgWt,
           RATE: Number(card.RATE || 0),
+          JOBRATE: Number(card.JOBRATE || card.jobrate || 0),
           CCUT: cutLength,
           CMTS: Number((freshPcs * cutLength).toFixed(2)),
           closed: 'Y', // Checklist says Y
@@ -311,9 +312,8 @@ Deno.serve(async (req) => {
       let totalInvestment = 0
       if (reccardNos.length > 0) {
         const [{ total_inv }] = await tx`
-          SELECT COALESCE(SUM((m."WMTS" * p."RATE"::numeric) + (m."RMTS" * m."JOBRATE"::numeric)), 0)::double precision AS total_inv
+          SELECT COALESCE(SUM((m."WMTS" * m."RATE"::numeric) + (m."RMTS" * m."JOBRATE"::numeric)), 0)::double precision AS total_inv
           FROM "${tx.unsafe(SCHEMA)}"."sq_MILLREC" m
-          LEFT JOIN "${tx.unsafe(SCHEMA)}"."sq_PINVTRN" p ON m."CARDNO" = p."CARDNO"
           WHERE m."RECCARDNO" = ANY(${reccardNos})
         `
         totalInvestment = total_inv || 0

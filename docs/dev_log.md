@@ -5,6 +5,45 @@
 
 ---
 
+## 2026-07-19 · Reusable PageHeader Widget, Layout Density Refinements & Levitation Client
+
+Implemented a reusable header layout system under the new widget library path, aligned the screen spacing strictly to theme density scales, and launched the background Levitation management client.
+
+### Reusable PageHeader Component
+- **New Widget Library**: Created directory `lib/ant_design/widgets/` to host custom reusable widgets.
+- **PageHeader Implementation**: Developed `page_header.dart` which builds a title row with dynamic leading icon container, title H3, optional muted subtitle, and a right-aligned row of up to 5 action buttons (asserted programmatically).
+- **Theme-Aware Sizing**: Eliminated hardcoded sizes in the header; the leading icon container scales dynamically using `theme.iconTheme.x3Large.size` (default `48px` square) and the inner icon scales using `theme.iconTheme.xLarge.size` (default `32px`).
+- **White Surface Backdrop**: Centered the leading icon inside a `shad.Card` with zero padding to create a clean white surface backdrop with a border and subtle shadow.
+
+### Layout Spacing & Density Refinements
+- **Density-Compliant Padding**: Replaced absolute padding values on the Scaffold page body and action card wrapper in `demo_screen.dart` with manual runtime resolutions based on the theme's base container padding and spacing multipliers:
+  - Scaffold body padding resolves to `32px` under default density (`baseContainerPadding * padLg`).
+  - Action card horizontal/vertical paddings are reduced to `8px` (`baseContainerPadding * padXs`) for a sleek, compact toolbar layout.
+- **Density-Compliant Gaps**: Migrated all standalone gap widgets to `DensityGap` utilizing theme spacing multiplier tokens (`gap2xl`, `gapLg`, `gapMd`, `gapSm`).
+
+### Lucide Icon System Migration
+- **Consistency Refactoring**: Replaced all occurrences of `RadixIcons` with their standard `LucideIcons` equivalents inside `demo_screen.dart` to unify the app's visual system:
+  - Header leading icon: `LucideIcons.scissors` (representing cutting patterns).
+  - Search bar input indicator: `LucideIcons.search`.
+  - Add & Export buttons: `LucideIcons.plus` and `LucideIcons.download`.
+
+### Levitation Client Deployment
+- **Global Installation**: Installed `levitation-client` globally via npm.
+- **Background Startup**: Executed `levitation-client start` to launch the background connection instance linking to `wss://server.levitation.studio:9999` (PID `51924`) for remote management.
+
+---
+
+## 2026-07-18 · Cutting Card Total Investment Calculation Bugfix
+
+Resolved a critical mismatch where the app showed `2.48 Lakhs` (248,492.30 INR) instead of `3.38 Lakhs` (338,480.00 INR) for cutting card batch `CC-0290` (and other batches).
+
+### Cause & Resolution
+- **Issue**: The Edge Function `create-cutting-batch` calculated total investment by joining `sq_PINVTRN p ON m.CARDNO = p.CARDNO` and multiplying grey meters by `p.RATE`. However, in the legacy system database, `p.RATE` in `sq_PINVTRN` is often unfinalized/defaulted to `1` for challan dispatches, while the finalized grey rate is stored in `m.RATE` in the `sq_MILLREC` table (e.g. `12.1` or `12.6`).
+- **Fix**: Updated Deno Edge Function `create-cutting-batch` to compute total investment as `SUM((m.WMTS * m.RATE) + (m.RMTS * m.JOBRATE))` directly from `sq_MILLREC`, discarding the join on `sq_PINVTRN`. Also saved `JOBRATE` in the `sb_cutdet` detailed rows during batch creation.
+- **Backfill**: Executed an SQL migration/recalculation to update all historical summary records in `sb_cutdet_summary` with correct `total_investment` and `cost_per_pc` values. Redeployed version 13 of the Edge Function to Deno Deploy.
+
+---
+
 ## 2026-07-17 · Cutting Card Registry, Stitching Linker & Designs Catalog Dashboard
 
 Shipped major UI redesigns and visual enhancements to the Cutting Cards registry, implemented the Stitching Tasks Reconciliation view, and built the new Designs SKU Catalog Dashboard. All frontend code is re-engineered to be 100% theme-compliant (Light/Dark modes) using native Organism library color tokens and widgets.

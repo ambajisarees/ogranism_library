@@ -147,6 +147,13 @@ class _NavBoatState extends State<NavBoat> {
                       isCollapsed: isPersistentCollapsed && !isPeeking,
                       onTap: () => widget.onItemSelected(10),
                     ),
+                    CellNavItem(
+                      icon: LucideIcons.flaskConical,
+                      label: 'Demo',
+                      isSelected: widget.selectedIndex == 11,
+                      isCollapsed: isPersistentCollapsed && !isPeeking,
+                      onTap: () => widget.onItemSelected(11),
+                    ),
                   ],
                 ),
               ),

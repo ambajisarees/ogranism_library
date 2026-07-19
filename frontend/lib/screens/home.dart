@@ -8,6 +8,7 @@ import 'admin/sync_dashboard_screen.dart';
 import 'production/media/media_screen.dart';
 import 'production/designs/designs_screen.dart';
 import '../services/auth/service_auth.dart';
+import 'admin/demo_screen.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -165,6 +166,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return const OrganismLibraryScreen();
       case 10:
         return const MediaScreen();
+      case 11:
+        return const DemoScreen();
       default:
         // Placeholder logic for other pages
         return Center(
@@ -198,6 +201,8 @@ class _HomeScreenState extends State<HomeScreen> {
       case 7: return 'Job Work Management';
       case 8: return 'System Administration & Sync';
       case 9: return 'Design System Library';
+      case 10: return 'Media Library';
+      case 11: return 'Demo Workspace';
       default: return 'AMBAJI ERP';
     }
   }

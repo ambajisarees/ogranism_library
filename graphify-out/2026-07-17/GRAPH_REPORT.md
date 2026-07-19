@@ -1,12 +1,12 @@
 # Graph Report - textile_erp  (2026-07-17)
 
 ## Corpus Check
-- 284 files · ~398,362 words
+- 291 files · ~408,317 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 3911 nodes · 5019 edges · 241 communities (223 shown, 18 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 26 edges (avg confidence: 0.78)
+- 4074 nodes · 5234 edges · 258 communities (240 shown, 18 thin omitted)
+- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 26 edges (avg confidence: 0.78)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
@@ -245,11 +245,28 @@
 - badge.dart
 - app_shell.dart
 - form_field.dart
+- service_designs.dart
+- orders_detail_canvas.dart
 - @immutable
 - stepper.dart
 - Color
 - identity.dart
+- amounts.dart
+- filter_bar.dart
 - systems.dart
+- service_orders.dart
+- alert.dart
+- pagination.dart
+- tokens.dart
+- tab_item.dart
+- comments.dart
+- IconData?
+- List
+- stepper.dart
+- dialog.dart
+- double?
+- drawer.dart
+- CuttingFormState
 
 ## God Nodes (most connected - your core abstractions)
 1. `Win32Window` - 22 edges
@@ -278,7 +295,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (241 total, 18 thin omitted)
+## Communities (258 total, 18 thin omitted)
 
 ### Community 0 - "theme.dart"
 Cohesion: 0.02
@@ -290,7 +307,7 @@ Nodes (51): _batchMedia, _batchSummary, build, _buildFilterPopover, _buildSortPo
 
 ### Community 2 - "media_screen.dart"
 Cohesion: 0.03
-Nodes (76): _archiveSingle, _autocompleteResults, bucket, _bucketCounts, build, _buildBucketItem, _buildBulkActionBar, _buildGridArea (+68 more)
+Nodes (70): _archiveSingle, _autocompleteResults, bucket, _bucketCounts, build, _buildBucketItem, _buildBulkActionBar, _buildGridArea (+62 more)
 
 ### Community 3 - "model_grey.dart"
 Cohesion: 0.03
@@ -302,7 +319,7 @@ Nodes (61): background, border, borderSubtle, chart1, chart10, chart11, chart12,
 
 ### Community 5 - "model_cutting.dart"
 Cohesion: 0.03
-Nodes (61): 0, avgWt, cardNo, ccCode, ccNo, ccut, costPerPc, createTime (+53 more)
+Nodes (62): 0, avgWt, cardNo, ccCode, ccNo, ccut, costPerPc, createTime (+54 more)
 
 ### Community 6 - "metrics.dart"
 Cohesion: 0.04
@@ -313,8 +330,8 @@ Cohesion: 0.04
 Nodes (50): double get, availableTakas, avgWtGrams, batchDate, calculatedFentMts, calculatedFreshMts, calculatedSecondMts, cutLength (+42 more)
 
 ### Community 8 - "model_sync.dart"
-Cohesion: 0.08
-Nodes (17): BillsScreen, build, BillRegistryTab, build, build, DashboardScreen, build, OrdersTab (+9 more)
+Cohesion: 0.07
+Nodes (20): build, CellPlaceholder, height, label, width, BillsScreen, build, BillRegistryTab (+12 more)
 
 ### Community 9 - "tissues_view.dart"
 Cohesion: 0.09
@@ -322,27 +339,27 @@ Nodes (23): _activeTabIndex, build, _buildActionGroupingSection, _buildAdvancedW
 
 ### Community 10 - "input.dart"
 Cohesion: 0.05
-Nodes (44): FocusNode get, build, CellInput, _CellInputState, controller, createState, didUpdateWidget, dispose (+36 more)
+Nodes (42): FocusNode get, build, controller, createState, didUpdateWidget, dispose, _effectiveController, _effectiveFocusNode (+34 more)
 
 ### Community 11 - "login_screen.dart"
-Cohesion: 0.10
-Nodes (21): dart:async, build, createState, _debounce, dispose, _emailController, _emailExists, _emailFocusNode (+13 more)
+Cohesion: 0.05
+Nodes (41): dart:async, Duration, build, closeDelay, _closeTimer, content, createState, dispose (+33 more)
 
 ### Community 12 - "StatelessWidget"
-Cohesion: 0.05
-Nodes (49): build, date, DomainDiscountPill, DomainDueDateBadge, DomainTransactionIcon, isInbound, percentage, build (+41 more)
+Cohesion: 0.06
+Nodes (40): build, date, DomainDiscountPill, DomainDueDateBadge, DomainTransactionIcon, isInbound, percentage, build (+32 more)
 
 ### Community 13 - "package:flutter/material.dart"
-Cohesion: 0.08
-Nodes (19): build, CellCountBadge, count, maxCount, build, CellEmptyValue, fallbackText, build (+11 more)
+Cohesion: 0.07
+Nodes (24): build, CellCountBadge, count, maxCount, build, CellEmptyValue, fallbackText, build (+16 more)
 
 ### Community 14 - "challan_card.dart"
-Cohesion: 0.15
-Nodes (12): build, CellRadio, groupValue, onChanged, value, build, CellToggleGroup, items (+4 more)
+Cohesion: 0.09
+Nodes (20): build, CellRadio, groupValue, onChanged, value, build, CellToggleGroup, items (+12 more)
 
 ### Community 15 - "autocomplete.dart"
-Cohesion: 0.08
-Nodes (25): build, controller, createState, didUpdateWidget, dispose, _effectiveController, _effectiveFocusNode, _fieldKey (+17 more)
+Cohesion: 0.07
+Nodes (27): build, CellAutocomplete, _CellAutocompleteState, controller, createState, didUpdateWidget, dispose, _effectiveController (+19 more)
 
 ### Community 16 - "tissues.dart"
 Cohesion: 0.05
@@ -350,7 +367,7 @@ Nodes (37): tissues/accordion.dart, tissues/accordion_group.dart, tissues/alert.
 
 ### Community 17 - "grey_screen.dart"
 Cohesion: 0.06
-Nodes (31): GreyPurchaseModel, MillInwardModel, build, _buildMetric, _buildSectionCanvas, createState, _currentPage, _dealReceipts (+23 more)
+Nodes (33): GreyPurchaseModel, MillInwardModel, build, _buildMetric, _buildSectionCanvas, createState, _currentPage, _dealReceipts (+25 more)
 
 ### Community 18 - "Skill Creator"
 Cohesion: 0.06
@@ -361,8 +378,8 @@ Cohesion: 0.06
 Nodes (33): 0, bucket, bucketLabel, compressedPath, copyWith, createdAt, displayName, entityId (+25 more)
 
 ### Community 20 - "job_work_screen.dart"
-Cohesion: 0.12
-Nodes (15): cutting/cutting_screen.dart, deals/deals_tab.dart, build, _buildActiveTab, createState, defaultTabIndex, didUpdateWidget, dispose (+7 more)
+Cohesion: 0.11
+Nodes (18): cutting/cutting_screen.dart, deals/deals_tab.dart, build, _buildActiveTab, createState, defaultTabIndex, didUpdateWidget, dispose (+10 more)
 
 ### Community 21 - "Plan 01: Media Library — Central File Management Hub"
 Cohesion: 0.06
@@ -414,11 +431,11 @@ Nodes (24): 1. Account Types (`ATYPE`), 1. [ACTIVE] Identity & Hierarchy, 2. [AC
 
 ### Community 33 - "library_section.dart"
 Cohesion: 0.10
-Nodes (21): Alignment, build, close, content, _createOverlayEntry, createState, explicitWidth, followerAnchor (+13 more)
+Nodes (19): Alignment, build, close, content, _createOverlayEntry, createState, explicitWidth, followerAnchor (+11 more)
 
 ### Community 34 - "model_jobwork.dart"
 Cohesion: 0.07
-Nodes (27): amt, billNo, challanNo, cno, copyWith, cuttingCardNo, date, finalAmt (+19 more)
+Nodes (26): amt, billNo, challanNo, cno, copyWith, cuttingCardNo, date, finalAmt (+18 more)
 
 ### Community 35 - "Table Documentation: `sq_QUAL` (Quality/Item Master)"
 Cohesion: 0.08
@@ -429,16 +446,16 @@ Cohesion: 0.15
 Nodes (19): BaseHTTPRequestHandler, build_run(), embed_file(), find_runs(), _find_runs_recursive(), generate_html(), get_mime_type(), _kill_port() (+11 more)
 
 ### Community 37 - "box.dart"
-Cohesion: 0.08
-Nodes (21): double?, build, CellDivider, isVertical, length, build, CellPlaceholder, height (+13 more)
+Cohesion: 0.17
+Nodes (11): build, CellGap, CellPad, child, horizontalMultiplier, large, multiplier, small (+3 more)
 
 ### Community 38 - "domain.dart"
 Cohesion: 0.08
 Nodes (24): domain/amounts.dart, domain/documents/document.dart, domain/financial/account.dart, domain/financial/identity_badges.dart, domain/financial/indicators.dart, domain/financial/ledger.dart, domain/financial/party_card.dart, domain/financial/tokens.dart (+16 more)
 
 ### Community 39 - "topbar.dart"
-Cohesion: 0.10
-Nodes (21): _animationController, build, controller, createState, didUpdateWidget, dispose, _HoverableAvatar, _HoverableAvatarState (+13 more)
+Cohesion: 0.09
+Nodes (23): _AnimatedMenuIcon, _AnimatedMenuIconState, _animationController, build, controller, createState, didUpdateWidget, dispose (+15 more)
 
 ### Community 40 - "identity.dart"
 Cohesion: 0.22
@@ -449,20 +466,20 @@ Cohesion: 0.09
 Nodes (22): build, CellButton, _CellButtonState, CellButtonVariant, createState, _getBackgroundColor, _getBorder, _getForegroundColor (+14 more)
 
 ### Community 42 - "currency_display.dart"
-Cohesion: 0.07
-Nodes (25): amount, build, CellCurrencyDisplay, CellCurrencyVariant, _determineColor, _formatter, showSymbol, variant (+17 more)
+Cohesion: 0.08
+Nodes (23): amount, build, CellCurrencyDisplay, CellCurrencyVariant, _determineColor, _formatter, showSymbol, variant (+15 more)
 
 ### Community 43 - "toast.dart"
-Cohesion: 0.06
-Nodes (28): badge.dart, box.dart, build, CellAlert, icon, message, title, variant (+20 more)
+Cohesion: 0.17
+Nodes (11): build, _currentToast, instance, message, onClose, PlasmaToastManager, _PlasmaToastWidget, show (+3 more)
 
 ### Community 44 - "combobox.dart"
 Cohesion: 0.10
 Nodes (21): divider.dart, build, CellCombobox, _CellComboboxState, createState, didUpdateWidget, dispose, _filteredItems (+13 more)
 
 ### Community 45 - "hover_card.dart"
-Cohesion: 0.10
-Nodes (20): Duration, build, closeDelay, _closeTimer, content, createState, dispose, _hide (+12 more)
+Cohesion: 0.06
+Nodes (34): _attachedMedia, _attachScan, build, _buildFilterPopover, _buildSortPopover, createState, _currentPage, _currentTabIndex (+26 more)
 
 ### Community 46 - "cells_view.dart"
 Cohesion: 0.10
@@ -481,8 +498,8 @@ Cohesion: 0.09
 Nodes (21): _activeModuleIndex, activeModuleName, controller, hideOverlay, _isOverlayVisible, _isSidebarCollapsed, KineticWorkspaceProvider, maybeOf (+13 more)
 
 ### Community 50 - "sync_monitor.dart"
-Cohesion: 0.20
-Nodes (9): build, _buildHeader, _buildTableList, isSyncing, lastSync, onRefresh, OrganSyncMonitor, tableCounts (+1 more)
+Cohesion: 0.07
+Nodes (29): build, _buildKPICard, _buildMediaPickerBox, _buildStatusPill, _buildStockLedgerRow, createState, _currentPage, _designs (+21 more)
 
 ### Community 51 - "typography.dart"
 Cohesion: 0.10
@@ -510,19 +527,19 @@ Nodes (8): build, CellListTile, isCompact, leading, onTap, subtitle, title, trai
 
 ### Community 57 - "input_number.dart"
 Cohesion: 0.11
-Nodes (19): build, CellInputNumber, _CellInputNumberState, _controller, createState, _currentValue, decimals, dispose (+11 more)
+Nodes (17): build, _controller, createState, _currentValue, decimals, dispose, _focusNode, _handleFocusChange (+9 more)
 
 ### Community 58 - "win32_window.cpp"
 Cohesion: 0.15
 Nodes (16): wchar_t, Scale(), Create, Destroy, SetQuitOnClose, Show, UpdateTheme, Win32Window::Win32Window() (+8 more)
 
 ### Community 59 - "main.dart"
-Cohesion: 0.25
-Nodes (7): ../core/service_supabase.dart, _db, getParties, getQualities, MastersService, ../../models/masters/model_party.dart, ../../models/masters/model_quality.dart
+Cohesion: 0.22
+Nodes (8): ../core/service_supabase.dart, _db, getParties, getQualities, MastersService, ../../models/masters/model_party.dart, ../../models/masters/model_quality.dart, package:supabase_flutter/supabase_flutter.dart
 
 ### Community 60 - "image.dart"
-Cohesion: 0.06
-Nodes (28): Border?, BorderRadius?, BoxFit, button.dart, backgroundColor, border, borderRadius, build (+20 more)
+Cohesion: 0.11
+Nodes (17): BorderRadius?, BoxFit, button.dart, borderRadius, build, CellImage, fit, height (+9 more)
 
 ### Community 61 - "model_media_suggestion.dart"
 Cohesion: 0.11
@@ -530,15 +547,15 @@ Nodes (18): entityId, entityLabel, entityType, folderContext, hashCode, hasMatch
 
 ### Community 62 - "status_dot.dart"
 Cohesion: 0.12
-Nodes (15): Animation, bool?, build, CellStatusVariant, color, _controller, createState, dispose (+7 more)
+Nodes (17): Animation, bool?, build, CellStatusDot, _CellStatusDotState, CellStatusVariant, color, _controller (+9 more)
 
 ### Community 63 - "model_quality.dart"
-Cohesion: 0.12
-Nodes (16): baseQualityCode, category, clothType, fromJson, gstRate, hsnCode, isBaseQual, isGrey (+8 more)
+Cohesion: 0.11
+Nodes (17): bool get, baseQualityCode, category, clothType, fromJson, gstRate, hsnCode, isBaseQual (+9 more)
 
 ### Community 64 - "service_supabase.dart"
-Cohesion: 0.11
-Nodes (17): bool get, client, data, DbResponse, error, handleDbError, hasError, hasMore (+9 more)
+Cohesion: 0.12
+Nodes (16): client, data, DbResponse, error, handleDbError, hasError, hasMore, _instance (+8 more)
 
 ### Community 65 - "dropdown.dart"
 Cohesion: 0.20
@@ -553,8 +570,8 @@ Cohesion: 0.12
 Nodes (16): AlignmentGeometry, alignment, bottom, build, child, children, fit, height (+8 more)
 
 ### Community 68 - "skeleton.dart"
-Cohesion: 0.14
-Nodes (13): AnimationController, borderRadius, build, _controller, createState, dispose, height, initState (+5 more)
+Cohesion: 0.12
+Nodes (16): AnimationController, borderRadius, build, CellSkeleton, _CellSkeletonState, _controller, createState, dispose (+8 more)
 
 ### Community 69 - "library_shell.dart"
 Cohesion: 0.12
@@ -565,8 +582,8 @@ Cohesion: 0.22
 Nodes (8): ../cells/alert.dart, ../cells/badge.dart, build, icon, message, TissueAlert, title, variant
 
 ### Community 71 - "select.dart"
-Cohesion: 0.12
-Nodes (15): ../cells/label.dart, build, errorText, inputCell, isRequired, label, TissueFormField, build (+7 more)
+Cohesion: 0.25
+Nodes (7): ../cells/label.dart, build, errorText, inputCell, isRequired, label, TissueFormField
 
 ### Community 72 - "Grader Agent"
 Cohesion: 0.12
@@ -625,8 +642,8 @@ Cohesion: 0.06
 Nodes (30): 10. Implementation Order, 1. Business Context, 2.1 Mills in the System, 2.2 Historical Rate Data, 2.3 Job Work Rates in Bills, 2.4 Value Addition Types (Business Knowledge), 2. Data Sources — What Already Exists, 3.1 New Table: `IMMBE2627.sb_mill_rates` (+22 more)
 
 ### Community 86 - "spatial.dart"
-Cohesion: 0.12
-Nodes (17): admin/sync_dashboard_screen.dart, build, _buildBody, _controller, createState, dispose, _getCommandPaletteActions, _getPageTitle (+9 more)
+Cohesion: 0.11
+Nodes (18): admin/sync_dashboard_screen.dart, build, _buildBody, _controller, createState, dispose, _getCommandPaletteActions, _getPageTitle (+10 more)
 
 ### Community 87 - "tooltip.dart"
 Cohesion: 0.14
@@ -677,12 +694,12 @@ Cohesion: 0.14
 Nodes (13): accountTypes, banks, companies, getAccountTypeColor, getAccountTypeName, getSeriesName, isProductionProcess, LegacyConstants (+5 more)
 
 ### Community 99 - "nav_boat.dart"
-Cohesion: 0.21
-Nodes (13): aggregate_results(), calculate_stats(), generate_benchmark(), generate_markdown(), load_run_results(), main(), Path, Aggregate run results into summary statistics.      Returns run_summary with sta (+5 more)
+Cohesion: 0.23
+Nodes (12): aggregate_results(), calculate_stats(), generate_benchmark(), generate_markdown(), load_run_results(), main(), Path, Aggregate run results into summary statistics.      Returns run_summary with sta (+4 more)
 
 ### Community 100 - "inline_edit.dart"
-Cohesion: 0.13
-Nodes (15): build, _controller, createState, dispose, _focusNode, initialValue, initState, _isEditing (+7 more)
+Cohesion: 0.08
+Nodes (23): FocusNode, build, _controller, createState, dispose, _focusNode, _handleSubmitted, label (+15 more)
 
 ### Community 101 - "Analysis 1: Sales & Job Work Pipeline"
 Cohesion: 0.15
@@ -749,12 +766,12 @@ Cohesion: 0.17
 Nodes (12): 2026-07-16 · Central Media Library Explorer, Inline Scans, Overlay Progress & Popover Fixes, CC Code Migration & Unified Classification, Central Media Library & Explorer Screen, Client-Side Image Compression & Thumbnails, Compile-Time Alignment & Syntax Refinements, Consolidated Link & Auto-Rename Action, Detailed Progress Overlay Dialogs, Git Syncing (+4 more)
 
 ### Community 117 - "document.dart"
-Cohesion: 0.17
-Nodes (11): ../financial/tokens.dart, build, date, description, DomainDocumentHeader, DomainDocumentRow, id, partyName (+3 more)
+Cohesion: 0.15
+Nodes (12): DateTime, ../financial/tokens.dart, build, date, description, DomainDocumentHeader, DomainDocumentRow, id (+4 more)
 
 ### Community 118 - "barcode_scanner.dart"
-Cohesion: 0.17
-Nodes (12): FocusNode, build, _controller, createState, dispose, _focusNode, _handleSubmitted, label (+4 more)
+Cohesion: 0.10
+Nodes (20): catalogPdfPath, copyWith, createdAt, designIndex, designNo, fromJson, id, isMaster (+12 more)
 
 ### Community 119 - "icon.dart"
 Cohesion: 0.17
@@ -765,20 +782,20 @@ Cohesion: 0.18
 Nodes (11): build, CellMenuItem, _CellMenuItemState, createState, icon, isDestructive, isDisabled, _isHovered (+3 more)
 
 ### Community 121 - "spatial.dart"
-Cohesion: 0.06
-Nodes (29): build, _buildSkeletonRow, isLoading, items, OrganKpiStrip, build, label, maxVisibleNodes (+21 more)
+Cohesion: 0.25
+Nodes (7): build, label, maxVisibleNodes, nodes, onTap, TissueBreadcrumb, TissueBreadcrumbNode
 
 ### Community 122 - "amounts.dart"
-Cohesion: 0.05
-Nodes (35): build, date, DomainChallanCard, isSelected, mts, onTap, partyName, pcs (+27 more)
+Cohesion: 0.06
+Nodes (30): build, date, DomainChallanCard, isSelected, mts, onTap, partyName, pcs (+22 more)
 
 ### Community 123 - "meta.dart"
 Cohesion: 0.17
 Nodes (11): build, DomainAuditLabel, DomainPrintButton, DomainSyncStatus, hasError, isSynced, isThermal, lastSync (+3 more)
 
 ### Community 124 - "results.dart"
-Cohesion: 0.17
-Nodes (11): build, category, DomainFilterPill, DomainSearchOverlay, icon, metric, onRemove, onTap (+3 more)
+Cohesion: 0.06
+Nodes (30): build, CellInputChip, label, onDeleted, build, CellTag, CellTagVariant, icon (+22 more)
 
 ### Community 125 - "tabs.dart"
 Cohesion: 0.18
@@ -793,8 +810,8 @@ Cohesion: 0.24
 Nodes (9): wWinMain(), string, wchar_t, CreateAndAttachConsole(), GetCommandLineArguments(), Utf8FromUtf16(), _In_, _In_opt_ (+1 more)
 
 ### Community 128 - "accordion_group.dart"
-Cohesion: 0.17
-Nodes (19): CellAutocomplete, _CellAutocompleteState, CellSkeleton, _CellSkeletonState, CellStatusDot, _CellStatusDotState, NavRail, _NavRailState (+11 more)
+Cohesion: 0.13
+Nodes (22): CellInput, _CellInputState, CellInputNumber, _CellInputNumberState, NavRail, _NavRailState, TissueBarcodeScanner, _TissueBarcodeScannerState (+14 more)
 
 ### Community 129 - "Table: sq_COMPMST (Company Master)"
 Cohesion: 0.18
@@ -809,16 +826,16 @@ Cohesion: 0.18
 Nodes (10): Column Grouping, Column Relevance, Fiscal Carry-Forward Audit: Active vs. Carried Forward, Movement Identification, Process Details, Quantities, SQL Snippets (Postgres), Table Overview (+2 more)
 
 ### Community 132 - "pagination.dart"
-Cohesion: 0.04
-Nodes (49): ../cells/box.dart, ../cells/button.dart, ../cells/divider.dart, ../cells/filter_chip.dart, ../cells/input.dart, dart:math, PlasmaAlertDialog, PlasmaDialog (+41 more)
+Cohesion: 0.12
+Nodes (15): build, createState, dispose, _filteredItems, hasError, initState, isDisabled, _isHovered (+7 more)
 
 ### Community 133 - "app_shell.dart"
-Cohesion: 0.09
-Nodes (21): cutting_form_state.dart, cutting_lot_group.dart, build, _buildPaneHeader, _buildProgressBarRow, createState, CuttingFormOverlay, _CuttingFormOverlayState (+13 more)
+Cohesion: 0.13
+Nodes (15): cutting_form_state.dart, cutting_lot_group.dart, build, _buildPaneHeader, _buildProgressBarRow, createState, CuttingFormOverlay, _CuttingFormOverlayState (+7 more)
 
 ### Community 134 - "physics.dart"
-Cohesion: 0.17
-Nodes (11): curve, fade, fast, PlasmaPhysics, scaleIn, slideUp, slow, standard (+3 more)
+Cohesion: 0.18
+Nodes (10): curve, fade, fast, PlasmaPhysics, scaleIn, slideUp, slow, standard (+2 more)
 
 ### Community 135 - "master_layout.dart"
 Cohesion: 0.18
@@ -893,20 +910,20 @@ Cohesion: 0.08
 Nodes (23): activeTables, capturedAt, delta, delta24h, description, fromJson, id, isStagnant (+15 more)
 
 ### Community 153 - "avatar.dart"
-Cohesion: 0.12
-Nodes (15): batchMedia, build, _buildActionIcon, _buildScanThumbnail, _buildSectionLotCard, CuttingDetailCanvas, loadingBatchDetail, loadingTimeline (+7 more)
+Cohesion: 0.13
+Nodes (14): batchMedia, build, _buildActionIcon, _buildScanThumbnail, _buildSectionLotCard, CuttingDetailCanvas, loadingBatchDetail, loadingTimeline (+6 more)
 
 ### Community 154 - "tag.dart"
-Cohesion: 0.07
-Nodes (27): ../cells/spatial.dart, build, child, TissueCardContent, action, build, icon, message (+19 more)
+Cohesion: 0.20
+Nodes (9): build, child, icon, isDestructive, items, label, onTap, TissueMenu (+1 more)
 
 ### Community 155 - "tokens.dart"
 Cohesion: 0.13
 Nodes (15): 4. The 6 Production Pages — Deep Architecture, Data Sources, Files, Files, Files Needed, Files Needed, Layout, PAGE 1: DASHBOARD (+7 more)
 
 ### Community 156 - "kpi_tile.dart"
-Cohesion: 0.06
-Nodes (28): build, CellFilterChip, isSelected, label, onDeleted, onSelected, build, CellInputChip (+20 more)
+Cohesion: 0.20
+Nodes (9): build, children, footer, headerActions, onClose, OrganAddCanvas, subHeader, title (+1 more)
 
 ### Community 157 - "organs.dart"
 Cohesion: 0.15
@@ -921,8 +938,8 @@ Cohesion: 0.22
 Nodes (9): build, content, createState, initiallyExpanded, initState, _isExpanded, TissueAccordion, _TissueAccordionState (+1 more)
 
 ### Community 160 - "menu.dart"
-Cohesion: 0.15
-Nodes (12): _db, getDispatchesForCuttingCard, getJobDispatches, getJobReceives, getJobWorkLines, getReceivesForDispatch, getUniqueFabrics, getUniqueTailors (+4 more)
+Cohesion: 0.17
+Nodes (11): _db, getDispatchesForCuttingCard, getJobDispatches, getJobReceives, getJobWorkLines, getReceivesForDispatch, getUniqueFabrics, getUniqueTailors (+3 more)
 
 ### Community 161 - "MessageHandler"
 Cohesion: 0.36
@@ -957,8 +974,8 @@ Cohesion: 0.22
 Nodes (8): build, _buildColorsSection, _buildMetricsSection, _buildTypographySection, _colorChip, _metricBox, ThemeView, ../widgets/library_section.dart
 
 ### Community 169 - "plasma.dart"
-Cohesion: 0.20
-Nodes (10): ../cells/calendar.dart, build, createState, label, onChanged, _popoverKey, TissueDateField, _TissueDateFieldState (+2 more)
+Cohesion: 0.18
+Nodes (10): ../cells/calendar.dart, PlasmaPopover, PlasmaPopoverState, build, createState, label, onChanged, _popoverKey (+2 more)
 
 ### Community 170 - "comments.dart"
 Cohesion: 0.17
@@ -978,7 +995,7 @@ Nodes (7): csv-parse, dependencies, csv-parse, @supabase/supabase-js, xlsx, @sup
 
 ### Community 174 - "service_masters.dart"
 Cohesion: 0.07
-Nodes (26): ../cells.dart, accountType, amount, build, DomainAccountBadge, DomainBalanceDisplay, isCompact, build (+18 more)
+Nodes (24): ../cells.dart, accountType, amount, build, DomainAccountBadge, DomainBalanceDisplay, isCompact, build (+16 more)
 
 ### Community 175 - "@immutable"
 Cohesion: 0.18
@@ -989,8 +1006,8 @@ Cohesion: 0.22
 Nodes (8): build, deltaText, isPositive, label, sparklineData, TissueKpiCard, value, package:fl_chart/fl_chart.dart
 
 ### Community 177 - "status.dart"
-Cohesion: 0.20
-Nodes (9): build, CellTag, CellTagVariant, icon, label, onRemove, onTap, _resolveColors (+1 more)
+Cohesion: 0.10
+Nodes (20): build, _buildCuttingSuggestionsList, _buildInwardSuggestionsList, _buildKanbanColumn, _buildKPIBox, _buildWorkspaceHeader, createState, _cuttingSuggestions (+12 more)
 
 ### Community 178 - "Table: sq_MILLREC (Mill Receiving Slips)"
 Cohesion: 0.33
@@ -1085,12 +1102,12 @@ Cohesion: 0.50
 Nodes (4): Current Capabilities (Done), Files, Future Tabs, PAGE 5: MEDIA
 
 ### Community 212 - "List"
-Cohesion: 0.29
-Nodes (6): build, DomainMachineID, DomainWorkerID, isCompact, machineNo, name
+Cohesion: 0.08
+Nodes (22): build, CellFilterChip, isSelected, label, onDeleted, onSelected, build, DomainMachineID (+14 more)
 
 ### Community 213 - "tab_chrome.dart"
-Cohesion: 0.29
-Nodes (6): action, build, subtitle, TissuePageHeader, title, Widget
+Cohesion: 0.12
+Nodes (15): ../cells/spatial.dart, build, child, TissueCardContent, build, description, TissueCardHeader, title (+7 more)
 
 ### Community 214 - "2026-07-16 · Cutting Card Creation Dialog Visual Refinements & Popover Constraint Fixes"
 Cohesion: 0.33
@@ -1109,8 +1126,8 @@ Cohesion: 0.67
 Nodes (3): 1. Current State Inventory, What Exists Today, What's Missing (Your User Flow Mapped)
 
 ### Community 219 - "_UploadConfigDialog"
-Cohesion: 0.29
-Nodes (6): build, isMono, label, TissueReadOnlyField, value, valueColor
+Cohesion: 0.07
+Nodes (25): Color, build, CellBadge, customColor, icon, onDismiss, onTap, text (+17 more)
 
 ### Community 221 - "List"
 Cohesion: 0.33
@@ -1121,8 +1138,8 @@ Cohesion: 0.25
 Nodes (7): build, columns, mode, rows, TissueDataGrid, package:pluto_grid/pluto_grid.dart, PlutoGridMode
 
 ### Community 233 - "badge.dart"
-Cohesion: 0.33
-Nodes (5): build, description, TissueCardHeader, title, trailing
+Cohesion: 0.10
+Nodes (19): cuttingCard, CuttingLinkSuggestion, _db, dispatch, dispatchLine, getCuttingLinkSuggestions, getJobInwardSuggestions, getUnlinkedDispatchLines (+11 more)
 
 ### Community 234 - "app_shell.dart"
 Cohesion: 0.18
@@ -1130,42 +1147,110 @@ Nodes (10): ChangeNotifier, KineticWorkspaceController, backgroundColor, build, 
 
 ### Community 235 - "form_field.dart"
 Cohesion: 0.29
-Nodes (6): AuthState, AuthGate, build, ../home.dart, login_screen.dart, package:supabase_flutter/supabase_flutter.dart
+Nodes (6): AuthState, AuthGate, build, ../home.dart, login_screen.dart, ../../../../organism_design/index.dart
+
+### Community 236 - "service_designs.dart"
+Cohesion: 0.14
+Nodes (13): createDesign, _db, deleteDesign, DesignsService, getDesigns, getDesignsKPIs, getPublicFileUrl, getUniqueItemQCodes (+5 more)
+
+### Community 237 - "orders_detail_canvas.dart"
+Cohesion: 0.15
+Nodes (12): attachedMedia, build, _buildMediaAttachments, _buildMetric, _buildTableCell, _buildTableHeaderCell, detailLines, isDetailLoading (+4 more)
 
 ### Community 238 - "@immutable"
-Cohesion: 0.29
-Nodes (7): @immutable, CuttingBatchSummaryModel, CuttingCardModel, JobDispatchModel, JobReceiveModel, JobWorkDetailLineModel, MediaModel
+Cohesion: 0.25
+Nodes (8): @immutable, CuttingBatchSummaryModel, CuttingCardModel, DesignModel, JobDispatchModel, JobReceiveModel, JobWorkDetailLineModel, MediaModel
 
 ### Community 239 - "stepper.dart"
 Cohesion: 0.33
 Nodes (5): ../cells/tab_item.dart, build, items, TissueTabChrome, trailing
 
 ### Community 240 - "Color"
-Cohesion: 0.29
-Nodes (6): Color, build, CellProgressBar, color, isIndeterminate, value
+Cohesion: 0.17
+Nodes (11): Border?, backgroundColor, border, borderRadius, build, CellBox, child, hasShadow (+3 more)
 
 ### Community 241 - "identity.dart"
 Cohesion: 0.67
 Nodes (3): 2026-04-15 (Evening) · Advanced Registry Systems & Production Kanban Workstation, Grey Production Workflow, Masters Registry Modernization
 
+### Community 242 - "amounts.dart"
+Cohesion: 0.17
+Nodes (11): build, DomainAmount, DomainQuantity, isCompact, isCredit, showSymbol, style, unit (+3 more)
+
+### Community 243 - "filter_bar.dart"
+Cohesion: 0.18
+Nodes (10): ../cells/filter_chip.dart, build, filters, id, label, onAddFilter, onClearAll, onFilterRemoved (+2 more)
+
+### Community 245 - "service_orders.dart"
+Cohesion: 0.18
+Nodes (10): _db, _fetchLineFabrics, getPurchaseOrderLines, getPurchaseOrders, getUniqueFabrics, getUniqueVendors, _instance, OrdersService (+2 more)
+
+### Community 246 - "alert.dart"
+Cohesion: 0.20
+Nodes (9): badge.dart, box.dart, build, CellAlert, icon, message, title, variant (+1 more)
+
+### Community 247 - "pagination.dart"
+Cohesion: 0.20
+Nodes (9): ../cells/input.dart, dart:math, build, currentPage, limit, onPageChanged, TissuePagination, totalCount (+1 more)
+
+### Community 248 - "tokens.dart"
+Cohesion: 0.20
+Nodes (9): build, DomainPaymentMode, DomainRateTag, DomainVoucherID, id, mode, prefix, rate (+1 more)
+
+### Community 249 - "tab_item.dart"
+Cohesion: 0.22
+Nodes (8): build, CellTabItem, icon, isSelected, kbdShortcut, onTap, title, kbd.dart
+
+### Community 250 - "comments.dart"
+Cohesion: 0.22
+Nodes (8): authorName, build, CommentData, comments, content, initial, timestamp, TissueComments
+
+### Community 251 - "IconData?"
+Cohesion: 0.25
+Nodes (7): action, build, icon, message, TissueEmptyState, title, IconData?
+
+### Community 252 - "List"
+Cohesion: 0.29
+Nodes (6): alignment, build, children, TissueButtonBar, List, MainAxisAlignment
+
+### Community 253 - "stepper.dart"
+Cohesion: 0.33
+Nodes (5): ../cells/box.dart, build, onChanged, TissueStepper, value
+
+### Community 254 - "dialog.dart"
+Cohesion: 0.33
+Nodes (5): ../cells/button.dart, ../cells/divider.dart, PlasmaAlertDialog, PlasmaDialog, show
+
+### Community 255 - "double?"
+Cohesion: 0.33
+Nodes (5): double?, build, CellDivider, isVertical, length
+
+### Community 256 - "drawer.dart"
+Cohesion: 0.40
+Nodes (5): PlasmaDrawer, OrganismColors, Offset, physics.dart, ThemeExtension
+
+### Community 257 - "CuttingFormState"
+Cohesion: 0.67
+Nodes (3): CuttingFormState, CuttingFormStateProvider, InheritedNotifier
+
 ## Knowledge Gaps
-- **2722 isolated node(s):** `GreyOrderRequest`, `TABLE_CONFIG`, `SNAPSHOT_CONFIG`, `CountRow`, `SupabaseConfig` (+2717 more)
+- **2861 isolated node(s):** `GreyOrderRequest`, `TABLE_CONFIG`, `SNAPSHOT_CONFIG`, `CountRow`, `SupabaseConfig` (+2856 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **18 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `_AnimatedMenuIconState` connect `accordion_group.dart` to `topbar.dart`?**
-  _High betweenness centrality (0.002) - this node is a cross-community bridge._
+- **Why does `JobReceiveModel` connect `@immutable` to `model_jobwork.dart`, `badge.dart`, `orders_detail_canvas.dart`, `hover_card.dart`, `Ambaji Sarees ERP: Model & Service Architecture Guide`?**
+  _High betweenness centrality (0.006) - this node is a cross-community bridge._
 - **What connects `GreyOrderRequest`, `TABLE_CONFIG`, `SNAPSHOT_CONFIG` to the rest of the system?**
-  _2722 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _2861 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `theme.dart` be split into smaller, more focused modules?**
   _Cohesion score 0.02 - nodes in this community are weakly interconnected._
 - **Should `cutting_screen.dart` be split into smaller, more focused modules?**
   _Cohesion score 0.0392156862745098 - nodes in this community are weakly interconnected._
 - **Should `media_screen.dart` be split into smaller, more focused modules?**
-  _Cohesion score 0.026999316473000683 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.028169014084507043 - nodes in this community are weakly interconnected._
 - **Should `model_grey.dart` be split into smaller, more focused modules?**
   _Cohesion score 0.03225806451612903 - nodes in this community are weakly interconnected._
 - **Should `colors.dart` be split into smaller, more focused modules?**

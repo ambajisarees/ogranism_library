@@ -15,7 +15,7 @@ dependencies:
   intl: ^0.20.2
   window_manager: ^0.5.1
   lucide_icons_flutter: ^3.1.14+2
-  shadcn_flutter: ^0.0.47
+  shadcn_flutter: ^0.0.53
   pluto_grid: ^8.0.0
   desktop_drop: ^0.7.0
   file_picker: ^11.0.2
@@ -23,8 +23,6 @@ dependencies:
   carousel_slider: ^5.0.0
   fl_chart: ^1.2.0
   image: ^4.8.0
-  graphify: ^1.2.1
-
   meta: any
 dev_dependencies:
   flutter_test:

@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'
+    hide Colors, Border; // Hide layout/paint conflicts
+import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:io';
 
 // NEW ORGANISM DESIGN IMPORT
-import 'organism_design/index.dart';
 import 'screens/auth/auth_gate.dart';
 import 'config/supabase_config.dart';
 
@@ -44,14 +45,26 @@ class TextileERPMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    // Commented out MaterialApp block:
+    // return MaterialApp(
+    //   title: 'Ambaji Sarees ERP',
+    //   theme: OrganismTheme.materialTheme(Brightness.light),
+    //   darkTheme: OrganismTheme.materialTheme(Brightness.dark),
+    //   themeMode: ThemeMode.light,
+    //   debugShowCheckedModeBanner: false,
+    //   home: const AuthGate(),
+    // );
+
+    return shad.ShadcnApp(
       title: 'Ambaji Sarees ERP',
-      theme: OrganismTheme.materialTheme(Brightness.light),
-      darkTheme: OrganismTheme.materialTheme(Brightness.dark),
-      themeMode: ThemeMode.light,
+      theme: shad.ThemeData(
+        colorScheme: shad.ColorSchemes.lightSlate.teal,
+        surfaceOpacity: 0.9,
+        surfaceBlur: 4.0,
+      ),
+      themeMode: shad.ThemeMode.light,
       debugShowCheckedModeBanner: false,
       home: const AuthGate(),
     );
   }
 }
-
