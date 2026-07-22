@@ -87,7 +87,9 @@ class _DynamicListCardState extends State<DynamicListCard> {
                   const Spacer(),
                   Text(
                     widget.item.date,
-                    style: theme.typography.textMuted.copyWith(fontSize: 11),
+                    style: theme.typography.xSmall.copyWith(
+                      color: colors.mutedForeground,
+                    ),
                   ),
                 ],
               ),
@@ -112,7 +114,7 @@ class _DynamicListCardState extends State<DynamicListCard> {
                   Text(
                     widget.item.indexNumber,
                     style: theme.typography.textSmall.copyWith(
-                      fontFamily: 'Mono',
+                      fontFamily: theme.typography.mono.fontFamily,
                       fontWeight: FontWeight.bold,
                       color: colors.primary,
                     ),
@@ -128,7 +130,9 @@ class _DynamicListCardState extends State<DynamicListCard> {
                   Expanded(
                     child: Text(
                       widget.item.subtitle,
-                      style: theme.typography.textMuted.copyWith(fontSize: 12),
+                      style: theme.typography.xSmall.copyWith(
+                        color: colors.mutedForeground,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -136,9 +140,9 @@ class _DynamicListCardState extends State<DynamicListCard> {
                   const shad.DensityGap(shad.gapSm),
                   Text(
                     'Info No: ${widget.item.infoNumber}',
-                    style: theme.typography.textMuted.copyWith(
-                      fontSize: 11,
+                    style: theme.typography.xSmall.copyWith(
                       fontWeight: FontWeight.w500,
+                      color: colors.mutedForeground,
                     ),
                   ),
                 ],

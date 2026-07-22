@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
-import 'dynamic_action_row.dart';
+import '../dynamic_action_bar.dart';
 
-class SortPopover extends StatelessWidget {
+class FilterPopover extends StatelessWidget {
   final String? selectedValue;
   final ValueChanged<String?> onSelected;
   final List<DynamicActionOption> options;
 
-  const SortPopover({
+  const FilterPopover({
     super.key,
     required this.selectedValue,
     required this.onSelected,
@@ -19,7 +19,7 @@ class SortPopover extends StatelessWidget {
     final theme = shad.Theme.of(context);
     return shad.ModalContainer(
       child: SizedBox(
-        width: 200,
+        width: 200 * theme.scaling,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,

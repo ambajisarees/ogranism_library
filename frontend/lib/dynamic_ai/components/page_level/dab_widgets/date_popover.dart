@@ -71,7 +71,7 @@ class _DatePopoverState extends State<DatePopover> {
 
     return shad.ModalContainer(
       child: Container(
-        width: 620,
+        width: 620 * theme.scaling,
         padding: EdgeInsets.all(theme.density.baseContainerPadding * shad.padMd),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -80,7 +80,10 @@ class _DatePopoverState extends State<DatePopover> {
             // Title
             Text(
               'Date Range',
-              style: theme.typography.large.copyWith(fontWeight: FontWeight.bold),
+              style: theme.typography.large.copyWith(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.foreground,
+              ),
             ),
             const shad.DensityGap(shad.gapMd),
 

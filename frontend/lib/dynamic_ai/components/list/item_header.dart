@@ -17,13 +17,13 @@ class ItemHeader extends StatelessWidget {
     return shad.Card(
       padding: EdgeInsets.all(theme.density.baseContainerPadding * shad.padSm),
       child: SizedBox(
-        height: 38.0, // Aligns precisely with the search textfield height of the DynamicList header
+        height: 38.0 * theme.scaling, // Aligns precisely with the search textfield height of the DynamicList header
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               title,
-              style: theme.typography.h3.copyWith(fontWeight: FontWeight.bold),
+              style: theme.typography.h3.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.foreground),
             ),
             const Spacer(),
             shad.OutlineButton(

@@ -107,7 +107,7 @@ class _DynamicListState extends State<DynamicList> {
                         padding: EdgeInsets.all(theme.density.baseContainerPadding * shad.padSm),
                         child: Text(
                           'No items found',
-                          style: theme.typography.textMuted,
+                          style: theme.typography.textMuted.copyWith(color: theme.colorScheme.mutedForeground),
                         ),
                       ),
                     )

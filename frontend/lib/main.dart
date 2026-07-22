@@ -7,8 +7,10 @@ import 'package:window_manager/window_manager.dart';
 import 'dart:io';
 
 // NEW ORGANISM DESIGN IMPORT
-import 'screens/auth/auth_gate.dart';
+import 'screens/home.dart';
 import 'config/supabase_config.dart';
+
+final ValueNotifier<shad.ThemeMode> themeModeNotifier = ValueNotifier(shad.ThemeMode.light);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,26 +47,36 @@ class TextileERPMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Commented out MaterialApp block:
-    // return MaterialApp(
-    //   title: 'Ambaji Sarees ERP',
-    //   theme: OrganismTheme.materialTheme(Brightness.light),
-    //   darkTheme: OrganismTheme.materialTheme(Brightness.dark),
-    //   themeMode: ThemeMode.light,
-    //   debugShowCheckedModeBanner: false,
-    //   home: const AuthGate(),
-    // );
-
-    return shad.ShadcnApp(
-      title: 'Ambaji Sarees ERP',
-      theme: shad.ThemeData(
-        colorScheme: shad.ColorSchemes.lightSlate.teal,
-        surfaceOpacity: 0.9,
-        surfaceBlur: 4.0,
-      ),
-      themeMode: shad.ThemeMode.light,
-      debugShowCheckedModeBanner: false,
-      home: const AuthGate(),
+    return ValueListenableBuilder<shad.ThemeMode>(
+      valueListenable: themeModeNotifier,
+      builder: (context, themeMode, child) {
+        return shad.ShadcnApp(
+          title: 'Ambaji Sarees ERP',
+          theme: shad.ThemeData(
+            colorScheme: shad.ColorSchemes.lightSlate.teal,
+            surfaceOpacity: 0.9,
+            surfaceBlur: 4.0,
+            typography: shad.Typography.geist(
+              sans: const TextStyle(fontFamily: 'Inter'),
+              mono: const TextStyle(fontFamily: 'JetBrains Mono'),
+              base: const TextStyle(fontSize: 16),
+            ),
+          ),
+          darkTheme: shad.ThemeData(
+            colorScheme: shad.ColorSchemes.darkSlate.amber,
+            surfaceOpacity: 0.9,
+            surfaceBlur: 4.0,
+            typography: shad.Typography.geist(
+              sans: const TextStyle(fontFamily: 'Inter'),
+              mono: const TextStyle(fontFamily: 'JetBrains Mono'),
+              base: const TextStyle(fontSize: 16),
+            ),
+          ),
+          themeMode: themeMode,
+          debugShowCheckedModeBanner: false,
+          home: const HomeScreen(),
+        );
+      },
     );
   }
 }

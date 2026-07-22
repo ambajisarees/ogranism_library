@@ -154,6 +154,13 @@ class _NavBoatState extends State<NavBoat> {
                       isCollapsed: isPersistentCollapsed && !isPeeking,
                       onTap: () => widget.onItemSelected(11),
                     ),
+                    CellNavItem(
+                      icon: LucideIcons.beaker,
+                      label: 'Demo 2',
+                      isSelected: widget.selectedIndex == 12,
+                      isCollapsed: isPersistentCollapsed && !isPeeking,
+                      onTap: () => widget.onItemSelected(12),
+                    ),
                   ],
                 ),
               ),

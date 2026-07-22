@@ -5,6 +5,31 @@
 
 ---
 
+## 2026-07-20 · Collapsible Accordion Sidebar, Generic Sizing Engine & Sidebar Data Density
+
+Refactored the workstation details sidebar into an interactive collapsible accordion, established generic child layout and expansion rules, and expanded sidebar data density.
+
+### Stateful Collapsible Accordion Sidebar
+- **Interactive Stack**: Converted `DynamicSidePane` from a static column to a stateful widget managing an active expanded card index (`_expandedIndex`, defaults to 0).
+- **Chevron-Controlled Header**: Added click targets on card headers with dynamic chevron indicators (down/right) to toggle expansion, removing all horizontal dividers to preserve modern aesthetic.
+- **Scroll & Height Isolation**: Wraps the active card content in `Expanded` and `SingleChildScrollView` so it stretches to fill remaining height and scrolls internally, while collapsed cards shrink to their headers.
+- **Lightweight View Refactoring**: Extracted raw timelines and metrics out of card shells into lightweight `TimelineView` and `MetricsView` to avoid double-scrollbar collision bugs.
+
+### Generic Layout & Sizing Rules
+- **Automatic Expansion Scaling**: Redesigned the container to accept a list of `DynamicSideCard` structures and automatically scale:
+  - If 2 cards: Splits the vertical height 50/50, wrapping both in `Expanded`.
+  - If 3+ cards: Wraps only the active `expandedIndex` card in `Expanded`, letting others sit at their intrinsic size.
+
+### Expanded Sidebar Data Density
+- **Telemetry Indicators**: Added three more loom metrics to `MetricsView` (Fabric Width `110cm`, Loom Efficiency `94.5%`, Warp Tension `85cN` using `LucideIcons.settings`), bringing total telemetry count to 6.
+- **Actions Grid**: Expanded `Quick Actions` to display 12 action buttons using a `Wrap` grid layout for optimal desktop alignment.
+
+### Spacing & Radius Unification
+- **Standardized Border Radius**: Configured `ComponentTheme<CardTheme>` globally in `main.dart` to override card border radius to `borderRadiusMd` (`6.0px`), aligning card rounding with buttons and tabs.
+- **Layout Spacing**: Unified all horizontal and vertical layout gaps to `gapSm` (`8.0px`) for consistent workspace proportions.
+
+---
+
 ## 2026-07-19 · Reusable PageHeader Widget, Layout Density Refinements & Levitation Client
 
 Implemented a reusable header layout system under the new widget library path, aligned the screen spacing strictly to theme density scales, and launched the background Levitation management client.
@@ -595,9 +620,32 @@ Replaced all `// AUTO-GENERATED` stubs across the design system barrel files wit
 
 ---
 
+## 2026-07-21 · Dynamic AI Design System, Native Shadcn Refactoring & Layout Architecture
+
+### Native `shadcn_flutter` Theme & Root Workspace Polish
+- **Teal Light Theme Palette**: Re-pointed default light theme to `shad.ColorSchemes.lightSlate.teal` in `main.dart`.
+- **Window Tabs Dark Mode Fix**: Resolved white background bleed in dark mode by wrapping `DynamicTabWorkspace` inside `shad.Scaffold(backgroundColor: theme.colorScheme.background)`.
+- **Window Tab Bar Sidebar Toggle**: Integrated `panelLeftClose` / `panelLeftOpen` toggle icon button into `DynamicTabWorkspace` (`leading` list of `shad.TabPane`). Placed on the exact same horizontal line as workspace tabs (`Home x`, `Orgs x`), smoothly expanding `DynamicNavRail` (64px icon-only rail to 180px expanded sidebar).
+
+### Page-Level Data Components
+- **`DynamicTable<T>` Native Data Grid**: Built standalone, generic data grid component in `lib/dynamic_ai/components/page_level/dynamic_table.dart` using native `shad.Table`, `shad.TableHeader`, `shad.TableRow`, and `shad.TableFooter` primitives.
+  - **Full-Height Workspace Canvas Expansion**: Applied `LayoutBuilder` + `ConstrainedBox(minHeight: maxHeight)` to force 100% vertical canvas stretching regardless of row count.
+  - **Aligned TableFooter**: Standardized 1:1 table cell alignment under data columns for sticky totals rows.
+  - **Native Pagination**: Integrated `shad.Pagination` control strip with row selection counters in table footer utility bar.
+- **`DynamicMetricCard` & `DynamicMetricRow`**: Built KPI metric row in `lib/dynamic_ai/components/page_level/dynamic_metric_row.dart` using native `shad.Card`.
+  - Positioned KPI summary bar directly above `DynamicActionBar` (DAB) on `DemoScreen`.
+  - Applied explicit `borderColor: colors.border` to achieve sharp 1px outlines matching form controls (`Select`, `TextField`).
+
+### Architectural Strategy — Scaling to 25+ ERP Pages
+- **Evaluation of `shadcn_flutter` Primitives**: Profiled `NavigationRail` vs `NavigationSidebar` and `Card` vs `SurfaceCard`. Preserved `NavigationRail` to retain native hover tooltips in collapsed state.
+- **Direct Native Composition Architecture**: Established layout policy for scaling 25+ ERP screens—moving away from monolithic wrapper blueprints toward direct native `shad.*` component composition paired with micro-utility helpers.
+
+---
+
 ## Conventions & Rules
 - **DB Target**: All FY 26-27 work targets `IMMBE2627`; read-only legacy data from `IMMBE2526`.
 - **View Naming**: `sb_vw_` = Supabase native, `sq_vw_` = SQL mirror views.
 - **SQL Safety**: Always include `TYPE` in BILLS JOINs to avoid fan-out. Pending = `CLOSED IS NULL OR '' OR 'N'`.
 - **Theme Access**: Always use `OrganismTheme.colorsOf(context)` — never static getters.
 - **State Management**: `StatefulWidget` + Service singletons (no Riverpod/Bloc yet).
+
