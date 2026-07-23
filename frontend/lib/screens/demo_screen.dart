@@ -97,7 +97,6 @@ class _DemoScreenState extends State<DemoScreen> {
         // Upgraded Modular Page Header
         PageHeader<PurchaseBillCategory>(
           title: 'Purchase Bills',
-          subtitle: 'Kinetic Production Workstation • FY 26-27',
           selectedModuleId: _selectedCategory,
           modules: PurchaseBillCategory.values.map((cat) {
             final counts = const {

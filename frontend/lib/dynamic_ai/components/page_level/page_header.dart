@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter/material.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
 /// Model for an item inside the [PageHeader] Module Switcher
@@ -20,7 +20,6 @@ class ModuleItem<T> {
 /// inline expandable Module Switcher, optional tabs slot, and action button slots.
 class PageHeader<T> extends StatefulWidget {
   final String title;
-  final String? subtitle;
 
   // Optional Module Switcher
   final T? selectedModuleId;
@@ -36,7 +35,6 @@ class PageHeader<T> extends StatefulWidget {
   const PageHeader({
     super.key,
     required this.title,
-    this.subtitle,
     this.selectedModuleId,
     this.modules,
     this.onModuleSelected,
@@ -98,6 +96,7 @@ class _PageHeaderState<T> extends State<PageHeader<T>> with SingleTickerProvider
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
     final colors = theme.colorScheme;
+    final padSm = theme.density.baseContainerPadding * theme.scaling * shad.padSm;
 
     // Find currently selected module item if any
     final selectedModule = widget.modules?.where((m) => m.id == widget.selectedModuleId).firstOrNull ??
@@ -108,69 +107,66 @@ class _PageHeaderState<T> extends State<PageHeader<T>> with SingleTickerProvider
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // ==========================================
-        // 1. TOP HEADER ROW
+        // 1. TOP HEADER ROW (Crisp Vertical Alignment)
         // ==========================================
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // 1. Mandatory Title & Subtitle
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  widget.title,
-                  style: theme.typography.h2.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colors.foreground,
-                  ),
-                ),
-                if (widget.subtitle != null) ...[
-                  const shad.DensityGap(shad.gapXs),
-                  Text(
-                    widget.subtitle!,
-                    style: theme.typography.xSmall.copyWith(color: colors.mutedForeground),
-                  ),
-                ],
-              ],
+            // 1. Mandatory Title
+            Text(
+              widget.title,
+              style: theme.typography.h2.copyWith(
+                fontWeight: FontWeight.bold,
+                color: colors.foreground,
+              ),
             ),
 
-            // 2. Optional Module Switcher Trigger Button
+            // 2. Optional Module Switcher Trigger Button (Transparent Surface, Border Outline)
             if (widget.modules != null && widget.modules!.isNotEmpty && selectedModule != null) ...[
               const shad.DensityGap(shad.gapMd),
-              shad.OutlineButton(
-                onPressed: _toggleExpand,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(selectedModule.icon, size: 16 * theme.scaling, color: colors.primary),
-                    const shad.DensityGap(shad.gapSm),
-                    Text(
-                      selectedModule.label,
-                      style: theme.typography.textSmall.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const shad.DensityGap(shad.gapSm),
-                    shad.SecondaryBadge(
-                      child: Text(
-                        selectedModule.count.toString(),
-                        style: theme.typography.xSmall.copyWith(
-                          fontSize: 10 * theme.scaling,
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(theme.radiusSm),
+                  border: Border.all(color: colors.border),
+                ),
+                child: shad.OutlineButton(
+                  onPressed: _toggleExpand,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(selectedModule.icon, size: 16 * theme.scaling, color: colors.primary),
+                      const shad.DensityGap(shad.gapSm),
+                      Text(
+                        selectedModule.label,
+                        style: theme.typography.textSmall.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: colors.foreground,
                         ),
                       ),
-                    ),
-                    const shad.DensityGap(shad.gapSm),
-                    AnimatedRotation(
-                      turns: _isExpanded ? 0.5 : 0.0,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOutCubic,
-                      child: Icon(
-                        shad.LucideIcons.chevronDown,
-                        size: 14 * theme.scaling,
-                        color: colors.mutedForeground,
+                      const shad.DensityGap(shad.gapSm),
+                      shad.SecondaryBadge(
+                        child: Text(
+                          selectedModule.count.toString(),
+                          style: theme.typography.xSmall.copyWith(
+                            fontSize: 10 * theme.scaling,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                      const shad.DensityGap(shad.gapSm),
+                      AnimatedRotation(
+                        turns: _isExpanded ? 0.5 : 0.0,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOutCubic,
+                        child: Icon(
+                          shad.LucideIcons.chevronDown,
+                          size: 14 * theme.scaling,
+                          color: colors.mutedForeground,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -181,13 +177,14 @@ class _PageHeaderState<T> extends State<PageHeader<T>> with SingleTickerProvider
               widget.tabs!,
             ],
 
-            // 4. Spacer
+            // 4. Spacer (Pushes actions to the right)
             const Spacer(),
 
             // 5. Trailing Actions Row (max 1 primary, 2 secondary)
             if (widget.actions.isNotEmpty) ...[
               Row(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: widget.actions.map((act) {
                   return Padding(
                     padding: EdgeInsets.only(left: 8 * theme.scaling),
@@ -200,7 +197,7 @@ class _PageHeaderState<T> extends State<PageHeader<T>> with SingleTickerProvider
         ),
 
         // ==========================================
-        // 2. SMOOTH EXPANDABLE INLINE MODULE STRIP
+        // 2. SMOOTH EXPANDABLE INLINE MODULE STRIP (Transparent Surface Container)
         // ==========================================
         if (widget.modules != null && widget.modules!.isNotEmpty)
           SizeTransition(
@@ -211,9 +208,9 @@ class _PageHeaderState<T> extends State<PageHeader<T>> with SingleTickerProvider
               child: Padding(
                 padding: EdgeInsets.only(top: 12 * theme.scaling),
                 child: Container(
-                  padding: EdgeInsets.all(theme.density.baseContainerPadding * theme.scaling * shad.padSm),
+                  padding: EdgeInsets.all(padSm),
                   decoration: BoxDecoration(
-                    color: colors.card,
+                    color: Colors.transparent,
                     borderRadius: BorderRadius.circular(theme.radiusSm),
                     border: Border.all(color: colors.border),
                   ),
@@ -237,50 +234,57 @@ class _PageHeaderState<T> extends State<PageHeader<T>> with SingleTickerProvider
                         runSpacing: 8 * theme.scaling,
                         children: widget.modules!.map((mod) {
                           final isSelected = mod.id == widget.selectedModuleId;
-                          return isSelected
-                              ? shad.PrimaryButton(
-                                  size: shad.ButtonSize.small,
-                                  onPressed: () => _selectModule(mod.id),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(mod.icon, size: 14 * theme.scaling),
-                                      const shad.DensityGap(shad.gapSm),
-                                      Text(mod.label),
-                                      const shad.DensityGap(shad.gapSm),
-                                      shad.SecondaryBadge(
-                                        child: Text(
-                                          mod.count.toString(),
-                                          style: theme.typography.xSmall.copyWith(
-                                            fontSize: 10 * theme.scaling,
-                                            fontWeight: FontWeight.bold,
+                          final borderColor = isSelected ? colors.primary : colors.border;
+                          final textColor = isSelected ? colors.primary : colors.foreground;
+
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(theme.radiusSm),
+                              border: Border.all(color: borderColor, width: isSelected ? 1.5 : 1.0),
+                            ),
+                            child: shad.OutlineButton(
+                              size: shad.ButtonSize.small,
+                              onPressed: () => _selectModule(mod.id),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    mod.icon,
+                                    size: 14 * theme.scaling,
+                                    color: isSelected ? colors.primary : colors.mutedForeground,
+                                  ),
+                                  const shad.DensityGap(shad.gapSm),
+                                  Text(
+                                    mod.label,
+                                    style: theme.typography.textSmall.copyWith(
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      color: textColor,
+                                    ),
+                                  ),
+                                  const shad.DensityGap(shad.gapSm),
+                                  isSelected
+                                      ? shad.PrimaryBadge(
+                                          child: Text(
+                                            mod.count.toString(),
+                                            style: theme.typography.xSmall.copyWith(
+                                              fontSize: 10 * theme.scaling,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        )
+                                      : shad.OutlineBadge(
+                                          child: Text(
+                                            mod.count.toString(),
+                                            style: theme.typography.xSmall.copyWith(
+                                              fontSize: 10 * theme.scaling,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : shad.OutlineButton(
-                                  size: shad.ButtonSize.small,
-                                  onPressed: () => _selectModule(mod.id),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(mod.icon, size: 14 * theme.scaling, color: colors.mutedForeground),
-                                      const shad.DensityGap(shad.gapSm),
-                                      Text(mod.label),
-                                      const shad.DensityGap(shad.gapSm),
-                                      shad.OutlineBadge(
-                                        child: Text(
-                                          mod.count.toString(),
-                                          style: theme.typography.xSmall.copyWith(
-                                            fontSize: 10 * theme.scaling,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
+                                ],
+                              ),
+                            ),
+                          );
                         }).toList(),
                       ),
                     ],
