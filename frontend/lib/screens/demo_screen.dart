@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart' hide Card, Tab, Badge, Scaffold;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
-import '../../../dynamic_ai/components/page_level/page_header.dart';
-import '../../../dynamic_ai/components/page_level/dynamic_action_bar.dart';
-import '../../../dynamic_ai/components/page_level/dynamic_table.dart';
-import '../../../dynamic_ai/components/page_level/dynamic_metric_row.dart';
-import '../../../dynamic_ai/components/list/dynamic_list.dart';
-import '../../../dynamic_ai/components/list/dynamic_list_card.dart';
-import '../../../dynamic_ai/components/list/item_header.dart';
-import '../../../dynamic_ai/components/content/dynamic_content_pane.dart';
-import '../../../dynamic_ai/components/content/dynamic_side_pane.dart';
+import '../dynamic_ai/components/demo/page_header.dart';
+import '../dynamic_ai/components/demo/dynamic_action_bar.dart';
+import '../dynamic_ai/components/demo/dynamic_table.dart';
+import '../dynamic_ai/components/demo/dynamic_metric_row.dart';
+import '../dynamic_ai/components/demo/dynamic_list.dart';
+import '../dynamic_ai/components/demo/dynamic_list_card.dart';
+import '../dynamic_ai/components/demo/item_header.dart';
+import '../dynamic_ai/components/demo/dynamic_content_pane.dart';
+import '../dynamic_ai/components/demo/dynamic_side_pane.dart';
 
 class DemoScreen extends StatefulWidget {
   const DemoScreen({super.key});
