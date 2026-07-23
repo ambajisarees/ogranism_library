@@ -92,274 +92,298 @@ class _DemoScreenState extends State<DemoScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-          // Page Header
-          PageHeader(
-            title: 'Demo Workspace',
-            actions: [
-              shad.OutlineButton(
-                onPressed: () {},
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const [
-                    Icon(shad.LucideIcons.download),
-                    shad.DensityGap(shad.gapSm),
-                    Text('Export'),
-                  ],
-                ),
+        // Page Header
+        PageHeader(
+          title: 'Demo Workspace',
+          actions: [
+            shad.OutlineButton(
+              onPressed: () {},
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: const [
+                  Icon(shad.LucideIcons.download),
+                  shad.DensityGap(shad.gapSm),
+                  Text('Export'),
+                ],
               ),
-              shad.PrimaryButton(
-                onPressed: () {},
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const [
-                    Icon(shad.LucideIcons.plus),
-                    shad.DensityGap(shad.gapSm),
-                    Text('Add'),
-                  ],
-                ),
+            ),
+            shad.PrimaryButton(
+              onPressed: () {},
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: const [
+                  Icon(shad.LucideIcons.plus),
+                  shad.DensityGap(shad.gapSm),
+                  Text('Add'),
+                ],
               ),
-            ],
-          ),
-          const shad.DensityGap(shad.gapSm),
+            ),
+          ],
+        ),
+        const shad.DensityGap(shad.gapSm),
 
-          // Dynamic Metric KPI Cards Row sitting above DAB
-          const DynamicMetricRow(
-            cards: [
-              DynamicMetricCard(
-                title: 'Total Plans',
-                value: '6 Plans',
-                unit: 'Active',
-                icon: shad.LucideIcons.fileText,
-                trendBadge: shad.PrimaryBadge(child: Text('Live')),
-              ),
-              DynamicMetricCard(
-                title: 'Fabric Meterage',
-                value: '1,120',
-                unit: 'meters',
-                icon: shad.LucideIcons.scissors,
-                subtext: 'Banarasi Silk & Georgette',
-              ),
-              DynamicMetricCard(
-                title: 'Total Units',
-                value: '49',
-                unit: 'units',
-                icon: shad.LucideIcons.package,
-                subtext: 'Queued for Cutting',
-              ),
-              DynamicMetricCard(
-                title: 'Loom Efficiency',
-                value: '94.5',
-                unit: '%',
-                icon: shad.LucideIcons.gauge,
-                trendBadge: shad.SecondaryBadge(child: Text('+2.1%')),
-              ),
-            ],
-          ),
-          const shad.DensityGap(shad.gapSm),
+        // Dynamic Metric KPI Cards Row sitting above DAB
+        const DynamicMetricRow(
+          cards: [
+            DynamicMetricCard(
+              title: 'Total Plans',
+              value: '6 Plans',
+              unit: 'Active',
+              icon: shad.LucideIcons.fileText,
+              trendBadge: shad.PrimaryBadge(child: Text('Live')),
+            ),
+            DynamicMetricCard(
+              title: 'Fabric Meterage',
+              value: '1,120',
+              unit: 'meters',
+              icon: shad.LucideIcons.scissors,
+              subtext: 'Banarasi Silk & Georgette',
+            ),
+            DynamicMetricCard(
+              title: 'Total Units',
+              value: '49',
+              unit: 'units',
+              icon: shad.LucideIcons.package,
+              subtext: 'Queued for Cutting',
+            ),
+            DynamicMetricCard(
+              title: 'Loom Efficiency',
+              value: '94.5',
+              unit: '%',
+              icon: shad.LucideIcons.gauge,
+              trendBadge: shad.SecondaryBadge(child: Text('+2.1%')),
+            ),
+          ],
+        ),
+        const shad.DensityGap(shad.gapSm),
 
-          // Dynamic Action Bar
-          DynamicActionBar(
-            tabIndex: _tabIndex,
-            onTabChanged: (val) {
-              setState(() => _tabIndex = val);
-            },
-            subTabIndex: _subTabIndex,
-            onSubTabChanged: (val) {
-              setState(() => _subTabIndex = val);
-            },
-            selectedDateValue: _selectedDateValue,
-            onDateChanged: (val) {
-              setState(() => _selectedDateValue = val);
-            },
-            selectedFilterValue: _selectedFilterValue,
-            onFilterChanged: (val) {
-              setState(() => _selectedFilterValue = val);
-            },
-            selectedSortValue: _selectedSortValue,
-            onSortChanged: (val) {
-              setState(() => _selectedSortValue = val);
-            },
-          ),
-          const shad.DensityGap(shad.gapSm),
+        // Dynamic Action Bar
+        DynamicActionBar(
+          tabIndex: _tabIndex,
+          onTabChanged: (val) {
+            setState(() => _tabIndex = val);
+          },
+          subTabIndex: _subTabIndex,
+          onSubTabChanged: (val) {
+            setState(() => _subTabIndex = val);
+          },
+          selectedDateValue: _selectedDateValue,
+          onDateChanged: (val) {
+            setState(() => _selectedDateValue = val);
+          },
+          selectedFilterValue: _selectedFilterValue,
+          onFilterChanged: (val) {
+            setState(() => _selectedFilterValue = val);
+          },
+          selectedSortValue: _selectedSortValue,
+          onSortChanged: (val) {
+            setState(() => _selectedSortValue = val);
+          },
+        ),
+        const shad.DensityGap(shad.gapSm),
 
-          // Tab View Switcher (Summary, Details, Links, Metrics)
-          Expanded(
-            child: () {
-              switch (_tabIndex) {
-                case 0:
-                  // 1. Summary Tab: Tabular View
-                  return _buildDetailsTable(theme);
-                case 1:
-                  // 2. Details Tab: Pane View with List + Content Pane + Side Pane
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Left Master Pane: DynamicList
-                      DynamicList(
-                        items: _mockItems,
-                        selectedItem: _selectedListItem,
-                        onItemSelected: (item) {
-                          setState(() {
-                            _selectedListItem = item;
-                          });
-                        },
-                      ),
-                      
-                      const shad.DensityGap(shad.gapSm),
-                      
-                      // Right Detail Pane
-                      Expanded(
-                        child: _selectedListItem == null
-                            ? _buildPlaceholderDetailCard(theme)
-                            : Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  ItemHeader(
-                                    title: _selectedListItem!.title,
-                                    onEditPressed: () {
-                                      // Perform edit details
-                                    },
-                                  ),
-                                  const shad.DensityGap(shad.gapSm),
-                                  // Grid using DynamicContentPane and DynamicSidePane
-                                  Expanded(
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                      children: [
-                                        // 1. Dynamic main tab content area (Left Side)
-                                        DynamicContentPane(
-                                          child: _buildContentAreaForTab(_tabIndex, _selectedListItem!, theme),
-                                        ),
-                                        const shad.DensityGap(shad.gapSm),
-                                        // 2. Action and Timeline metadata Sidebar (Right Side)
-                                        DynamicSidePane(
-                                          cards: [
-                                            DynamicSideCard(
-                                              title: 'Workflow Status',
-                                              child: TimelineView(
-                                                steps: [
-                                                  TimelineStep(
-                                                    title: 'Loom Material Audit',
-                                                    description: 'Completed successfully by supervisor',
-                                                    isDone: true,
-                                                  ),
-                                                  TimelineStep(
-                                                    title: 'Pattern Stencil Placement',
-                                                    description: 'Verified coordinates and offsets',
-                                                    isDone: true,
-                                                  ),
-                                                  TimelineStep(
-                                                    title: 'Cutting Phase Execution',
-                                                    description: 'Active process queued on table #4',
-                                                    isActive: _selectedListItem!.status == 'active',
-                                                  ),
-                                                  TimelineStep(
-                                                    title: 'Quality Audit Inspection',
-                                                    description: 'Awaiting batch completion',
-                                                    isMuted: true,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            DynamicSideCard(
-                                              title: 'Loom Roll Metrics',
-                                              child: MetricsView(
-                                                metrics: [
-                                                  MetricItem(
-                                                    icon: const Icon(shad.LucideIcons.gauge),
-                                                    label: 'Total Length',
-                                                    value: '250',
-                                                    unit: 'meters',
-                                                  ),
-                                                  MetricItem(
-                                                    icon: const Icon(shad.LucideIcons.package),
-                                                    label: 'Total Units count',
-                                                    value: _selectedListItem!.infoNumber,
-                                                    unit: 'units',
-                                                  ),
-                                                  MetricItem(
-                                                    icon: const Icon(shad.LucideIcons.hash),
-                                                    label: 'Loom Roll ID',
-                                                    value: 'LR-928${_selectedListItem!.infoNumber}',
-                                                    unit: 'ID',
-                                                  ),
-                                                  MetricItem(
-                                                    icon: const Icon(shad.LucideIcons.maximize2),
-                                                    label: 'Fabric Width',
-                                                    value: '110',
-                                                    unit: 'cm',
-                                                  ),
-                                                  MetricItem(
-                                                    icon: const Icon(shad.LucideIcons.activity),
-                                                    label: 'Loom Efficiency',
-                                                    value: '94.5',
-                                                    unit: '%',
-                                                  ),
-                                                  MetricItem(
-                                                    icon: const Icon(shad.LucideIcons.settings),
-                                                    label: 'Warp Tension',
-                                                    value: '85',
-                                                    unit: 'cN',
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            DynamicSideCard(
-                                              title: 'Quick Actions',
-                                              child: Wrap(
-                                                spacing: 4,
-                                                runSpacing: 4,
-                                                children: [
-                                                  _buildActionButton('Hold'),
-                                                  _buildActionButton('Complete', isPrimary: true),
-                                                  _buildActionButton('Start'),
-                                                  _buildActionButton('Audit'),
-                                                  _buildActionButton('Inspect'),
-                                                  _buildActionButton('Reject'),
-                                                  _buildActionButton('Pause'),
-                                                  _buildActionButton('Resume'),
-                                                  _buildActionButton('Assign'),
-                                                  _buildActionButton('Export'),
-                                                  _buildActionButton('Print'),
-                                                  _buildActionButton('Cancel'),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ],
-                  );
-                case 2:
-                  // 3. Links Tab: Empty Placeholder
-                  return Center(
-                    child: Text(
-                      'Links View (Empty Placeholder)',
-                      style: theme.typography.h3.copyWith(color: theme.colorScheme.mutedForeground),
+        // Tab View Switcher (Summary, Details, Links, Metrics)
+        Expanded(
+          child: () {
+            switch (_tabIndex) {
+              case 0:
+                // 1. Summary Tab: Tabular View
+                return _buildDetailsTable(theme);
+              case 1:
+                // 2. Details Tab: Pane View with List + Content Pane + Side Pane
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Left Master Pane: DynamicList
+                    DynamicList(
+                      items: _mockItems,
+                      selectedItem: _selectedListItem,
+                      onItemSelected: (item) {
+                        setState(() {
+                          _selectedListItem = item;
+                        });
+                      },
                     ),
-                  );
-                case 3:
-                  // 4. Metrics Tab: Empty Placeholder
-                  return Center(
-                    child: Text(
-                      'Metrics View (Empty Placeholder)',
-                      style: theme.typography.h3.copyWith(color: theme.colorScheme.mutedForeground),
+
+                    const shad.DensityGap(shad.gapSm),
+
+                    // Right Detail Pane
+                    Expanded(
+                      child: _selectedListItem == null
+                          ? _buildPlaceholderDetailCard(theme)
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                ItemHeader(
+                                  title: _selectedListItem!.title,
+                                  onEditPressed: () {
+                                    // Perform edit details
+                                  },
+                                ),
+                                const shad.DensityGap(shad.gapSm),
+                                // Grid using DynamicContentPane and DynamicSidePane
+                                Expanded(
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      // 1. Dynamic main tab content area (Left Side)
+                                      DynamicContentPane(
+                                        child: _buildContentAreaForTab(
+                                            _tabIndex,
+                                            _selectedListItem!,
+                                            theme),
+                                      ),
+                                      const shad.DensityGap(shad.gapSm),
+                                      // 2. Action and Timeline metadata Sidebar (Right Side)
+                                      DynamicSidePane(
+                                        cards: [
+                                          DynamicSideCard(
+                                            title: 'Workflow Status',
+                                            child: TimelineView(
+                                              steps: [
+                                                TimelineStep(
+                                                  title: 'Loom Material Audit',
+                                                  description:
+                                                      'Completed successfully by supervisor',
+                                                  isDone: true,
+                                                ),
+                                                TimelineStep(
+                                                  title:
+                                                      'Pattern Stencil Placement',
+                                                  description:
+                                                      'Verified coordinates and offsets',
+                                                  isDone: true,
+                                                ),
+                                                TimelineStep(
+                                                  title:
+                                                      'Cutting Phase Execution',
+                                                  description:
+                                                      'Active process queued on table #4',
+                                                  isActive: _selectedListItem!
+                                                          .status ==
+                                                      'active',
+                                                ),
+                                                TimelineStep(
+                                                  title:
+                                                      'Quality Audit Inspection',
+                                                  description:
+                                                      'Awaiting batch completion',
+                                                  isMuted: true,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          DynamicSideCard(
+                                            title: 'Loom Roll Metrics',
+                                            child: MetricsView(
+                                              metrics: [
+                                                MetricItem(
+                                                  icon: const Icon(
+                                                      shad.LucideIcons.gauge),
+                                                  label: 'Total Length',
+                                                  value: '250',
+                                                  unit: 'meters',
+                                                ),
+                                                MetricItem(
+                                                  icon: const Icon(
+                                                      shad.LucideIcons.package),
+                                                  label: 'Total Units count',
+                                                  value: _selectedListItem!
+                                                      .infoNumber,
+                                                  unit: 'units',
+                                                ),
+                                                MetricItem(
+                                                  icon: const Icon(
+                                                      shad.LucideIcons.hash),
+                                                  label: 'Loom Roll ID',
+                                                  value:
+                                                      'LR-928${_selectedListItem!.infoNumber}',
+                                                  unit: 'ID',
+                                                ),
+                                                MetricItem(
+                                                  icon: const Icon(shad
+                                                      .LucideIcons.maximize2),
+                                                  label: 'Fabric Width',
+                                                  value: '110',
+                                                  unit: 'cm',
+                                                ),
+                                                MetricItem(
+                                                  icon: const Icon(shad
+                                                      .LucideIcons.activity),
+                                                  label: 'Loom Efficiency',
+                                                  value: '94.5',
+                                                  unit: '%',
+                                                ),
+                                                MetricItem(
+                                                  icon: const Icon(shad
+                                                      .LucideIcons.settings),
+                                                  label: 'Warp Tension',
+                                                  value: '85',
+                                                  unit: 'cN',
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          DynamicSideCard(
+                                            title: 'Quick Actions',
+                                            child: Wrap(
+                                              spacing: 4,
+                                              runSpacing: 4,
+                                              children: [
+                                                _buildActionButton('Hold'),
+                                                _buildActionButton('Complete',
+                                                    isPrimary: true),
+                                                _buildActionButton('Start'),
+                                                _buildActionButton('Audit'),
+                                                _buildActionButton('Inspect'),
+                                                _buildActionButton('Reject'),
+                                                _buildActionButton('Pause'),
+                                                _buildActionButton('Resume'),
+                                                _buildActionButton('Assign'),
+                                                _buildActionButton('Export'),
+                                                _buildActionButton('Print'),
+                                                _buildActionButton('Cancel'),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                     ),
-                  );
-                default:
-                  return const SizedBox.shrink();
-              }
-            }(),
-          ),
-        ],
-      );
+                  ],
+                );
+              case 2:
+                // 3. Links Tab: Empty Placeholder
+                return Center(
+                  child: Text(
+                    'Links View (Empty Placeholder)',
+                    style: theme.typography.h3
+                        .copyWith(color: theme.colorScheme.mutedForeground),
+                  ),
+                );
+              case 3:
+                // 4. Metrics Tab: Empty Placeholder
+                return Center(
+                  child: Text(
+                    'Metrics View (Empty Placeholder)',
+                    style: theme.typography.h3
+                        .copyWith(color: theme.colorScheme.mutedForeground),
+                  ),
+                );
+              default:
+                return const SizedBox.shrink();
+            }
+          }(),
+        ),
+      ],
+    );
   }
 
   Widget _buildPlaceholderDetailCard(shad.ThemeData theme) {
@@ -374,7 +398,8 @@ class _DemoScreenState extends State<DemoScreen> {
   }
 
   // Dynamic tab content switcher
-  Widget _buildContentAreaForTab(int tabIndex, DynamicListItem item, shad.ThemeData theme) {
+  Widget _buildContentAreaForTab(
+      int tabIndex, DynamicListItem item, shad.ThemeData theme) {
     switch (tabIndex) {
       case 0:
         return _buildDashboardSpecsView(theme, item);
@@ -404,7 +429,7 @@ class _DemoScreenState extends State<DemoScreen> {
         const shad.DensityGap(shad.gapSm),
         const shad.Divider(),
         const shad.DensityGap(shad.gapSm),
-        
+
         // Visual Saree Cut Diagram
         Text(
           'Saree Cutting Pattern Diagram',
@@ -511,19 +536,21 @@ class _DemoScreenState extends State<DemoScreen> {
           ),
         ),
         const shad.DensityGap(shad.gapLg),
-        
+
         // Specification Form Parameters
         Expanded(
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildFormRow(theme, 'Saree Style Type', 'Banarasi Silk Embroidered'),
+                _buildFormRow(
+                    theme, 'Saree Style Type', 'Banarasi Silk Embroidered'),
                 _buildFormRow(theme, 'Pattern Stencil Code', 'PST-SILK-098'),
                 _buildFormRow(theme, 'Cutting Master Supervisor', 'Ram Singh'),
                 _buildFormRow(theme, 'Target Completion Date', 'Jul 24, 2026'),
                 Padding(
-                  padding: EdgeInsets.only(bottom: theme.density.baseGap * shad.gapMd),
+                  padding: EdgeInsets.only(
+                      bottom: theme.density.baseGap * shad.gapMd),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -589,7 +616,7 @@ class _DemoScreenState extends State<DemoScreen> {
         const shad.DensityGap(shad.gapSm),
         const shad.Divider(),
         const shad.DensityGap(shad.gapSm),
-        
+
         // Column Headers
         Row(
           children: [
@@ -638,15 +665,21 @@ class _DemoScreenState extends State<DemoScreen> {
         const shad.DensityGap(shad.gapXs),
         const shad.Divider(),
         const shad.DensityGap(shad.gapSm),
-        
+
         // Allocation Rows
         Expanded(
           child: SingleChildScrollView(
             child: Column(
               children: [
-                _buildAllocationTableRow(theme, colors, 'LR-92801', '80 meters', 'LOT-A', 'Cut', isPrimary: true),
-                _buildAllocationTableRow(theme, colors, 'LR-92802', '90 meters', 'LOT-B', 'Processing', isWarning: true),
-                _buildAllocationTableRow(theme, colors, 'LR-92803', '80 meters', 'LOT-A', 'Pending', isMuted: true),
+                _buildAllocationTableRow(
+                    theme, colors, 'LR-92801', '80 meters', 'LOT-A', 'Cut',
+                    isPrimary: true),
+                _buildAllocationTableRow(theme, colors, 'LR-92802', '90 meters',
+                    'LOT-B', 'Processing',
+                    isWarning: true),
+                _buildAllocationTableRow(
+                    theme, colors, 'LR-92803', '80 meters', 'LOT-A', 'Pending',
+                    isMuted: true),
               ],
             ),
           ),
@@ -672,7 +705,8 @@ class _DemoScreenState extends State<DemoScreen> {
     if (isMuted) textColor = colors.mutedForeground;
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: theme.density.baseGap * shad.gapSm),
+      padding:
+          EdgeInsets.symmetric(vertical: theme.density.baseGap * shad.gapSm),
       child: Column(
         children: [
           Row(
@@ -740,18 +774,28 @@ class _DemoScreenState extends State<DemoScreen> {
         const shad.DensityGap(shad.gapSm),
         const shad.Divider(),
         const shad.DensityGap(shad.gapSm),
-        
+
         // Document List
         Expanded(
           child: SingleChildScrollView(
             child: Column(
               children: [
                 if (_subTabIndex == 0 || _subTabIndex == 1)
-                  _buildDocLinkItem(theme, colors, shad.LucideIcons.fileText, 'Production Order', 'PO-2627-012', 'In Progress'),
+                  _buildDocLinkItem(theme, colors, shad.LucideIcons.fileText,
+                      'Production Order', 'PO-2627-012', 'In Progress'),
                 if (_subTabIndex == 0 || _subTabIndex == 1)
-                  _buildDocLinkItem(theme, colors, shad.LucideIcons.shoppingCart, 'Sales Order', 'SO-2627-994', 'Released', isSuccess: true),
+                  _buildDocLinkItem(
+                      theme,
+                      colors,
+                      shad.LucideIcons.shoppingCart,
+                      'Sales Order',
+                      'SO-2627-994',
+                      'Released',
+                      isSuccess: true),
                 if (_subTabIndex == 0 || _subTabIndex == 2)
-                  _buildDocLinkItem(theme, colors, shad.LucideIcons.ticket, 'Loom Allocation Ticket', 'LAT-552', 'Scheduled', isMuted: true),
+                  _buildDocLinkItem(theme, colors, shad.LucideIcons.ticket,
+                      'Loom Allocation Ticket', 'LAT-552', 'Scheduled',
+                      isMuted: true),
               ],
             ),
           ),
@@ -897,7 +941,9 @@ class _DemoScreenState extends State<DemoScreen> {
               ),
               child: Center(
                 child: Icon(
-                  index % 2 == 0 ? shad.LucideIcons.scissors : shad.LucideIcons.layers,
+                  index % 2 == 0
+                      ? shad.LucideIcons.scissors
+                      : shad.LucideIcons.layers,
                   size: 14,
                   color: colors.primary,
                 ),
@@ -977,11 +1023,13 @@ class _DemoScreenState extends State<DemoScreen> {
           isNumeric: true,
           cellBuilder: (context, item, index) {
             final meters = (150 + index * 35).toString();
-            return Text('$meters m', style: const TextStyle(fontWeight: FontWeight.bold));
+            return Text('$meters m',
+                style: const TextStyle(fontWeight: FontWeight.bold));
           },
           footerBuilder: (context) => Text(
             '1,120 m',
-            style: TextStyle(fontWeight: FontWeight.bold, color: colors.primary),
+            style:
+                TextStyle(fontWeight: FontWeight.bold, color: colors.primary),
           ),
         ),
 
@@ -991,7 +1039,8 @@ class _DemoScreenState extends State<DemoScreen> {
           size: const shad.FlexTableSize(flex: 1.0),
           isNumeric: true,
           cellBuilder: (context, item, index) => Text(item.infoNumber),
-          footerBuilder: (context) => const Text('49 units', style: TextStyle(fontWeight: FontWeight.bold)),
+          footerBuilder: (context) => const Text('49 units',
+              style: TextStyle(fontWeight: FontWeight.bold)),
         ),
 
         // 7. Status Badge

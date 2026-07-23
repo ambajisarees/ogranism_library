@@ -6,8 +6,8 @@ import '../dynamic_ai/components/root_level/dynamic_shell.dart';
 import '../dynamic_ai/components/root_level/sidebar_nav.dart';
 import '../dynamic_ai/components/root_level/header_tabs.dart';
 import '../main.dart';
-import '../services/auth/old/service_auth.dart';
-import 'old/admin/demo_screen.dart';
+import '../services/core/service_supabase.dart';
+import 'demo_screen.dart';
 import 'production/cutting/screen_cutting_landing.dart';
 import 'production/purchase_bills/screen_purchase_bills_landing.dart';
 
@@ -518,7 +518,7 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
           shad.OutlineButton(
             size: shad.ButtonSize.small,
             onPressed: () async {
-              await AuthService().signOut();
+              await SupabaseService().client.auth.signOut();
             },
             child: const Text('Sign Out'),
           ),
