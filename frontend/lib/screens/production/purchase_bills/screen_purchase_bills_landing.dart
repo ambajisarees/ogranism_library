@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
+import '../../../dynamic_ai/components/page_level/page_header.dart';
 import '../../../models/production/purchase_bills/purchase_bill_category.dart';
 import '../../../models/production/purchase_bills/model_purchase_bill_header.dart';
 import '../../../services/production/service_purchase_bill.dart';
-import 'widgets/purchase_bills_category_select.dart';
 import 'widgets/purchase_bills_filter_bar.dart';
 import 'widgets/purchase_bills_list_pane.dart';
 import 'widgets/purchase_bills_detail_canvas.dart';
@@ -174,91 +174,32 @@ class _ScreenPurchaseBillsLandingState extends State<ScreenPurchaseBillsLanding>
 
   @override
   Widget build(BuildContext context) {
-    final theme = shad.Theme.of(context);
-    final colors = theme.colorScheme;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // ==========================================
         // 1. TOP HEADER & WORKSTATION TOOLBAR ROW
         // ==========================================
-        Row(
-          children: [
-            Text(
-              'Purchase Bills',
-              style: theme.typography.h2.copyWith(
-                fontWeight: FontWeight.bold,
-                color: colors.foreground,
-              ),
-            ),
-            const shad.DensityGap(shad.gapMd),
-            shad.SecondaryBadge(
-              child: Text('${_selectedCategory.label} (${_selectedCategory.seriesCode})'),
-            ),
-
-            const Spacer(),
-
-            shad.OutlineButton(
-              size: shad.ButtonSize.small,
-              onPressed: () {
-                shad.showToast(
-                  context: context,
-                  builder: (context, show) => shad.Card(
-                    child: Padding(
-                      padding: EdgeInsets.all(
-                        theme.density.baseContainerPadding * theme.scaling * shad.padSm,
-                      ),
-                      child: const Text('Export feature triggered.'),
-                    ),
-                  ),
-                );
-              },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(shad.LucideIcons.download, size: 16 * theme.scaling),
-                  const shad.DensityGap(shad.gapSm),
-                  const Text('Export'),
-                ],
-              ),
-            ),
-            const shad.DensityGap(shad.gapMd),
-            shad.PrimaryButton(
-              size: shad.ButtonSize.small,
-              onPressed: () {
-                shad.showToast(
-                  context: context,
-                  builder: (context, show) => shad.Card(
-                    child: Padding(
-                      padding: EdgeInsets.all(
-                        theme.density.baseContainerPadding * theme.scaling * shad.padSm,
-                      ),
-                      child: Text('Add ${_selectedCategory.label} Purchase Bill triggered.'),
-                    ),
-                  ),
-                );
-              },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(shad.LucideIcons.plus, size: 16 * theme.scaling),
-                  const shad.DensityGap(shad.gapSm),
-                  Text('Add ${_selectedCategory.label} Bill'),
-                ],
-              ),
-            ),
-          ],
+        // Page Header with 10-Module Switcher & 0 trailing actions
+        PageHeader<PurchaseBillCategory>(
+          title: 'Purchase Bills',
+          selectedModuleId: _selectedCategory,
+          modules: PurchaseBillCategory.values.map((cat) {
+            return ModuleItem<PurchaseBillCategory>(
+              id: cat,
+              label: cat.label,
+              icon: cat.icon,
+              count: _categoryCounts[cat] ?? 0,
+            );
+          }).toList(),
+          onModuleSelected: _onCategoryChanged,
+          actions: const [],
         ),
         const shad.DensityGap(shad.gapMd),
 
-        // Filter Bar (Index 0 Category Dropdown Select, Search, Party/Quality Filter, Date Selector)
+        // Filter Bar (Search, Party/Quality Filter, Date Selector)
         PurchaseBillsFilterBar(
-          categorySelectWidget: PurchaseBillsCategorySelect(
-            selectedCategory: _selectedCategory,
-            categoryCounts: _categoryCounts,
-            onCategoryChanged: _onCategoryChanged,
-          ),
+          categorySelectWidget: const SizedBox.shrink(),
           searchController: _searchController,
           onSearchChanged: _onSearchChanged,
           selectedSupplier: _selectedSupplier,

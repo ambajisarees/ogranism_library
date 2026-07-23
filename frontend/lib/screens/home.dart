@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 import 'package:window_manager/window_manager.dart';
 import '../dynamic_ai/components/root_level/dynamic_shell.dart';
 import '../dynamic_ai/components/root_level/sidebar_nav.dart';
 import '../dynamic_ai/components/root_level/header_tabs.dart';
+import '../core/keyboard_manager_widget.dart';
 import '../main.dart';
 import '../services/core/service_supabase.dart';
 import 'demo_screen.dart';
@@ -539,17 +539,32 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
           int.tryParse(_openTabs[_selectedTabWorkspaceIndex].id) ?? -1;
     }
 
-    return CallbackShortcuts(
-      bindings: {
-        const SingleActivator(LogicalKeyboardKey.keyK, control: true):
-            _showGlobalSearch,
+    return KeyboardManagerWidget(
+      onGlobalSearch: _showGlobalSearch,
+      onWorkspaceTab: (index) {
+        if (index >= 0 && index < _openTabs.length) {
+          setState(() => _selectedTabWorkspaceIndex = index);
+        }
       },
-      child: Focus(
-        autofocus: true,
-        debugLabel: 'GlobalShortcutRoot',
-        child: DynamicWorkspaceShell(
-          backgroundColor: colors.background,
-          sidebar: DynamicSidebarNav(
+      onCycleTab: (forward) {
+        if (_openTabs.isEmpty) return;
+        setState(() {
+          if (forward) {
+            _selectedTabWorkspaceIndex = (_selectedTabWorkspaceIndex + 1) % _openTabs.length;
+          } else {
+            _selectedTabWorkspaceIndex = (_selectedTabWorkspaceIndex - 1 + _openTabs.length) % _openTabs.length;
+          }
+        });
+      },
+      onEscapeOverlay: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: DynamicWorkspaceShell(
+        backgroundColor: colors.background,
+        sidebar: Focus(
+          skipTraversal: true,
+          descendantsAreFocusable: false,
+          child: DynamicSidebarNav(
             expanded: _isSidebarExpanded,
             expandedWidth: 200.0,
             items: _buildSidebarItems(selectedModuleIndex),
@@ -582,6 +597,7 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
               ),
             ),
           ),
+        ),
           content: DynamicHeaderTabs(
             tabs: _openTabs,
             selectedIndex: _selectedTabWorkspaceIndex,
@@ -596,6 +612,7 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
             trailing: [
               // 1. Global Search Trigger (Ctrl+K)
               shad.OutlineButton(
+                focusNode: FocusNode(skipTraversal: true),
                 size: shad.ButtonSize.normal,
                 onPressed: _showGlobalSearch,
                 child: Row(
@@ -628,6 +645,7 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
               const shad.DensityGap(shad.gapLg),
               // 2. Notifications Bell Button
               shad.IconButton.ghost(
+                focusNode: FocusNode(skipTraversal: true),
                 size: shad.ButtonSize.normal,
                 density: shad.ButtonDensity.iconDense,
                 icon: const Icon(shad.LucideIcons.bell, size: 18),
@@ -650,6 +668,7 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
                 builder: (context, mode, child) {
                   final isDark = mode == shad.ThemeMode.dark;
                   return shad.IconButton.ghost(
+                    focusNode: FocusNode(skipTraversal: true),
                     size: shad.ButtonSize.normal,
                     density: shad.ButtonDensity.iconDense,
                     icon: Icon(
@@ -705,8 +724,7 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }
 

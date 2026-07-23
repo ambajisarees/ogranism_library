@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart' hide Card, Tab, Badge;
+import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
-import 'dab_widgets/date_popover.dart';
-import 'dab_widgets/filter_popover.dart';
-import 'dab_widgets/sort_popover.dart';
+import 'dab_widgets/display_pagination.dart';
+import '../micro_level/micro_button.dart';
 
+/// Legacy option model for popovers.
 class DynamicActionOption {
   final String label;
   final Widget? icon;
@@ -16,306 +16,201 @@ class DynamicActionOption {
   });
 }
 
-class DynamicActionBar extends StatefulWidget {
-  // Tabs Selection
-  final int tabIndex;
-  final ValueChanged<int> onTabChanged;
+/// Data model for filter button cards in DAB.
+class DabFilterItem {
+  final String id;
+  final String label;
+  final IconData icon;
+  final String? selectedValue;
 
-  // View Select
-  final String? selectedViewValue;
-  final ValueChanged<String?>? onViewChanged;
+  const DabFilterItem({
+    required this.id,
+    required this.label,
+    required this.icon,
+    this.selectedValue,
+  });
+}
 
-  // Search Query
+/// Refined Data Action Bar (DAB) component following 5-Index Structure.
+class DynamicActionBar extends StatelessWidget {
+  // General Configuration
+  final String entityName; // e.g. "Cards", "Bills", "Orders"
+
+  // Index 0: Optional Display Pagination (Used in Tables, omitted in List Views)
+  final bool showPagination;
+  final int loadedCount;
+  final int totalCount;
+  final int selectedCount;
+  final VoidCallback? onPreviousPage;
+  final VoidCallback? onNextPage;
+
+  // Index 1: Mandatory Search Field
   final String? searchQuery;
   final ValueChanged<String>? onSearchChanged;
+  final double? searchWidth;
 
-  // Sub-tabs Selection for Links
-  final int subTabIndex;
-  final ValueChanged<int> onSubTabChanged;
-  
-  // Date selection
-  final String? selectedDateValue;
-  final ValueChanged<String?> onDateChanged;
-  
-  // Filter selection (Status)
-  final String? selectedFilterValue;
-  final ValueChanged<String?> onFilterChanged;
-  
-  // Sorting selection
-  final String? selectedSortValue;
-  final ValueChanged<String?> onSortChanged;
+  // Index 2: Filter Button Cards Row (Min 1, Max 3 + Overflow 3-Dots)
+  final List<DabFilterItem> filters;
+  final ValueChanged<DabFilterItem>? onFilterPressed;
+  final VoidCallback? onOverflowFilterPressed;
+
+  // Index 3: Mandatory Date Button Card
+  final String? selectedDateLabel;
+  final VoidCallback? onDatePressed;
+
+  // Index 4: Optional Sort Button Card (Omitted in Tables, used in List Views)
+  final bool showSort;
+  final String? selectedSortLabel;
+  final VoidCallback? onSortPressed;
 
   const DynamicActionBar({
     super.key,
-    required this.tabIndex,
-    required this.onTabChanged,
-    this.selectedViewValue,
-    this.onViewChanged,
+    this.entityName = 'Cards',
+    // Index 0
+    this.showPagination = true,
+    this.loadedCount = 50,
+    this.totalCount = 51,
+    this.selectedCount = 0,
+    this.onPreviousPage,
+    this.onNextPage,
+    // Index 1
     this.searchQuery,
     this.onSearchChanged,
-    required this.subTabIndex,
-    required this.onSubTabChanged,
-    required this.selectedDateValue,
-    required this.onDateChanged,
-    required this.selectedFilterValue,
-    required this.onFilterChanged,
-    required this.selectedSortValue,
-    required this.onSortChanged,
+    this.searchWidth,
+    // Index 2
+    this.filters = const [],
+    this.onFilterPressed,
+    this.onOverflowFilterPressed,
+    // Index 3
+    this.selectedDateLabel,
+    this.onDatePressed,
+    // Index 4
+    this.showSort = false,
+    this.selectedSortLabel,
+    this.onSortPressed,
   });
-
-  @override
-  State<DynamicActionBar> createState() => _DynamicActionBarState();
-}
-
-class _DynamicActionBarState extends State<DynamicActionBar> {
-  List<DynamicActionOption> get _filterOptions => const [
-    DynamicActionOption(
-      label: 'Design',
-      icon: Icon(shad.LucideIcons.scissors),
-      value: 'design',
-    ),
-    DynamicActionOption(
-      label: 'Grey Warehouse',
-      icon: Icon(shad.LucideIcons.warehouse),
-      value: 'grey_warehouse',
-    ),
-    DynamicActionOption(
-      label: 'Production',
-      icon: Icon(shad.LucideIcons.settings),
-      value: 'production',
-    ),
-    DynamicActionOption(
-      label: 'Active',
-      icon: Icon(shad.LucideIcons.circleDot),
-      value: 'active',
-    ),
-    DynamicActionOption(
-      label: 'Pending',
-      icon: Icon(shad.LucideIcons.clock),
-      value: 'pending',
-    ),
-    DynamicActionOption(
-      label: 'Completed',
-      icon: Icon(shad.LucideIcons.check),
-      value: 'completed',
-    ),
-  ];
-
-  List<DynamicActionOption> get _sortOptions => const [
-    DynamicActionOption(
-      label: 'Oldest First',
-      icon: Icon(shad.LucideIcons.arrowUp),
-      value: 'oldest',
-    ),
-    DynamicActionOption(
-      label: 'Name ↑',
-      icon: Icon(shad.LucideIcons.arrowUp),
-      value: 'name_asc',
-    ),
-    DynamicActionOption(
-      label: 'Name ↓',
-      icon: Icon(shad.LucideIcons.arrowDown),
-      value: 'name_desc',
-    ),
-    DynamicActionOption(
-      label: 'Priority ↑',
-      icon: Icon(shad.LucideIcons.arrowUpNarrowWide),
-      value: 'priority_asc',
-    ),
-    DynamicActionOption(
-      label: 'Priority ↓',
-      icon: Icon(shad.LucideIcons.arrowDownWideNarrow),
-      value: 'priority_desc',
-    ),
-  ];
-
-  void _showPopover(BuildContext context, WidgetBuilder builder) {
-    final theme = shad.Theme.of(context);
-    shad.showOverlay(
-      context,
-      shad.PopoverConfiguration(
-        alignment: Alignment.topRight,
-        anchorAlignment: Alignment.bottomRight,
-        allowInvertVertical: false,
-        offset: Offset(0, theme.density.baseContainerPadding * shad.padX2s),
-        builder: builder,
-      ),
-    );
-  }
-
-  Widget _buildPopoverChip({
-    required BuildContext context,
-    required Widget titleIcon,
-    required String label,
-    required Widget defaultIcon,
-    required bool isSelected,
-    required VoidCallback onPressed,
-    required VoidCallback onClear,
-  }) {
-    final theme = shad.Theme.of(context);
-    final iconSmallSize = theme.iconTheme.small.size;
-
-    return shad.Chip(
-      style: !isSelected
-          ? const shad.ButtonStyle.outline()
-          : const shad.ButtonStyle.primary(),
-      leading: isSelected ? titleIcon : defaultIcon,
-      trailing: !isSelected
-          ? Icon(shad.LucideIcons.ellipsisVertical, size: iconSmallSize)
-          : GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: onClear,
-              child: Padding(
-                padding: EdgeInsets.all(theme.density.baseGap * shad.padX2s),
-                child: Icon(shad.LucideIcons.x, size: iconSmallSize),
-              ),
-            ),
-      onPressed: onPressed,
-      child: Text(
-        label,
-        style: theme.typography.textSmall.copyWith(
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
+    final colors = theme.colorScheme;
 
-    final filterOpt = _filterOptions.where((o) => o.value == widget.selectedFilterValue).firstOrNull;
-    final filterLabel = filterOpt?.label ?? widget.selectedFilterValue ?? 'Status';
+    // Filter cards logic (Max 3 visible + Overflow 4th card)
+    final visibleFilters = filters.take(3).toList();
+    final hasOverflow = filters.length > 3;
 
-    final sortOpt = _sortOptions.where((o) => o.value == widget.selectedSortValue).firstOrNull;
-    final sortLabel = sortOpt?.label ?? widget.selectedSortValue ?? 'Sort';
-
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: theme.density.baseContainerPadding * shad.padXs,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // 1. TABS (Pill-style, expand: false)
-          shad.Tabs(
-            expand: false,
-            index: widget.tabIndex,
-            onChanged: widget.onTabChanged,
-            children: const [
-              shad.TabItem(child: Text('Summary')),
-              shad.TabItem(child: Text('Details')),
-              shad.TabItem(child: Text('Links')),
-              shad.TabItem(child: Text('Metrics')),
-            ],
-          ),
-          
-          const shad.DensityGap(shad.gapSm),
-
-          // 2. SELECT Field
-          shad.Select<String>(
-            value: widget.selectedViewValue ?? 'all',
-            onChanged: widget.onViewChanged,
-            placeholder: const Text('View'),
-            popup: (context) => const shad.SelectGroup(
-              children: [
-                shad.SelectItemButton(value: 'all', child: Text('All Views')),
-                shad.SelectItemButton(value: 'active', child: Text('Active Only')),
-                shad.SelectItemButton(value: 'archived', child: Text('Archived')),
-              ],
+    return FocusTraversalGroup(
+      policy: WidgetOrderTraversalPolicy(),
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          vertical: theme.density.baseContainerPadding * theme.scaling * shad.padXs,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+          // ==========================================
+          // INDEX 0: Display Pagination (Optional - Tables)
+          // ==========================================
+          if (showPagination) ...[
+            DisplayPagination(
+              loadedCount: loadedCount,
+              totalCount: totalCount,
+              selectedCount: selectedCount,
+              entityName: entityName,
+              onPrevious: onPreviousPage,
+              onNext: onNextPage,
             ),
-            itemBuilder: (context, val) => Text(
-              val == 'all'
-                  ? 'All Views'
-                  : val == 'active'
-                      ? 'Active Only'
-                      : 'Archived',
-            ),
-          ),
-          
-          // 3. SPACER
-          const Spacer(),
+            const shad.DensityGap(shad.gapMd),
+          ],
 
-          // 4. SEARCH BAR (Compact height matching chips!)
+          // ==========================================
+          // INDEX 1: Search Field (Mandatory with native filled: true)
+          // ==========================================
           SizedBox(
-            width: 180 * theme.scaling,
+            width: searchWidth ?? 220 * theme.scaling,
             child: shad.TextField(
-              placeholder: const Text('Search...'),
+              filled: true,
+              placeholder: Text('Search $entityName...'),
               padding: EdgeInsets.symmetric(
-                horizontal: 10 * theme.scaling,
-                vertical: 4.5 * theme.scaling,
+                horizontal: 12 * theme.scaling,
+                vertical: 8 * theme.scaling,
               ),
-              onChanged: widget.onSearchChanged,
+              onChanged: onSearchChanged,
               features: [
                 shad.InputFeature.leading(
-                  Icon(shad.LucideIcons.search,
-                      size: 14 * theme.scaling,
-                      color: theme.colorScheme.mutedForeground),
+                  Icon(
+                    shad.LucideIcons.search,
+                    size: 16 * theme.scaling,
+                    color: colors.mutedForeground,
+                  ),
                 ),
               ],
             ),
           ),
+          const shad.DensityGap(shad.gapSm),
 
-          const shad.DensityGap(shad.gapSm),
-          
-          // 5. DATE Filter Chip & Popover
-          _buildPopoverChip(
-            context: context,
-            titleIcon: const Icon(shad.LucideIcons.calendar),
-            defaultIcon: const Icon(shad.LucideIcons.infinity),
-            label: widget.selectedDateValue ?? 'All',
-            isSelected: widget.selectedDateValue != null,
-            onPressed: () => _showPopover(
-              context,
-              (context) => DatePopover(
-                selectedValue: widget.selectedDateValue,
-                onSelected: widget.onDateChanged,
-              ),
+          // ==========================================
+          // INDEX 2: Filter Button Cards (Min 1, Max 3 + 3-Dots)
+          // ==========================================
+          if (filters.isNotEmpty) ...[
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: visibleFilters.map((filter) {
+                final isSelected = filter.selectedValue != null && filter.selectedValue!.isNotEmpty;
+
+                return Padding(
+                  padding: EdgeInsets.only(right: 8 * theme.scaling),
+                  child: MicroButton(
+                    leadingIcon: filter.icon,
+                    label: filter.selectedValue ?? filter.label,
+                    trailingIcon: shad.LucideIcons.chevronDown,
+                    isSelected: isSelected,
+                    onPressed: () => onFilterPressed?.call(filter),
+                  ),
+                );
+              }).toList(),
             ),
-            onClear: () => widget.onDateChanged(null),
-          ),
-          
-          const shad.DensityGap(shad.gapSm),
-          
-          // 6. FILTER (Status) Chip & Popover
-          _buildPopoverChip(
-            context: context,
-            titleIcon: const Icon(shad.LucideIcons.filter),
-            defaultIcon: const Icon(shad.LucideIcons.circleDot),
-            label: filterLabel,
-            isSelected: widget.selectedFilterValue != null,
-            onPressed: () => _showPopover(
-              context,
-              (context) => FilterPopover(
-                options: _filterOptions,
-                selectedValue: widget.selectedFilterValue,
-                onSelected: widget.onFilterChanged,
+
+            // Trailing 3-Dots Overflow Button Card (if >3 filters)
+            if (hasOverflow) ...[
+              Padding(
+                padding: EdgeInsets.only(right: 8 * theme.scaling),
+                child: MicroButton(
+                  label: '',
+                  leadingIcon: shad.LucideIcons.ellipsisVertical,
+                  onPressed: onOverflowFilterPressed,
+                ),
               ),
-            ),
-            onClear: () => widget.onFilterChanged(null),
+            ],
+          ],
+
+          // ==========================================
+          // INDEX 3: Date Button Card (Mandatory)
+          // ==========================================
+          MicroButton(
+            leadingIcon: shad.LucideIcons.calendar,
+            label: selectedDateLabel ?? 'Date',
+            trailingIcon: shad.LucideIcons.chevronDown,
+            isSelected: selectedDateLabel != null,
+            onPressed: onDatePressed,
           ),
-          
-          const shad.DensityGap(shad.gapSm),
-          
-          // 7. SORT Chip & Popover
-          _buildPopoverChip(
-            context: context,
-            titleIcon: const Icon(shad.LucideIcons.arrowUpDown),
-            defaultIcon: const Icon(shad.LucideIcons.arrowDown),
-            label: sortLabel,
-            isSelected: widget.selectedSortValue != null,
-            onPressed: () => _showPopover(
-              context,
-              (context) => SortPopover(
-                options: _sortOptions,
-                selectedValue: widget.selectedSortValue,
-                onSelected: widget.onSortChanged,
-              ),
+
+          // ==========================================
+          // INDEX 4: Sort Button Card (Optional - List Views)
+          // ==========================================
+          if (showSort) ...[
+            const shad.DensityGap(shad.gapSm),
+            MicroButton(
+              leadingIcon: shad.LucideIcons.arrowUpDown,
+              label: selectedSortLabel ?? 'Sort',
+              trailingIcon: shad.LucideIcons.chevronDown,
+              isSelected: selectedSortLabel != null,
+              onPressed: onSortPressed,
             ),
-            onClear: () => widget.onSortChanged(null),
-          ),
+          ],
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

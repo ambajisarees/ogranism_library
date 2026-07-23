@@ -134,6 +134,7 @@ class DynamicHeaderTabs extends StatelessWidget {
               return shad.TabItem(
                 child: Center(
                   child: shad.IconButton.ghost(
+                    focusNode: FocusNode(skipTraversal: true),
                     size: shad.ButtonSize.small,
                     density: shad.ButtonDensity.iconDense,
                     icon: Icon(
@@ -148,24 +149,28 @@ class DynamicHeaderTabs extends StatelessWidget {
             }
 
             return shad.TabItem(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 8.0 * theme.scaling,
-                  vertical: 4.0 * theme.scaling,
-                ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: tabMinWidth),
-                  child: shad.Label(
-                    leading: Icon(tab.icon, size: tabIconSize),
-                    trailing: shad.IconButton.ghost(
-                      size: shad.ButtonSize.small,
-                      density: shad.ButtonDensity.iconDense,
-                      icon: Icon(shad.LucideIcons.x, size: tabCloseIconSize),
-                      onPressed: () {
-                        onTabClosed(index);
-                      },
+              child: Focus(
+                skipTraversal: true,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 8.0 * theme.scaling,
+                    vertical: 4.0 * theme.scaling,
+                  ),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minWidth: tabMinWidth),
+                    child: shad.Label(
+                      leading: Icon(tab.icon, size: tabIconSize),
+                      trailing: shad.IconButton.ghost(
+                        focusNode: FocusNode(skipTraversal: true),
+                        size: shad.ButtonSize.small,
+                        density: shad.ButtonDensity.iconDense,
+                        icon: Icon(shad.LucideIcons.x, size: tabCloseIconSize),
+                        onPressed: () {
+                          onTabClosed(index);
+                        },
+                      ),
+                      child: Text(tab.title),
                     ),
-                    child: Text(tab.title),
                   ),
                 ),
               ),
@@ -187,16 +192,18 @@ class DynamicHeaderTabs extends StatelessWidget {
             child: shad.IndexedStack(
               index: selectedIndex,
               children: tabs.map((tab) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: theme.density.baseContainerPadding *
-                        theme.scaling *
-                        shad.padMd,
-                    vertical: theme.density.baseContainerPadding *
-                        theme.scaling *
-                        shad.padSm,
+                return FocusScope(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: theme.density.baseContainerPadding *
+                          theme.scaling *
+                          shad.padMd,
+                      vertical: theme.density.baseContainerPadding *
+                          theme.scaling *
+                          shad.padSm,
+                    ),
+                    child: tab.content,
                   ),
-                  child: tab.content,
                 );
               }).toList(),
             ),

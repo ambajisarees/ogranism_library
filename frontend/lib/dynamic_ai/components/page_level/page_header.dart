@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
+import '../micro_level/micro_button.dart';
 
 /// Model for an item inside the [PageHeader] Module Switcher
 class ModuleItem<T> {
@@ -51,6 +52,9 @@ class _PageHeaderState<T> extends State<PageHeader<T>> with SingleTickerProvider
   late Animation<double> _expandAnimation;
   bool _isExpanded = false;
 
+  late FocusNode _moduleTriggerFocusNode;
+  late List<FocusNode> _moduleStripFocusNodes;
+
   @override
   void initState() {
     super.initState();
@@ -62,11 +66,22 @@ class _PageHeaderState<T> extends State<PageHeader<T>> with SingleTickerProvider
       parent: _animController,
       curve: Curves.easeInOutCubic,
     );
+
+    _moduleTriggerFocusNode = FocusNode();
+    _moduleStripFocusNodes = List.generate(
+      widget.modules?.length ?? 0,
+      (_) => FocusNode(),
+    );
+    // Initial load focus policy: NONE (Tab for the first time moves focus to header)
   }
 
   @override
   void dispose() {
     _animController.dispose();
+    _moduleTriggerFocusNode.dispose();
+    for (final fn in _moduleStripFocusNodes) {
+      fn.dispose();
+    }
     super.dispose();
   }
 
@@ -74,7 +89,14 @@ class _PageHeaderState<T> extends State<PageHeader<T>> with SingleTickerProvider
     setState(() {
       _isExpanded = !_isExpanded;
       if (_isExpanded) {
+        debugPrint('[PageHeader] Module strip expanded -> Shifting focus to 1st module button');
         _animController.forward();
+        // Shift focus directly to 1st module button in slide-down strip
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _moduleStripFocusNodes.isNotEmpty) {
+            _moduleStripFocusNodes.first.requestFocus();
+          }
+        });
       } else {
         _animController.reverse();
       }
@@ -82,30 +104,32 @@ class _PageHeaderState<T> extends State<PageHeader<T>> with SingleTickerProvider
   }
 
   void _selectModule(T moduleId) {
+    debugPrint('[PageHeader] Module selected: $moduleId -> Unfocusing primary focus');
     if (widget.onModuleSelected != null) {
       widget.onModuleSelected!(moduleId);
     }
-    // Smooth reverse slide-up animation on module selection
+    // Smooth reverse slide-up animation on module selection & unfocus
     setState(() {
       _isExpanded = false;
       _animController.reverse();
     });
+    FocusManager.instance.primaryFocus?.unfocus();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
-    final colors = theme.colorScheme;
-    final padSm = theme.density.baseContainerPadding * theme.scaling * shad.padSm;
 
     // Find currently selected module item if any
     final selectedModule = widget.modules?.where((m) => m.id == widget.selectedModuleId).firstOrNull ??
         widget.modules?.firstOrNull;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
+    return FocusTraversalGroup(
+      policy: WidgetOrderTraversalPolicy(),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
         // ==========================================
         // 1. TOP HEADER ROW (Crisp Vertical Alignment)
         // ==========================================
@@ -117,57 +141,21 @@ class _PageHeaderState<T> extends State<PageHeader<T>> with SingleTickerProvider
               widget.title,
               style: theme.typography.h2.copyWith(
                 fontWeight: FontWeight.bold,
-                color: colors.foreground,
+                letterSpacing: -0.5,
               ),
             ),
 
-            // 2. Optional Module Switcher Trigger Button (Transparent Surface, Border Outline)
+            // 2. Optional Module Switcher Trigger Button (MicroButton with FocusNode)
             if (widget.modules != null && widget.modules!.isNotEmpty && selectedModule != null) ...[
               const shad.DensityGap(shad.gapMd),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(theme.radiusSm),
-                  border: Border.all(color: colors.border),
-                ),
-                child: shad.OutlineButton(
-                  onPressed: _toggleExpand,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(selectedModule.icon, size: 16 * theme.scaling, color: colors.primary),
-                      const shad.DensityGap(shad.gapSm),
-                      Text(
-                        selectedModule.label,
-                        style: theme.typography.textSmall.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: colors.foreground,
-                        ),
-                      ),
-                      const shad.DensityGap(shad.gapSm),
-                      shad.SecondaryBadge(
-                        child: Text(
-                          selectedModule.count.toString(),
-                          style: theme.typography.xSmall.copyWith(
-                            fontSize: 10 * theme.scaling,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const shad.DensityGap(shad.gapSm),
-                      AnimatedRotation(
-                        turns: _isExpanded ? 0.5 : 0.0,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOutCubic,
-                        child: Icon(
-                          shad.LucideIcons.chevronDown,
-                          size: 14 * theme.scaling,
-                          color: colors.mutedForeground,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              MicroButton(
+                focusNode: _moduleTriggerFocusNode,
+                leadingIcon: selectedModule.icon,
+                label: selectedModule.label,
+                badgeCount: selectedModule.count,
+                trailingIcon: _isExpanded ? shad.LucideIcons.chevronUp : shad.LucideIcons.chevronDown,
+                isSelected: true,
+                onPressed: _toggleExpand,
               ),
             ],
 
@@ -177,7 +165,7 @@ class _PageHeaderState<T> extends State<PageHeader<T>> with SingleTickerProvider
               widget.tabs!,
             ],
 
-            // 4. Spacer (Pushes actions to the right)
+            // 4. Spacer (Pushes actions to far right)
             const Spacer(),
 
             // 5. Trailing Actions Row (max 1 primary, 2 secondary)
@@ -197,103 +185,41 @@ class _PageHeaderState<T> extends State<PageHeader<T>> with SingleTickerProvider
         ),
 
         // ==========================================
-        // 2. SMOOTH EXPANDABLE INLINE MODULE STRIP (Transparent Surface Container)
+        // 2. SMOOTH EXPANDABLE INLINE MODULE STRIP (Borderless, No Title, Left-Aligned)
         // ==========================================
         if (widget.modules != null && widget.modules!.isNotEmpty)
           SizeTransition(
             sizeFactor: _expandAnimation,
-            alignment: Alignment.topCenter,
+            alignment: Alignment.topLeft,
             child: FadeTransition(
               opacity: _expandAnimation,
               child: Padding(
-                padding: EdgeInsets.only(top: 12 * theme.scaling),
-                child: Container(
-                  padding: EdgeInsets.all(padSm),
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(theme.radiusSm),
-                    border: Border.all(color: colors.border),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 8 * theme.scaling),
-                        child: Text(
-                          'MODULE SELECTION',
-                          style: theme.typography.xSmall.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colors.mutedForeground,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                      Wrap(
-                        spacing: 8 * theme.scaling,
-                        runSpacing: 8 * theme.scaling,
-                        children: widget.modules!.map((mod) {
-                          final isSelected = mod.id == widget.selectedModuleId;
-                          final borderColor = isSelected ? colors.primary : colors.border;
-                          final textColor = isSelected ? colors.primary : colors.foreground;
+                padding: EdgeInsets.only(top: 10 * theme.scaling),
+                child: Wrap(
+                  spacing: 8 * theme.scaling,
+                  runSpacing: 8 * theme.scaling,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: widget.modules!.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final mod = entry.value;
+                    final isSelected = mod.id == widget.selectedModuleId;
+                    final focusNode = index < _moduleStripFocusNodes.length ? _moduleStripFocusNodes[index] : null;
 
-                          return Container(
-                            decoration: BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(theme.radiusSm),
-                              border: Border.all(color: borderColor, width: isSelected ? 1.5 : 1.0),
-                            ),
-                            child: shad.OutlineButton(
-                              size: shad.ButtonSize.small,
-                              onPressed: () => _selectModule(mod.id),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    mod.icon,
-                                    size: 14 * theme.scaling,
-                                    color: isSelected ? colors.primary : colors.mutedForeground,
-                                  ),
-                                  const shad.DensityGap(shad.gapSm),
-                                  Text(
-                                    mod.label,
-                                    style: theme.typography.textSmall.copyWith(
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                      color: textColor,
-                                    ),
-                                  ),
-                                  const shad.DensityGap(shad.gapSm),
-                                  isSelected
-                                      ? shad.PrimaryBadge(
-                                          child: Text(
-                                            mod.count.toString(),
-                                            style: theme.typography.xSmall.copyWith(
-                                              fontSize: 10 * theme.scaling,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        )
-                                      : shad.OutlineBadge(
-                                          child: Text(
-                                            mod.count.toString(),
-                                            style: theme.typography.xSmall.copyWith(
-                                              fontSize: 10 * theme.scaling,
-                                            ),
-                                          ),
-                                        ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  ),
+                    return MicroButton(
+                      focusNode: focusNode,
+                      leadingIcon: mod.icon,
+                      label: mod.label,
+                      badgeCount: mod.count,
+                      isSelected: isSelected,
+                      onPressed: () => _selectModule(mod.id),
+                    );
+                  }).toList(),
                 ),
               ),
             ),
           ),
-      ],
+        ],
+      ),
     );
   }
 }

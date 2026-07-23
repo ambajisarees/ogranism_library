@@ -20,10 +20,16 @@ class DemoScreen extends StatefulWidget {
 
 class _DemoScreenState extends State<DemoScreen> {
   PurchaseBillCategory _selectedCategory = PurchaseBillCategory.grey;
+  // ignore: prefer_final_fields
   int _tabIndex = 0;
+  // ignore: prefer_final_fields
   int _subTabIndex = 0;
   int _currentPage = 1;
-  String? _selectedFilterValue;
+  String? _searchQuery;
+  String? _selectedMill;
+  String? _selectedFabric;
+  String? _selectedStatus;
+  String? _selectedParty;
   String? _selectedDateValue;
   String? _selectedSortValue;
   Set<int> _selectedRowIndices = {0, 2, 4};
@@ -185,27 +191,83 @@ class _DemoScreenState extends State<DemoScreen> {
         ),
         const shad.DensityGap(shad.gapSm),
 
-        // Dynamic Action Bar
+        // Dynamic Action Bar with 5-Index Structure
         DynamicActionBar(
-          tabIndex: _tabIndex,
-          onTabChanged: (val) {
-            setState(() => _tabIndex = val);
+          entityName: 'Cards',
+          showPagination: _tabIndex != 2, // Tables show pagination, List view hides it
+          loadedCount: 50,
+          totalCount: 51,
+          selectedCount: _selectedRowIndices.length,
+          onPreviousPage: () {
+            if (_currentPage > 1) setState(() => _currentPage--);
           },
-          subTabIndex: _subTabIndex,
-          onSubTabChanged: (val) {
-            setState(() => _subTabIndex = val);
+          onNextPage: () {
+            setState(() => _currentPage++);
           },
-          selectedDateValue: _selectedDateValue,
-          onDateChanged: (val) {
-            setState(() => _selectedDateValue = val);
+          searchQuery: _searchQuery,
+          onSearchChanged: (val) {
+            setState(() => _searchQuery = val);
           },
-          selectedFilterValue: _selectedFilterValue,
-          onFilterChanged: (val) {
-            setState(() => _selectedFilterValue = val);
+          filters: [
+            DabFilterItem(
+              id: 'mill',
+              label: 'Mill',
+              icon: shad.LucideIcons.warehouse,
+              selectedValue: _selectedMill,
+            ),
+            DabFilterItem(
+              id: 'fabric',
+              label: 'Quality',
+              icon: shad.LucideIcons.scissors,
+              selectedValue: _selectedFabric,
+            ),
+            DabFilterItem(
+              id: 'status',
+              label: 'Status',
+              icon: shad.LucideIcons.circleDot,
+              selectedValue: _selectedStatus,
+            ),
+            DabFilterItem(
+              id: 'party',
+              label: 'Party',
+              icon: shad.LucideIcons.building,
+              selectedValue: _selectedParty,
+            ),
+          ],
+          onFilterPressed: (filter) {
+            shad.showToast(
+              context: context,
+              builder: (context, show) => shad.Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Filter ${filter.label} clicked.'),
+                ),
+              ),
+            );
           },
-          selectedSortValue: _selectedSortValue,
-          onSortChanged: (val) {
-            setState(() => _selectedSortValue = val);
+          onOverflowFilterPressed: () {
+            shad.showToast(
+              context: context,
+              builder: (context, show) => const shad.Card(
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text('Overflow filters (3-dots) clicked.'),
+                ),
+              ),
+            );
+          },
+          selectedDateLabel: _selectedDateValue,
+          onDatePressed: () {
+            setState(() {
+              _selectedDateValue = _selectedDateValue == null ? 'Jul 2026' : null;
+            });
+          },
+          showSort: _tabIndex == 2, // Only show Sort button in List/Card formats
+          selectedSortLabel: _selectedSortValue,
+          onSortPressed: () {
+            setState(() {
+              _selectedSortValue = _selectedSortValue == null ? 'Date Desc' : null;
+            });
           },
         ),
         const shad.DensityGap(shad.gapSm),

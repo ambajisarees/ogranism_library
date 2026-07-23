@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 import 'package:intl/intl.dart';
+import '../../../dynamic_ai/components/page_level/page_header.dart';
 import '../../../models/production/model_cutting.dart';
 import '../../../services/production/service_cutting.dart';
 import 'widgets/cutting_metric_cards.dart';
@@ -153,7 +154,6 @@ class _ScreenCuttingLandingState extends State<ScreenCuttingLanding> {
   @override
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
-    final colors = theme.colorScheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -161,18 +161,33 @@ class _ScreenCuttingLandingState extends State<ScreenCuttingLanding> {
         // ==========================================
         // 1. HEADER ROW (Title H2, Spacer, Export & Add Buttons)
         // ==========================================
-        Row(
-          children: [
-            Text(
-              'Cutting',
-              style: theme.typography.h2.copyWith(
-                fontWeight: FontWeight.bold,
-                color: colors.foreground,
+        PageHeader(
+          title: 'Cutting',
+          actions: [
+            shad.OutlineButton(
+              onPressed: () {
+                shad.showToast(
+                  context: context,
+                  builder: (context, show) => shad.Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(
+                        theme.density.baseContainerPadding * theme.scaling * shad.padSm,
+                      ),
+                      child: const Text('Print feature triggered.'),
+                    ),
+                  ),
+                );
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(shad.LucideIcons.printer),
+                  shad.DensityGap(shad.gapSm),
+                  Text('Print'),
+                ],
               ),
             ),
-            const Spacer(),
             shad.OutlineButton(
-              size: shad.ButtonSize.small,
               onPressed: () {
                 shad.showToast(
                   context: context,
@@ -188,16 +203,14 @@ class _ScreenCuttingLandingState extends State<ScreenCuttingLanding> {
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(shad.LucideIcons.download, size: 16 * theme.scaling),
-                  const shad.DensityGap(shad.gapSm),
-                  const Text('Export'),
+                children: const [
+                  Icon(shad.LucideIcons.download),
+                  shad.DensityGap(shad.gapSm),
+                  Text('Export'),
                 ],
               ),
             ),
-            const shad.DensityGap(shad.gapMd),
             shad.PrimaryButton(
-              size: shad.ButtonSize.small,
               onPressed: () {
                 shad.showToast(
                   context: context,
@@ -213,10 +226,10 @@ class _ScreenCuttingLandingState extends State<ScreenCuttingLanding> {
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(shad.LucideIcons.plus, size: 16 * theme.scaling),
-                  const shad.DensityGap(shad.gapSm),
-                  const Text('Add Cutting Card'),
+                children: const [
+                  Icon(shad.LucideIcons.plus),
+                  shad.DensityGap(shad.gapSm),
+                  Text('Add Cutting Card'),
                 ],
               ),
             ),
