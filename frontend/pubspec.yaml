@@ -23,6 +23,7 @@ dependencies:
   carousel_slider: ^5.0.0
   fl_chart: ^1.2.0
   image: ^4.8.0
+  webview_windows: ^0.2.2
   meta: any
 dev_dependencies:
   flutter_test:

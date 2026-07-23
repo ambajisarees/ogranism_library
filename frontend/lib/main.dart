@@ -21,7 +21,7 @@ void main() async {
     publishableKey: SupabaseConfig.anonKey,
   );
 
-  // Desktop configuration
+  // Desktop configuration (Windows target requires Microsoft Edge WebView2 Runtime installed for webview_windows)
   if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
     await windowManager.ensureInitialized();
     WindowOptions windowOptions = const WindowOptions(

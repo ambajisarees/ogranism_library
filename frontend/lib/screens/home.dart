@@ -10,6 +10,7 @@ import '../services/core/service_supabase.dart';
 import 'demo_screen.dart';
 import 'production/cutting/screen_cutting_landing.dart';
 import 'production/purchase_bills/screen_purchase_bills_landing.dart';
+import 'crm/screen_whatsapp_webview.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -151,6 +152,12 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
                             'Airbyte data sync diagnostics',
                             shad.LucideIcons.settings,
                             8),
+                        _buildCommandItem(
+                            context,
+                            'CRM (WhatsApp Web)',
+                            'WhatsApp Web integration for sales',
+                            shad.LucideIcons.userCheck,
+                            107),
                         _buildCommandItem(context, 'Media Library',
                             'Photos and documents', shad.LucideIcons.image, 10),
                         _buildCommandItem(
@@ -492,6 +499,8 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
         return const ScreenCuttingLanding();
       case 105:
         return const ScreenPurchaseBillsLanding();
+      case 107:
+        return const WhatsAppWebviewPage();
       default:
         return FallbackDashboardWidget(
           title: _getPageTitle(index),
