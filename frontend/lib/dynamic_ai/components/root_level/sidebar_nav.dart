@@ -41,49 +41,56 @@ class DynamicSidebarNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
     final colors = theme.colorScheme;
+    final isLight = theme.colorScheme.brightness == Brightness.light;
+
+    final level0Background = isLight ? const Color(0xFFF8FAFC) : colors.muted;
+
+    // Slate palette surface tokens
+    final slate100Hover = isLight ? const Color(0xFFF1F5F9) : colors.accent;
+    final slate200Selected = isLight ? const Color(0xFFE2E8F0) : colors.secondary;
 
     final List<Widget> children = [];
     for (int i = 0; i < items.length; i++) {
       final item = items[i];
 
       if (item.isHeader) {
-        if (expanded) {
-          children.add(
-            shad.NavigationItem(
-              key: ValueKey('header_$i'),
-              enabled: false,
-              label: Text(
-                item.label.toUpperCase(),
-                style: theme.typography.textMuted.copyWith(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.8,
-                  color: colors.mutedForeground,
-                ),
-              ),
-              child: const SizedBox.shrink(),
-            ),
-          );
-        }
+        children.add(
+          shad.NavigationItem(
+            key: ValueKey('header_$i'),
+            enabled: false,
+            label: expanded ? Text(item.label.toUpperCase()) : null,
+            child: const SizedBox.shrink(),
+          ),
+        );
         continue;
       }
-
-      final smallIconSize = theme.iconTheme.small.size;
-      final iconWidget = item.icon != null
-          ? Icon(item.icon, size: smallIconSize)
-          : SizedBox(width: smallIconSize, height: smallIconSize);
 
       children.add(
         shad.NavigationItem(
           key: ValueKey(i),
           selected: item.isSelected,
+          style: shad.ButtonStyle.ghost().copyWith(
+            decoration: (context, state, decoration) {
+              if (state.hovered) {
+                return (decoration as BoxDecoration? ?? const BoxDecoration())
+                    .copyWith(color: slate100Hover);
+              }
+              return decoration;
+            },
+          ),
+          selectedStyle: shad.ButtonStyle.secondary().copyWith(
+            decoration: (context, state, decoration) {
+              return (decoration as BoxDecoration? ?? const BoxDecoration())
+                  .copyWith(color: slate200Selected);
+            },
+          ),
           onChanged: (isSelected) {
             if (isSelected && item.onTap != null) {
               item.onTap!();
             }
           },
           label: Text(item.label),
-          child: iconWidget,
+          child: item.icon != null ? Icon(item.icon) : const SizedBox.shrink(),
         ),
       );
     }
@@ -91,7 +98,7 @@ class DynamicSidebarNav extends StatelessWidget {
     final currentWidth = expanded ? expandedWidth : collapsedWidth;
 
     return shad.NavigationSidebar(
-      backgroundColor: colors.background,
+      backgroundColor: level0Background,
       expanded: expanded,
       constraints: BoxConstraints(
         minWidth: currentWidth,
@@ -99,7 +106,7 @@ class DynamicSidebarNav extends StatelessWidget {
       ),
       labelType: expanded
           ? shad.NavigationLabelType.all
-          : shad.NavigationLabelType.none,
+          : shad.NavigationLabelType.tooltip,
       header: header != null ? [header!] : null,
       footer: footerItems.isNotEmpty ? footerItems : null,
       children: children,

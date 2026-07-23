@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
+import 'package:window_manager/window_manager.dart';
 import '../dynamic_ai/components/root_level/dynamic_shell.dart';
 import '../dynamic_ai/components/root_level/sidebar_nav.dart';
-import '../dynamic_ai/components/root_level/window_tabs.dart';
+import '../dynamic_ai/components/root_level/header_tabs.dart';
 import '../main.dart';
 import '../services/auth/old/service_auth.dart';
 import 'old/admin/demo_screen.dart';
+import 'production/cutting/screen_cutting_landing.dart';
+import 'production/purchase_bills/screen_purchase_bills_landing.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,7 +18,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WindowListener {
   final List<DynamicTabItem> _openTabs = [];
   int _selectedTabWorkspaceIndex = 0;
   bool _isSidebarExpanded = false;
@@ -23,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    windowManager.addListener(this);
     // Pre-populate with the Home workspace tab by default
     _openTabs.add(
       DynamicTabItem(
@@ -32,6 +36,48 @@ class _HomeScreenState extends State<HomeScreen> {
         content: _buildBodyForIndex(0),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    windowManager.removeListener(this);
+    super.dispose();
+  }
+
+  @override
+  void onWindowClose() async {
+    final isPreventClose = await windowManager.isPreventClose();
+    if (isPreventClose && mounted) {
+      const shad.DialogOverlayHandler().show(
+        context: context,
+        alignment: Alignment.center,
+        builder: (context) {
+          return SizedBox(
+            width: 420,
+            child: shad.AlertDialog(
+              title: const Text('Exit Ambaji ERP?'),
+              content: const Text(
+                'Are you sure you want to exit the application? Any unsaved workspace state will be lost.',
+              ),
+              actions: [
+                shad.OutlineButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+                shad.PrimaryButton(
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    await windowManager.setPreventClose(false);
+                    await windowManager.destroy();
+                  },
+                  child: const Text('Exit Application'),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    }
   }
 
   void _showGlobalSearch() {
@@ -206,6 +252,22 @@ class _HomeScreenState extends State<HomeScreen> {
       if (_selectedTabWorkspaceIndex >= _openTabs.length) {
         _selectedTabWorkspaceIndex = _openTabs.length - 1;
       }
+    });
+  }
+
+  void _addNewTab() {
+    final nextId = DateTime.now().millisecondsSinceEpoch.toString();
+    final tabIndex = _openTabs.length + 1;
+    setState(() {
+      _openTabs.add(
+        DynamicTabItem(
+          id: nextId,
+          title: 'Workspace #$tabIndex',
+          icon: shad.LucideIcons.fileText,
+          content: const DemoScreen(),
+        ),
+      );
+      _selectedTabWorkspaceIndex = _openTabs.length - 1;
     });
   }
 
@@ -426,6 +488,10 @@ class _HomeScreenState extends State<HomeScreen> {
       case 0:
       case 11:
         return const DemoScreen();
+      case 6:
+        return const ScreenCuttingLanding();
+      case 105:
+        return const ScreenPurchaseBillsLanding();
       default:
         return FallbackDashboardWidget(
           title: _getPageTitle(index),
@@ -489,31 +555,34 @@ class _HomeScreenState extends State<HomeScreen> {
             items: _buildSidebarItems(selectedModuleIndex),
             header: shad.NavigationItem(
               enabled: false,
-              label: Text(
-                'Ambaji ERP',
-                style: theme.typography.textLarge.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: colors.foreground,
-                ),
-              ),
+              style: const shad.ButtonStyle.ghost(),
+              label: _isSidebarExpanded
+                  ? Text(
+                      'Ambaji',
+                      style: theme.typography.textLarge.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: colors.foreground,
+                      ),
+                    )
+                  : null,
               child: Container(
-                width: 28,
-                height: 28,
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
                   color: colors.primary,
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Center(
                   child: Icon(
-                    shad.LucideIcons.beaker,
+                    shad.LucideIcons.shirt,
                     color: Colors.white,
-                    size: 16,
+                    size: 18,
                   ),
                 ),
               ),
             ),
           ),
-          content: DynamicTabWorkspace(
+          content: DynamicHeaderTabs(
             tabs: _openTabs,
             selectedIndex: _selectedTabWorkspaceIndex,
             onTabSelected: (idx) =>
@@ -523,87 +592,82 @@ class _HomeScreenState extends State<HomeScreen> {
             isSidebarExpanded: _isSidebarExpanded,
             onToggleSidebar: () =>
                 setState(() => _isSidebarExpanded = !_isSidebarExpanded),
+            onNewTabPressed: _addNewTab,
             trailing: [
               // 1. Global Search Trigger (Ctrl+K)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: shad.OutlineButton(
-                  size: shad.ButtonSize.small,
-                  onPressed: _showGlobalSearch,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(shad.LucideIcons.search, size: 14),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Search...',
-                        style: theme.typography.textSmall.copyWith(fontSize: 12),
+              shad.OutlineButton(
+                size: shad.ButtonSize.normal,
+                onPressed: _showGlobalSearch,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(shad.LucideIcons.search, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Search...',
+                      style: theme.typography.textSmall.copyWith(fontSize: 13),
+                    ),
+                    const SizedBox(width: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: colors.muted,
+                        borderRadius: BorderRadius.circular(4),
                       ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: colors.muted,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          'Ctrl K',
-                          style: theme.typography.textMuted.copyWith(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      child: Text(
+                        'Ctrl K',
+                        style: theme.typography.textMuted.copyWith(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
+              const shad.DensityGap(shad.gapLg),
               // 2. Notifications Bell Button
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                child: shad.IconButton.ghost(
-                  size: shad.ButtonSize.small,
-                  density: shad.ButtonDensity.iconDense,
-                  icon: const Icon(shad.LucideIcons.bell, size: 16),
-                  onPressed: () {
-                    shad.showToast(
-                      context: context,
-                      builder: (context, show) => const shad.Card(
-                        child: Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text('3 Pending Alerts / Notifications'),
-                        ),
+              shad.IconButton.ghost(
+                size: shad.ButtonSize.normal,
+                density: shad.ButtonDensity.iconDense,
+                icon: const Icon(shad.LucideIcons.bell, size: 18),
+                onPressed: () {
+                  shad.showToast(
+                    context: context,
+                    builder: (context, show) => const shad.Card(
+                      child: Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: Text('3 Pending Alerts / Notifications'),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
+              const shad.DensityGap(shad.gapLg),
               // 3. Theme Toggle Button
               ValueListenableBuilder<shad.ThemeMode>(
                 valueListenable: themeModeNotifier,
                 builder: (context, mode, child) {
                   final isDark = mode == shad.ThemeMode.dark;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                    child: shad.IconButton.ghost(
-                      size: shad.ButtonSize.small,
-                      density: shad.ButtonDensity.iconDense,
-                      icon: Icon(
-                        isDark ? shad.LucideIcons.moon : shad.LucideIcons.sun,
-                        size: 16,
-                      ),
-                      onPressed: () {
-                        themeModeNotifier.value = isDark
-                            ? shad.ThemeMode.light
-                            : shad.ThemeMode.dark;
-                      },
+                  return shad.IconButton.ghost(
+                    size: shad.ButtonSize.normal,
+                    density: shad.ButtonDensity.iconDense,
+                    icon: Icon(
+                      isDark ? shad.LucideIcons.moon : shad.LucideIcons.sun,
+                      size: 18,
                     ),
+                    onPressed: () {
+                      themeModeNotifier.value = isDark
+                          ? shad.ThemeMode.light
+                          : shad.ThemeMode.dark;
+                    },
                   );
                 },
               ),
+              const shad.DensityGap(shad.gapLg),
               // 4. User Profile Avatar & Popover
               Padding(
-                padding: const EdgeInsets.only(left: 4.0, right: 8.0),
+                padding: const EdgeInsets.only(right: 8.0),
                 child: Builder(builder: (context) {
                   return InkWell(
                     onTap: () {

@@ -10,7 +10,8 @@ import 'dart:io';
 import 'screens/home.dart';
 import 'config/supabase_config.dart';
 
-final ValueNotifier<shad.ThemeMode> themeModeNotifier = ValueNotifier(shad.ThemeMode.light);
+final ValueNotifier<shad.ThemeMode> themeModeNotifier =
+    ValueNotifier(shad.ThemeMode.light);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,9 +26,8 @@ void main() async {
     await windowManager.ensureInitialized();
     WindowOptions windowOptions = const WindowOptions(
       size: Size(1920, 1200),
-      minimumSize: Size(1920, 1200),
-      maximumSize: Size(1920, 1200),
-      center: true,
+      minimumSize: Size(1024, 700),
+      center: false,
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.normal,
       title: 'Ambaji Sarees ERP',
@@ -35,7 +35,8 @@ void main() async {
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();
-      await windowManager.setResizable(false);
+      await windowManager.maximize();
+      await windowManager.setPreventClose(true);
     });
   }
 
@@ -63,7 +64,7 @@ class TextileERPMain extends StatelessWidget {
             ),
           ),
           darkTheme: shad.ThemeData(
-            colorScheme: shad.ColorSchemes.darkSlate.amber,
+            colorScheme: shad.ColorSchemes.darkStone.amber,
             surfaceOpacity: 0.9,
             surfaceBlur: 4.0,
             typography: shad.Typography.geist(

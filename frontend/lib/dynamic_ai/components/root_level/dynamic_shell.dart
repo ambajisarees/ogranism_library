@@ -18,16 +18,22 @@ class DynamicWorkspaceShell extends StatelessWidget {
     final theme = shad.Theme.of(context);
     final colors = theme.colorScheme;
 
+    final isLight = theme.colorScheme.brightness == Brightness.light;
+    final level0Background = isLight ? const Color(0xFFF8FAFC) : colors.muted;
+
     return shad.Scaffold(
-      backgroundColor: backgroundColor ?? colors.background,
+      backgroundColor: level0Background,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Left Navigation Sidebar
+          // Left Navigation Sidebar (Flush on Level 0)
           sidebar,
-          // Right Edge-to-Edge Workspace
+          // Right Elevated Workspace Surface (Level 1)
           Expanded(
-            child: content,
+            child: Padding(
+              padding: EdgeInsets.all(8.0 * theme.scaling),
+              child: content,
+            ),
           ),
         ],
       ),

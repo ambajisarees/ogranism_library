@@ -89,11 +89,9 @@ class _DemoScreenState extends State<DemoScreen> {
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
 
-    return shad.Scaffold(
-      backgroundColor: Colors.transparent,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
           // Page Header
           PageHeader(
             title: 'Demo Workspace',
@@ -361,8 +359,7 @@ class _DemoScreenState extends State<DemoScreen> {
             }(),
           ),
         ],
-      ),
-    );
+      );
   }
 
   Widget _buildPlaceholderDetailCard(shad.ThemeData theme) {
