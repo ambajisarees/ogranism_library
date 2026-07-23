@@ -204,13 +204,13 @@ class PurchaseBillsDetailCanvas extends StatelessWidget {
                               padding: EdgeInsets.only(bottom: 12 * theme.scaling),
                               child: Row(
                                 children: [
-                                  shad.Bone(width: 50 * theme.scaling, height: 16 * theme.scaling),
+                                  Opacity(opacity: 0.35, child: shad.Bone(width: 50 * theme.scaling, height: 16 * theme.scaling)),
                                   const shad.DensityGap(shad.gapMd),
-                                  Expanded(child: shad.Bone(height: 16 * theme.scaling)),
+                                  Expanded(child: Opacity(opacity: 0.35, child: shad.Bone(height: 16 * theme.scaling))),
                                   const shad.DensityGap(shad.gapMd),
-                                  shad.Bone(width: 80 * theme.scaling, height: 16 * theme.scaling),
+                                  Opacity(opacity: 0.35, child: shad.Bone(width: 80 * theme.scaling, height: 16 * theme.scaling)),
                                   const shad.DensityGap(shad.gapMd),
-                                  shad.Bone(width: 60 * theme.scaling, height: 16 * theme.scaling),
+                                  Opacity(opacity: 0.35, child: shad.Bone(width: 60 * theme.scaling, height: 16 * theme.scaling)),
                                 ],
                               ),
                             ),

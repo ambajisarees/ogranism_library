@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Card, Tab, Badge, Scaffold;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
-import '../dynamic_ai/components/demo/page_header.dart';
+import '../dynamic_ai/components/page_level/page_header.dart';
+import '../models/production/purchase_bills/purchase_bill_category.dart';
 import '../dynamic_ai/components/demo/dynamic_action_bar.dart';
 import '../dynamic_ai/components/demo/dynamic_table.dart';
 import '../dynamic_ai/components/demo/dynamic_metric_row.dart';
@@ -18,6 +19,7 @@ class DemoScreen extends StatefulWidget {
 }
 
 class _DemoScreenState extends State<DemoScreen> {
+  PurchaseBillCategory _selectedCategory = PurchaseBillCategory.grey;
   int _tabIndex = 0;
   int _subTabIndex = 0;
   int _currentPage = 1;
@@ -92,9 +94,34 @@ class _DemoScreenState extends State<DemoScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Page Header
-        PageHeader(
-          title: 'Demo Workspace',
+        // Upgraded Modular Page Header
+        PageHeader<PurchaseBillCategory>(
+          title: 'Purchase Bills',
+          subtitle: 'Kinetic Production Workstation • FY 26-27',
+          selectedModuleId: _selectedCategory,
+          modules: PurchaseBillCategory.values.map((cat) {
+            final counts = const {
+              PurchaseBillCategory.grey: 938,
+              PurchaseBillCategory.mill: 662,
+              PurchaseBillCategory.finish: 303,
+              PurchaseBillCategory.stitching: 384,
+              PurchaseBillCategory.packingMaterial: 206,
+              PurchaseBillCategory.modelling: 33,
+              PurchaseBillCategory.diamond: 30,
+              PurchaseBillCategory.lace: 18,
+              PurchaseBillCategory.embroidery: 75,
+              PurchaseBillCategory.charak: 0,
+            };
+            return ModuleItem<PurchaseBillCategory>(
+              id: cat,
+              label: cat.label,
+              icon: cat.icon,
+              count: counts[cat] ?? 0,
+            );
+          }).toList(),
+          onModuleSelected: (cat) {
+            setState(() => _selectedCategory = cat);
+          },
           actions: [
             shad.OutlineButton(
               onPressed: () {},
@@ -116,7 +143,7 @@ class _DemoScreenState extends State<DemoScreen> {
                 children: const [
                   Icon(shad.LucideIcons.plus),
                   shad.DensityGap(shad.gapSm),
-                  Text('Add'),
+                  Text('New Bill'),
                 ],
               ),
             ),
