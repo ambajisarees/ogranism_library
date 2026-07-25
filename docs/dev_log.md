@@ -5,6 +5,34 @@
 
 ---
 
+## 2026-07-25 · Multi-Module Branching SOP, Purchase Orders, Mill Printing Recipes & Google Contacts Sync
+
+Established a unified multi-branch parallel development workflow across Antigravity surfaces, and planned/architected three major production and CRM modules concurrently on isolated feature branches.
+
+### Multi-Module Git & Chat Tracking Architecture
+- **Environment Context**: Mac AG 2.0 (App) + Mac AG IDE + Windows AG IDE.
+- **Workflow Standard**: Established the mandatory rule: `1 Module = 1 Git Feature Branch = 1 Task Plan Brief` to enable simultaneous AI-assisted development across surfaces without context loss or `master` branch instability.
+- **Plan Index Matrix**: Updated `docs/plans/README.md` and created `docs/workflow_multi_branch_guide.md` SOP specifying prompt headers and cross-platform hand-offs.
+- **Task Automation**: Created `tasks/git_checkpoint.sh` & `tasks/merge_feature.sh` for macOS, `tasks/merge_feature.ps1` for Windows, and updated `tasks/git_commit.ps1` with branch visibility.
+- **Native System Strictness**: Updated `CLAUDE.md`, `.agents/workflows/flutter.md`, and system plan documents to remove obsolete `organism_design` references and enforce native `shadcn_flutter` (`shad.*` tokens, `ComponentThemeData`, native density multipliers).
+
+### Purchase Orders Module Setup
+- **Source / Commit Surface**: Windows AG IDE / Mac AG IDE (Branch: `purorders`).
+- **Domain Analysis**: Analyzed legacy voucher codes `O13` to `O16` for Grey (placeholder), Finish (`O13`), Lace (`O14`), Studio (`O15`), and Packing (`O16`).
+- **Architecture**: Structured data models, service singletons, and package directories under `lib/screens/production/purchase_orders/` following the established `purchase_bills` design pattern.
+
+### Mill Printing Recipe Architecture
+- **Source / Commit Surface**: Mac AG IDE / Mac AG 2.0 (Worktree / Branch: `mill-printing-recipe-module`).
+- **Domain Analysis**: Designed job-work recipe rate tracking for fabric printing based on `sq_MILLREC` audit analysis (`J1` vouchers).
+- **UX & Data Structure**: Designed 2-pane split workstation featuring fabric/mill rate matrices by print type (`Overprint`, `Padding`) and value type (`Ink`, `Smoke`, `Zari`, `Foil`), complete with date-versioned rate change histories and toggleable display/edit content cards.
+
+### Google Contacts Sync & WhatsApp CRM Strategy
+- **Source / Commit Surface**: Mac AG 2.0 (Worktree / Branch: `sync-google-contacts-crm`).
+- **Strategy & Blueprint**: Formulated a 5-phase Google People API OAuth2 ingestion and CRM normalization pipeline.
+- **Entity Linking**: Designed a parent-child relationship (One Master Org -> Many Contacts) allowing WhatsApp CRM webhooks to query contact phone numbers and automatically resolve parent Master Orgs for order creation and query lookups.
+
+---
+
 ## 2026-07-20 · Collapsible Accordion Sidebar, Generic Sizing Engine & Sidebar Data Density
 
 Refactored the workstation details sidebar into an interactive collapsible accordion, established generic child layout and expansion rules, and expanded sidebar data density.
