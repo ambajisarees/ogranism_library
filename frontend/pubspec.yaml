@@ -24,6 +24,7 @@ dependencies:
   fl_chart: ^1.2.0
   image: ^4.8.0
   webview_windows: ^0.2.2
+  super_clipboard: ^0.8.4
   meta: any
 dev_dependencies:
   flutter_test:

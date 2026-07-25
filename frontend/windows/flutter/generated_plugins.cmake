@@ -5,7 +5,9 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
   desktop_drop
+  irondash_engine_context
   screen_retriever_windows
+  super_native_extensions
   url_launcher_windows
   webview_windows
   window_manager

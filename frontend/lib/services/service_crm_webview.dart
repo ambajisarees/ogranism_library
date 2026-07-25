@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:webview_windows/webview_windows.dart';
+import 'package:super_clipboard/super_clipboard.dart';
 
 /// [CrmWebviewService] — Singleton manager for Windows WebView2 controller.
 /// Configures explicit persistent userDataPath (%LOCALAPPDATA%\textile_erp\whatsapp_profile)
@@ -132,6 +133,73 @@ class CrmWebviewService {
         _isInitialized = false;
         _isInitializing = false;
       }
+    }
+  }
+
+  /// Downloads open-source images to local disk (%TEMP%\textile_erp_staged_images) as native JPG files
+  Future<List<File>> stageLocalSareeImageFiles(List<String> imageUrls, String designCode) async {
+    final List<File> localFiles = [];
+    try {
+      final tempDir = Directory('${Directory.systemTemp.path}\\textile_erp_staged_images');
+      if (!tempDir.existsSync()) {
+        tempDir.createSync(recursive: true);
+      }
+
+      final httpClient = HttpClient()
+        ..connectionTimeout = const Duration(seconds: 5);
+
+      for (int i = 0; i < imageUrls.length; i++) {
+        final url = imageUrls[i];
+        final fileName = '${designCode.toLowerCase().replaceAll('-', '_')}_0${i + 1}.jpg';
+        final file = File('${tempDir.path}\\$fileName');
+
+        if (file.existsSync() && file.lengthSync() > 1000) {
+          localFiles.add(file);
+          continue;
+        }
+
+        try {
+          final request = await httpClient.getUrl(Uri.parse(url));
+          final response = await request.close().timeout(const Duration(seconds: 5));
+          if (response.statusCode == 200) {
+            final bytes = await consolidateHttpClientResponseBytes(response);
+            if (bytes.isNotEmpty) {
+              await file.writeAsBytes(bytes);
+              localFiles.add(file);
+            }
+          }
+        } catch (e) {
+          debugPrint('[CrmWebviewService] Single image download error for $url: $e');
+        }
+      }
+    } catch (e) {
+      debugPrint('[CrmWebviewService] Error staging local files: $e');
+    }
+    return localFiles;
+  }
+
+  /// Copies native JPG binary image files to Windows OS Clipboard using super_clipboard
+  Future<void> writeImageFilesToWindowsClipboard(List<File> imageFiles) async {
+    try {
+      final clipboard = SystemClipboard.instance;
+      if (clipboard != null && imageFiles.isNotEmpty) {
+        final items = <DataWriterItem>[];
+        for (final file in imageFiles) {
+          if (file.existsSync()) {
+            final bytes = await file.readAsBytes();
+            final item = DataWriterItem();
+            item.add(Formats.jpeg(bytes));
+            item.add(Formats.fileUri(file.uri));
+            items.add(item);
+          }
+        }
+        if (items.isNotEmpty) {
+          await clipboard.write(items);
+          debugPrint('[CrmWebviewService] Staged ${items.length} JPEG items to SystemClipboard.');
+        }
+      }
+    } catch (e) {
+      debugPrint('[CrmWebviewService] SystemClipboard write error: $e');
     }
   }
 }

@@ -10,7 +10,7 @@ import '../services/core/service_supabase.dart';
 import 'demo_screen.dart';
 import 'production/cutting/screen_cutting_landing.dart';
 import 'production/purchase_bills/screen_purchase_bills_landing.dart';
-import 'crm/screen_whatsapp_webview.dart';
+import 'crm/screen_crm_workspace.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -500,7 +500,7 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
       case 105:
         return const ScreenPurchaseBillsLanding();
       case 107:
-        return const WhatsAppWebviewPage();
+        return const CrmWorkspacePage();
       default:
         return FallbackDashboardWidget(
           title: _getPageTitle(index),
