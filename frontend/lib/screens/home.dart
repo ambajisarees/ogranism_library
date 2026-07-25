@@ -11,6 +11,7 @@ import 'demo_screen.dart';
 import 'production/cutting/screen_cutting_landing.dart';
 import 'production/purchase_bills/screen_purchase_bills_landing.dart';
 import 'crm/screen_crm_workspace.dart';
+import 'crm/screen_google_contacts_sync.dart';
 import 'production/purchase_orders/screen_purchase_orders_landing.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -397,10 +398,10 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
         onTap: () => _handleModuleSelection(109),
       ),
       DynamicSidebarNavItem(
-        icon: shad.LucideIcons.fileDigit,
-        label: 'Invoices',
-        isSelected: selectedIndex == 110,
-        onTap: () => _handleModuleSelection(110),
+        icon: shad.LucideIcons.contact,
+        label: 'Contacts',
+        isSelected: selectedIndex == 111,
+        onTap: () => _handleModuleSelection(111),
       ),
     ];
   }
@@ -443,6 +444,8 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
         return shad.LucideIcons.fileSpreadsheet;
       case 110:
         return shad.LucideIcons.fileDigit;
+      case 111:
+        return shad.LucideIcons.contact;
       default:
         return shad.LucideIcons.circleHelp;
     }
@@ -486,6 +489,8 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
         return 'Challans';
       case 110:
         return 'Invoices';
+      case 111:
+        return 'Google Contacts';
       default:
         return 'AMBAJI ERP';
     }
@@ -504,6 +509,8 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
         return const ScreenPurchaseBillsLanding();
       case 107:
         return const CrmWorkspacePage();
+      case 111:
+        return const ScreenGoogleContactsSync();
       default:
         return FallbackDashboardWidget(
           title: _getPageTitle(index),

@@ -25,6 +25,8 @@ dependencies:
   image: ^4.8.0
   webview_windows: ^0.2.2
   super_clipboard: ^0.8.4
+  url_launcher: ^6.3.2
+  http: ^1.2.1
   meta: any
 dev_dependencies:
   flutter_test:
