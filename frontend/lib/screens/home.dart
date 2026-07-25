@@ -13,6 +13,7 @@ import 'production/purchase_bills/screen_purchase_bills_landing.dart';
 import 'crm/screen_crm_workspace.dart';
 import 'crm/screen_google_contacts_sync.dart';
 import 'production/purchase_orders/screen_purchase_orders_landing.dart';
+import 'production/recipes/screen_recipes_landing.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -505,6 +506,8 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
         return const ScreenPurchaseOrdersLanding();
       case 6:
         return const ScreenCuttingLanding();
+      case 103:
+        return const ScreenRecipesLanding();
       case 105:
         return const ScreenPurchaseBillsLanding();
       case 107:
