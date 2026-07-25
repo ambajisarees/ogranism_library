@@ -10,6 +10,7 @@ import '../services/core/service_supabase.dart';
 import 'demo_screen.dart';
 import 'production/cutting/screen_cutting_landing.dart';
 import 'production/purchase_bills/screen_purchase_bills_landing.dart';
+import 'production/purchase_orders/screen_purchase_orders_landing.dart';
 import 'crm/screen_whatsapp_webview.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -495,6 +496,8 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
       case 0:
       case 11:
         return const DemoScreen();
+      case 5:
+        return const ScreenPurchaseOrdersLanding();
       case 6:
         return const ScreenCuttingLanding();
       case 105:
