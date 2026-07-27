@@ -28,7 +28,7 @@ gitGraph
 | :--- | :--- | :--- | :--- | :--- |
 | **2026-07-27** | 💻 `[Windows Workstation]` | **Commit & Push** | `master` (`origin/master`) | Shipped 3-area Table Footer, dynamic `Stone 980` (2% dark tint) surface tokens, fabric thumbnails + gallery overlay, updated dev_log & git_entry. |
 | **2026-07-26** | 💻 `[Windows Workstation]` | **Commit** | `master` | Standardized `header_tabs.dart` Slate 10 token, Sidenav Slate 50 palette, and global keyboard state machine. |
-| **2026-07-25** | 🍏 `[MacBook Workstation]` | **Commit & Push** | `master` | Built reusable `DynamicDenseTable` page-level component, sortable column headers, and integrated into `DemoScreen`. |
+| **2026-07-25** | 🍏💻 `[MacBook & Windows]` | **Commit & Merge** | `master` (`purorders`, `recipes`, `crm`) | Merged Multi-Module SOP (`docs/workflow_multi_branch_guide.md`), Purchase Orders 5-module workflow (`purorders`), Mill Printing Recipes (`sb_recipe_mill`), Google Contacts Sync Engine, DynamicDenseTable, & native `shadcn_flutter` rules. |
 | **2026-07-20** | 💻 `[Windows Workstation]` | **Commit & Push** | `master` | Refactored accordion sidebar, generic child layout sizing engine, and 12-item quick action wrap grid. |
 | **2026-07-19** | 💻 `[Windows Workstation]` | **Commit & Push** | `master` | Built reusable `PageHeader` component (`page_header.dart`) and launched background Levitation management client. |
 | **2026-07-18** | 🍏 `[MacBook Workstation]` | **Commit & Merge** | `master` | Resolved cutting card total investment calculation bug (`CC-0290`), updated Edge Function `create-cutting-batch` v13. |

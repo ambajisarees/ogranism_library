@@ -38,14 +38,33 @@ Refactored the application root navigation, tab bar strip, and desktop keyboard 
 
 ---
 
-## 2026-07-25 · [MacBook Workstation] · Reusable DynamicDenseTable Page-Level Component & Header Sorting
+## 2026-07-25 · [MacBook & Windows Workstations] · DynamicDenseTable, Purchase Orders, Mill Printing Recipes, Google Contacts & Multi-Module SOP
 
-Designed and shipped the reusable `DynamicDenseTable` page-level component on `MacBook Workstation` and integrated it live into `DemoScreen`.
+Built reusable table infrastructure, launched the Component Library Showcase, and architected three major production & CRM feature branches concurrently on isolated Git worktrees.
 
-### Reusable DynamicDenseTable Component
-- **Header Sorting Engine**: Interactive sortable column headers (`isSortable == true`) with hover rounded pill highlight containers (`colors.accent`) and pointer cursor vs non-sortable headers.
-- **Accordion Row Expansion**: Integrated accordion row expansion drawer (`_expandedIndex`).
-- **Demo Screen Integration**: Registered table in `lib/screens/demo_screen.dart`.
+### Reusable DynamicDenseTable Component & Header Sorting
+- **Header Sorting Engine**: Built interactive sortable column headers (`isSortable == true`) with hover pill highlight containers (`colors.accent`), dynamic ascending/descending indicators, and pointer cursors.
+- **Accordion Row Expansion**: Integrated accordion row expansion drawers (`_expandedIndex`). Registered in `lib/screens/demo_screen.dart`.
+
+### Purchase Orders 5-Module Workflow (`c5eb6a6` · Branch `purorders`)
+- **Domain Analysis**: Analyzed legacy voucher codes `O13` to `O16` for Grey (placeholder), Finish (`O13`), Lace (`O14`), Studio (`O15`), and Packing (`O16`).
+- **Architecture**: Created models, service singletons, and package directories under `lib/screens/production/purchase_orders/` following the established `purchase_bills` design pattern.
+
+### Mill Printing Job Work Recipes (`3d70f45` · Branch `mill-printing-recipe-module`)
+- **Domain & Schema**: Audited `sq_MILLREC` (`J1` vouchers) and created `sb_recipe_mill` SQL migration schema (`backend/schema_docs/04_production/01_sb_recipe_mill.sql`).
+- **UX Workstation**: Designed 2-pane split workstation featuring fabric/mill rate matrices by print type (`Overprint`, `Padding`) and value type (`Ink`, `Smoke`, `Zari`, `Foil`), date-versioned rate change histories, and toggleable display/edit content cards.
+
+### Google Contacts Sync Engine & CRM Linker (`ea032b7` · Branch `sync-google-contacts-crm`)
+- **Pipeline Architecture**: Formulated a 5-phase Google People API OAuth2 ingestion and CRM normalization pipeline with Deno Edge Function `google-contacts-sync` (`backend/supabase/functions/google-contacts-sync/index.ts`).
+- **Master Party Linker**: Implemented parent-child entity relationship (One Master Org -> Many Contacts) allowing WhatsApp CRM webhooks to query contact phone numbers and auto-resolve parent Master Orgs.
+
+### WhatsApp CRM Workstation & Navigation Reconciler (`db45d6a`, `f121c5f`)
+- **100%-Width Canvas**: Implemented full-width CRM workspace with ticket headers, super_clipboard native JPEG staging, and navigation route reconciliation.
+
+### Multi-Module Git & Chat Tracking SOP (`73af815`, `b770663`)
+- **Workflow Standard**: Established mandatory SOP: `1 Module = 1 Git Feature Branch = 1 Task Plan Brief` in `docs/workflow_multi_branch_guide.md`.
+- **Automation Helpers**: Created `tasks/git_checkpoint.sh` & `tasks/merge_feature.sh` for macOS, `tasks/merge_feature.ps1` for Windows, and updated `tasks/git_commit.ps1`.
+- **Native System Strictness**: Updated `CLAUDE.md`, `.agents/workflows/flutter.md`, and system plan documents to remove obsolete `organism_design` references and enforce native `shadcn_flutter` rules.
 
 ---
 
