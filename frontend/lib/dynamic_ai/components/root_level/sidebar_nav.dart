@@ -43,7 +43,7 @@ class DynamicSidebarNav extends StatelessWidget {
     final colors = theme.colorScheme;
     final isLight = theme.colorScheme.brightness == Brightness.light;
 
-    final level0Background = isLight ? const Color(0xFFF8FAFC) : colors.muted;
+    final level0Background = isLight ? const Color(0xFFF8FAFC) : colors.muted; // Slate 50 (#F8FAFC)!
 
     // Slate palette surface tokens
     final slate100Hover = isLight ? const Color(0xFFF1F5F9) : colors.accent;

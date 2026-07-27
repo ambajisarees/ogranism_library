@@ -76,14 +76,22 @@ class DynamicHeaderTabs extends StatelessWidget {
       );
     }
 
+    final isDark = theme.colorScheme.brightness == Brightness.dark;
+
+    // Light Theme: Slate 10 Token (#FCFDFE) - 0.4% tint above pure white (#FFFFFF)
+    // Dark Theme: Stone 980 Token (#141210) - 2% tint surface lift above base ground (#0C0A09 / #000000)
+    final surfaceCanvasColor = isDark
+        ? const Color(0xFF141210)
+        : const Color(0xFFFCFDFE);
+
     return shad.OutlinedContainer(
       borderColor: colors.border,
       borderWidth: 1.0,
-      backgroundColor: colors.card,
+      backgroundColor: surfaceCanvasColor,
       borderRadius: theme.borderRadiusLg,
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.03),
+          color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
           blurRadius: 4,
           offset: const Offset(0, 1),
         ),
@@ -91,7 +99,7 @@ class DynamicHeaderTabs extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: shad.ComponentTheme<shad.TabPaneTheme>(
         data: shad.TabPaneTheme(
-          backgroundColor: colors.card,
+          backgroundColor: surfaceCanvasColor,
           borderRadius: theme.borderRadiusLg,
           border: BorderSide(
             color: colors.border,
@@ -179,7 +187,7 @@ class DynamicHeaderTabs extends StatelessWidget {
           child: shad.OutlinedContainer(
             borderColor: Colors.transparent,
             borderWidth: 0.0,
-            backgroundColor: colors.card,
+            backgroundColor: surfaceCanvasColor,
             borderRadius: theme.borderRadiusLg,
             boxShadow: [
               BoxShadow(

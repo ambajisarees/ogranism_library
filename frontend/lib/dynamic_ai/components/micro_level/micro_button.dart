@@ -84,7 +84,7 @@ class _MicroButtonState extends State<MicroButton> {
     final border = Border.all(
       color: _isFocused
           ? colors.primary.withAlpha(153)
-          : (widget.isSelected ? colors.primary : colors.border),
+          : colors.border,
       width: _isFocused ? 1.5 : 1.0,
     );
 

@@ -1,11 +1,55 @@
 # Dev Log — Ambaji Sarees ERP
-> **Project**: Textile ERP — Flutter (Web + Windows) + Supabase (Postgres 17)
+> **Project**: Textile ERP — Flutter (Web + Windows + macOS) + Supabase (Postgres 17)
 > **Developer**: Smit · www.ambajisaree.com
-> **Convention**: Newest entries at top. Each day is a self-contained section.
+> **Convention**: Newest entries at top. Each day is a self-contained section tagged with Machine Agent origin (`[Windows Workstation]` vs `[MacBook Workstation]`).
 
 ---
 
-## 2026-07-20 · Collapsible Accordion Sidebar, Generic Sizing Engine & Sidebar Data Density
+## 2026-07-27 · [Windows Workstation] · 3-Area Table Footer, Dark Mode Surface Tokens & Fabric Image Gallery Overlay
+
+Shipped the 3-area `DynamicDenseTable` footer row, dynamic dark theme surface canvas tokens (`Stone 980` 2% tint), clickable row fabric image thumbnails with 8px gaps, and interactive image gallery overlay modal.
+
+### 3-Area Table Footer Row
+- **Area 1 (Start / Selection Counter)**: Displays dynamic record counter (`1 of 11,000 Records`) that updates reactively to `X of 11,000 Selected` upon checking row checkboxes. Uses comma-formatted number scaling for 50,000+ record datasets.
+- **Area 2 (Middle / Numerical Computations)**: Computes column-aligned totals for numerical fields (`QUANTITY`: `Total: 5,050 Mtr`, `AMOUNT`: `Total: ₹10,40,000`).
+- **Area 3 (End / Pagination)**: Native `shadcn_flutter` pagination controls (`<  Page 1 of 50  >`).
+
+### Dual-Theme Surface Canvas Token Engine
+- **Light Theme**: `Slate 10` (`#FCFDFE`) token sitting 0.4% above pure white (`#FFFFFF`).
+- **Dark Theme**: `Stone 980` (`#141210`) token providing a clean 2% surface lift above base dark ground (`#0C0A09` / `#000000`).
+- **Dynamic Resolution**: `DynamicDenseTable` and `DynamicHeaderTabs` resolve surface colors dynamically based on active theme brightness.
+
+### Fabric Image Thumbnail & On-Click Overlay
+- **Row Thumbnail**: Added a 30x30px rounded image thumbnail preceding `VNO #10481` with an exact `8px` gap.
+- **Gallery Dialog Overlay**: Tapping any thumbnail triggers `_FabricImageGalleryDialog` with a main featured preview, horizontal thumbnail selector carousel, and metadata badges (`Quantity`, `Value`, `Status`).
+
+---
+
+## 2026-07-26 · [Windows Workstation] · Header Tabs Slate 10 Token, Sidenav Palette & Focus State Machine
+
+Refactored the application root navigation, tab bar strip, and desktop keyboard shortcut resilience state machine.
+
+### Header Tabs & Sidenav Palette
+- **Unified Header Surface**: Set the entire top tab strip and content pane background to `Slate 10` (`#FCFDFE`).
+- **Sidenav Surface System**: Base background `Slate 50` (`#F8FAFC`), item hover `Slate 100` (`#F1F5F9`), and active selection item `Slate 200` (`#E2E8F0`).
+
+### Keyboard & Pointer Focus State Machine
+- **Shortcut Resilience**: Implemented global pointer listener (`Listener(onPointerDown)`) using a one-shot `_hasActiveKeyboardSelection` state flag to prevent detaching `Alt + 1..9` workspace tab shortcuts on pointer clicks.
+
+---
+
+## 2026-07-25 · [MacBook Workstation] · Reusable DynamicDenseTable Page-Level Component & Header Sorting
+
+Designed and shipped the reusable `DynamicDenseTable` page-level component on `MacBook Workstation` and integrated it live into `DemoScreen`.
+
+### Reusable DynamicDenseTable Component
+- **Header Sorting Engine**: Interactive sortable column headers (`isSortable == true`) with hover rounded pill highlight containers (`colors.accent`) and pointer cursor vs non-sortable headers.
+- **Accordion Row Expansion**: Integrated accordion row expansion drawer (`_expandedIndex`).
+- **Demo Screen Integration**: Registered table in `lib/screens/demo_screen.dart`.
+
+---
+
+## 2026-07-20 · [Windows Workstation] · Collapsible Accordion Sidebar, Generic Sizing Engine & Sidebar Data Density
 
 Refactored the workstation details sidebar into an interactive collapsible accordion, established generic child layout and expansion rules, and expanded sidebar data density.
 
@@ -30,7 +74,7 @@ Refactored the workstation details sidebar into an interactive collapsible accor
 
 ---
 
-## 2026-07-19 · Reusable PageHeader Widget, Layout Density Refinements & Levitation Client
+## 2026-07-19 · [Windows Workstation] · Reusable PageHeader Widget, Layout Density Refinements & Levitation Client
 
 Implemented a reusable header layout system under the new widget library path, aligned the screen spacing strictly to theme density scales, and launched the background Levitation management client.
 
@@ -58,7 +102,7 @@ Implemented a reusable header layout system under the new widget library path, a
 
 ---
 
-## 2026-07-18 · Cutting Card Total Investment Calculation Bugfix
+## 2026-07-18 · [MacBook Workstation] · Cutting Card Total Investment Calculation Bugfix
 
 Resolved a critical mismatch where the app showed `2.48 Lakhs` (248,492.30 INR) instead of `3.38 Lakhs` (338,480.00 INR) for cutting card batch `CC-0290` (and other batches).
 
@@ -69,7 +113,7 @@ Resolved a critical mismatch where the app showed `2.48 Lakhs` (248,492.30 INR) 
 
 ---
 
-## 2026-07-17 · Cutting Card Registry, Stitching Linker & Designs Catalog Dashboard
+## 2026-07-17 · [Windows Workstation] · Cutting Card Registry, Stitching Linker & Designs Catalog Dashboard
 
 Shipped major UI redesigns and visual enhancements to the Cutting Cards registry, implemented the Stitching Tasks Reconciliation view, and built the new Designs SKU Catalog Dashboard. All frontend code is re-engineered to be 100% theme-compliant (Light/Dark modes) using native Organism library color tokens and widgets.
 

@@ -14,6 +14,8 @@ import 'crm/screen_crm_workspace.dart';
 import 'crm/screen_google_contacts_sync.dart';
 import 'production/purchase_orders/screen_purchase_orders_landing.dart';
 import 'production/recipes/screen_recipes_landing.dart';
+import 'library/screen_component_library.dart';
+import 'showcase/screen_showcase.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -404,6 +406,24 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
         isSelected: selectedIndex == 111,
         onTap: () => _handleModuleSelection(111),
       ),
+
+      // Category: System & Design Library
+      const DynamicSidebarNavItem(
+        label: 'System',
+        isHeader: true,
+      ),
+      DynamicSidebarNavItem(
+        icon: shad.LucideIcons.layoutGrid,
+        label: 'Showcase',
+        isSelected: selectedIndex == 950,
+        onTap: () => _handleModuleSelection(950),
+      ),
+      DynamicSidebarNavItem(
+        icon: shad.LucideIcons.bookOpen,
+        label: 'Library',
+        isSelected: selectedIndex == 999,
+        onTap: () => _handleModuleSelection(999),
+      ),
     ];
   }
 
@@ -447,6 +467,10 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
         return shad.LucideIcons.fileDigit;
       case 111:
         return shad.LucideIcons.contact;
+      case 950:
+        return shad.LucideIcons.layoutGrid;
+      case 999:
+        return shad.LucideIcons.bookOpen;
       default:
         return shad.LucideIcons.circleHelp;
     }
@@ -492,6 +516,10 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
         return 'Invoices';
       case 111:
         return 'Google Contacts';
+      case 950:
+        return 'ERP Showcase';
+      case 999:
+        return 'Component Library';
       default:
         return 'AMBAJI ERP';
     }
@@ -514,6 +542,10 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
         return const CrmWorkspacePage();
       case 111:
         return const ScreenGoogleContactsSync();
+      case 950:
+        return const ScreenShowcase();
+      case 999:
+        return const ScreenComponentLibrary();
       default:
         return FallbackDashboardWidget(
           title: _getPageTitle(index),
