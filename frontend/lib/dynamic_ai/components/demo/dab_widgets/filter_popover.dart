@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
-import '../dynamic_action_bar.dart';
+import '../../page_level/dynamic_action_bar.dart';
 
 class FilterPopover extends StatelessWidget {
   final String? selectedValue;

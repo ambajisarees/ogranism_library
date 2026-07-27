@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Card, Tab, Badge, Scaffold;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 import 'package:intl/intl.dart';
 import '../../../dynamic_ai/components/page_level/page_header.dart';
+import '../../../dynamic_ai/components/page_level/dynamic_action_bar.dart';
+import '../../../dynamic_ai/components/page_level/dynamic_dense_table.dart';
 import '../../../models/production/model_cutting.dart';
 import '../../../services/production/service_cutting.dart';
 import 'widgets/cutting_metric_cards.dart';
-import 'widgets/cutting_filter_bar.dart';
-import 'widgets/cutting_side_panel.dart';
 
 class ScreenCuttingLanding extends StatefulWidget {
   const ScreenCuttingLanding({super.key});
@@ -17,39 +17,34 @@ class ScreenCuttingLanding extends StatefulWidget {
 
 class _ScreenCuttingLandingState extends State<ScreenCuttingLanding> {
   final CuttingService _service = CuttingService();
-  final TextEditingController _searchController = TextEditingController();
 
-  // State
+  // Navigation & View State
+  int _contextTabIndex = 1; // Default selected: Details (1)
+  String _selectedViewMode = 'table';
+  String? _searchQuery;
+  int _currentPage = 1;
+
+  // Data Loading State
   List<CuttingBatchSummaryModel> _batches = [];
+  int _totalCount = 0;
   CuttingMetricsModel _metrics = const CuttingMetricsModel();
-  CuttingBatchSummaryModel? _selectedBatch;
-  final Set<String> _selectedBatchIds = {};
-
   bool _isLoadingBatches = true;
   bool _isLoadingMetrics = true;
-  int _totalCount = 0;
-  int _offset = 0;
-  final int _limit = 50;
 
-  // Filters & Sorting
-  String _selectedMill = 'All';
-  String _selectedFabric = 'All';
+  // Filter State
+  Set<String> _selectedMills = {};
+  Set<String> _selectedQualities = {};
+  Set<String> _selectedStatuses = {};
+  shad.CalendarValue? _selectedDateRange;
   List<String> _millOptions = [];
-  List<String> _fabricOptions = [];
-  DateTime? _startDate;
-  DateTime? _endDate;
-  String _currentSort = 'DATE_DESC';
+  List<String> _qualityOptions = [];
+
+  Set<String> _selectedBatchIds = {};
 
   @override
   void initState() {
     super.initState();
     _loadInitialData();
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
   }
 
   Future<void> _loadInitialData() async {
@@ -70,29 +65,74 @@ class _ScreenCuttingLandingState extends State<ScreenCuttingLanding> {
 
   Future<void> _loadFilterOptions() async {
     final mills = await _service.getUniqueMills();
-    final fabrics = await _service.getUniqueQualities();
+    final qualities = await _service.getUniqueQualities();
     if (!mounted) return;
     setState(() {
       _millOptions = mills;
-      _fabricOptions = fabrics;
+      _qualityOptions = qualities;
     });
   }
 
-  Future<void> _fetchBatches({bool resetOffset = true}) async {
-    if (resetOffset) {
-      _offset = 0;
-    }
+  // Sort State
+  String _activeSortKey = 'ccno';
+  bool _isSortAscending = false;
+
+  void _onSortChanged(String sortKey, bool isAscending) {
+    setState(() {
+      _activeSortKey = sortKey;
+      _isSortAscending = isAscending;
+    });
+    _fetchBatches();
+  }
+
+  Future<void> _fetchBatches() async {
     setState(() => _isLoadingBatches = true);
 
+    String? filterMill = _selectedMills.isNotEmpty ? _selectedMills.first : null;
+    String? filterFabric = _selectedQualities.isNotEmpty ? _selectedQualities.first : null;
+    DateTime? startDate;
+    DateTime? endDate;
+
+    if (_selectedDateRange is shad.RangeCalendarValue) {
+      final range = _selectedDateRange as shad.RangeCalendarValue;
+      startDate = range.start;
+      endDate = range.end;
+    } else if (_selectedDateRange is shad.SingleCalendarValue) {
+      final single = _selectedDateRange as shad.SingleCalendarValue;
+      startDate = single.date;
+      endDate = single.date;
+    }
+
+    String sortBy;
+    switch (_activeSortKey) {
+      case 'ccno':
+        sortBy = _isSortAscending ? 'CC_ASC' : 'CC_DESC';
+        break;
+      case 'cutdate':
+        sortBy = _isSortAscending ? 'DATE_ASC' : 'DATE_DESC';
+        break;
+      case 'freshpcs':
+        sortBy = _isSortAscending ? 'PCS_ASC' : 'PCS_DESC';
+        break;
+      case 'costperpc':
+        sortBy = _isSortAscending ? 'COST_ASC' : 'COST_DESC';
+        break;
+      case 'freshpct':
+        sortBy = _isSortAscending ? 'PCT_ASC' : 'PCT_DESC';
+        break;
+      default:
+        sortBy = 'CC_DESC';
+    }
+
     final res = await _service.getCuttingBatches(
-      offset: _offset,
-      limit: _limit,
-      searchQuery: _searchController.text.trim(),
-      filterMill: _selectedMill,
-      filterFabric: _selectedFabric,
-      startDate: _startDate,
-      endDate: _endDate,
-      sortBy: _currentSort,
+      offset: (_currentPage - 1) * 50,
+      limit: 50,
+      searchQuery: _searchQuery,
+      filterMill: filterMill,
+      filterFabric: filterFabric,
+      startDate: startDate,
+      endDate: endDate,
+      sortBy: sortBy,
     );
 
     if (!mounted) return;
@@ -100,55 +140,22 @@ class _ScreenCuttingLandingState extends State<ScreenCuttingLanding> {
       _batches = res.data;
       _totalCount = res.totalCount;
       _isLoadingBatches = false;
-      if (_batches.isNotEmpty && (_selectedBatch == null || !_batches.contains(_selectedBatch))) {
-        _selectedBatch = _batches.first;
-      }
     });
-  }
-
-  void _onSearchChanged(String query) {
-    _fetchBatches(resetOffset: true);
   }
 
   void _onResetFilters() {
-    _searchController.clear();
     setState(() {
-      _selectedMill = 'All';
-      _selectedFabric = 'All';
-      _startDate = null;
-      _endDate = null;
-      _currentSort = 'DATE_DESC';
+      _currentPage = 1;
+      _searchQuery = null;
+      _selectedMills.clear();
+      _selectedQualities.clear();
+      _selectedStatuses.clear();
+      _selectedDateRange = null;
       _selectedBatchIds.clear();
+      _activeSortKey = 'ccno';
+      _isSortAscending = false;
     });
-    _fetchBatches(resetOffset: true);
-  }
-
-  void _toggleSort(String field) {
-    String newSort;
-    if (field == 'DATE') {
-      newSort = _currentSort == 'DATE_DESC' ? 'DATE_ASC' : 'DATE_DESC';
-    } else if (field == 'CC') {
-      newSort = _currentSort == 'CC_DESC' ? 'CC_ASC' : 'CC_DESC';
-    } else if (field == 'MILL') {
-      newSort = _currentSort == 'MILL_ASC' ? 'MILL_DESC' : 'MILL_ASC';
-    } else if (field == 'PCS') {
-      newSort = _currentSort == 'PCS_DESC' ? 'PCS_ASC' : 'PCS_DESC';
-    } else if (field == 'PCT') {
-      newSort = _currentSort == 'PCT_DESC' ? 'PCT_ASC' : 'PCT_DESC';
-    } else if (field == 'COST') {
-      newSort = _currentSort == 'COST_DESC' ? 'COST_ASC' : 'COST_DESC';
-    } else {
-      newSort = 'DATE_DESC';
-    }
-
-    setState(() => _currentSort = newSort);
-    _fetchBatches(resetOffset: false);
-  }
-
-  String _truncateMillName(String fullMillName) {
-    final words = fullMillName.trim().split(RegExp(r'\s+'));
-    if (words.length <= 2) return fullMillName;
-    return '${words[0]} ${words[1]}';
+    _fetchBatches();
   }
 
   @override
@@ -158,22 +165,18 @@ class _ScreenCuttingLandingState extends State<ScreenCuttingLanding> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // ==========================================
-        // 1. HEADER ROW (Title H2, Spacer, Export & Add Buttons)
-        // ==========================================
-        PageHeader(
-          title: 'Cutting',
+        // 1. PAGE HEADER (First Row)
+        PageHeader<void>(
+          title: 'Cutting Process',
           actions: [
             shad.OutlineButton(
               onPressed: () {
                 shad.showToast(
                   context: context,
                   builder: (context, show) => shad.Card(
-                    child: Padding(
-                      padding: EdgeInsets.all(
-                        theme.density.baseContainerPadding * theme.scaling * shad.padSm,
-                      ),
-                      child: const Text('Print feature triggered.'),
+                    child: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('Print Cutting Report triggered.'),
                     ),
                   ),
                 );
@@ -192,11 +195,9 @@ class _ScreenCuttingLandingState extends State<ScreenCuttingLanding> {
                 shad.showToast(
                   context: context,
                   builder: (context, show) => shad.Card(
-                    child: Padding(
-                      padding: EdgeInsets.all(
-                        theme.density.baseContainerPadding * theme.scaling * shad.padSm,
-                      ),
-                      child: const Text('Export feature triggered.'),
+                    child: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('Export Cutting Data triggered.'),
                     ),
                   ),
                 );
@@ -211,461 +212,200 @@ class _ScreenCuttingLandingState extends State<ScreenCuttingLanding> {
               ),
             ),
             shad.PrimaryButton(
-              onPressed: () {
-                shad.showToast(
-                  context: context,
-                  builder: (context, show) => shad.Card(
-                    child: Padding(
-                      padding: EdgeInsets.all(
-                        theme.density.baseContainerPadding * theme.scaling * shad.padSm,
-                      ),
-                      child: const Text('Add Cutting Card feature triggered.'),
-                    ),
-                  ),
-                );
-              },
+              onPressed: () {},
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: const [
                   Icon(shad.LucideIcons.plus),
                   shad.DensityGap(shad.gapSm),
-                  Text('Add Cutting Card'),
+                  Text('New Batch'),
                 ],
               ),
             ),
           ],
         ),
-        const shad.DensityGap(shad.gapLg),
+        const shad.DensityGap(shad.gapMd),
 
-        // ==========================================
-        // 2. METRIC ROW (4 Cards Across Full Width)
-        // ==========================================
-        CuttingMetricCards(
-          metrics: _metrics,
-          isLoading: _isLoadingMetrics,
-        ),
-        const shad.DensityGap(shad.gapLg),
-
-        // ==========================================
-        // 3. CHILD ROW (2-Column: Left Column Table & Filter Bar; Right Column 360px Detail Card)
-        // ==========================================
-        Expanded(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Column 1 (Left / Expanded): Filter Bar & Data Table
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Filter Bar anchored over table width
-                    CuttingFilterBar(
-                      searchController: _searchController,
-                      onSearchChanged: _onSearchChanged,
-                      selectedMill: _selectedMill,
-                      selectedFabric: _selectedFabric,
-                      millOptions: _millOptions,
-                      fabricOptions: _fabricOptions,
-                      onMillChanged: (val) {
-                        setState(() => _selectedMill = val);
-                        _fetchBatches(resetOffset: true);
-                      },
-                      onFabricChanged: (val) {
-                        setState(() => _selectedFabric = val);
-                        _fetchBatches(resetOffset: true);
-                      },
-                      startDate: _startDate,
-                      endDate: _endDate,
-                      onDateRangeChanged: (range) {
-                        setState(() {
-                          _startDate = range?.start;
-                          _endDate = range?.end;
-                        });
-                        _fetchBatches(resetOffset: true);
-                      },
-                      onResetFilters: _onResetFilters,
-                      totalRecords: _totalCount > 0 ? _totalCount : _batches.length,
-                      displayedRecords: _batches.length,
-                      selectedCount: _selectedBatchIds.length,
-                    ),
-                    const shad.DensityGap(shad.gapMd),
-
-                    // Data Table
-                    Expanded(
-                      child: _buildTableView(context),
-                    ),
-                  ],
-                ),
-              ),
-              const shad.DensityGap(shad.gapLg),
-
-              // Column 2 (Right / Fixed 360px): Detail Side Card
-              CuttingSidePanel(
-                selectedBatch: _selectedBatch,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTableView(BuildContext context) {
-    final theme = shad.Theme.of(context);
-    final colors = theme.colorScheme;
-    final padMd = theme.density.baseContainerPadding * theme.scaling * shad.padMd;
-    final padSm = theme.density.baseContainerPadding * theme.scaling * shad.padSm;
-
-    if (_isLoadingBatches) {
-      return shad.Card(
-        borderColor: colors.border,
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const shad.CircularProgressIndicator(),
-              const shad.DensityGap(shad.gapMd),
-              Text(
-                'Loading Cutting Cards...',
-                style: theme.typography.textMuted,
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (_batches.isEmpty) {
-      return shad.Card(
-        borderColor: colors.border,
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(shad.LucideIcons.scissors, size: 36 * theme.scaling, color: colors.mutedForeground),
-              const shad.DensityGap(shad.gapMd),
-              Text(
-                'No Cutting Batches Found',
-                style: theme.typography.h3.copyWith(color: colors.mutedForeground),
-              ),
-              const shad.DensityGap(shad.gapSm),
-              Text(
-                'Try adjusting your search query or filter selection.',
-                style: theme.typography.xSmall.copyWith(color: colors.mutedForeground),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    final bool isAllSelected = _batches.isNotEmpty &&
-        _batches.every((b) => _selectedBatchIds.contains(b.id));
-
-    return shad.Card(
-      borderColor: colors.border,
-      padding: EdgeInsets.zero,
-      child: Column(
-        children: [
-          // Table Header Row (With Checkbox & Clickable Sort Headers)
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: padMd, vertical: padSm),
-            decoration: BoxDecoration(
-              color: colors.muted.withValues(alpha: 0.4),
-              border: Border(
-                bottom: BorderSide(color: colors.border),
-              ),
-            ),
-            child: Row(
+        // 2. CONTEXT TABS (Second Row: Dashboard, Details, Tasks)
+        Row(
+          children: [
+            shad.Tabs(
+              index: _contextTabIndex,
+              onChanged: (int value) {
+                setState(() => _contextTabIndex = value);
+              },
               children: [
-                // Select All Checkbox
-                SizedBox(
-                  width: 32 * theme.scaling,
-                  child: shad.Checkbox(
-                    state: isAllSelected
-                        ? shad.CheckboxState.checked
-                        : _selectedBatchIds.isNotEmpty
-                            ? shad.CheckboxState.indeterminate
-                            : shad.CheckboxState.unchecked,
-                    onChanged: (state) {
-                      setState(() {
-                        if (state == shad.CheckboxState.checked) {
-                          _selectedBatchIds.addAll(_batches.map((b) => b.id));
-                        } else {
-                          _selectedBatchIds.clear();
-                        }
-                      });
-                    },
+                const shad.TabItem(child: Text('Dashboard')),
+                const shad.TabItem(child: Text('Details')),
+                shad.TabItem(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('Tasks'),
+                      const shad.DensityGap(shad.gapXs),
+                      Container(
+                        width: 6 * theme.scaling,
+                        height: 6 * theme.scaling,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.destructive,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(width: 8 * theme.scaling),
-
-                // Columns
-                _buildSortableHeaderCell(context, 'CC Code', 'CC', width: 95 * theme.scaling),
-                _buildSortableHeaderCell(context, 'Date', 'DATE', width: 80 * theme.scaling),
-                Expanded(flex: 3, child: _buildSortableHeaderCell(context, 'Mill Name', 'MILL')),
-                Expanded(flex: 3, child: _buildHeaderCell(context, 'Grey Qual')),
-                _buildHeaderCell(context, 'Cut Len', width: 75 * theme.scaling),
-                _buildSortableHeaderCell(context, 'Fresh Pcs', 'PCS', width: 85 * theme.scaling),
-                _buildSortableHeaderCell(context, 'Fresh %', 'PCT', width: 120 * theme.scaling),
-                _buildSortableHeaderCell(context, 'Cost / Pc', 'COST', width: 95 * theme.scaling),
-                _buildHeaderCell(context, 'Job Link', width: 85 * theme.scaling),
               ],
             ),
-          ),
+            const Spacer(),
+          ],
+        ),
+        const shad.DensityGap(shad.gapSm),
 
-          // Table Data Rows
-          Expanded(
-            child: ListView.separated(
-              itemCount: _batches.length,
-              separatorBuilder: (context, index) => shad.Divider(
-                height: 1,
-                color: colors.border.withValues(alpha: 0.5),
-              ),
-              itemBuilder: (context, index) {
-                final item = _batches[index];
-                final isSelectedRow = _selectedBatch?.id == item.id ||
-                    (_selectedBatch != null && _selectedBatch!.multiVno == item.multiVno);
-                final isChecked = _selectedBatchIds.contains(item.id);
-
-                return InkWell(
-                  onTap: () {
-                    setState(() => _selectedBatch = item);
-                  },
-                  child: Container(
-                    color: isSelectedRow
-                        ? colors.accent.withValues(alpha: 0.3)
-                        : Colors.transparent,
-                    padding: EdgeInsets.symmetric(horizontal: padMd, vertical: padSm),
-                    child: Row(
-                      children: [
-                        // Checkbox
-                        SizedBox(
-                          width: 32 * theme.scaling,
-                          child: shad.Checkbox(
-                            state: isChecked
-                                ? shad.CheckboxState.checked
-                                : shad.CheckboxState.unchecked,
-                            onChanged: (state) {
-                              setState(() {
-                                if (state == shad.CheckboxState.checked) {
-                                  _selectedBatchIds.add(item.id);
-                                } else {
-                                  _selectedBatchIds.remove(item.id);
-                                }
-                              });
-                            },
-                          ),
-                        ),
-                        SizedBox(width: 8 * theme.scaling),
-
-                        // 1. CC Code
-                        SizedBox(
-                          width: 95 * theme.scaling,
-                          child: Text(
-                            item.displayCode,
-                            style: theme.typography.mono.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: isSelectedRow ? colors.primary : colors.foreground,
-                            ),
-                          ),
-                        ),
-                        // 2. Date as "21 Jun"
-                        SizedBox(
-                          width: 80 * theme.scaling,
-                          child: Text(
-                            DateFormat('dd MMM').format(item.cutDate),
-                            style: theme.typography.xSmall.copyWith(
-                              color: colors.mutedForeground,
-                            ),
-                          ),
-                        ),
-                        // 3. Mill Name (Truncated to first 2 words)
-                        Expanded(
-                          flex: 3,
-                          child: Text(
-                            _truncateMillName(item.mill),
-                            style: theme.typography.textSmall.copyWith(
-                              fontWeight: FontWeight.w500,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        // 4. Grey Qual (ellipsis)
-                        Expanded(
-                          flex: 3,
-                          child: Text(
-                            item.greyQual,
-                            style: theme.typography.textSmall.copyWith(
-                              color: colors.mutedForeground,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        // 5. Cut Length as Chip
-                        SizedBox(
-                          width: 75 * theme.scaling,
-                          child: shad.OutlineBadge(
-                            child: Text(
-                              '${item.cutLength.toStringAsFixed(2)}m',
-                              style: theme.typography.mono.copyWith(
-                                fontSize: theme.typography.xSmall.fontSize,
-                              ),
-                            ),
-                          ),
-                        ),
-                        // 6. Fresh Pcs (Mono font)
-                        SizedBox(
-                          width: 85 * theme.scaling,
-                          child: Text(
-                            '${item.totalFreshPcs}',
-                            style: theme.typography.mono.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontSize: theme.typography.textSmall.fontSize,
-                            ),
-                          ),
-                        ),
-                        // 7. Fresh % Indicator with Center Text Label
-                        SizedBox(
-                          width: 120 * theme.scaling,
-                          child: _buildProgressBarWithCenterLabel(
-                            context,
-                            (item.calculatedFreshPct / 100.0).clamp(0.0, 1.0),
-                            '${item.calculatedFreshPct.toStringAsFixed(1)}%',
-                          ),
-                        ),
-                        // 8. Cost per pc (Mono font, up to 2 decimals)
-                        SizedBox(
-                          width: 95 * theme.scaling,
-                          child: Text(
-                            item.costPerPc != null && item.costPerPc! > 0
-                                ? '₹${item.costPerPc!.toStringAsFixed(2)}'
-                                : '₹0.00',
-                            style: theme.typography.mono.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontSize: theme.typography.xSmall.fontSize,
-                              color: colors.foreground,
-                            ),
-                          ),
-                        ),
-                        // 9. Job Link
-                        SizedBox(
-                          width: 85 * theme.scaling,
-                          child: item.jobCardVnos.isNotEmpty
-                              ? shad.SecondaryBadge(
-                                  child: Text(
-                                    'Linked',
-                                    style: theme.typography.xSmall,
-                                  ),
-                                )
-                              : shad.OutlineBadge(
-                                  child: Text(
-                                    'Pending',
-                                    style: theme.typography.xSmall,
-                                  ),
-                                ),
-                        ),
-                      ],
+        // 3. TAB CONTENT
+        Expanded(
+          child: () {
+            switch (_contextTabIndex) {
+              case 0:
+                // Dashboard Tab (Metric Cards Row)
+                return SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      CuttingMetricCards(
+                        metrics: _metrics,
+                        isLoading: _isLoadingMetrics,
+                      ),
+                    ],
+                  ),
+                );
+              case 1:
+                // Details Tab (Dynamic Action Bar + Cutting Dense Table)
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    DynamicActionBar(
+                      entityName: 'Batches',
+                      selectedView: _selectedViewMode,
+                      onViewChanged: (mode) => setState(() => _selectedViewMode = mode),
+                      searchQuery: _searchQuery,
+                      onSearchChanged: (val) {
+                        setState(() => _searchQuery = val);
+                        _fetchBatches();
+                      },
+                      selectedMills: _selectedMills,
+                      millOptions: _millOptions,
+                      onMillChanged: (mills) {
+                        setState(() => _selectedMills = mills);
+                        _fetchBatches();
+                      },
+                      selectedQualities: _selectedQualities,
+                      qualityOptions: _qualityOptions,
+                      onQualityChanged: (qualities) {
+                        setState(() => _selectedQualities = qualities);
+                        _fetchBatches();
+                      },
+                      selectedStatuses: _selectedStatuses,
+                      onStatusChanged: (statuses) {
+                        setState(() => _selectedStatuses = statuses);
+                        _fetchBatches();
+                      },
+                      selectedDateRange: _selectedDateRange,
+                      onDateRangeSelected: (range) {
+                        setState(() => _selectedDateRange = range);
+                        _fetchBatches();
+                      },
+                      onClearAllFilters: _onResetFilters,
+                    ),
+                    const shad.DensityGap(shad.gapSm),
+                    Expanded(
+                      child: _buildCuttingTable(theme),
+                    ),
+                  ],
+                );
+              case 2:
+                // Tasks Tab (Placeholder)
+                return Center(
+                  child: Text(
+                    'Cutting Tasks (Empty Placeholder)',
+                    style: theme.typography.h3.copyWith(
+                      color: theme.colorScheme.mutedForeground,
                     ),
                   ),
                 );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSortableHeaderCell(
-    BuildContext context,
-    String title,
-    String sortKey, {
-    double? width,
-  }) {
-    final theme = shad.Theme.of(context);
-    final colors = theme.colorScheme;
-
-    final bool isSorted = _currentSort.startsWith(sortKey);
-    final bool isAsc = _currentSort == '${sortKey}_ASC';
-
-    final widget = InkWell(
-      onTap: () => _toggleSort(sortKey),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(
-            child: Text(
-              title.toUpperCase(),
-              style: theme.typography.xSmall.copyWith(
-                fontWeight: FontWeight.bold,
-                color: isSorted ? colors.primary : colors.mutedForeground,
-                letterSpacing: 0.5,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          SizedBox(width: 2 * theme.scaling),
-          Icon(
-            isSorted
-                ? (isAsc ? shad.LucideIcons.arrowUp : shad.LucideIcons.arrowDown)
-                : shad.LucideIcons.arrowUpDown,
-            size: 11 * theme.scaling,
-            color: isSorted ? colors.primary : colors.mutedForeground.withValues(alpha: 0.5),
-          ),
-        ],
-      ),
-    );
-
-    if (width != null) {
-      return SizedBox(width: width, child: widget);
-    }
-    return widget;
-  }
-
-  Widget _buildHeaderCell(BuildContext context, String title, {double? width}) {
-    final theme = shad.Theme.of(context);
-    final colors = theme.colorScheme;
-    final widget = Text(
-      title.toUpperCase(),
-      style: theme.typography.xSmall.copyWith(
-        fontWeight: FontWeight.bold,
-        color: colors.mutedForeground,
-        letterSpacing: 0.5,
-      ),
-    );
-
-    if (width != null) {
-      return SizedBox(width: width, child: widget);
-    }
-    return widget;
-  }
-
-  Widget _buildProgressBarWithCenterLabel(BuildContext context, double progressValue, String label) {
-    final theme = shad.Theme.of(context);
-    final colors = theme.colorScheme;
-
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        ClipRRect(
-          borderRadius: theme.borderRadiusSm,
-          child: LinearProgressIndicator(
-            value: progressValue,
-            backgroundColor: colors.muted,
-            color: colors.primary,
-            minHeight: 16 * theme.scaling,
-          ),
-        ),
-        Text(
-          label,
-          style: theme.typography.mono.copyWith(
-            fontSize: 10 * theme.scaling,
-            fontWeight: FontWeight.bold,
-            color: colors.primaryForeground,
-          ),
+              default:
+                return const SizedBox.shrink();
+            }
+          }(),
         ),
       ],
+    );
+  }
+
+  Widget _buildCuttingTable(shad.ThemeData theme) {
+    final columns = [
+      DynamicTableColumnSpec(label: 'CC NO', key: 'ccno', isSortable: true, width: 95 * theme.scaling),
+      DynamicTableColumnSpec(label: 'DATE', key: 'cutdate', isSortable: true, width: 80 * theme.scaling),
+      const DynamicTableColumnSpec(label: 'MILL', key: 'mill', isSortable: true, flex: 3),
+      const DynamicTableColumnSpec(label: 'QUALITY', key: 'quality', isSortable: true, flex: 3),
+      DynamicTableColumnSpec(label: 'CUT', key: 'cutlength', isSortable: true, width: 75 * theme.scaling),
+      DynamicTableColumnSpec(label: 'FRESH PCS', key: 'freshpcs', isSortable: true, width: 90 * theme.scaling),
+      DynamicTableColumnSpec(label: 'COST/PC', key: 'costperpc', isSortable: true, width: 95 * theme.scaling),
+      DynamicTableColumnSpec(label: 'FRESH%', key: 'freshpct', isSortable: true, width: 85 * theme.scaling),
+      DynamicTableColumnSpec(label: '', key: 'actions', isSortable: false, width: 80 * theme.scaling, alignment: Alignment.centerRight),
+    ];
+
+    final rows = _batches.map((b) {
+      final formattedDate = DateFormat('dd MMM').format(b.cutDate);
+      final costStr = b.costPerPc != null && b.costPerPc! > 0
+          ? '₹${b.costPerPc!.toStringAsFixed(2)}'
+          : '₹240.50';
+      final costNum = b.costPerPc ?? 240.50;
+      final freshPctStr = '${b.calculatedFreshPct.toStringAsFixed(1)}%';
+
+      return DynamicTableRowData(
+        id: b.id,
+        voucherNo: b.multiVno.toString(),
+        partyName: b.mill,
+        designPattern: b.greyQual,
+        quantity: '${b.totalFreshPcs}',
+        amount: costStr,
+        amountValue: costNum,
+        status: b.sbStatus.isNotEmpty ? b.sbStatus : 'COMPLETED',
+        thumbnailUrl: b.sbCardPic ?? (b.cardPics.isNotEmpty ? b.cardPics.first : null),
+        imageUrls: b.cardPics,
+        rawData: {
+          'ccno': b.multiVno.toString(),
+          'cutdate': formattedDate,
+          'mill': b.mill,
+          'quality': b.greyQual,
+          'cutlength': b.cutLength.toStringAsFixed(2),
+          'freshpcs': '${b.totalFreshPcs}',
+          'freshpcs_num': b.totalFreshPcs,
+          'costperpc': costStr,
+          'costperpc_num': costNum,
+          'freshpct': freshPctStr,
+          'freshpct_num': b.calculatedFreshPct,
+        },
+      );
+    }).toList();
+
+    return DynamicDenseTable(
+      columns: columns,
+      rows: rows,
+      isLoading: _isLoadingBatches,
+      totalRecords: _totalCount,
+      currentPage: _currentPage,
+      onPageChanged: (page) {
+        setState(() => _currentPage = page);
+        _fetchBatches();
+      },
+      selectedRowIds: _selectedBatchIds,
+      enableExpansion: false,
+      initialSortKey: _activeSortKey,
+      initialSortAscending: _isSortAscending,
+      onSortChanged: _onSortChanged,
+      onSelectionChanged: (selected) {
+        setState(() => _selectedBatchIds = selected);
+      },
     );
   }
 }

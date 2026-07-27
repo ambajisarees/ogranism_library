@@ -6,6 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:io';
 
+import 'package:google_fonts/google_fonts.dart';
+import 'package:screen_retriever/screen_retriever.dart';
+
 // NEW ORGANISM DESIGN IMPORT
 import 'screens/home.dart';
 import 'config/supabase_config.dart';
@@ -21,21 +24,28 @@ void main() async {
     publishableKey: SupabaseConfig.anonKey,
   );
 
-  // Desktop configuration (Windows target requires Microsoft Edge WebView2 Runtime installed for webview_windows)
+  // Desktop configuration (position window on left 50% of display)
   if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
     await windowManager.ensureInitialized();
-    WindowOptions windowOptions = const WindowOptions(
-      size: Size(1920, 1200),
-      minimumSize: Size(1024, 700),
+    Display primaryDisplay = await screenRetriever.getPrimaryDisplay();
+    Size displaySize = primaryDisplay.size;
+    
+    double halfWidth = displaySize.width / 2;
+    double fullHeight = displaySize.height;
+
+    WindowOptions windowOptions = WindowOptions(
+      size: Size(halfWidth, fullHeight),
+      minimumSize: const Size(600, 700),
       center: false,
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.normal,
       title: 'Ambaji Sarees ERP',
     );
     windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.setPosition(const Offset(0, 0));
+      await windowManager.setSize(Size(halfWidth, fullHeight));
       await windowManager.show();
       await windowManager.focus();
-      await windowManager.maximize();
       await windowManager.setPreventClose(true);
     });
   }
@@ -58,8 +68,8 @@ class TextileERPMain extends StatelessWidget {
             surfaceOpacity: 0.9,
             surfaceBlur: 4.0,
             typography: shad.Typography.geist(
-              sans: const TextStyle(fontFamily: 'Inter'),
-              mono: const TextStyle(fontFamily: 'JetBrains Mono'),
+              sans: GoogleFonts.inter(),
+              mono: GoogleFonts.jetBrainsMono(),
               base: const TextStyle(fontSize: 16),
             ),
           ),
@@ -68,8 +78,8 @@ class TextileERPMain extends StatelessWidget {
             surfaceOpacity: 0.9,
             surfaceBlur: 4.0,
             typography: shad.Typography.geist(
-              sans: const TextStyle(fontFamily: 'Inter'),
-              mono: const TextStyle(fontFamily: 'JetBrains Mono'),
+              sans: GoogleFonts.inter(),
+              mono: GoogleFonts.jetBrainsMono(),
               base: const TextStyle(fontSize: 16),
             ),
           ),

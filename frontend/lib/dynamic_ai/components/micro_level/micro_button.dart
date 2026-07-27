@@ -2,9 +2,14 @@ import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
 /// MicroButton: Universal reusable button control across PageHeader and DAB.
-/// Uses native `shad.FocusOutline` around the outer card container with a subtle
-/// `colors.primary.withOpacity(0.4)` focus outline, `colors.border` card stroke,
-/// fixed `theme.radiusMd` (6px) corner radius, and dynamic badge tokens.
+/// Rebuilt from scratch with strict token architecture:
+/// - Base surface: `colors.card`
+/// - Base border: 1px `colors.border`
+/// - Corner radius: `theme.radiusMd` (6px)
+/// - Hover state: Only modifies background fill to `colors.accent`
+/// - Focus state: 1.5px `colors.primary.withAlpha(153)` outer border
+/// - Selected state: Passes `colors.primary` to leading icon & `FontWeight.bold` to label
+/// - Focus Nullifier: Wraps all inner children in `Focus(canRequestFocus: false, skipTraversal: true, descendantsAreFocusable: false)`
 class MicroButton extends StatefulWidget {
   final String label;
   final IconData? leadingIcon;
@@ -34,6 +39,7 @@ class MicroButton extends StatefulWidget {
 class _MicroButtonState extends State<MicroButton> {
   late FocusNode _effectiveFocusNode;
   bool _isFocused = false;
+  bool _isHovered = false;
 
   @override
   void initState() {
@@ -88,56 +94,65 @@ class _MicroButtonState extends State<MicroButton> {
       width: _isFocused ? 1.5 : 1.0,
     );
 
-    return shad.Button.card(
-      focusNode: _effectiveFocusNode,
-      style: const shad.ButtonStyle.card()
-          .withPadding(
-            padding: EdgeInsets.symmetric(
-              horizontal: isIconOnly ? 8 * theme.scaling : 12 * theme.scaling,
-              vertical: 8 * theme.scaling,
+    // Hover background color (only modifies fill to colors.accent)
+    final backgroundColor = _isHovered ? colors.accent : colors.card;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: shad.Button.card(
+        focusNode: _effectiveFocusNode,
+        style: const shad.ButtonStyle.card()
+            .withBackgroundColor(
+              color: backgroundColor,
+            )
+            .withPadding(
+              padding: EdgeInsets.symmetric(
+                horizontal: isIconOnly ? 8 * theme.scaling : 12 * theme.scaling,
+                vertical: 8 * theme.scaling,
+              ),
+            )
+            .withBorderRadius(
+              borderRadius: BorderRadius.circular(theme.radiusMd),
+            )
+            .withBorder(
+              border: border,
             ),
-          )
-          .withBorderRadius(
-            borderRadius: BorderRadius.circular(theme.radiusMd),
-          )
-          .withBorder(
-            border: border,
-          ),
         onPressed: widget.onPressed,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // 1. Optional Leading Icon
-            if (widget.leadingIcon != null) ...[
-              Icon(
-                widget.leadingIcon,
-                size: 16 * theme.scaling,
-                color: widget.isSelected ? colors.primary : colors.mutedForeground,
-              ),
-              if (widget.label.isNotEmpty) const shad.DensityGap(shad.gapSm),
-            ],
-
-            // 2. Text Label
-            if (widget.label.isNotEmpty) ...[
-              Text(
-                widget.label,
-                style: theme.typography.textSmall.copyWith(
-                  fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: colors.foreground,
+        child: Focus(
+          canRequestFocus: false,
+          skipTraversal: true,
+          descendantsAreFocusable: false,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // 1. Optional Leading Icon
+              if (widget.leadingIcon != null) ...[
+                Icon(
+                  widget.leadingIcon,
+                  size: 16 * theme.scaling,
+                  color: widget.isSelected ? colors.primary : colors.mutedForeground,
                 ),
-              ),
-            ],
+                if (widget.label.isNotEmpty) const shad.DensityGap(shad.gapSm),
+              ],
 
-            // 3. Native Badge / Chip (PrimaryBadge when selected, SecondaryBadge when normal)
-            if (widget.badgeCount != null) ...[
-              if (widget.label.isNotEmpty || widget.leadingIcon != null)
-                const shad.DensityGap(shad.gapSm),
-              Focus(
-                canRequestFocus: false,
-                skipTraversal: true,
-                descendantsAreFocusable: false,
-                child: widget.isSelected
+              // 2. Text Label
+              if (widget.label.isNotEmpty) ...[
+                Text(
+                  widget.label,
+                  style: theme.typography.textSmall.copyWith(
+                    fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: colors.foreground,
+                  ),
+                ),
+              ],
+
+              // 3. Native Badge / Chip (PrimaryBadge when selected, SecondaryBadge when normal)
+              if (widget.badgeCount != null) ...[
+                if (widget.label.isNotEmpty || widget.leadingIcon != null)
+                  const shad.DensityGap(shad.gapSm),
+                widget.isSelected
                     ? shad.PrimaryBadge(
                         child: Text(
                           widget.badgeCount.toString(),
@@ -155,21 +170,22 @@ class _MicroButtonState extends State<MicroButton> {
                           ),
                         ),
                       ),
-              ),
-            ],
+              ],
 
-            // 4. Optional Trailing Action Indicator Icon
-            if (widget.trailingIcon != null) ...[
-              if (widget.label.isNotEmpty || widget.leadingIcon != null || widget.badgeCount != null)
-                const shad.DensityGap(shad.gapSm),
-              Icon(
-                widget.trailingIcon,
-                size: 16 * theme.scaling,
-                color: colors.mutedForeground,
-              ),
+              // 4. Optional Trailing Action Indicator Icon
+              if (widget.trailingIcon != null) ...[
+                if (widget.label.isNotEmpty || widget.leadingIcon != null || widget.badgeCount != null)
+                  const shad.DensityGap(shad.gapSm),
+                Icon(
+                  widget.trailingIcon,
+                  size: 16 * theme.scaling,
+                  color: colors.mutedForeground,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
-      );
+      ),
+    );
   }
 }
