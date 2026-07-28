@@ -16,6 +16,9 @@ class DynamicContentPane extends StatelessWidget {
   final Widget? footerLeading;
   final Widget? footerAction;
 
+  // Loading state
+  final bool isLoading;
+
   const DynamicContentPane({
     super.key,
     required this.title,
@@ -26,6 +29,7 @@ class DynamicContentPane extends StatelessWidget {
     this.headerLeading,
     this.footerLeading,
     this.footerAction,
+    this.isLoading = false,
   });
 
   @override
@@ -57,38 +61,62 @@ class DynamicContentPane extends StatelessWidget {
                     headerLeading!,
                     const SizedBox(width: 8),
                   ],
-                  Text(
-                    title,
-                    style: theme.typography.h4.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colors.foreground,
-                    ),
-                  ),
-                  if (statusBadge != null) ...[
+                  isLoading
+                      ? const _SkeletonBox(width: 120, height: 18)
+                      : Text(
+                          title,
+                          style: theme.typography.h4.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colors.foreground,
+                          ),
+                        ),
+                  if (statusBadge != null && !isLoading) ...[
                     const SizedBox(width: 8),
                     statusBadge!,
                   ],
                   const Spacer(),
-                  if (toolbarActions != null && toolbarActions!.isNotEmpty) ...[
+                  if (!isLoading && toolbarActions != null && toolbarActions!.isNotEmpty) ...[
                     ...toolbarActions!,
                     const SizedBox(width: 8),
                   ],
-                  primaryAction,
+                  isLoading
+                      ? const _SkeletonBox(width: 60, height: 24)
+                      : primaryAction,
                 ],
               ),
             ),
 
             const shad.Divider(),
 
-            // 2. Middle Scrollable Content Area (Generic Page Child)
+            // 2. Middle Scrollable Content Area (Generic Page Child or Skeleton)
             Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.all(theme.density.baseContainerPadding * shad.padMd),
-                child: child,
-              ),
+              child: isLoading
+                  ? SingleChildScrollView(
+                      padding: EdgeInsets.all(theme.density.baseContainerPadding * shad.padMd),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(child: _SkeletonBox(height: 50, borderRadius: BorderRadius.circular(theme.radiusMd))),
+                              const SizedBox(width: 12),
+                              Expanded(child: _SkeletonBox(height: 50, borderRadius: BorderRadius.circular(theme.radiusMd))),
+                              const SizedBox(width: 12),
+                              Expanded(child: _SkeletonBox(height: 50, borderRadius: BorderRadius.circular(theme.radiusMd))),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          _SkeletonBox(height: 240, borderRadius: BorderRadius.circular(theme.radiusMd)),
+                        ],
+                      ),
+                    )
+                  : SingleChildScrollView(
+                      padding: EdgeInsets.all(theme.density.baseContainerPadding * shad.padMd),
+                      child: child,
+                    ),
             ),
 
-            if (footerLeading != null || footerAction != null) ...[
+            if (isLoading || footerLeading != null || footerAction != null) ...[
               const shad.Divider(),
 
               // 3. Sticky Footer (Dense Table Header Padding: horizontal 16, vertical 10)
@@ -98,15 +126,46 @@ class DynamicContentPane extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    if (footerLeading != null) footerLeading!,
+                    if (isLoading)
+                      const _SkeletonBox(width: 160, height: 16)
+                    else if (footerLeading != null)
+                      footerLeading!,
                     const Spacer(),
-                    if (footerAction != null) footerAction!,
+                    if (isLoading)
+                      const _SkeletonBox(width: 90, height: 24)
+                    else if (footerAction != null)
+                      footerAction!,
                   ],
                 ),
               ),
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _SkeletonBox extends StatelessWidget {
+  final double? width;
+  final double height;
+  final BorderRadius? borderRadius;
+
+  const _SkeletonBox({
+    this.width,
+    required this.height,
+    this.borderRadius,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = shad.Theme.of(context).colorScheme;
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: colors.muted.withAlpha(120),
+        borderRadius: borderRadius ?? BorderRadius.circular(4),
       ),
     );
   }

@@ -153,7 +153,7 @@ class _DynamicListCardState extends State<DynamicListCard> {
                     if (widget.item.indexNumber != null) ...[
                       const SizedBox(width: 8),
                       Text(
-                        '#${widget.item.indexNumber}',
+                        widget.item.indexNumber!,
                         style: theme.typography.mono.copyWith(
                           fontSize: 12 * theme.scaling,
                           color: colors.mutedForeground,

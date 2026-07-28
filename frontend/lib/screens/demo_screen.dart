@@ -6,6 +6,8 @@ import '../dynamic_ai/components/page_level/dynamic_dense_table.dart';
 import '../dynamic_ai/components/page_level/dynamic_list.dart';
 import '../dynamic_ai/components/page_level/dynamic_list_card.dart';
 import '../dynamic_ai/components/page_level/dynamic_content_pane.dart';
+import '../dynamic_ai/components/page_level/create_page_layout.dart';
+import '../dynamic_ai/components/page_level/page_form_canvas.dart';
 
 class DemoScreen extends StatefulWidget {
   const DemoScreen({super.key});
@@ -124,9 +126,80 @@ class _DemoScreenState extends State<DemoScreen> {
     _selectedListItem = _mockListItems.first;
   }
 
+  PageHeaderMode _headerMode = PageHeaderMode.standard;
+  String? _editingDocId;
+
+  void _switchHeaderMode(PageHeaderMode mode, {String? docId}) {
+    setState(() {
+      _headerMode = mode;
+      _editingDocId = docId;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
+
+    if (_headerMode == PageHeaderMode.adding || _headerMode == PageHeaderMode.editing) {
+      return PageFormCanvas(
+        maxWidth: 1200,
+        header: PageHeader<void>(
+          title: 'Purchase Bills',
+          mode: _headerMode,
+          moduleName: 'Purchase Bill',
+          docId: _editingDocId ?? 'PB-10485',
+          onBack: () => _switchHeaderMode(PageHeaderMode.standard),
+          onDiscard: () {
+            _switchHeaderMode(PageHeaderMode.standard);
+            shad.showToast(
+              context: context,
+              builder: (context, show) => const shad.Card(
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text('Changes discarded.'),
+                ),
+              ),
+            );
+          },
+          onSaveDraft: () {
+            _switchHeaderMode(PageHeaderMode.standard);
+            shad.showToast(
+              context: context,
+              builder: (context, show) => const shad.Card(
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text('Draft saved successfully!'),
+                ),
+              ),
+            );
+          },
+          onConfirm: () {
+            final isAdding = _headerMode == PageHeaderMode.adding;
+            final doc = _editingDocId ?? 'PB-10485';
+            _switchHeaderMode(PageHeaderMode.standard);
+            shad.showToast(
+              context: context,
+              builder: (context, show) => shad.Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(isAdding
+                      ? 'New Purchase Bill created & confirmed!'
+                      : 'Purchase Bill $doc updated successfully!'),
+                ),
+              ),
+            );
+          },
+        ),
+        child: CreatePageLayout(
+          title: _headerMode == PageHeaderMode.adding ? 'Create Purchase Bill' : 'Edit Bill ${_editingDocId ?? 'PB-10485'}',
+          backLabel: 'Purchase Bills',
+          onBack: () => _switchHeaderMode(PageHeaderMode.standard),
+          onSave: (val) {
+            _switchHeaderMode(PageHeaderMode.standard);
+          },
+        ),
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -135,27 +208,15 @@ class _DemoScreenState extends State<DemoScreen> {
         PageHeader<void>(
           title: 'Purchase Bills',
           actions: [
-            shad.OutlineButton(
-              onPressed: () {},
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: const [
-                  Icon(shad.LucideIcons.download),
-                  shad.DensityGap(shad.gapSm),
-                  Text('Export'),
-                ],
-              ),
-            ),
             shad.PrimaryButton(
-              onPressed: () {},
+              onPressed: () => _switchHeaderMode(PageHeaderMode.adding),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: const [
                   Icon(shad.LucideIcons.plus),
                   shad.DensityGap(shad.gapSm),
-                  Text('New Bill'),
+                  Text('New Bill (Adding Mode)'),
                 ],
               ),
             ),
@@ -359,7 +420,9 @@ class _DemoScreenState extends State<DemoScreen> {
           primaryAction: shad.PrimaryButton(
             size: shad.ButtonSize.small,
             density: shad.ButtonDensity.iconDense,
-            onPressed: () {},
+            onPressed: () {
+              _switchHeaderMode(PageHeaderMode.editing, docId: 'PB-$voucherNo');
+            },
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: const [

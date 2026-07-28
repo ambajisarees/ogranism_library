@@ -4,6 +4,9 @@ import 'package:intl/intl.dart';
 import '../../../dynamic_ai/components/page_level/page_header.dart';
 import '../../../dynamic_ai/components/page_level/dynamic_action_bar.dart';
 import '../../../dynamic_ai/components/page_level/dynamic_dense_table.dart';
+import '../../../dynamic_ai/components/page_level/dynamic_list.dart';
+import '../../../dynamic_ai/components/page_level/dynamic_list_card.dart';
+import '../../../dynamic_ai/components/page_level/dynamic_content_pane.dart';
 import '../../../models/production/model_cutting.dart';
 import '../../../services/production/service_cutting.dart';
 import 'widgets/cutting_metric_cards.dart';
@@ -40,6 +43,7 @@ class _ScreenCuttingLandingState extends State<ScreenCuttingLanding> {
   List<String> _qualityOptions = [];
 
   Set<String> _selectedBatchIds = {};
+  CuttingBatchSummaryModel? _selectedBatch;
 
   @override
   void initState() {
@@ -140,6 +144,9 @@ class _ScreenCuttingLandingState extends State<ScreenCuttingLanding> {
       _batches = res.data;
       _totalCount = res.totalCount;
       _isLoadingBatches = false;
+      if (_batches.isNotEmpty && (_selectedBatch == null || !_batches.any((b) => b.id == _selectedBatch!.id))) {
+        _selectedBatch = _batches.first;
+      }
     });
   }
 
@@ -317,7 +324,9 @@ class _ScreenCuttingLandingState extends State<ScreenCuttingLanding> {
                     ),
                     const shad.DensityGap(shad.gapSm),
                     Expanded(
-                      child: _buildCuttingTable(theme),
+                      child: _selectedViewMode == 'table'
+                          ? _buildCuttingTable(theme)
+                          : _buildCuttingListView(theme),
                     ),
                   ],
                 );
@@ -338,6 +347,144 @@ class _ScreenCuttingLandingState extends State<ScreenCuttingLanding> {
         ),
       ],
     );
+  }
+
+  Widget _buildCuttingListView(shad.ThemeData theme) {
+    final colors = theme.colorScheme;
+    final listItems = _batches.map((b) {
+      final formattedDate = DateFormat('dd MMM').format(b.cutDate);
+
+      return DynamicListItem(
+        id: b.id,
+        // Row 1: Status Badge -> Cut Date
+        topLeading: _buildStatusBadge(b.sbStatus.isNotEmpty ? b.sbStatus : 'COMPLETED'),
+        topTrailing: formattedDate,
+        // Row 2: Mill Name -> CC No (#10481)
+        title: b.mill,
+        amount: '#${b.multiVno}',
+        // Row 3: Quality Name (Ellipsis) -> Pcs ONLY (e.g. 1,074 Pcs, 457 Pcs)
+        subtitle: b.greyQual,
+        indexNumber: '${b.totalFreshPcs} Pcs',
+        rawData: {'batch': b},
+      );
+    }).toList();
+
+    DynamicListItem? selectedListItem;
+    if (_selectedBatch != null) {
+      final matchIdx = _batches.indexWhere((b) => b.id == _selectedBatch!.id);
+      if (matchIdx != -1 && matchIdx < listItems.length) {
+        selectedListItem = listItems[matchIdx];
+      }
+    }
+    selectedListItem ??= listItems.firstOrNull;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        DynamicList(
+          items: listItems,
+          selectedItem: selectedListItem,
+          isLoading: _isLoadingBatches,
+          onItemSelected: (item) {
+            if (item != null) {
+              final found = _batches.firstWhere((b) => b.id == item.id, orElse: () => _batches.first);
+              setState(() => _selectedBatch = found);
+            }
+          },
+          width: 340,
+          showHeader: false,
+          totalRecords: _totalCount,
+        ),
+        const SizedBox(width: 12),
+        DynamicContentPane(
+          isLoading: _isLoadingBatches,
+          // Header: CC No -> Trailing Edit Button
+          title: 'CC #${_selectedBatch?.multiVno ?? '---'}',
+          statusBadge: _buildStatusBadge(_selectedBatch?.sbStatus ?? 'COMPLETED'),
+          primaryAction: shad.PrimaryButton(
+            size: shad.ButtonSize.small,
+            density: shad.ButtonDensity.iconDense,
+            onPressed: () {
+              shad.showToast(
+                context: context,
+                builder: (context, show) => shad.Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Edit Cutting Batch CC #${_selectedBatch?.multiVno}...'),
+                  ),
+                ),
+              );
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(shad.LucideIcons.pencil, size: 14),
+                SizedBox(width: 4),
+                Text('Edit'),
+              ],
+            ),
+          ),
+          // Footer: Showing count of reccardno from milldetsummary
+          footerLeading: Row(
+            children: [
+              Text(
+                '${_selectedBatch?.reccardNos.length ?? 0} RecCard No Entries',
+                style: theme.typography.textSmall.copyWith(fontWeight: FontWeight.w600, color: colors.foreground),
+              ),
+              const SizedBox(width: 16),
+              Text(
+                'Total Cut Pcs: ${_selectedBatch?.totalFreshPcs ?? 0} Pcs',
+                style: theme.typography.textSmall.copyWith(color: colors.mutedForeground),
+              ),
+            ],
+          ),
+          footerAction: shad.PrimaryButton(
+            size: shad.ButtonSize.small,
+            density: shad.ButtonDensity.iconDense,
+            onPressed: () {},
+            child: const Text('Process Card'),
+          ),
+          // Middle Body: Empty scrollable area for now
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(shad.LucideIcons.scissors, size: 36, color: colors.mutedForeground),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Cutting Batch CC #${_selectedBatch?.multiVno ?? '---'} Canvas',
+                    style: theme.typography.h4.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Empty scrollable content area ready for page-specific implementation.',
+                    style: theme.typography.textMuted.copyWith(color: colors.mutedForeground),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusBadge(String status) {
+    switch (status.toUpperCase()) {
+      case 'COMPLETED':
+      case 'PAID':
+        return const shad.PrimaryBadge(child: Text('Completed'));
+      case 'PENDING':
+      case 'UNPAID':
+        return const shad.OutlineBadge(child: Text('Pending'));
+      case 'IN_PROCESS':
+      case 'IN PROCESS':
+        return const shad.SecondaryBadge(child: Text('In Process'));
+      default:
+        return shad.SecondaryBadge(child: Text(status));
+    }
   }
 
   Widget _buildCuttingTable(shad.ThemeData theme) {

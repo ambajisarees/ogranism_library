@@ -10,6 +10,8 @@ class DynamicList extends StatefulWidget {
   final bool showHeader;
   final int? totalRecords;
 
+  final bool isLoading;
+
   const DynamicList({
     super.key,
     required this.items,
@@ -18,6 +20,7 @@ class DynamicList extends StatefulWidget {
     this.width = 340.0,
     this.showHeader = false,
     this.totalRecords,
+    this.isLoading = false,
   });
 
   @override
@@ -87,7 +90,9 @@ class _DynamicListState extends State<DynamicList> {
 
     final startRecordIdx = filteredItems.isNotEmpty ? (startIndex + 1) : 0;
     final endRecordIdx = (startIndex + paginatedItems.length);
-    final recordText = '$startRecordIdx-$endRecordIdx of ${_formatNumber(totalCount)} Records';
+    final recordText = widget.isLoading
+        ? 'Loading records...'
+        : '$startRecordIdx-$endRecordIdx of ${_formatNumber(totalCount)} Records';
 
     return SizedBox(
       width: widget.width,
@@ -120,31 +125,33 @@ class _DynamicListState extends State<DynamicList> {
               const shad.Divider(),
             ],
             
-            // Scrollable Middle List of Cards
+            // Scrollable Middle List of Cards (or Skeleton Loading)
             Expanded(
-              child: paginatedItems.isEmpty
-                  ? Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(theme.density.baseContainerPadding * shad.padSm),
-                        child: Text(
-                          'No items found',
-                          style: theme.typography.textMuted.copyWith(color: theme.colorScheme.mutedForeground),
-                        ),
-                      ),
-                    )
-                  : ListView.builder(
-                      padding: EdgeInsets.zero,
-                      itemCount: paginatedItems.length,
-                      itemBuilder: (context, index) {
-                        final item = paginatedItems[index];
-                        final isSelected = widget.selectedItem?.id == item.id;
-                        return DynamicListCard(
-                          item: item,
-                          isSelected: isSelected,
-                          onTap: () => widget.onItemSelected(item),
-                        );
-                      },
-                    ),
+              child: widget.isLoading
+                  ? _buildSkeletonList(theme, colors)
+                  : (paginatedItems.isEmpty
+                      ? Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(theme.density.baseContainerPadding * shad.padSm),
+                            child: Text(
+                              'No items found',
+                              style: theme.typography.textMuted.copyWith(color: theme.colorScheme.mutedForeground),
+                            ),
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: paginatedItems.length,
+                          itemBuilder: (context, index) {
+                            final item = paginatedItems[index];
+                            final isSelected = widget.selectedItem?.id == item.id;
+                            return DynamicListCard(
+                              item: item,
+                              isSelected: isSelected,
+                              onTap: () => widget.onItemSelected(item),
+                            );
+                          },
+                        )),
             ),
             
             const shad.Divider(),
@@ -189,6 +196,76 @@ class _DynamicListState extends State<DynamicList> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSkeletonList(shad.ThemeData theme, shad.ColorScheme colors) {
+    return ListView.builder(
+      padding: EdgeInsets.zero,
+      itemCount: 6,
+      itemBuilder: (context, index) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: colors.border, width: 1.0),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  _SkeletonBox(width: 65, height: 16, borderRadius: BorderRadius.circular(theme.radiusSm)),
+                  const Spacer(),
+                  const _SkeletonBox(width: 45, height: 12),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: const [
+                  Expanded(child: _SkeletonBox(height: 16)),
+                  SizedBox(width: 12),
+                  _SkeletonBox(width: 75, height: 16),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: const [
+                  Expanded(child: _SkeletonBox(height: 12)),
+                  SizedBox(width: 12),
+                  _SkeletonBox(width: 55, height: 12),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _SkeletonBox extends StatelessWidget {
+  final double? width;
+  final double height;
+  final BorderRadius? borderRadius;
+
+  const _SkeletonBox({
+    this.width,
+    required this.height,
+    this.borderRadius,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = shad.Theme.of(context).colorScheme;
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: colors.muted.withAlpha(120),
+        borderRadius: borderRadius ?? BorderRadius.circular(4),
       ),
     );
   }

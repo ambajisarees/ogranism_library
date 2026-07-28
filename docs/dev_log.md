@@ -5,6 +5,36 @@
 
 ---
 
+## 2026-07-28 · [MacBook Workstation] · 3-State PageHeader, Zero-Overhead PageFormCanvas, 2-Column Form Canvas & Symmetric 12px TabPane Token Padding
+
+Shipped 3-state `PageHeader` architecture (`standard`, `adding`, `editing`), reusable zero-overhead `PageFormCanvas` with pixel-perfect 1200px max-width alignment, dedicated 2-column form layout, dynamic list/content pane skeleton loading states, and symmetric 12px (`shad.padMd` token) `HeaderTabs` child padding.
+
+### 3-State PageHeader System (`page_header.dart`)
+- **Operational Modes**: Upgraded `PageHeader` to support `PageHeaderMode.standard`, `PageHeaderMode.adding`, and `PageHeaderMode.editing`.
+- **Title Formatting & Back Arrow**: Automatically prepends `←` back arrow icon button (`shad.IconButton.ghost`) in `adding`/`editing` modes and formats titles to `Add {moduleName}` (e.g. `Add Purchase Bill`) or `{docId}` (e.g. `PB-10485`).
+- **Auto-Configured Action Bars**:
+  - `adding`: `Discard` (Outline) + `Save Draft` (Outline) + `Confirm` (Primary).
+  - `editing`: `Discard` (Outline) + `Confirm` (Primary) (*No draft state on existing records*).
+- **Uniform Button Specs**: 100% uniform typography, density, and button sizing matching standard mode button specs 1:1.
+
+### Zero-Overhead Centered PageFormCanvas (`page_form_canvas.dart`)
+- **Pixel-Perfect Alignment**: Constrains both `PageHeader` and form cards (`CreatePageLayout`) inside the exact same `maxWidth` boundary (default `1200.0`).
+- **Top Flush Alignment**: Uses `Align(alignment: Alignment.topCenter)` to prevent vertical centering offset, aligning the header flush to the top of the tab content area.
+- **Zero Overhead**: Zero internal padding (`EdgeInsets.zero`) and zero surface tinting, sitting cleanly directly on top of the parent surface background.
+
+### Dedicated 2-Column Form Canvas (`create_page_layout.dart`)
+- **2-Column Grid**: `68%` primary form entries (supplier info, invoice no, dates, line items, remarks, file dropzone) + `32%` right status & voucher computation card stack.
+- **Unbounded Height Safety**: Streamlined 2-column layout to prevent nested scrollview flex conflicts.
+
+### Dynamic Skeletons & Cutting Card Updates
+- **Skeleton Placeholders**: Added animated `isLoading` skeleton placeholders to `DynamicList` and `DynamicContentPane`.
+- **Cutting Card Row Specs**: Updated row 2 to CC No (`#10481`) and row 3 to Pcs (`1,074 Pcs`). Cleaned up unused filter bar & side panel files.
+
+### Symmetric 12px TabPane Token Padding (`header_tabs.dart`)
+- **Symmetric PadMd Token**: Set `HeaderTabs` child screen padding to native `shad.padMd` token (12px) for both horizontal and vertical dimensions (`theme.density.baseContainerPadding * theme.scaling * shad.padMd`).
+
+---
+
 ## 2026-07-27 · [Windows Workstation] · 3-Area Table Footer, Dark Mode Surface Tokens & Fabric Image Gallery Overlay
 
 Shipped the 3-area `DynamicDenseTable` footer row, dynamic dark theme surface canvas tokens (`Stone 980` 2% tint), clickable row fabric image thumbnails with 8px gaps, and interactive image gallery overlay modal.

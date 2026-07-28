@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 import '../micro_level/micro_button.dart';
 
+/// Operational mode for [PageHeader]
+enum PageHeaderMode { standard, adding, editing }
+
 /// Model for an item inside the [PageHeader] Module Switcher
 class ModuleItem<T> {
   final T id;
@@ -17,10 +20,20 @@ class ModuleItem<T> {
   });
 }
 
-/// [PageHeader] - Modular, production-grade top page header with an optional
-/// inline expandable Module Switcher, optional tabs slot, and action button slots.
+/// [PageHeader] - Modular, production-grade top page header with 3 operational modes
+/// (`standard`, `adding`, `editing`), auto-configured action buttons, and back button support.
 class PageHeader<T> extends StatefulWidget {
   final String title;
+  final PageHeaderMode mode;
+  final String? moduleName;
+  final String? docId;
+
+  // Callbacks for adding/editing modes
+  final VoidCallback? onBack;
+  final VoidCallback? onDiscard;
+  final VoidCallback? onSaveDraft;
+  final VoidCallback? onConfirm;
+  final bool isSaving;
 
   // Optional Module Switcher
   final T? selectedModuleId;
@@ -30,18 +43,26 @@ class PageHeader<T> extends StatefulWidget {
   // Optional Tabs Slot
   final Widget? tabs;
 
-  // Optional Trailing Actions (max 1 primary, 2 secondary)
+  // Optional Trailing Actions (overrides auto-generated buttons if provided)
   final List<Widget> actions;
 
   const PageHeader({
     super.key,
     required this.title,
+    this.mode = PageHeaderMode.standard,
+    this.moduleName,
+    this.docId,
+    this.onBack,
+    this.onDiscard,
+    this.onSaveDraft,
+    this.onConfirm,
+    this.isSaving = false,
     this.selectedModuleId,
     this.modules,
     this.onModuleSelected,
     this.tabs,
     this.actions = const [],
-  }) : assert(actions.length <= 3, 'PageHeader can take at most 3 actions (1 primary, 2 secondary)');
+  }) : assert(actions.length <= 4, 'PageHeader can take at most 4 actions');
 
   @override
   State<PageHeader<T>> createState() => _PageHeaderState<T>();
@@ -124,6 +145,76 @@ class _PageHeaderState<T> extends State<PageHeader<T>> with SingleTickerProvider
     final selectedModule = widget.modules?.where((m) => m.id == widget.selectedModuleId).firstOrNull ??
         widget.modules?.firstOrNull;
 
+    // Resolve Title
+    String titleText = widget.title;
+    if (widget.mode == PageHeaderMode.adding) {
+      titleText = widget.moduleName != null ? 'Add ${widget.moduleName}' : 'Add ${widget.title}';
+    } else if (widget.mode == PageHeaderMode.editing) {
+      titleText = widget.docId ?? widget.title;
+    }
+
+    final showBackButton = widget.mode == PageHeaderMode.adding || widget.mode == PageHeaderMode.editing;
+
+    // Resolve Trailing Action Buttons
+    List<Widget> resolvedActions = List.from(widget.actions);
+    if (resolvedActions.isEmpty) {
+      if (widget.mode == PageHeaderMode.adding) {
+        resolvedActions = [
+          shad.OutlineButton(
+            onPressed: widget.onDiscard ?? widget.onBack,
+            child: const Text('Discard'),
+          ),
+          shad.OutlineButton(
+            onPressed: widget.onSaveDraft,
+            child: const Text('Save Draft'),
+          ),
+          shad.PrimaryButton(
+            onPressed: widget.isSaving ? null : widget.onConfirm,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (widget.isSaving)
+                  const SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: shad.CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else
+                  const Icon(shad.LucideIcons.check),
+                const shad.DensityGap(shad.gapSm),
+                Text(widget.isSaving ? 'Saving...' : 'Confirm'),
+              ],
+            ),
+          ),
+        ];
+      } else if (widget.mode == PageHeaderMode.editing) {
+        resolvedActions = [
+          shad.OutlineButton(
+            onPressed: widget.onDiscard ?? widget.onBack,
+            child: const Text('Discard'),
+          ),
+          shad.PrimaryButton(
+            onPressed: widget.isSaving ? null : widget.onConfirm,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (widget.isSaving)
+                  const SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: shad.CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else
+                  const Icon(shad.LucideIcons.check),
+                const shad.DensityGap(shad.gapSm),
+                Text(widget.isSaving ? 'Saving...' : 'Confirm'),
+              ],
+            ),
+          ),
+        ];
+      }
+    }
+
     return FocusTraversalGroup(
       policy: WidgetOrderTraversalPolicy(),
       child: Column(
@@ -136,17 +227,26 @@ class _PageHeaderState<T> extends State<PageHeader<T>> with SingleTickerProvider
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // 1. Mandatory Title
+            // Prepend Back Arrow for Adding / Editing modes
+            if (showBackButton) ...[
+              shad.IconButton.ghost(
+                icon: const Icon(shad.LucideIcons.arrowLeft),
+                onPressed: widget.onBack ?? widget.onDiscard,
+              ),
+              const shad.DensityGap(shad.gapSm),
+            ],
+
+            // Mandatory Title
             Text(
-              widget.title,
+              titleText,
               style: theme.typography.h2.copyWith(
                 fontWeight: FontWeight.bold,
                 letterSpacing: -0.5,
               ),
             ),
 
-            // 2. Optional Module Switcher Trigger Button (MicroButton with FocusNode)
-            if (widget.modules != null && widget.modules!.isNotEmpty && selectedModule != null) ...[
+            // Optional Module Switcher Trigger Button (MicroButton with FocusNode)
+            if (widget.mode == PageHeaderMode.standard && widget.modules != null && widget.modules!.isNotEmpty && selectedModule != null) ...[
               const shad.DensityGap(shad.gapMd),
               MicroButton(
                 focusNode: _moduleTriggerFocusNode,
@@ -159,21 +259,21 @@ class _PageHeaderState<T> extends State<PageHeader<T>> with SingleTickerProvider
               ),
             ],
 
-            // 3. Optional Tabs Slot
+            // Optional Tabs Slot
             if (widget.tabs != null) ...[
               const shad.DensityGap(shad.gapLg),
               widget.tabs!,
             ],
 
-            // 4. Spacer (Pushes actions to far right)
+            // Spacer (Pushes actions to far right)
             const Spacer(),
 
-            // 5. Trailing Actions Row (max 1 primary, 2 secondary)
-            if (widget.actions.isNotEmpty) ...[
+            // Trailing Actions Row
+            if (resolvedActions.isNotEmpty) ...[
               Row(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: widget.actions.map((act) {
+                children: resolvedActions.map((act) {
                   return Padding(
                     padding: EdgeInsets.only(left: 8 * theme.scaling),
                     child: act,

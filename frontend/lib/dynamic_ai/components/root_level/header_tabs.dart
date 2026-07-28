@@ -208,7 +208,7 @@ class DynamicHeaderTabs extends StatelessWidget {
                           shad.padMd,
                       vertical: theme.density.baseContainerPadding *
                           theme.scaling *
-                          shad.padSm,
+                          shad.padMd,
                     ),
                     child: tab.content,
                   ),
