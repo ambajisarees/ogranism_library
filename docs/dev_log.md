@@ -3,6 +3,27 @@
 > **Developer**: Smit · www.ambajisaree.com
 > **Convention**: Newest entries at top. Each day is a self-contained section tagged with Machine Agent origin (`[Windows Workstation]` vs `[MacBook Workstation]`).
 
+## 2026-07-29 · [MacBook Workstation] · 7 Canonical Core Data Models, 7 Core Services, 3-Way Card Linkage Engine & Mill Programs Module
+
+Shipped 7 canonical 1-to-1 core Supabase data models, 7 singleton table services, 3-way card linkage engine (`reccardno` ➔ `sq_MILLREC` ➔ `sq_PINVTRN`), `ReportCard` AI component, Mill Programs screen (`screen_mill_programs.dart`), Section 9 Master Architecture Strategy in `GEMINI.md`, and cleaned up legacy organism reference directories.
+
+### 7 Canonical Core Data Models (`lib/models/core/sq/` & `sb/`)
+- **Models**: Built `sq_bills.dart`, `sq_pinvtrn.dart`, `sq_millrec.dart`, `sq_chaltrn.dart`, `sq_billdet.dart`, `sb_cutdet.dart`, and `sb_cutdet_summary.dart`.
+- **Defensive Factories**: Strict `fromJson` defensive parsers handling mixed Postgres types (`num`, `String`, `double`), 3-4 word domain logic header comments, and 0-count column statistics documentation.
+- **3-Way Cutting Card Linkage Engine**: Connected `reccardno` in `sb_cutdet` to `sq_MILLREC` and `sq_PINVTRN` for full supply chain lot traceability.
+
+### 7 Core Canonical Services (`lib/services/core/sq/` & `sb/`)
+- **Services**: Created `sq_bills_service.dart`, `sq_pinvtrn_service.dart`, `sq_millrec_service.dart`, `sq_chaltrn_service.dart`, `sq_billdet_service.dart`, `sb_cutdet_service.dart`, and `sb_cutdet_summary_service.dart`.
+- **IMMBE2627 Schema Scoping**: Enforced explicit `.schema('IMMBE2627')` scoping and terminal PostgREST `.count(CountOption.exact)` queries.
+
+### Mill Programs Module & AI ReportCard
+- **`screen_mill_programs.dart`**: Built dedicated Mill Programs workflow landing view connected to `service_programs.dart` and `model_mill_program.dart`.
+- **`ReportCard` Widget** (`report_card.dart`): Created modular report card container for dynamic analytics widgets.
+- **`GEMINI.md` Section 9**: Updated master developer rules with Section 9 defining Core Layer Architecture, Dynamic AI Component Engine, and `mns` abbreviation mapping (`po`, `pb`, `mp`, `mr`, `cc`, `so`).
+- **Legacy Cleanup**: Removed 200+ deprecated legacy files from `organism_reference` and old service wrappers.
+
+---
+
 ## 2026-07-29 · [Windows Workstation] · Standardized 12px / 8px / 8px Vertical Gap System, DAB 34px Height, Autocompletes & DDT Grouping Refinements
 
 Shipped standardized vertical spacing tokens, enhanced `DynamicActionBar` (DAB) with optional Autocomplete slots and tooltipped Grouping view switcher, refined `DynamicDenseTable` (DDT) row grouping with column-aligned summary metrics, and resolved double-border artifacts.
