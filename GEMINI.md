@@ -35,9 +35,12 @@
 - **Strict Typing**: Minimize `dynamic` variables. Avoid `!` force-unwrapping; use sensible defaults (`?? 0.0`, `?? 'N/A'`).
 - **Async Safety**: Always check `if (!mounted) return;` after any `await` call in `StatefulWidget`s before invoking `setState`.
 - **File Naming Standards**:
-  - Data Models: `lib/models/model_*.dart` (immutable data classes with defensive `fromJson`).
-  - Service Logic: `lib/services/service_*.dart` (singleton wrappers around `SupabaseService.client`).
-  - Screen Containers: `lib/screens/<domain>/screen_*.dart`.
+  - Core Canonical Models (`sq/` & `sb/`): `sq_<table_name>.dart` or `sb_<table_name>.dart`
+  - Core Canonical Services (`sq/` & `sb/`): `sq_<table_name>_service.dart` or `sb_<table_name>_service.dart`
+  - Module Data Models: `mdl_<module_short_name>.dart` (e.g., `mdl_po.dart`)
+  - Module Services: `srv_<module_short_name>.dart` (e.g., `srv_po.dart`)
+  - Module Screen Containers: `scr_<module_short_name>_landing.dart` (e.g., `scr_po_landing.dart`)
+  - Module Sub-Widgets: `scr_<module_short_name>_<widget_name>.dart` (e.g., `scr_po_action_pane.dart`, `scr_po_list_pane.dart`, `scr_po_detail_canvas.dart`)
 
 ## 6. Standard Operation Workflow
 1. **Data Audit First**: Profile target tables/views (checking null rates in `backend/schema_docs/`) before writing UI code.
@@ -57,3 +60,23 @@
   - Density multipliers use `theme.density.baseContainerPadding * theme.scaling` and native `shad.DensityGap`.
   - Typography tokens use `theme.typography.h2`, `theme.typography.mono`, `theme.typography.textSmall`, `theme.typography.xSmall`.
   - Only native `shadcn_flutter` controls (`shad.Card`, `shad.OutlinedContainer`, `shad.Button`, `shad.Badge`, `shad.Checkbox`, `shad.TextField`, etc.) are used for building UI scaffolding.
+
+## 9. Master Architecture Strategy & Naming Conventions (`mns`)
+- **Core Layer Architecture**:
+  - **Canonical Models** (`lib/models/core/sq/` & `lib/models/core/sb/`): 1 file per Supabase table (`sq_<table_name>.dart` or `sb_<table_name>.dart`).
+  - **Canonical Services** (`lib/services/core/sq/` & `lib/services/core/sb/`): 1 singleton service per Supabase table (`sq_<table_name>_service.dart` or `sb_<table_name>_service.dart`).
+- **Dynamic AI Reusable Component Engine** (`lib/dynamic_ai/components/`):
+  - Generic, highly-configurable UI engines (`DynamicDenseTable`, `DynamicActionBar`, `DynamicFilterBar`, `DynamicDetailCanvas`, `DynamicFormModal`) that handle 90% of UI rendering globally.
+- **Lean Module File Structure (3–5 Files per Module)**:
+  - `scr_<mns>_landing.dart` (Main screen container, active category state, view mode router).
+  - `scr_<mns>_detail_canvas.dart` (Detail inspection canvas & line-items table).
+  - `scr_<mns>_form_dialog.dart` (Add / Edit entry dialog modal).
+- **Module Short Name Abbreviation Mapping (`mns`)**:
+  - `po` $\rightarrow$ Purchase Orders
+  - `pb` $\rightarrow$ Purchase Bills
+  - `mp` $\rightarrow$ Mill Programs
+  - `mr` $\rightarrow$ Mill Receipts
+  - `cc` $\rightarrow$ Cutting Cards
+  - `so` $\rightarrow$ Sales Orders
+
+

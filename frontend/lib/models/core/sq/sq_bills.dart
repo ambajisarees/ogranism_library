@@ -316,23 +316,27 @@ extension SqBillsTableMapper on SqBillsModel {
   DynamicTableRowData toRowData([NumberFormat? currencyFmt]) {
     final fmt = currencyFmt ?? NumberFormat.currency(symbol: '₹', decimalDigits: 2, locale: 'en_IN');
     final dateStr = date != null ? '${date!.day}/${date!.month}/${date!.year}' : 'N/A';
+    final targetAmt = finalAmount > 0 ? finalAmount : billAmount;
 
     return DynamicTableRowData(
-      id: '${type}_${vno}_$cno',
-      voucherNo: billNo.isNotEmpty ? '$billNo ($dateStr)' : 'VOC: $vno ($dateStr)',
+      id: vno.toString(),
+      voucherNo: 'PO #$vno',
       partyName: partyName.isNotEmpty ? partyName : 'Unknown Party',
       designPattern: quality.isNotEmpty ? quality : 'N/A',
       quantity: '${totalMeters.toInt()} Mtr',
-      amount: fmt.format(billAmount),
-      amountValue: billAmount,
-      status: paymentStatus == 'Y' ? 'Paid' : 'Unpaid',
-      rawData: toJson(),
+      amount: fmt.format(targetAmt),
+      amountValue: targetAmt,
+      status: paymentStatus == 'Y' ? 'Paid' : 'Pending',
+      rawData: {
+        ...toJson(),
+        'formattedDate': dateStr,
+      },
     );
   }
 
   static List<DynamicTableColumnSpec> get defaultColumns => const [
-    DynamicTableColumnSpec(label: SqBillsLabels.invNo, key: 'voucherNo', flex: 2),
-    DynamicTableColumnSpec(label: SqBillsLabels.party, key: 'partyName', flex: 3),
+    DynamicTableColumnSpec(label: 'Order #', key: 'voucherNo', flex: 2),
+    DynamicTableColumnSpec(label: SqBillsLabels.party, key: 'partyName', flex: 4),
     DynamicTableColumnSpec(label: SqBillsLabels.fabric, key: 'designPattern', flex: 3),
     DynamicTableColumnSpec(label: SqBillsLabels.totMtrs, key: 'quantity', flex: 2),
     DynamicTableColumnSpec(label: SqBillsLabels.netAmt, key: 'amount', flex: 3),

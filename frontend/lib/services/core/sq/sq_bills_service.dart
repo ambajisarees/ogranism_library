@@ -3,7 +3,18 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../models/core/sq/sq_bills.dart';
 import '../service_supabase.dart';
 
-/// [SqBillsService] — Canonical Core Service Layer for `sq_BILLS` (Invoices & Orders Header).
+/// Standardized Paginated Result wrapper.
+class PaginatedResult<T> {
+  final List<T> data;
+  final int totalCount;
+
+  const PaginatedResult({
+    required this.data,
+    required this.totalCount,
+  });
+}
+
+/// [SqBillsService] — Canonical Core Service Layer for `sq_BILLS` (Read-Only Airbyte Mirror).
 class SqBillsService {
   static final SqBillsService _instance = SqBillsService._internal();
   factory SqBillsService() => _instance;
@@ -11,7 +22,7 @@ class SqBillsService {
 
   final _db = SupabaseService();
 
-  /// Fetches paginated header records from `sq_BILLS` for FY 26-27 (`VNO < 100000`).
+  /// Fetches paginated bills header list filtered by series `type`, `partyName`, `quality`, and date range.
   Future<PaginatedResult<SqBillsModel>> getPaginatedBills({
     int offset = 0,
     int limit = 50,
@@ -23,31 +34,33 @@ class SqBillsService {
     String sortBy = 'DATE_DESC',
   }) async {
     try {
-      dynamic query = _db.client
+      // 1. Fetch exact total count
+      dynamic countQuery = _db.client
           .schema('IMMBE2627')
           .from('sq_BILLS')
           .select('VNO')
           .lt('VNO', 100000);
 
       if (type != null && type.isNotEmpty && type != 'All') {
-        query = query.ilike('TYPE', type);
+        countQuery = countQuery.ilike('TYPE', type);
       }
       if (partyName != null && partyName.isNotEmpty && partyName != 'All') {
-        query = query.ilike('code', '%$partyName%');
+        countQuery = countQuery.ilike('code', '%$partyName%');
       }
       if (quality != null && quality.isNotEmpty && quality != 'All') {
-        query = query.ilike('QUAL', '%$quality%');
+        countQuery = countQuery.ilike('QUAL', '%$quality%');
       }
       if (startDate != null) {
-        query = query.gte('DATE', startDate.toIso8601String());
+        countQuery = countQuery.gte('DATE', startDate.toIso8601String());
       }
       if (endDate != null) {
-        query = query.lte('DATE', endDate.toIso8601String());
+        countQuery = countQuery.lte('DATE', endDate.toIso8601String());
       }
 
-      final countRes = await query.count(CountOption.exact);
-      final totalCount = countRes.count;
+      final countRes = await countQuery.count(CountOption.exact);
+      final int totalCount = countRes.count;
 
+      // 2. Fetch paginated data
       dynamic fetchQuery = _db.client
           .schema('IMMBE2627')
           .from('sq_BILLS')
@@ -70,33 +83,43 @@ class SqBillsService {
         fetchQuery = fetchQuery.lte('DATE', endDate.toIso8601String());
       }
 
-      if (sortBy == 'DATE_ASC') {
-        fetchQuery = fetchQuery.order('DATE', ascending: true);
-      } else {
-        fetchQuery = fetchQuery.order('DATE', ascending: false).order('VNO', ascending: false);
+      // Ordering
+      switch (sortBy) {
+        case 'DATE_ASC':
+          fetchQuery = fetchQuery.order('DATE', ascending: true);
+          break;
+        case 'VNO_DESC':
+          fetchQuery = fetchQuery.order('VNO', ascending: false);
+          break;
+        case 'VNO_ASC':
+          fetchQuery = fetchQuery.order('VNO', ascending: true);
+          break;
+        case 'DATE_DESC':
+        default:
+          fetchQuery = fetchQuery.order('DATE', ascending: false).order('VNO', ascending: false);
+          break;
       }
 
       final response = await fetchQuery.range(offset, offset + limit - 1);
       final List<dynamic> rawList = response as List<dynamic>;
-      final data = rawList.map((j) => SqBillsModel.fromJson(j as Map<String, dynamic>)).toList();
+
+      final items = rawList.map((j) => SqBillsModel.fromJson(j as Map<String, dynamic>)).toList();
 
       return PaginatedResult(
-        data: data,
+        data: items,
         totalCount: totalCount,
-        offset: offset,
-        limit: limit,
       );
-    } catch (e) {
-      debugPrint('Error in SqBillsService.getPaginatedBills: $e');
-      return PaginatedResult(data: [], totalCount: 0, offset: offset, limit: limit);
+    } catch (e, stack) {
+      debugPrint('Error in SqBillsService.getPaginatedBills: $e\n$stack');
+      return const PaginatedResult(data: [], totalCount: 0);
     }
   }
 
-  /// Fetches a single header by voucher keys (`VNO`, `TYPE`, `CNO`).
-  Future<SqBillsModel?> getBillByVno({
+  /// Fetches a single bill header by composite key (CNO, VNO, TYPE).
+  Future<SqBillsModel?> getBillByKey({
     required int vno,
     required String type,
-    int cno = 4,
+    int cno = 1,
   }) async {
     try {
       final response = await _db.client
@@ -111,7 +134,7 @@ class SqBillsService {
       if (response == null) return null;
       return SqBillsModel.fromJson(response);
     } catch (e) {
-      debugPrint('Error in SqBillsService.getBillByVno: $e');
+      debugPrint('Error in SqBillsService.getBillByKey: $e');
       return null;
     }
   }
