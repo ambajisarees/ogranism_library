@@ -7,7 +7,6 @@ import 'package:window_manager/window_manager.dart';
 import 'dart:io';
 
 import 'package:google_fonts/google_fonts.dart';
-import 'package:screen_retriever/screen_retriever.dart';
 
 // NEW ORGANISM DESIGN IMPORT
 import 'screens/home.dart';
@@ -24,18 +23,14 @@ void main() async {
     publishableKey: SupabaseConfig.anonKey,
   );
 
-  // Desktop configuration (position window on left 50% of display)
+  // Desktop configuration (Full 1920x1200 native resolution)
   if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
     await windowManager.ensureInitialized();
-    Display primaryDisplay = await screenRetriever.getPrimaryDisplay();
-    Size displaySize = primaryDisplay.size;
-    
-    double halfWidth = displaySize.width / 2;
-    double fullHeight = displaySize.height;
+    const targetSize = Size(1920, 1200);
 
-    WindowOptions windowOptions = WindowOptions(
-      size: Size(halfWidth, fullHeight),
-      minimumSize: const Size(600, 700),
+    WindowOptions windowOptions = const WindowOptions(
+      size: targetSize,
+      minimumSize: Size(1280, 800),
       center: false,
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.normal,
@@ -43,7 +38,7 @@ void main() async {
     );
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.setPosition(const Offset(0, 0));
-      await windowManager.setSize(Size(halfWidth, fullHeight));
+      await windowManager.setSize(targetSize);
       await windowManager.show();
       await windowManager.focus();
       await windowManager.setPreventClose(true);

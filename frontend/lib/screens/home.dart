@@ -14,6 +14,7 @@ import 'crm/screen_crm_workspace.dart';
 import 'crm/screen_google_contacts_sync.dart';
 import 'production/purchase_orders/screen_purchase_orders_landing.dart';
 import 'production/recipes/screen_recipes_landing.dart';
+import 'production/programs/screen_mill_programs.dart';
 import 'library/screen_component_library.dart';
 import 'showcase/screen_showcase.dart';
 
@@ -551,6 +552,8 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
         return const ScreenCuttingLanding();
       case 103:
         return const ScreenRecipesLanding();
+      case 104:
+        return const ScreenMillPrograms();
       case 105:
         return const ScreenPurchaseBillsLanding();
       case 107:
