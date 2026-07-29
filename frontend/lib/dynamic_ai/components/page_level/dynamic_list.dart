@@ -31,7 +31,7 @@ class _DynamicListState extends State<DynamicList> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   int _currentPage = 1;
-  static const int _itemsPerPage = 10;
+  static const int _itemsPerPage = 25; // Updated to 25 items per page!
 
   @override
   void initState() {

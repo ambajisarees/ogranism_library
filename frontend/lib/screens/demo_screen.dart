@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart' hide Card, Tab, Badge, Scaffold;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
+import '../dynamic_ai/components/page_level/page_form_canvas.dart';
 import '../dynamic_ai/components/page_level/page_header.dart';
 import '../dynamic_ai/components/page_level/dynamic_action_bar.dart';
+import '../dynamic_ai/components/page_level/dab_widgets/dab_submodule_popover.dart';
 import '../dynamic_ai/components/page_level/dynamic_dense_table.dart';
 import '../dynamic_ai/components/page_level/dynamic_list.dart';
 import '../dynamic_ai/components/page_level/dynamic_list_card.dart';
 import '../dynamic_ai/components/page_level/dynamic_content_pane.dart';
-import '../dynamic_ai/components/page_level/create_page_layout.dart';
-import '../dynamic_ai/components/page_level/page_form_canvas.dart';
+import '../dynamic_ai/components/micro_level/micro_button.dart';
+import '../dynamic_ai/components/root_level/header_tabs.dart';
+import '../models/production/purchase_orders/purchase_order_category.dart';
 
 class DemoScreen extends StatefulWidget {
   const DemoScreen({super.key});
@@ -17,18 +20,52 @@ class DemoScreen extends StatefulWidget {
 }
 
 class _DemoScreenState extends State<DemoScreen> {
+  // Navigation & View Mode State
+  bool _isCreating = false; // Toggles Add Cutting Card workflow
   int _contextTabIndex = 1; // Default selected: Details (1)
-  String _selectedViewMode = 'table'; // Default selected view: table
+  String _selectedViewMode = 'table'; // Default view: table vs list
   String? _searchQuery;
 
-  // Filter selection state (Default: NO active filters)
-  Set<String> _selectedMills = {};
-  Set<String> _selectedQualities = {};
+  // Submodule Category Selector State
+  PurchaseOrderCategory _selectedCategory = PurchaseOrderCategory.finish;
+  final Map<PurchaseOrderCategory, int> _categoryCounts = {
+    PurchaseOrderCategory.grey: 0,
+    PurchaseOrderCategory.finish: 13,
+    PurchaseOrderCategory.lace: 0,
+    PurchaseOrderCategory.studio: 0,
+    PurchaseOrderCategory.packing: 0,
+  };
+
+  // Base Landing Page Filter State
+  String _selectedSupplier = 'All';
+  String _selectedQuality = 'All';
   Set<String> _selectedStatuses = {};
   shad.CalendarValue? _selectedDateRange;
   String? _selectedDateLabel;
 
-  DynamicListItem? _selectedListItem;
+  final List<String> _supplierOptions = [
+    'Ambaji Traders (Surat)',
+    'Shree Ram Sarees (Ahm)',
+    'Vrindavan Textiles (Jaipur)',
+    'Rajlaxmi Fashions (Delhi)',
+  ];
+
+  final List<String> _qualityOptions = [
+    'Royal Silk',
+    'Chiffon Jacquard',
+    'Organza Print',
+    'Heavy Satin',
+  ];
+
+  // ------------------------------------------
+  // ADD CUTTING CARD STATE (Form & Filters)
+  // ------------------------------------------
+  final TextEditingController _millController = TextEditingController();
+  final TextEditingController _qualityController = TextEditingController();
+  String? _selectedFormMill;
+  String? _selectedFormQuality;
+  String _groupByKey =
+      'mill'; // Default grouping: Mill ('none', 'mill', 'qual', 'vno')
 
   final List<String> _millOptions = [
     'Ambaji Mills',
@@ -37,905 +74,971 @@ class _DemoScreenState extends State<DemoScreen> {
     'Rajlaxmi Print House',
     'Surat Textile Park',
   ];
+  List<String> _filteredMillSuggestions = [];
 
-  final List<String> _qualityOptions = [
+  final List<String> _formQualityOptions = [
     'Royal Silk',
     'Chiffon Jacquard',
     'Organza Print',
     'Heavy Satin',
     'Cotton Dobby',
   ];
+  List<String> _filteredQualitySuggestions = [];
 
-  final List<DynamicListItem> _mockListItems = [
-    DynamicListItem(
-      id: 'item-101',
-      topLeading: const shad.OutlineBadge(child: Text('Pending')),
-      topTrailing: '28 Jul',
-      title: 'Ambaji Traders (Surat)',
-      amount: '₹2,40,000',
-      subtitle: 'D-4089 (Royal Silk) • 1,200 Mtr',
-      indexNumber: '10481',
-      rawData: {
-        'voucherNo': '10481',
-        'partyName': 'Ambaji Traders (Surat)',
-        'status': 'PENDING',
-        'items': [
-          {'name': 'Royal Silk Grey Fabric', 'desc': 'Lot #10481-A • 54 Inch Width • Grade A1', 'hsn': '5407', 'qty': '800', 'unit': 'Mtr', 'rate': '180.00', 'amount': '1,44,000.00'},
-          {'name': 'Chiffon Jacquard Weave', 'desc': 'Lot #10481-B • 44 Inch Width • Soft Finish', 'hsn': '5407', 'qty': '400', 'unit': 'Mtr', 'rate': '240.00', 'amount': '96,000.00'},
-        ],
-      },
-    ),
-    DynamicListItem(
-      id: 'item-102',
-      topLeading: const shad.PrimaryBadge(child: Text('Completed')),
-      topTrailing: '26 Jul',
-      title: 'Shree Ram Sarees (Ahm)',
-      amount: '₹1,70,000',
-      subtitle: 'D-3021 (Chiffon Jacquard) • 850 Mtr',
-      indexNumber: '10482',
-      rawData: {
-        'voucherNo': '10482',
-        'partyName': 'Shree Ram Sarees (Ahm)',
-        'status': 'COMPLETED',
-        'items': [
-          {'name': 'Chiffon Jacquard Premium', 'desc': 'Lot #10482-A • 44 Inch • Export Quality', 'hsn': '5407', 'qty': '850', 'unit': 'Mtr', 'rate': '200.00', 'amount': '1,70,000.00'},
-        ],
-      },
-    ),
-    DynamicListItem(
-      id: 'item-103',
-      topLeading: const shad.SecondaryBadge(child: Text('In Process')),
-      topTrailing: '24 Jul',
-      title: 'Vrindavan Textiles (Jaipur)',
-      amount: '₹5,10,000',
-      subtitle: 'D-5100 (Organza Print) • 2,400 Mtr',
-      indexNumber: '10483',
-      rawData: {
-        'voucherNo': '10483',
-        'partyName': 'Vrindavan Textiles (Jaipur)',
-        'status': 'IN_PROCESS',
-        'items': [
-          {'name': 'Organza Digital Print', 'desc': 'Lot #10483-A • 54 Inch • Multi Color', 'hsn': '5407', 'qty': '2,400', 'unit': 'Mtr', 'rate': '212.50', 'amount': '5,10,000.00'},
-        ],
-      },
-    ),
-    DynamicListItem(
-      id: 'item-104',
-      topLeading: const shad.OutlineBadge(child: Text('Pending')),
-      topTrailing: '22 Jul',
-      title: 'Rajlaxmi Fashions (Delhi)',
-      amount: '₹1,20,000',
-      subtitle: 'D-2045 (Heavy Satin) • 600 Mtr',
-      indexNumber: '10484',
-      rawData: {
-        'voucherNo': '10484',
-        'partyName': 'Rajlaxmi Fashions (Delhi)',
-        'status': 'PENDING',
-        'items': [
-          {'name': 'Heavy Satin Dyeing', 'desc': 'Lot #10484-A • 44 Inch • Gloss Finish', 'hsn': '5407', 'qty': '600', 'unit': 'Mtr', 'rate': '200.00', 'amount': '1,20,000.00'},
-        ],
-      },
-    ),
-  ];
+  // Batch Specs Form Data
+  final DateTime _cutDate = DateTime.now();
+  final String _batchNo = 'CC-0042';
+  double _selectedCutLength = 6.00;
+  int _freshPcs = 95;
+  int _secondPcs = 4;
+  int _sareeWtGrams = 400;
+  double _fentWtGrams = 250;
 
-  int _contentViewIndex = 0; // 0: Tabular View, 1: PDF Layout
+  // Selected Uncut Rolls for Batch Creation
+  final Set<String> _selectedRollIds = {'roll-101', 'roll-102', 'roll-103'};
+  late final List<DynamicTableRowData> _allUncutRolls;
 
   @override
   void initState() {
     super.initState();
-    _selectedListItem = _mockListItems.first;
-  }
-
-  PageHeaderMode _headerMode = PageHeaderMode.standard;
-  String? _editingDocId;
-
-  void _switchHeaderMode(PageHeaderMode mode, {String? docId}) {
-    setState(() {
-      _headerMode = mode;
-      _editingDocId = docId;
-    });
+    _initMockUncutRolls();
   }
 
   @override
-  Widget build(BuildContext context) {
-    final theme = shad.Theme.of(context);
+  void dispose() {
+    _millController.dispose();
+    _qualityController.dispose();
+    super.dispose();
+  }
 
-    if (_headerMode == PageHeaderMode.adding || _headerMode == PageHeaderMode.editing) {
-      return PageFormCanvas(
-        maxWidth: 1200,
-        header: PageHeader<void>(
-          title: 'Purchase Bills',
-          mode: _headerMode,
-          moduleName: 'Purchase Bill',
-          docId: _editingDocId ?? 'PB-10485',
-          onBack: () => _switchHeaderMode(PageHeaderMode.standard),
-          onDiscard: () {
-            _switchHeaderMode(PageHeaderMode.standard);
-            shad.showToast(
-              context: context,
-              builder: (context, show) => const shad.Card(
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text('Changes discarded.'),
-                ),
-              ),
-            );
-          },
-          onSaveDraft: () {
-            _switchHeaderMode(PageHeaderMode.standard);
-            shad.showToast(
-              context: context,
-              builder: (context, show) => const shad.Card(
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text('Draft saved successfully!'),
-                ),
-              ),
-            );
-          },
-          onConfirm: () {
-            final isAdding = _headerMode == PageHeaderMode.adding;
-            final doc = _editingDocId ?? 'PB-10485';
-            _switchHeaderMode(PageHeaderMode.standard);
-            shad.showToast(
-              context: context,
-              builder: (context, show) => shad.Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(isAdding
-                      ? 'New Purchase Bill created & confirmed!'
-                      : 'Purchase Bill $doc updated successfully!'),
-                ),
-              ),
-            );
-          },
-        ),
-        child: CreatePageLayout(
-          title: _headerMode == PageHeaderMode.adding ? 'Create Purchase Bill' : 'Edit Bill ${_editingDocId ?? 'PB-10485'}',
-          backLabel: 'Purchase Bills',
-          onBack: () => _switchHeaderMode(PageHeaderMode.standard),
-          onSave: (val) {
-            _switchHeaderMode(PageHeaderMode.standard);
-          },
-        ),
-      );
+  void _initMockUncutRolls() {
+    _allUncutRolls = [
+      DynamicTableRowData(
+        id: 'roll-101',
+        voucherNo: '10481',
+        partyName: 'Ambaji Mills',
+        designPattern: 'D-4089 (Royal Silk)',
+        quantity: '210.5 Mts',
+        amount: '₹37,890',
+        amountValue: 37890,
+        status: 'UNCUT',
+        expandedDetails:
+            'Lot #10481-A • Width: 54 Inches • Weaver: Ambaji Mills • Quality: Royal Silk',
+        rawData: {
+          'cardNo': 'C-1001',
+          'vno': '10481',
+          'mill': 'Ambaji Mills',
+          'qual': 'Royal Silk',
+          'meters': 210.5,
+          'status': 'UNCUT'
+        },
+      ),
+      DynamicTableRowData(
+        id: 'roll-102',
+        voucherNo: '10481',
+        partyName: 'Ambaji Mills',
+        designPattern: 'D-4089 (Royal Silk)',
+        quantity: '195.0 Mts',
+        amount: '₹35,100',
+        amountValue: 35100,
+        status: 'UNCUT',
+        expandedDetails:
+            'Lot #10481-B • Width: 54 Inches • Weaver: Ambaji Mills • Quality: Royal Silk',
+        rawData: {
+          'cardNo': 'C-1002',
+          'vno': '10481',
+          'mill': 'Ambaji Mills',
+          'qual': 'Royal Silk',
+          'meters': 195.0,
+          'status': 'UNCUT'
+        },
+      ),
+      DynamicTableRowData(
+        id: 'roll-103',
+        voucherNo: '10481',
+        partyName: 'Ambaji Mills',
+        designPattern: 'D-3021 (Chiffon Jacquard)',
+        quantity: '215.0 Mts',
+        amount: '₹43,000',
+        amountValue: 43000,
+        status: 'UNCUT',
+        expandedDetails:
+            'Lot #10481-C • Width: 44 Inches • Weaver: Ambaji Mills • Quality: Chiffon Jacquard',
+        rawData: {
+          'cardNo': 'C-1003',
+          'vno': '10481',
+          'mill': 'Ambaji Mills',
+          'qual': 'Chiffon Jacquard',
+          'meters': 215.0,
+          'status': 'UNCUT'
+        },
+      ),
+      DynamicTableRowData(
+        id: 'roll-104',
+        voucherNo: '10482',
+        partyName: 'Shree Ram Processing',
+        designPattern: 'D-3021 (Chiffon Jacquard)',
+        quantity: '180.0 Mts',
+        amount: '₹36,000',
+        amountValue: 36000,
+        status: 'UNCUT',
+        expandedDetails:
+            'Lot #10482-A • Width: 44 Inches • Weaver: Shree Ram Processing • Quality: Chiffon Jacquard',
+        rawData: {
+          'cardNo': 'C-1004',
+          'vno': '10482',
+          'mill': 'Shree Ram Processing',
+          'qual': 'Chiffon Jacquard',
+          'meters': 180.0,
+          'status': 'UNCUT'
+        },
+      ),
+      DynamicTableRowData(
+        id: 'roll-105',
+        voucherNo: '10482',
+        partyName: 'Shree Ram Processing',
+        designPattern: 'D-5100 (Organza Print)',
+        quantity: '240.0 Mts',
+        amount: '₹51,000',
+        amountValue: 51000,
+        status: 'UNCUT',
+        expandedDetails:
+            'Lot #10482-B • Width: 54 Inches • Weaver: Shree Ram Processing • Quality: Organza Print',
+        rawData: {
+          'cardNo': 'C-1005',
+          'vno': '10482',
+          'mill': 'Shree Ram Processing',
+          'qual': 'Organza Print',
+          'meters': 240.0,
+          'status': 'UNCUT'
+        },
+      ),
+      DynamicTableRowData(
+        id: 'roll-106',
+        voucherNo: '10483',
+        partyName: 'Vrindavan Dyeing',
+        designPattern: 'D-5100 (Organza Print)',
+        quantity: '220.0 Mts',
+        amount: '₹46,750',
+        amountValue: 46750,
+        status: 'UNCUT',
+        expandedDetails:
+            'Lot #10483-A • Width: 54 Inches • Weaver: Vrindavan Dyeing • Quality: Organza Print',
+        rawData: {
+          'cardNo': 'C-1006',
+          'vno': '10483',
+          'mill': 'Vrindavan Dyeing',
+          'qual': 'Organza Print',
+          'meters': 220.0,
+          'status': 'UNCUT'
+        },
+      ),
+    ];
+  }
+
+  void _triggerPageLoading() {
+    if (mounted) {
+      PageLoadingNotification(true).dispatch(context);
     }
+    Future.delayed(const Duration(milliseconds: 700), () {
+      if (mounted) {
+        PageLoadingNotification(false).dispatch(context);
+      }
+    });
+  }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Upgraded Page Header without module switcher
-        PageHeader<void>(
-          title: 'Purchase Bills',
-          actions: [
-            shad.PrimaryButton(
-              onPressed: () => _switchHeaderMode(PageHeaderMode.adding),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: const [
-                  Icon(shad.LucideIcons.plus),
-                  shad.DensityGap(shad.gapSm),
-                  Text('New Bill (Adding Mode)'),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const shad.DensityGap(shad.gapMd),
+  void _onResetFilters() {
+    setState(() {
+      _searchQuery = null;
+      _selectedSupplier = 'All';
+      _selectedQuality = 'All';
+      _selectedStatuses = {};
+      _selectedDateRange = null;
+      _selectedDateLabel = null;
+    });
+  }
 
-        // Native CONTEXT_TABS row + Spacer (Dashboard, Details, Tasks with Red Dot)
-        Row(
-          children: [
-            shad.Tabs(
-              index: _contextTabIndex,
-              onChanged: (int value) {
-                setState(() => _contextTabIndex = value);
-              },
+  void _updateMillSuggestions(String query) {
+    if (query.isEmpty) {
+      setState(() => _filteredMillSuggestions = []);
+      return;
+    }
+    setState(() {
+      _filteredMillSuggestions = _millOptions
+          .where((m) => m.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+
+  void _updateQualitySuggestions(String query) {
+    if (query.isEmpty) {
+      setState(() => _filteredQualitySuggestions = []);
+      return;
+    }
+    setState(() {
+      _filteredQualitySuggestions = _formQualityOptions
+          .where((q) => q.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+
+  void _handleSaveBatch() {
+    shad.showOverlay(
+      context,
+      shad.PopoverConfiguration(
+        alignment: Alignment.center,
+        builder: (context) => shad.Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const shad.TabItem(child: Text('Dashboard')),
-                const shad.TabItem(child: Text('Details')),
-                shad.TabItem(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text('Tasks'),
-                      const shad.DensityGap(shad.gapXs),
-                      Container(
-                        width: 6 * theme.scaling,
-                        height: 6 * theme.scaling,
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.destructive,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                const Icon(shad.LucideIcons.check, color: Colors.green),
+                const SizedBox(width: 8),
+                Text('Batch $_batchNo saved successfully!'),
               ],
             ),
-            const Spacer(),
-          ],
+          ),
         ),
-        const shad.DensityGap(shad.gapSm),
+      ),
+    );
+    setState(() => _isCreating = false);
+  }
 
-        // Bottom Area controlled by CONTEXT_TABS
-        Expanded(
-          child: () {
-            switch (_contextTabIndex) {
-              case 0:
-                // Dashboard tab (Empty Placeholder)
-                return Center(
-                  child: Text(
-                    'Dashboard (Empty Placeholder)',
-                    style: theme.typography.h3.copyWith(
-                      color: theme.colorScheme.mutedForeground,
-                    ),
-                  ),
-                );
-              case 1:
-                // Details tab (Dynamic Action Bar + Table OR List View)
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    DynamicActionBar(
-                      entityName: 'Cards',
-                      selectedView: _selectedViewMode,
-                      onViewChanged: (viewMode) {
-                        setState(() => _selectedViewMode = viewMode);
-                      },
-                      searchQuery: _searchQuery,
-                      onSearchChanged: (val) {
-                        setState(() => _searchQuery = val);
-                      },
-                      // Mill Filter
-                      selectedMills: _selectedMills,
-                      millOptions: _millOptions,
-                      onMillChanged: (mills) {
-                        setState(() => _selectedMills = mills);
-                      },
-                      // Quality Filter
-                      selectedQualities: _selectedQualities,
-                      qualityOptions: _qualityOptions,
-                      onQualityChanged: (qualities) {
-                        setState(() => _selectedQualities = qualities);
-                      },
-                      // Status Filter
-                      selectedStatuses: _selectedStatuses,
-                      onStatusChanged: (statuses) {
-                        setState(() => _selectedStatuses = statuses);
-                      },
-                      // Date Filter
-                      selectedDateRange: _selectedDateRange,
-                      selectedDateLabel: _selectedDateLabel,
-                      onDateRangeSelected: (range) {
-                        setState(() {
-                          _selectedDateRange = range;
-                          if (range != null) {
-                            _selectedDateLabel = 'Selected Date Range';
-                          }
-                        });
-                      },
-                      // Clear All Action
-                      hasActiveFilters: _selectedMills.isNotEmpty ||
-                          _selectedQualities.isNotEmpty ||
-                          _selectedStatuses.isNotEmpty ||
-                          _selectedDateRange != null,
-                      onClearAllFilters: () {
-                        setState(() {
-                          _selectedMills = {};
-                          _selectedQualities = {};
-                          _selectedStatuses = {};
-                          _selectedDateRange = null;
-                          _selectedDateLabel = null;
-                        });
-                      },
-                      onOverflowFilterPressed: () {
-                        shad.showToast(
-                          context: context,
-                          builder: (context, show) => shad.Card(
-                            child: const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text('Overflow filters (3-dots) clicked.'),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    const shad.DensityGap(shad.gapSm),
-                    Expanded(
-                      child: _selectedViewMode == 'table'
-                          ? _buildDetailsTable(theme)
-                          : _buildDetailsListView(theme),
-                    ),
+  double get _totalReceivedMts {
+    double total = 0.0;
+    for (final roll in _allUncutRolls) {
+      if (_selectedRollIds.contains(roll.id)) {
+        if (roll.rawData != null && roll.rawData!['meters'] != null) {
+          total += (roll.rawData!['meters'] as num).toDouble();
+        }
+      }
+    }
+    return total;
+  }
+
+  double get _freshMts => _freshPcs * _selectedCutLength;
+  double get _secondMts => _secondPcs * _selectedCutLength;
+  double get _fentMts => (_fentWtGrams / 1000.0) * 2.5;
+
+  double get _freshPct => _totalReceivedMts > 0
+      ? ((_freshMts / _totalReceivedMts) * 100).clamp(0, 100)
+      : 0;
+  double get _secondPct => _totalReceivedMts > 0
+      ? ((_secondMts / _totalReceivedMts) * 100).clamp(0, 100)
+      : 0;
+  double get _fentPct => _totalReceivedMts > 0
+      ? ((_fentMts / _totalReceivedMts) * 100).clamp(0, 100)
+      : 0;
+  double get _shortagePct =>
+      (100 - (_freshPct + _secondPct + _fentPct)).clamp(0, 100);
+
+  @override
+  Widget build(BuildContext context) {
+    // Toggles between Base Landing Page and Add Cutting Card Workflow
+    if (_isCreating) {
+      return _buildAddCuttingCardView(context);
+    }
+    return _buildLandingView(context);
+  }
+
+  // =========================================================================
+  // VIEW 1: BASE LANDING PAGE (Cutting Cards Landing View with + New Button)
+  // =========================================================================
+  Widget _buildLandingView(BuildContext context) {
+    final theme = shad.Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return FocusTraversalGroup(
+      policy: WidgetOrderTraversalPolicy(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 1. PAGE HEADER (Title: Cutting Cards + Primary Add Button)
+          PageHeader<void>(
+            title: 'Cutting Cards',
+            mode: PageHeaderMode.standard,
+            actions: [
+              shad.PrimaryButton(
+                onPressed: () => setState(() => _isCreating = true),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(shad.LucideIcons.plus, size: 16),
+                    SizedBox(width: 6),
+                    Text('New Cutting Card'),
                   ],
-                );
-              case 2:
-                // Tasks tab (Empty Placeholder)
-                return Center(
-                  child: Text(
-                    'Tasks (Empty Placeholder)',
-                    style: theme.typography.h3.copyWith(
-                      color: theme.colorScheme.mutedForeground,
+                ),
+              ),
+            ],
+          ),
+          const shad.DensityGap(shad.gapMd),
+
+          // 2. CONTEXT TABS (Dashboard, Details, Tasks)
+          Row(
+            children: [
+              shad.Tabs(
+                index: _contextTabIndex,
+                onChanged: (int value) {
+                  _triggerPageLoading();
+                  setState(() => _contextTabIndex = value);
+                },
+                children: [
+                  const shad.TabItem(child: Text('Dashboard')),
+                  const shad.TabItem(child: Text('Details')),
+                  shad.TabItem(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('Tasks'),
+                        const shad.DensityGap(shad.gapXs),
+                        Container(
+                          width: 6 * theme.scaling,
+                          height: 6 * theme.scaling,
+                          decoration: BoxDecoration(
+                            color: colors.destructive,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+                ],
+              ),
+            ],
+          ),
+          const shad.DensityGap(shad.gapSm),
+
+          // 3. DYNAMIC ACTION BAR (DAB) WITH SUBMODULE SELECTOR AT INDEX 1
+          DynamicActionBar(
+            entityName: 'Cutting Cards',
+            selectedView: _selectedViewMode,
+            onViewChanged: (val) => setState(() => _selectedViewMode = val),
+            submoduleWidget: Builder(
+              builder: (btnContext) {
+                return MicroButton(
+                  leadingIcon: _selectedCategory.icon,
+                  label: _selectedCategory.label,
+                  badgeCount: _categoryCounts[_selectedCategory] ?? 0,
+                  trailingIcon: shad.LucideIcons.chevronDown,
+                  isSelected: true,
+                  onPressed: () {
+                    shad.showOverlay(
+                      btnContext,
+                      shad.PopoverConfiguration(
+                        anchorAlignment: Alignment.bottomLeft,
+                        alignment: Alignment.topLeft,
+                        offset: const Offset(0, 4),
+                        builder: (context) =>
+                            DabSubmodulePopover<PurchaseOrderCategory>(
+                          title: 'Submodule',
+                          selectedId: _selectedCategory,
+                          items: PurchaseOrderCategory.values.map((cat) {
+                            return DabSubmoduleItem<PurchaseOrderCategory>(
+                              id: cat,
+                              label: cat.label,
+                              icon: cat.icon,
+                              count: _categoryCounts[cat] ?? 0,
+                            );
+                          }).toList(),
+                          onSelected: (cat) =>
+                              setState(() => _selectedCategory = cat),
+                        ),
+                      ),
+                    );
+                  },
                 );
-              default:
-                return const SizedBox.shrink();
-            }
-          }(),
-        ),
-      ],
+              },
+            ),
+            searchQuery: _searchQuery,
+            onSearchChanged: (val) => setState(() => _searchQuery = val),
+            selectedMills:
+                _selectedSupplier != 'All' ? {_selectedSupplier} : {},
+            millOptions: _supplierOptions,
+            onMillChanged: (set) => setState(
+                () => _selectedSupplier = set.isNotEmpty ? set.first : 'All'),
+            selectedQualities:
+                _selectedQuality != 'All' ? {_selectedQuality} : {},
+            qualityOptions: _qualityOptions,
+            onQualityChanged: (set) => setState(
+                () => _selectedQuality = set.isNotEmpty ? set.first : 'All'),
+            selectedStatuses: _selectedStatuses,
+            onStatusChanged: (statuses) =>
+                setState(() => _selectedStatuses = statuses),
+            selectedDateRange: _selectedDateRange,
+            selectedDateLabel: _selectedDateLabel,
+            onDateRangeSelected: (range) {
+              setState(() {
+                _selectedDateRange = range;
+                _selectedDateLabel =
+                    range != null ? 'Selected Date Range' : null;
+              });
+            },
+            hasActiveFilters: _selectedSupplier != 'All' ||
+                _selectedQuality != 'All' ||
+                _selectedStatuses.isNotEmpty ||
+                _selectedDateRange != null,
+            onClearAllFilters: _onResetFilters,
+          ),
+          const shad.DensityGap(shad.gapSm),
+
+          // 4. CONTENT VIEW COMPUTATION (Table vs Split View)
+          Expanded(
+            child: () {
+              switch (_contextTabIndex) {
+                case 0:
+                  return Center(
+                    child: Text(
+                      'Cutting Cards Dashboard (Analytics & Insights)',
+                      style: theme.typography.h3
+                          .copyWith(color: colors.mutedForeground),
+                    ),
+                  );
+                case 1:
+                  return _selectedViewMode == 'table'
+                      ? _buildLandingTable(theme)
+                      : _buildLandingSplitView(theme);
+                case 2:
+                  return Center(
+                    child: Text(
+                      'Tasks Placeholder',
+                      style: theme.typography.h3
+                          .copyWith(color: colors.mutedForeground),
+                    ),
+                  );
+                default:
+                  return const SizedBox.shrink();
+              }
+            }(),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildDetailsListView(shad.ThemeData theme) {
-    final colors = theme.colorScheme;
-    final item = _selectedListItem;
+  Widget _buildLandingTable(shad.ThemeData theme) {
+    const columns = [
+      DynamicTableColumnSpec(key: 'vno', label: 'Voucher No', width: 110),
+      DynamicTableColumnSpec(
+          key: 'partyName', label: 'Party / Weaver', width: 220),
+      DynamicTableColumnSpec(
+          key: 'designPattern', label: 'Design & Quality', width: 200),
+      DynamicTableColumnSpec(key: 'quantity', label: 'Quantity', width: 130),
+      DynamicTableColumnSpec(key: 'amount', label: 'Amount', width: 140),
+      DynamicTableColumnSpec(key: 'status', label: 'Status', width: 120),
+    ];
 
-    final rawData = item?.rawData ?? {};
-    final partyName = rawData['partyName']?.toString() ?? item?.title ?? '';
-    final voucherNo = item?.indexNumber ?? '10481';
-    final amountStr = item?.amount ?? '₹0.00';
-    final statusStr = rawData['status']?.toString() ?? 'PENDING';
-    final itemsList = (rawData['items'] as List<Map<String, dynamic>>?) ?? [];
+    return DynamicDenseTable(
+      columns: columns,
+      rows: _allUncutRolls,
+      enableExpansion: true,
+    );
+  }
+
+  Widget _buildLandingSplitView(shad.ThemeData theme) {
+    final listItems = _allUncutRolls.map((roll) {
+      return DynamicListItem(
+        id: roll.id,
+        topLeading: const shad.OutlineBadge(child: Text('Uncut')),
+        topTrailing: '28 Jul',
+        title: roll.partyName,
+        amount: roll.amount,
+        subtitle: roll.designPattern,
+        indexNumber: roll.voucherNo,
+      );
+    }).toList();
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         DynamicList(
-          items: _mockListItems,
-          selectedItem: _selectedListItem,
-          onItemSelected: (selected) {
-            setState(() => _selectedListItem = selected);
-          },
+          items: listItems,
+          selectedItem: listItems.first,
+          onItemSelected: (selected) {},
           width: 340,
           showHeader: false,
-          totalRecords: _mockListItems.length,
         ),
         const SizedBox(width: 12),
         DynamicContentPane(
-          title: 'PB-$voucherNo',
-          statusBadge: _buildStatusBadge(statusStr),
-          toolbarActions: [
-            shad.Tabs(
-              index: _contentViewIndex,
-              onChanged: (val) => setState(() => _contentViewIndex = val),
-              children: const [
-                shad.TabItem(child: Text('Tabular View')),
-                shad.TabItem(child: Text('PDF Layout')),
-              ],
-            ),
-            shad.IconButton.outline(
-              size: shad.ButtonSize.small,
-              icon: const Icon(shad.LucideIcons.printer, size: 16),
-              onPressed: () {},
-            ),
-            shad.IconButton.outline(
-              size: shad.ButtonSize.small,
-              icon: const Icon(shad.LucideIcons.download, size: 16),
-              onPressed: () {},
-            ),
-          ],
+          title: 'Batch #CC-0041 Details',
+          statusBadge: const shad.OutlineBadge(child: Text('UNCUT')),
           primaryAction: shad.PrimaryButton(
             size: shad.ButtonSize.small,
-            density: shad.ButtonDensity.iconDense,
-            onPressed: () {
-              _switchHeaderMode(PageHeaderMode.editing, docId: 'PB-$voucherNo');
-            },
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(shad.LucideIcons.pencil, size: 14),
-                SizedBox(width: 4),
-                Text('Edit'),
-              ],
-            ),
+            onPressed: () => setState(() => _isCreating = true),
+            child: const Text('Edit Card'),
           ),
-          footerLeading: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '${itemsList.length} Line Items',
-                style: theme.typography.textSmall.copyWith(fontWeight: FontWeight.w600, color: colors.foreground),
-              ),
-              const SizedBox(width: 16),
-              Text('Total Payable:', style: theme.typography.textSmall.copyWith(color: colors.mutedForeground)),
-              const SizedBox(width: 6),
-              Text(
-                amountStr,
-                style: theme.typography.mono.copyWith(
-                  fontSize: 13 * theme.scaling,
-                  fontWeight: FontWeight.w600,
-                  color: colors.primary,
-                ),
-              ),
+              Text('Uncut Roll Item Details',
+                  style: theme.typography.h4
+                      .copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Text('Select a roll card from the left panel to inspect details.',
+                  style: theme.typography.textMuted),
             ],
           ),
-          footerAction: shad.PrimaryButton(
-            size: shad.ButtonSize.small,
-            density: shad.ButtonDensity.iconDense,
-            onPressed: () {},
-            child: const Text('Approve & Pay'),
-          ),
-          child: _contentViewIndex == 0
-              ? _buildTabularBody(theme, colors, voucherNo, partyName, itemsList)
-              : _buildZohoPdfBody(theme, colors, voucherNo, partyName, itemsList, amountStr),
         ),
       ],
     );
   }
 
-  Widget _buildStatusBadge(String status) {
-    switch (status.toUpperCase()) {
-      case 'COMPLETED':
-      case 'PAID':
-        return const shad.PrimaryBadge(child: Text('Completed'));
-      case 'PENDING':
-      case 'UNPAID':
-        return const shad.OutlineBadge(child: Text('Pending'));
-      case 'IN_PROCESS':
-      case 'IN PROCESS':
-        return const shad.SecondaryBadge(child: Text('In Process'));
-      default:
-        return shad.SecondaryBadge(child: Text(status));
-    }
-  }
+  // =========================================================================
+  // VIEW 2: ADD CUTTING CARD WORKFLOW (MAXWIDTH: 1200px CENTERED)
+  // =========================================================================
+  Widget _buildAddCuttingCardView(BuildContext context) {
+    final theme = shad.Theme.of(context);
+    final colors = theme.colorScheme;
 
-  Widget _buildTabularBody(
-    shad.ThemeData theme,
-    shad.ColorScheme colors,
-    String voucherNo,
-    String partyName,
-    List<Map<String, dynamic>> items,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            Expanded(child: _buildMetaBox(theme, colors, 'VOUCHER NO', 'PB-$voucherNo')),
-            const SizedBox(width: 12),
-            Expanded(child: _buildMetaBox(theme, colors, 'BILL DATE', '28 Jul 2026')),
-            const SizedBox(width: 12),
-            Expanded(child: _buildMetaBox(theme, colors, 'PAYMENT TERMS', 'Net 30 Days')),
-            const SizedBox(width: 12),
-            Expanded(child: _buildMetaBox(theme, colors, 'STATION / HUB', 'Surat Warehouse')),
-          ],
-        ),
-        const SizedBox(height: 16),
-        shad.OutlinedContainer(
-          borderColor: colors.border,
-          borderRadius: BorderRadius.circular(theme.radiusMd),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                color: colors.muted.withAlpha(80),
-                child: Row(
-                  children: [
-                    SizedBox(width: 40, child: Text('SR', style: theme.typography.xSmall.copyWith(fontWeight: FontWeight.bold))),
-                    Expanded(flex: 3, child: Text('ITEM / FABRIC QUALITY', style: theme.typography.xSmall.copyWith(fontWeight: FontWeight.bold))),
-                    Expanded(flex: 2, child: Text('HSN CODE', style: theme.typography.xSmall.copyWith(fontWeight: FontWeight.bold))),
-                    SizedBox(width: 90, child: Text('QUANTITY', textAlign: TextAlign.right, style: theme.typography.xSmall.copyWith(fontWeight: FontWeight.bold))),
-                    SizedBox(width: 90, child: Text('RATE', textAlign: TextAlign.right, style: theme.typography.xSmall.copyWith(fontWeight: FontWeight.bold))),
-                    SizedBox(width: 110, child: Text('AMOUNT', textAlign: TextAlign.right, style: theme.typography.xSmall.copyWith(fontWeight: FontWeight.bold))),
-                  ],
+    final displayedRolls = _allUncutRolls.where((roll) {
+      if (_selectedFormMill != null && _selectedFormMill!.isNotEmpty) {
+        if (roll.partyName.toLowerCase() != _selectedFormMill!.toLowerCase()) {
+          return false;
+        }
+      }
+      if (_selectedFormQuality != null && _selectedFormQuality!.isNotEmpty) {
+        final qual = roll.rawData?['qual'] as String? ?? '';
+        if (qual.toLowerCase() != _selectedFormQuality!.toLowerCase()) {
+          return false;
+        }
+      }
+      return true;
+    }).toList();
+
+    return PageFormCanvas(
+      maxWidth: 1400.0,
+      sidePaneWidth: 340.0,
+      header: PageHeader<void>(
+        title: 'Cutting Card',
+        mode: PageHeaderMode.adding,
+        onBack: () => setState(() => _isCreating = false),
+        onDiscard: () => setState(() => _isCreating = false),
+        onConfirm: _handleSaveBatch,
+      ),
+      mainPane: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // DYNAMIC ACTION BAR FOR ADD FLOW (Top of Pane 1)
+          DynamicActionBar(
+            entityName: 'Uncut Rolls',
+            selectedView: _selectedViewMode,
+            onViewChanged: (mode) => setState(() => _selectedViewMode = mode),
+            supportedViewModes: const ['table', 'cards'],
+            showSearch: false,
+            showFilterButtons: false,
+            showDateFilter: false,
+            millAutoComplete: SizedBox(
+              width: 170 * theme.scaling,
+              child: shad.AutoComplete(
+                suggestions: _filteredMillSuggestions,
+                child: shad.TextField(
+                  filled: true,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12 * theme.scaling,
+                    vertical: 7 * theme.scaling,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colors.card,
+                    borderRadius: BorderRadius.circular(theme.radiusMd),
+                    border: Border.all(color: colors.border),
+                  ),
+                  controller: _millController,
+                  placeholder: const Text('Select Mill'),
+                  onChanged: (val) {
+                    _updateMillSuggestions(val);
+                    setState(
+                        () => _selectedFormMill = val.isEmpty ? null : val);
+                  },
+                  features: const [shad.InputFeature.clear()],
                 ),
               ),
-              const shad.Divider(),
-              ...items.asMap().entries.map((entry) {
-                final idx = entry.key + 1;
-                final item = entry.value;
-                return Column(
+            ),
+            qualityAutoComplete: SizedBox(
+              width: 170 * theme.scaling,
+              child: shad.AutoComplete(
+                suggestions: _filteredQualitySuggestions,
+                child: shad.TextField(
+                  filled: true,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12 * theme.scaling,
+                    vertical: 7 * theme.scaling,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colors.card,
+                    borderRadius: BorderRadius.circular(theme.radiusMd),
+                    border: Border.all(color: colors.border),
+                  ),
+                  controller: _qualityController,
+                  placeholder: const Text('Select Fabrics'),
+                  onChanged: (val) {
+                    _updateQualitySuggestions(val);
+                    setState(
+                        () => _selectedFormQuality = val.isEmpty ? null : val);
+                  },
+                  features: const [shad.InputFeature.clear()],
+                ),
+              ),
+            ),
+            groupingSwitcher: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Group by:',
+                  style: theme.typography.xSmall.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colors.mutedForeground,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                shad.ButtonGroup(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      child: Row(
+                    _buildGroupIconButtonWithTooltip(
+                        'none', 'None', shad.LucideIcons.ban),
+                    _buildGroupIconButtonWithTooltip(
+                        'vno', 'Date', shad.LucideIcons.calendar),
+                    _buildGroupIconButtonWithTooltip(
+                        'mill', 'Rate', shad.LucideIcons.tag),
+                    _buildGroupIconButtonWithTooltip(
+                        'qual', 'Design No', shad.LucideIcons.fileText),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const shad.DensityGap(shad.gapSm),
+
+          // UNCUT ROLLS DENSE DATA TABLE WITH GROUPING (enableExpansion = false)
+          Expanded(
+            child: DynamicDenseTable(
+              groupByKey: _groupByKey == 'none' ? null : _groupByKey,
+              enableExpansion: false,
+              columns: const [
+                DynamicTableColumnSpec(
+                    key: 'cardNo', label: 'Roll / Card No', width: 130),
+                DynamicTableColumnSpec(
+                    key: 'vno', label: 'Voucher No', width: 110),
+                DynamicTableColumnSpec(
+                    key: 'partyName', label: 'Mill / Weaver', width: 190),
+                DynamicTableColumnSpec(
+                    key: 'designPattern',
+                    label: 'Design & Quality',
+                    width: 200),
+                DynamicTableColumnSpec(
+                    key: 'quantity', label: 'Available Mts', width: 130),
+                DynamicTableColumnSpec(
+                    key: 'status', label: 'Status', width: 100),
+              ],
+              rows: displayedRolls,
+              selectedRowIds: _selectedRollIds,
+              onSelectionChanged: (set) {
+                setState(() {
+                  _selectedRollIds.clear();
+                  _selectedRollIds.addAll(set);
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+      sidePane: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // BATCH SPECS FORM CARD
+          shad.Card(
+            padding: EdgeInsets.all(14 * theme.scaling),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(shad.LucideIcons.scissors,
+                        size: 16, color: colors.primary),
+                    const SizedBox(width: 8),
+                    Text(
+                      'BATCH SPECIFICATIONS',
+                      style: theme.typography.small.copyWith(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                  ],
+                ),
+                const shad.Divider(),
+                const shad.DensityGap(shad.gapSm),
+                Text('Cut Date',
+                    style: theme.typography.xSmall
+                        .copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                shad.TextField(
+                  readOnly: true,
+                  initialValue:
+                      '${_cutDate.day}/${_cutDate.month}/${_cutDate.year}',
+                  features: const [
+                    shad.InputFeature.trailing(Icon(shad.LucideIcons.calendar))
+                  ],
+                ),
+                const shad.DensityGap(shad.gapSm),
+                Text('Batch No (Auto)',
+                    style: theme.typography.xSmall
+                        .copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                shad.TextField(
+                  readOnly: true,
+                  initialValue: '#$_batchNo',
+                ),
+                const shad.DensityGap(shad.gapSm),
+                Text('Cut Length (Mts)',
+                    style: theme.typography.xSmall
+                        .copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 6),
+                Row(
+                  children: [5.20, 5.35, 6.00, 6.25].map((len) {
+                    final isSelected = len == _selectedCutLength;
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2),
+                        child: isSelected
+                            ? shad.PrimaryButton(
+                                density: shad.ButtonDensity.compact,
+                                onPressed: () =>
+                                    setState(() => _selectedCutLength = len),
+                                child: Text(len.toStringAsFixed(2)),
+                              )
+                            : shad.OutlineButton(
+                                density: shad.ButtonDensity.compact,
+                                onPressed: () =>
+                                    setState(() => _selectedCutLength = len),
+                                child: Text(len.toStringAsFixed(2)),
+                              ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const shad.DensityGap(shad.gapSm),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(width: 40, child: Text('$idx', style: theme.typography.textSmall.copyWith(color: colors.mutedForeground))),
-                          Expanded(
-                            flex: 3,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(item['name'] ?? '', style: theme.typography.textSmall.copyWith(fontWeight: FontWeight.w600)),
-                                Text(item['desc'] ?? '', style: theme.typography.xSmall.copyWith(color: colors.mutedForeground)),
-                              ],
-                            ),
-                          ),
-                          Expanded(flex: 2, child: Text(item['hsn'] ?? '5407', style: theme.typography.mono.copyWith(fontSize: 12 * theme.scaling))),
-                          SizedBox(
-                            width: 90,
-                            child: Text(
-                              '${item['qty']} ${item['unit'] ?? 'Mtr'}',
-                              textAlign: TextAlign.right,
-                              style: theme.typography.mono.copyWith(fontSize: 13 * theme.scaling, fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 90,
-                            child: Text(
-                              '₹${item['rate']}',
-                              textAlign: TextAlign.right,
-                              style: theme.typography.mono.copyWith(fontSize: 13 * theme.scaling, fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 110,
-                            child: Text(
-                              '₹${item['amount']}',
-                              textAlign: TextAlign.right,
-                              style: theme.typography.mono.copyWith(fontSize: 13 * theme.scaling, fontWeight: FontWeight.bold),
-                            ),
+                          Text('Fresh Pcs',
+                              style: theme.typography.xSmall
+                                  .copyWith(fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 4),
+                          shad.TextField(
+                            initialValue: '$_freshPcs',
+                            onChanged: (val) {
+                              final p = int.tryParse(val) ?? 0;
+                              setState(() => _freshPcs = p);
+                            },
                           ),
                         ],
                       ),
                     ),
-                    if (idx < items.length) const shad.Divider(),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Second Pcs',
+                              style: theme.typography.xSmall
+                                  .copyWith(fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 4),
+                          shad.TextField(
+                            initialValue: '$_secondPcs',
+                            onChanged: (val) {
+                              final p = int.tryParse(val) ?? 0;
+                              setState(() => _secondPcs = p);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
-                );
-              }),
-            ],
+                ),
+                const shad.DensityGap(shad.gapSm),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Saree Wt (g)',
+                              style: theme.typography.xSmall
+                                  .copyWith(fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 4),
+                          shad.TextField(
+                            initialValue: '$_sareeWtGrams',
+                            onChanged: (val) {
+                              final w = int.tryParse(val) ?? 0;
+                              setState(() => _sareeWtGrams = w);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Fent Wt (g)',
+                              style: theme.typography.xSmall
+                                  .copyWith(fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 4),
+                          shad.TextField(
+                            initialValue: '${_fentWtGrams.toInt()}',
+                            onChanged: (val) {
+                              final w = double.tryParse(val) ?? 0;
+                              setState(() => _fentWtGrams = w);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
-    );
-  }
+          const shad.DensityGap(shad.gapSm),
 
-  Widget _buildZohoPdfBody(
-    shad.ThemeData theme,
-    shad.ColorScheme colors,
-    String voucherNo,
-    String partyName,
-    List<Map<String, dynamic>> items,
-    String amountStr,
-  ) {
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 820),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.brightness == Brightness.dark ? const Color(0xFF1C1A17) : Colors.white,
-          borderRadius: BorderRadius.circular(theme.radiusMd),
-          border: Border.all(color: colors.border),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(15),
-              blurRadius: 12,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
+          // LIVE PERFORMANCE RECOVERY METRICS CARD
+          shad.Card(
+            padding: EdgeInsets.all(14 * theme.scaling),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'AMBAJI SAREES PRIVATE LIMITED',
-                        style: theme.typography.h3.copyWith(
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                          color: colors.primary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text('Plot #104, Ring Road Textile Market, Surat - 395002', style: theme.typography.xSmall.copyWith(color: colors.mutedForeground)),
-                      Text('GSTIN: 24AAACA1234B1Z9 | Phone: +91 98251 00000', style: theme.typography.xSmall.copyWith(color: colors.mutedForeground)),
-                    ],
+                Text(
+                  'TOTAL RECEIVED METERS',
+                  style: theme.typography.xSmall
+                      .copyWith(color: colors.mutedForeground),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${_totalReceivedMts.toStringAsFixed(1)} Mts',
+                  style: theme.typography.h2.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: _totalReceivedMts > 0
+                        ? colors.primary
+                        : colors.mutedForeground,
                   ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      'PURCHASE BILL',
-                      style: theme.typography.h2.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: colors.foreground.withAlpha(180),
-                      ),
-                    ),
-                    Text('# PB-$voucherNo', style: theme.typography.mono.copyWith(fontSize: 14 * theme.scaling, fontWeight: FontWeight.bold, color: colors.primary)),
-                  ],
+                Text(
+                  '${_selectedRollIds.length} rolls selected for cutting',
+                  style: theme.typography.xSmall
+                      .copyWith(color: colors.mutedForeground),
                 ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Divider(color: colors.border, thickness: 1),
-            const SizedBox(height: 16),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: colors.muted.withAlpha(40),
-                      borderRadius: BorderRadius.circular(theme.radiusMd),
-                      border: Border.all(color: colors.border),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('VENDOR / SUPPLIER:', style: theme.typography.xSmall.copyWith(fontWeight: FontWeight.bold, color: colors.mutedForeground)),
-                        const SizedBox(height: 6),
-                        Text(partyName, style: theme.typography.textSmall.copyWith(fontWeight: FontWeight.bold, color: colors.foreground)),
-                        Text('Station Road, Industrial Estate, Surat', style: theme.typography.xSmall.copyWith(color: colors.mutedForeground)),
-                        Text('GSTIN: 24BBBPB9876C1Z4', style: theme.typography.xSmall.copyWith(color: colors.mutedForeground)),
-                      ],
-                    ),
-                  ),
+                const shad.Divider(),
+                const shad.DensityGap(shad.gapSm),
+                _buildRecoveryProgressBar(
+                  theme,
+                  colors,
+                  label: 'Shortage (Input / Rec)',
+                  percentage: _shortagePct,
+                  color: colors.mutedForeground,
+                  subtitle:
+                      '${(_totalReceivedMts - (_freshMts + _secondMts + _fentMts)).clamp(0, 9999).toStringAsFixed(1)} Mts',
                 ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: Column(
-                    children: [
-                      _buildZohoInfoRow(theme, colors, 'Bill Date:', '28 Jul 2026'),
-                      _buildZohoInfoRow(theme, colors, 'Due Date:', '28 Aug 2026'),
-                      _buildZohoInfoRow(theme, colors, 'Payment Terms:', 'Net 30 Days'),
-                      _buildZohoInfoRow(theme, colors, 'Place of Supply:', '24 - Gujarat'),
-                    ],
+                _buildRecoveryProgressBar(
+                  theme,
+                  colors,
+                  label: 'Fresh Recovery',
+                  percentage: _freshPct,
+                  color: colors.primary,
+                  subtitle:
+                      '${_freshMts.toStringAsFixed(1)} Mts ($_freshPcs Pcs)',
+                ),
+                _buildRecoveryProgressBar(
+                  theme,
+                  colors,
+                  label: 'Seconds Recovery',
+                  percentage: _secondPct,
+                  color: colors.destructive,
+                  subtitle:
+                      '${_secondMts.toStringAsFixed(1)} Mts ($_secondPcs Pcs)',
+                ),
+                _buildRecoveryProgressBar(
+                  theme,
+                  colors,
+                  label: 'Fents (By Weight)',
+                  percentage: _fentPct,
+                  color: Colors.amber,
+                  subtitle:
+                      '${_fentMts.toStringAsFixed(1)} Mts (${_fentWtGrams.toInt()}g)',
+                ),
+                const shad.DensityGap(shad.gapMd),
+                SizedBox(
+                  width: double.infinity,
+                  child: shad.PrimaryButton(
+                    onPressed:
+                        _selectedRollIds.isEmpty ? null : _handleSaveBatch,
+                    child: const Text('Confirm & Save Cutting Card'),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
-            Table(
-              border: TableBorder.all(color: colors.border, width: 0.8),
-              columnWidths: const {
-                0: FixedColumnWidth(40),
-                1: FlexColumnWidth(4),
-                2: FixedColumnWidth(70),
-                3: FixedColumnWidth(80),
-                4: FixedColumnWidth(90),
-                5: FixedColumnWidth(110),
-              },
-              children: [
-                TableRow(
-                  decoration: BoxDecoration(color: colors.muted.withAlpha(120)),
-                  children: [
-                    _buildTableCell(theme, 'SR', isHeader: true, align: TextAlign.center),
-                    _buildTableCell(theme, 'ITEM & DESCRIPTION', isHeader: true),
-                    _buildTableCell(theme, 'HSN', isHeader: true, align: TextAlign.center),
-                    _buildTableCell(theme, 'QTY', isHeader: true, align: TextAlign.right),
-                    _buildTableCell(theme, 'RATE', isHeader: true, align: TextAlign.right),
-                    _buildTableCell(theme, 'AMOUNT', isHeader: true, align: TextAlign.right),
-                  ],
-                ),
-                ...items.asMap().entries.map((entry) {
-                  final idx = entry.key + 1;
-                  final item = entry.value;
-                  return TableRow(
-                    children: [
-                      _buildTableCell(theme, '$idx', align: TextAlign.center),
-                      _buildTableCell(theme, '${item['name']}\n${item['desc']}'),
-                      _buildTableCell(theme, '${item['hsn'] ?? '5407'}', isMono: true, align: TextAlign.center),
-                      _buildTableCell(theme, '${item['qty']} ${item['unit'] ?? 'Mtr'}', isMono: true, align: TextAlign.right),
-                      _buildTableCell(theme, '₹${item['rate']}', isMono: true, align: TextAlign.right),
-                      _buildTableCell(theme, '₹${item['amount']}', isMono: true, isBold: true, align: TextAlign.right),
-                    ],
-                  );
-                }),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('BANK DETAILS:', style: theme.typography.xSmall.copyWith(fontWeight: FontWeight.bold, color: colors.mutedForeground)),
-                      const SizedBox(height: 4),
-                      Text('Bank: HDFC Bank Ltd • A/C: 50200012345678', style: theme.typography.xSmall.copyWith(color: colors.foreground)),
-                      Text('IFSC: HDFC0000124 • Branch: Ring Road Surat', style: theme.typography.xSmall.copyWith(color: colors.foreground)),
-                      const SizedBox(height: 12),
-                      Text('TERMS & CONDITIONS:', style: theme.typography.xSmall.copyWith(fontWeight: FontWeight.bold, color: colors.mutedForeground)),
-                      Text('1. Goods once sold will not be taken back.', style: theme.typography.xSmall.copyWith(color: colors.mutedForeground)),
-                      Text('2. Subject to Surat Jurisdiction only.', style: theme.typography.xSmall.copyWith(color: colors.mutedForeground)),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 20),
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: colors.muted.withAlpha(40),
-                      borderRadius: BorderRadius.circular(theme.radiusMd),
-                      border: Border.all(color: colors.border),
-                    ),
-                    child: Column(
-                      children: [
-                        _buildTotalRow(theme, colors, 'Sub Total', amountStr),
-                        const SizedBox(height: 6),
-                        _buildTotalRow(theme, colors, 'CGST (2.5%)', '₹6,000.00'),
-                        const SizedBox(height: 6),
-                        _buildTotalRow(theme, colors, 'SGST (2.5%)', '₹6,000.00'),
-                        const SizedBox(height: 8),
-                        Divider(color: colors.border),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Grand Total', style: theme.typography.textSmall.copyWith(fontWeight: FontWeight.bold)),
-                            Text(
-                              amountStr,
-                              style: theme.typography.mono.copyWith(
-                                fontSize: 15 * theme.scaling,
-                                fontWeight: FontWeight.bold,
-                                color: colors.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMetaBox(shad.ThemeData theme, shad.ColorScheme colors, String label, String value) {
-    return shad.OutlinedContainer(
-      borderColor: colors.border,
-      borderRadius: BorderRadius.circular(theme.radiusMd),
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: theme.typography.xSmall.copyWith(color: colors.mutedForeground, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          Text(value, style: theme.typography.textSmall.copyWith(fontWeight: FontWeight.bold, color: colors.foreground)),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildZohoInfoRow(shad.ThemeData theme, shad.ColorScheme colors, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.5),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: theme.typography.xSmall.copyWith(color: colors.mutedForeground)),
-          Text(value, style: theme.typography.xSmall.copyWith(fontWeight: FontWeight.w600, color: colors.foreground)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTableCell(
+  Widget _buildRecoveryProgressBar(
     shad.ThemeData theme,
-    String text, {
-    bool isHeader = false,
-    bool isMono = false,
-    bool isBold = false,
-    TextAlign align = TextAlign.left,
+    shad.ColorScheme colors, {
+    required String label,
+    required double percentage,
+    required Color color,
+    required String subtitle,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      child: Text(
-        text,
-        textAlign: align,
-        style: isMono
-            ? theme.typography.mono.copyWith(
-                fontSize: 12.5 * theme.scaling,
-                fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
-              )
-            : (isHeader
-                ? theme.typography.xSmall.copyWith(fontWeight: FontWeight.bold)
-                : theme.typography.xSmall.copyWith(fontWeight: isBold ? FontWeight.bold : FontWeight.normal)),
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(label,
+                  style: theme.typography.xSmall
+                      .copyWith(fontWeight: FontWeight.bold)),
+              Text('${percentage.toStringAsFixed(1)}%',
+                  style: theme.typography.xSmall
+                      .copyWith(fontWeight: FontWeight.bold, color: color)),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(subtitle,
+              style: theme.typography.xSmall
+                  .copyWith(color: colors.mutedForeground, fontSize: 10)),
+          const SizedBox(height: 4),
+          shad.Progress(
+            progress: (percentage / 100.0).clamp(0.0, 1.0),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildTotalRow(shad.ThemeData theme, shad.ColorScheme colors, String label, String val) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: theme.typography.xSmall.copyWith(color: colors.mutedForeground)),
-        Text(val, style: theme.typography.mono.copyWith(fontSize: 12.5 * theme.scaling, fontWeight: FontWeight.w500)),
-      ],
-    );
-  }
-
-  Widget _buildDetailsTable(shad.ThemeData theme) {
-    const columns = [
-      DynamicTableColumnSpec(label: 'VOUCHER NO', key: 'voucherNo', isSortable: true, flex: 2),
-      DynamicTableColumnSpec(label: 'PARTY NAME', key: 'partyName', isSortable: true, flex: 3),
-      DynamicTableColumnSpec(label: 'DESIGN PATTERN', key: 'designPattern', isSortable: false, flex: 3),
-      DynamicTableColumnSpec(label: 'QUANTITY', key: 'quantity', isSortable: true, flex: 2),
-      DynamicTableColumnSpec(label: 'AMOUNT', key: 'amount', isSortable: true, flex: 2),
-      DynamicTableColumnSpec(label: 'STATUS', key: 'status', isSortable: true, flex: 2),
-      DynamicTableColumnSpec(label: '', key: 'actions', isSortable: false, width: 80, alignment: Alignment.centerRight),
-    ];
-
-    const rows = [
-      DynamicTableRowData(
-        id: 'row-101',
-        voucherNo: '10481',
-        partyName: 'Ambaji Traders (Surat)',
-        designPattern: 'D-4089 (Royal Silk)',
-        quantity: '1,200 Mtr',
-        amount: '₹2,40,000',
-        amountValue: 240000,
-        status: 'PENDING',
-        expandedDetails: 'Expanded Line Details: Grey Fabric Lot #10481 • Station: Surat Warehouse • Dispatcher: Ramesh (Emp #42)',
-        thumbnailUrl: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=150&auto=format&fit=crop&q=80',
-        imageUrls: [
-          'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=800&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?w=800&auto=format&fit=crop&q=80',
-        ],
+  Widget _buildGroupIconButtonWithTooltip(
+      String key, String label, IconData icon) {
+    final isSelected = _groupByKey == key;
+    final theme = shad.Theme.of(context);
+    final colors = theme.colorScheme;
+    return shad.Tooltip(
+      tooltip: (context) => shad.TooltipContainer(
+        child: Text('Group by $label'),
       ),
-      DynamicTableRowData(
-        id: 'row-102',
-        voucherNo: '10482',
-        partyName: 'Shree Ram Sarees (Ahm)',
-        designPattern: 'D-3021 (Chiffon Jacquard)',
-        quantity: '850 Mtr',
-        amount: '₹1,70,000',
-        amountValue: 170000,
-        status: 'COMPLETED',
-        expandedDetails: 'Expanded Line Details: Grey Fabric Lot #10482 • Station: Ahmedabad Depot • Dispatcher: Suresh (Emp #19)',
-        thumbnailUrl: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=150&auto=format&fit=crop&q=80',
-        imageUrls: [
-          'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=800&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&auto=format&fit=crop&q=80',
-        ],
+      child: shad.IconButton.outline(
+        density: shad.ButtonDensity.normal,
+        icon: Icon(
+          icon,
+          size: 16 * theme.scaling,
+          color: isSelected ? colors.primary : colors.mutedForeground,
+        ),
+        onPressed: () => setState(() => _groupByKey = key),
       ),
-      DynamicTableRowData(
-        id: 'row-103',
-        voucherNo: '10483',
-        partyName: 'Vrindavan Textiles (Jaipur)',
-        designPattern: 'D-5100 (Organza Print)',
-        quantity: '2,400 Mtr',
-        amount: '₹5,10,000',
-        amountValue: 510000,
-        status: 'IN_PROCESS',
-        expandedDetails: 'Expanded Line Details: Grey Fabric Lot #10483 • Station: Jaipur Facility • Dispatcher: Mahesh (Emp #88)',
-        thumbnailUrl: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?w=150&auto=format&fit=crop&q=80',
-        imageUrls: [
-          'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?w=800&auto=format&fit=crop&q=80',
-        ],
-      ),
-      DynamicTableRowData(
-        id: 'row-104',
-        voucherNo: '10484',
-        partyName: 'Rajlaxmi Fashions (Delhi)',
-        designPattern: 'D-2045 (Heavy Satin)',
-        quantity: '600 Mtr',
-        amount: '₹1,20,000',
-        amountValue: 120000,
-        status: 'PENDING',
-        expandedDetails: 'Expanded Line Details: Grey Fabric Lot #10484 • Station: Delhi Hub • Dispatcher: Dinesh (Emp #14)',
-        thumbnailUrl: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=150&auto=format&fit=crop&q=80',
-        imageUrls: [
-          'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=800&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&auto=format&fit=crop&q=80',
-        ],
-      ),
-    ];
-
-    return DynamicDenseTable(
-      columns: columns,
-      rows: rows,
-      enableExpansion: true, // Optional expandable toggle enabled!
     );
   }
 }

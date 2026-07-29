@@ -24,7 +24,7 @@ class PurchaseBillService {
             .schema('IMMBE2627')
             .from('sq_BILLS')
             .select('VNO')
-            .eq('TYPE', cat.seriesCode)
+            .ilike('TYPE', cat.seriesCode)
             .lt('VNO', 100000)
             .count(CountOption.exact);
 
@@ -63,7 +63,7 @@ class PurchaseBillService {
           .schema('IMMBE2627')
           .from('sq_BILLS')
           .select('VNO')
-          .eq('TYPE', seriesCode)
+          .ilike('TYPE', seriesCode)
           .lt('VNO', 100000);
 
       if (filterSupplier != null && filterSupplier.isNotEmpty && filterSupplier != 'All') {
@@ -87,7 +87,7 @@ class PurchaseBillService {
           .schema('IMMBE2627')
           .from('sq_BILLS')
           .select('*')
-          .eq('TYPE', seriesCode)
+          .ilike('TYPE', seriesCode)
           .lt('VNO', 100000);
 
       if (filterSupplier != null && filterSupplier.isNotEmpty && filterSupplier != 'All') {

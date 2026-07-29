@@ -42,13 +42,25 @@ class DynamicActionBar extends StatelessWidget {
   // Index 0: View Mode Button Group (Table, List, Cards, Board)
   final String selectedView;
   final ValueChanged<String>? onViewChanged;
+  final List<String> supportedViewModes;
+
+  // Optional Submodule Selector Widget (placed at Index 1 after View Switcher)
+  final Widget? submoduleWidget;
+
+  // Optional Autocompletes & Grouping Switcher Slots
+  final Widget? millAutoComplete;
+  final Widget? qualityAutoComplete;
+  final Widget? groupingSwitcher;
+  final List<Widget>? customMiddleWidgets;
 
   // Index 1: Mandatory Search Field
+  final bool showSearch;
   final String? searchQuery;
   final ValueChanged<String>? onSearchChanged;
   final double? searchWidth;
 
   // Index 2: Filter Button Cards Data & Callbacks
+  final bool showFilterButtons;
   final Set<String> selectedMills;
   final List<String> millOptions;
   final ValueChanged<Set<String>>? onMillChanged;
@@ -63,6 +75,7 @@ class DynamicActionBar extends StatelessWidget {
   final VoidCallback? onOverflowFilterPressed;
 
   // Index 3: Mandatory Date Button Card & Popover
+  final bool showDateFilter;
   final shad.CalendarValue? selectedDateRange;
   final String? selectedDateLabel;
   final ValueChanged<shad.CalendarValue?>? onDateRangeSelected;
@@ -82,11 +95,20 @@ class DynamicActionBar extends StatelessWidget {
     // Index 0
     this.selectedView = 'table',
     this.onViewChanged,
+    this.supportedViewModes = const ['table', 'list', 'cards', 'board'],
+    this.submoduleWidget,
+    // Custom Autocompletes & Grouping
+    this.millAutoComplete,
+    this.qualityAutoComplete,
+    this.groupingSwitcher,
+    this.customMiddleWidgets,
     // Index 1
+    this.showSearch = true,
     this.searchQuery,
     this.onSearchChanged,
     this.searchWidth,
     // Index 2
+    this.showFilterButtons = true,
     this.selectedMills = const {},
     this.millOptions = const [],
     this.onMillChanged,
@@ -97,6 +119,7 @@ class DynamicActionBar extends StatelessWidget {
     this.onStatusChanged,
     this.onOverflowFilterPressed,
     // Index 3
+    this.showDateFilter = true,
     this.selectedDateRange,
     this.selectedDateLabel,
     this.onDateRangeSelected,
@@ -116,7 +139,9 @@ class DynamicActionBar extends StatelessWidget {
 
     final millLabel = selectedMills.isEmpty
         ? 'Mill'
-        : (selectedMills.length == 1 ? selectedMills.first : 'Mill (${selectedMills.length})');
+        : (selectedMills.length == 1
+            ? selectedMills.first
+            : 'Mill (${selectedMills.length})');
     final qualityLabel = selectedQualities.isEmpty
         ? 'Quality'
         : (selectedQualities.length == 1
@@ -132,7 +157,8 @@ class DynamicActionBar extends StatelessWidget {
       policy: WidgetOrderTraversalPolicy(),
       child: Padding(
         padding: EdgeInsets.symmetric(
-          vertical: theme.density.baseContainerPadding * theme.scaling * shad.padXs,
+          vertical:
+              theme.density.baseContainerPadding * theme.scaling * shad.padXs,
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -142,206 +168,256 @@ class DynamicActionBar extends StatelessWidget {
             // ==========================================
             shad.ButtonGroup(
               children: [
-                _buildViewButton(
-                  context: context,
-                  theme: theme,
-                  colors: colors,
-                  viewMode: 'table',
-                  icon: shad.LucideIcons.table,
-                  tooltipText: 'Table View',
-                  anchorAlignment: Alignment.bottomLeft,
-                  popoverAlignment: Alignment.topLeft,
-                ),
-                _buildViewButton(
-                  context: context,
-                  theme: theme,
-                  colors: colors,
-                  viewMode: 'list',
-                  icon: shad.LucideIcons.list,
-                  tooltipText: 'List View',
-                  anchorAlignment: Alignment.bottomCenter,
-                  popoverAlignment: Alignment.topCenter,
-                ),
-                _buildViewButton(
-                  context: context,
-                  theme: theme,
-                  colors: colors,
-                  viewMode: 'cards',
-                  icon: shad.LucideIcons.layoutGrid,
-                  tooltipText: 'Cards View',
-                  anchorAlignment: Alignment.bottomCenter,
-                  popoverAlignment: Alignment.topCenter,
-                ),
-                _buildViewButton(
-                  context: context,
-                  theme: theme,
-                  colors: colors,
-                  viewMode: 'board',
-                  icon: shad.LucideIcons.kanban,
-                  tooltipText: 'Board View',
-                  anchorAlignment: Alignment.bottomRight,
-                  popoverAlignment: Alignment.topRight,
-                ),
+                if (supportedViewModes.contains('table'))
+                  _buildViewButton(
+                    context: context,
+                    theme: theme,
+                    colors: colors,
+                    viewMode: 'table',
+                    icon: shad.LucideIcons.table,
+                    tooltipText: 'Table View',
+                    anchorAlignment: Alignment.bottomLeft,
+                    popoverAlignment: Alignment.topLeft,
+                  ),
+                if (supportedViewModes.contains('list'))
+                  _buildViewButton(
+                    context: context,
+                    theme: theme,
+                    colors: colors,
+                    viewMode: 'list',
+                    icon: shad.LucideIcons.list,
+                    tooltipText: 'List View',
+                    anchorAlignment: Alignment.bottomCenter,
+                    popoverAlignment: Alignment.topCenter,
+                  ),
+                if (supportedViewModes.contains('cards'))
+                  _buildViewButton(
+                    context: context,
+                    theme: theme,
+                    colors: colors,
+                    viewMode: 'cards',
+                    icon: shad.LucideIcons.layoutGrid,
+                    tooltipText: 'Cards View',
+                    anchorAlignment: Alignment.bottomCenter,
+                    popoverAlignment: Alignment.topCenter,
+                  ),
+                if (supportedViewModes.contains('board'))
+                  _buildViewButton(
+                    context: context,
+                    theme: theme,
+                    colors: colors,
+                    viewMode: 'board',
+                    icon: shad.LucideIcons.kanban,
+                    tooltipText: 'Board View',
+                    anchorAlignment: Alignment.bottomRight,
+                    popoverAlignment: Alignment.topRight,
+                  ),
               ],
             ),
             const shad.DensityGap(shad.gapSm),
 
             // ==========================================
-            // INDEX 1: Search Field
+            // OPTIONAL SUBMODULE SELECTOR
             // ==========================================
-            SizedBox(
-              width: searchWidth ?? 220 * theme.scaling,
-              child: shad.TextField(
-                filled: true,
-                placeholder: Text('Search $entityName...'),
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12 * theme.scaling,
-                  vertical: 8 * theme.scaling,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.card,
-                  borderRadius: BorderRadius.circular(theme.radiusMd),
-                  border: Border.all(color: colors.border),
-                ),
-                onChanged: onSearchChanged,
-                features: [
-                  shad.InputFeature.leading(
-                    Icon(
-                      shad.LucideIcons.search,
-                      size: 16 * theme.scaling,
-                      color: colors.mutedForeground,
-                    ),
+            if (submoduleWidget != null) ...[
+              submoduleWidget!,
+              const shad.DensityGap(shad.gapSm),
+            ],
+
+            // ==========================================
+            // OPTIONAL AUTOCOMPLETES (Mill & Quality)
+            // ==========================================
+            if (millAutoComplete != null) ...[
+              millAutoComplete!,
+              const shad.DensityGap(shad.gapSm),
+            ],
+            if (qualityAutoComplete != null) ...[
+              qualityAutoComplete!,
+              const shad.DensityGap(shad.gapSm),
+            ],
+
+            // ==========================================
+            // OPTIONAL GROUPING VIEW SWITCHER
+            // ==========================================
+            if (groupingSwitcher != null) ...[
+              groupingSwitcher!,
+              const shad.DensityGap(shad.gapSm),
+            ],
+
+            if (customMiddleWidgets != null)
+              for (final widget in customMiddleWidgets!) ...[
+                widget,
+                const shad.DensityGap(shad.gapSm),
+              ],
+
+            // ==========================================
+            // INDEX 1: Search Field (Optional)
+            // ==========================================
+            if (showSearch) ...[
+              SizedBox(
+                width: searchWidth ?? 220 * theme.scaling,
+                child: shad.TextField(
+                  filled: true,
+                  placeholder: Text('Search $entityName...'),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12 * theme.scaling,
+                    vertical: 7 * theme.scaling,
                   ),
-                ],
-              ),
-            ),
-            const shad.DensityGap(shad.gapSm),
-
-            // ==========================================
-            // INDEX 2: Filter Button Cards (Individual Button Anchoring + 4px Vertical Space)
-            // ==========================================
-            // 1. Mill Filter Card + Popover
-            Padding(
-              padding: EdgeInsets.only(right: 8 * theme.scaling),
-              child: Builder(
-                builder: (btnContext) {
-                  return MicroButton(
-                    leadingIcon: shad.LucideIcons.warehouse,
-                    label: millLabel,
-                    badgeCount: selectedMills.length > 1 ? selectedMills.length : null,
-                    trailingIcon: shad.LucideIcons.chevronDown,
-                    isSelected: selectedMills.isNotEmpty,
-                    onPressed: () {
-                      shad.showOverlay(
-                        btnContext,
-                        shad.PopoverConfiguration(
-                          anchorAlignment: Alignment.bottomCenter,
-                          alignment: Alignment.topCenter,
-                          offset: const Offset(0, 4),
-                          builder: (context) => DabFilterPopover(
-                            title: 'Mill',
-                            options: millOptions,
-                            selectedValues: selectedMills,
-                            onChanged: (set) => onMillChanged?.call(set),
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-
-            // 2. Quality Filter Card + Popover
-            Padding(
-              padding: EdgeInsets.only(right: 8 * theme.scaling),
-              child: Builder(
-                builder: (btnContext) {
-                  return MicroButton(
-                    leadingIcon: shad.LucideIcons.scissors,
-                    label: qualityLabel,
-                    badgeCount: selectedQualities.length > 1 ? selectedQualities.length : null,
-                    trailingIcon: shad.LucideIcons.chevronDown,
-                    isSelected: selectedQualities.isNotEmpty,
-                    onPressed: () {
-                      shad.showOverlay(
-                        btnContext,
-                        shad.PopoverConfiguration(
-                          anchorAlignment: Alignment.bottomCenter,
-                          alignment: Alignment.topCenter,
-                          offset: const Offset(0, 4),
-                          builder: (context) => DabFilterPopover(
-                            title: 'Quality',
-                            options: qualityOptions,
-                            selectedValues: selectedQualities,
-                            onChanged: (set) => onQualityChanged?.call(set),
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-
-            // 3. Status Filter Card + Popover
-            Padding(
-              padding: EdgeInsets.only(right: 8 * theme.scaling),
-              child: Builder(
-                builder: (btnContext) {
-                  return MicroButton(
-                    leadingIcon: shad.LucideIcons.circleDot,
-                    label: statusLabel,
-                    badgeCount: selectedStatuses.length > 1 ? selectedStatuses.length : null,
-                    trailingIcon: shad.LucideIcons.chevronDown,
-                    isSelected: selectedStatuses.isNotEmpty,
-                    onPressed: () {
-                      shad.showOverlay(
-                        btnContext,
-                        shad.PopoverConfiguration(
-                          anchorAlignment: Alignment.bottomCenter,
-                          alignment: Alignment.topCenter,
-                          offset: const Offset(0, 4),
-                          builder: (context) => DabStatusPopover(
-                            selectedStatuses: selectedStatuses,
-                            onChanged: (set) => onStatusChanged?.call(set),
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-
-            // ==========================================
-            // INDEX 3: Date Button Card + Popover
-            // ==========================================
-            Builder(
-              builder: (btnContext) {
-                return MicroButton(
-                  leadingIcon: shad.LucideIcons.calendar,
-                  label: selectedDateLabel ?? 'Date',
-                  trailingIcon: shad.LucideIcons.chevronDown,
-                  isSelected: selectedDateRange != null,
-                  onPressed: () {
-                    shad.showOverlay(
-                      btnContext,
-                      shad.PopoverConfiguration(
-                        anchorAlignment: Alignment.bottomRight,
-                        alignment: Alignment.topRight,
-                        offset: const Offset(0, 4),
-                        builder: (context) => DabDatePopover(
-                          selectedRange: selectedDateRange,
-                          onRangeSelected: (range) => onDateRangeSelected?.call(range),
-                          onClose: () => shad.closeOverlay(context),
-                        ),
+                  decoration: BoxDecoration(
+                    color: colors.card,
+                    borderRadius: BorderRadius.circular(theme.radiusMd),
+                    border: Border.all(color: colors.border),
+                  ),
+                  onChanged: onSearchChanged,
+                  features: [
+                    shad.InputFeature.leading(
+                      Icon(
+                        shad.LucideIcons.search,
+                        size: 16 * theme.scaling,
+                        color: colors.mutedForeground,
                       ),
+                    ),
+                  ],
+                ),
+              ),
+              const shad.DensityGap(shad.gapSm),
+            ],
+
+            // ==========================================
+            // INDEX 2: Filter Button Cards (Optional)
+            // ==========================================
+            if (showFilterButtons) ...[
+              // 1. Mill Filter Card + Popover
+              Padding(
+                padding: EdgeInsets.only(right: 8 * theme.scaling),
+                child: Builder(
+                  builder: (btnContext) {
+                    return MicroButton(
+                      leadingIcon: shad.LucideIcons.warehouse,
+                      label: millLabel,
+                      badgeCount: selectedMills.length > 1
+                          ? selectedMills.length
+                          : null,
+                      trailingIcon: shad.LucideIcons.chevronDown,
+                      isSelected: selectedMills.isNotEmpty,
+                      onPressed: () {
+                        shad.showOverlay(
+                          btnContext,
+                          shad.PopoverConfiguration(
+                            anchorAlignment: Alignment.bottomCenter,
+                            alignment: Alignment.topCenter,
+                            offset: const Offset(0, 4),
+                            builder: (context) => DabFilterPopover(
+                              title: 'Mill',
+                              options: millOptions,
+                              selectedValues: selectedMills,
+                              onChanged: (set) => onMillChanged?.call(set),
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+
+              // 2. Quality Filter Card + Popover
+              Padding(
+                padding: EdgeInsets.only(right: 8 * theme.scaling),
+                child: Builder(
+                  builder: (btnContext) {
+                    return MicroButton(
+                      leadingIcon: shad.LucideIcons.scissors,
+                      label: qualityLabel,
+                      badgeCount: selectedQualities.length > 1
+                          ? selectedQualities.length
+                          : null,
+                      trailingIcon: shad.LucideIcons.chevronDown,
+                      isSelected: selectedQualities.isNotEmpty,
+                      onPressed: () {
+                        shad.showOverlay(
+                          btnContext,
+                          shad.PopoverConfiguration(
+                            anchorAlignment: Alignment.bottomCenter,
+                            alignment: Alignment.topCenter,
+                            offset: const Offset(0, 4),
+                            builder: (context) => DabFilterPopover(
+                              title: 'Quality',
+                              options: qualityOptions,
+                              selectedValues: selectedQualities,
+                              onChanged: (set) => onQualityChanged?.call(set),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+
+              // 3. Status Filter Card + Popover
+              Padding(
+                padding: EdgeInsets.only(right: 8 * theme.scaling),
+                child: Builder(
+                  builder: (btnContext) {
+                    return MicroButton(
+                      leadingIcon: shad.LucideIcons.circleDot,
+                      label: statusLabel,
+                      badgeCount: selectedStatuses.length > 1
+                          ? selectedStatuses.length
+                          : null,
+                      trailingIcon: shad.LucideIcons.chevronDown,
+                      isSelected: selectedStatuses.isNotEmpty,
+                      onPressed: () {
+                        shad.showOverlay(
+                          btnContext,
+                          shad.PopoverConfiguration(
+                            anchorAlignment: Alignment.bottomCenter,
+                            alignment: Alignment.topCenter,
+                            offset: const Offset(0, 4),
+                            builder: (context) => DabStatusPopover(
+                              selectedStatuses: selectedStatuses,
+                              onChanged: (set) => onStatusChanged?.call(set),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+
+            // ==========================================
+            // INDEX 3: Date Button Card + Popover (Optional)
+            // ==========================================
+            if (showDateFilter)
+              Builder(
+                builder: (btnContext) {
+                  return MicroButton(
+                    leadingIcon: shad.LucideIcons.calendar,
+                    label: selectedDateLabel ?? 'Date',
+                    trailingIcon: shad.LucideIcons.chevronDown,
+                    isSelected: selectedDateRange != null,
+                    onPressed: () {
+                      shad.showOverlay(
+                        btnContext,
+                        shad.PopoverConfiguration(
+                          anchorAlignment: Alignment.bottomCenter,
+                          alignment: Alignment.topCenter,
+                          offset: const Offset(0, 4),
+                          builder: (context) => DabDatePopover(
+                            selectedRange: selectedDateRange,
+                            onRangeSelected: (range) =>
+                                onDateRangeSelected?.call(range),
+                            onClose: () => shad.closeOverlay(context),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
 
             // ==========================================
             // CLEAR ALL FILTERS CROSS BUTTON (After Date & Before Spacer)
@@ -421,6 +497,7 @@ class DynamicActionBar extends StatelessWidget {
         child: Text(tooltipText),
       ),
       child: shad.IconButton.outline(
+        density: shad.ButtonDensity.normal,
         icon: Icon(
           icon,
           size: 16 * theme.scaling,

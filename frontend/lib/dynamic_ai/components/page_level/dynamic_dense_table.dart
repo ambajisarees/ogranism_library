@@ -68,6 +68,7 @@ class DynamicDenseTable extends StatefulWidget {
   final int? totalRecords;
   final ValueChanged<int>? onPageChanged;
   final int currentPage;
+  final String? groupByKey;
 
   const DynamicDenseTable({
     super.key,
@@ -86,6 +87,7 @@ class DynamicDenseTable extends StatefulWidget {
     this.totalRecords,
     this.onPageChanged,
     this.currentPage = 1,
+    this.groupByKey,
   });
 
   @override
@@ -157,6 +159,263 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
     widget.onSortChanged?.call(col.key, _isAscending);
   }
 
+  Widget _buildExpandedRowDetails(BuildContext context, DynamicTableRowData row,
+      shad.ThemeData theme, shad.ColorScheme colors) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      color: colors.muted.withAlpha(80),
+      child: Row(
+        children: [
+          Icon(shad.LucideIcons.cornerDownRight,
+              size: 16, color: colors.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              row.expandedDetails ??
+                  'Expanded Details: Grey Fabric Lot #${row.voucherNo} • Station: Surat Warehouse',
+              style:
+                  theme.typography.textSmall.copyWith(color: colors.foreground),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  final Set<String> _collapsedGroupKeys = {};
+
+  String _getGroupValue(DynamicTableRowData row) {
+    if (widget.groupByKey == null || widget.groupByKey!.isEmpty) {
+      return 'Default';
+    }
+    final key = widget.groupByKey!;
+    if (key == 'partyName' || key.toLowerCase() == 'mill') return row.partyName;
+    if (key == 'qual' || key.toLowerCase() == 'quality') {
+      return row.rawData?['qual'] as String? ?? row.designPattern;
+    }
+    if (key == 'vno' || key.toLowerCase() == 'voucher') return row.voucherNo;
+    if (key == 'status') return row.status;
+    if (row.rawData != null && row.rawData!.containsKey(key)) {
+      return row.rawData![key].toString();
+    }
+    return row.partyName;
+  }
+
+  Map<String, List<DynamicTableRowData>> _groupRows() {
+    final Map<String, List<DynamicTableRowData>> map = {};
+    for (final r in widget.rows) {
+      final g = _getGroupValue(r);
+      map.putIfAbsent(g, () => []).add(r);
+    }
+    return map;
+  }
+
+  Widget _buildGroupHeaderCell(
+    BuildContext context,
+    DynamicTableColumnSpec col,
+    String groupTitle,
+    List<DynamicTableRowData> groupRows,
+    double totalMts,
+  ) {
+    final theme = shad.Theme.of(context);
+    final colors = theme.colorScheme;
+    final isFirstCol = widget.columns.first.key == col.key;
+    final isQuantityCol = col.key == 'quantity' || col.key == 'meters';
+
+    Widget childWidget;
+    if (isFirstCol) {
+      childWidget = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              groupTitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.typography.textSmall.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(width: 8),
+          shad.SecondaryBadge(
+            child: Text('${groupRows.length} rolls'),
+          ),
+        ],
+      );
+    } else if (isQuantityCol) {
+      childWidget = Text(
+        totalMts > 0 ? '${totalMts.toStringAsFixed(1)} Mts' : '',
+        style: theme.typography.mono.copyWith(
+          fontWeight: FontWeight.bold,
+          color: colors.foreground,
+        ),
+      );
+    } else {
+      childWidget = const SizedBox.shrink();
+    }
+
+    if (col.width != null) {
+      return SizedBox(width: col.width, child: childWidget);
+    }
+    return Expanded(flex: col.flex, child: childWidget);
+  }
+
+  List<Widget> _buildGroupedRowWidgets(
+      BuildContext context, shad.ThemeData theme, shad.ColorScheme colors) {
+    final groupedMap = _groupRows();
+    final List<Widget> widgets = [];
+
+    groupedMap.forEach((groupTitle, groupRows) {
+      final isCollapsed = _collapsedGroupKeys.contains(groupTitle);
+      final groupRowIds = groupRows.map((r) => r.id).toSet();
+      final allSelected = groupRowIds.every((id) => _selectedIds.contains(id));
+      final someSelected = groupRowIds.any((id) => _selectedIds.contains(id));
+
+      double totalMts = 0.0;
+      for (final r in groupRows) {
+        if (r.rawData != null && r.rawData!['meters'] != null) {
+          totalMts += (r.rawData!['meters'] as num).toDouble();
+        }
+      }
+
+      widgets.add(
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            InkWell(
+              onTap: () {
+                setState(() {
+                  if (isCollapsed) {
+                    _collapsedGroupKeys.remove(groupTitle);
+                  } else {
+                    _collapsedGroupKeys.add(groupTitle);
+                  }
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                color: colors.muted.withAlpha(60),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 24,
+                      child: Icon(
+                        isCollapsed
+                            ? shad.LucideIcons.chevronRight
+                            : shad.LucideIcons.chevronDown,
+                        size: 16,
+                        color: colors.mutedForeground,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    SizedBox(
+                      width: 32,
+                      child: shad.Checkbox(
+                        state: allSelected
+                            ? shad.CheckboxState.checked
+                            : (someSelected
+                                ? shad.CheckboxState.indeterminate
+                                : shad.CheckboxState.unchecked),
+                        onChanged: (_) {
+                          setState(() {
+                            if (allSelected) {
+                              _selectedIds.removeAll(groupRowIds);
+                            } else {
+                              _selectedIds.addAll(groupRowIds);
+                            }
+                          });
+                          widget.onSelectionChanged?.call(_selectedIds);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ...widget.columns.map(
+                        (col) => _buildGroupHeaderCell(context, col, groupTitle, groupRows, totalMts)),
+                  ],
+                ),
+              ),
+            ),
+            shad.Divider(color: colors.border),
+          ],
+        ),
+      );
+
+      if (!isCollapsed) {
+        for (int i = 0; i < groupRows.length; i++) {
+          final row = groupRows[i];
+          final globalIndex = widget.rows.indexOf(row);
+          final isSelected = _selectedIds.contains(row.id);
+          final isExpanded = _expandedIndex == globalIndex;
+
+          widgets.add(
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InkWell(
+                  onTap: () {
+                    if (widget.enableExpansion) {
+                      setState(() {
+                        _expandedIndex = isExpanded ? -1 : globalIndex;
+                      });
+                    }
+                    widget.onRowTap?.call(row);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                    color: isSelected ? colors.primary.withAlpha(20) : null,
+                    child: Row(
+                      children: [
+                        if (widget.enableExpansion) ...[
+                          SizedBox(
+                            width: 24,
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _expandedIndex =
+                                      isExpanded ? -1 : globalIndex;
+                                });
+                              },
+                              child: Icon(
+                                isExpanded
+                                    ? shad.LucideIcons.chevronDown
+                                    : shad.LucideIcons.chevronRight,
+                                size: 16,
+                                color: colors.mutedForeground,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        SizedBox(
+                          width: 32,
+                          child: shad.Checkbox(
+                            state: isSelected
+                                ? shad.CheckboxState.checked
+                                : shad.CheckboxState.unchecked,
+                            onChanged: (_) => _toggleRowSelection(row.id),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        ...widget.columns.map((col) => _buildRowCell(
+                            context, col, row, isExpanded, globalIndex)),
+                      ],
+                    ),
+                  ),
+                ),
+                if (isExpanded && row.expandedDetails != null)
+                  _buildExpandedRowDetails(context, row, theme, colors),
+                shad.Divider(color: colors.border),
+              ],
+            ),
+          );
+        }
+      }
+    });
+
+    return widgets;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
@@ -192,6 +451,8 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
                       style: theme.typography.textMuted),
                 ),
               )
+            else if (widget.groupByKey != null && widget.groupByKey!.isNotEmpty)
+              ..._buildGroupedRowWidgets(context, theme, colors)
             else
               ...List.generate(widget.rows.length, (index) {
                 final row = widget.rows[index];
@@ -303,7 +564,8 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
             children: [
               // 1. HEADER ROW (Same vertical padding as data rows: horizontal 16, vertical 10, Slate 10 token #FCFDFE)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 color: widget.headerBackgroundColor ?? defaultHeaderFooterBg,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -329,7 +591,8 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
                     const SizedBox(width: 12),
 
                     // Dynamic Column Headers
-                    ...widget.columns.map((col) => _buildHeaderCell(context, col)),
+                    ...widget.columns
+                        .map((col) => _buildHeaderCell(context, col)),
                   ],
                 ),
               ),
@@ -338,7 +601,6 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
               // 2. DATA ROWS (Flexible & Scrollable if bounded, else natural Column)
               rowsContent,
               // 3. TABLE FOOTER ROW (3 Areas: Record/Selection Counter, Numerical Column Computations, Compact 2-Button Pagination)
-              shad.Divider(color: colors.border),
               _buildTableFooterRow(context, theme, colors),
             ],
           ),
@@ -579,7 +841,8 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
       case 'greyqual':
       case 'design':
       case 'designpattern':
-        final rawQual = row.rawData?['quality']?.toString() ?? row.designPattern;
+        final rawQual =
+            row.rawData?['quality']?.toString() ?? row.designPattern;
         childContent = Text(
           rawQual,
           overflow: TextOverflow.ellipsis,
@@ -805,7 +1068,10 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
                     maxLines: 1,
                   );
                 }
-              } else if (key == 'actions' || (key == 'status' && !widget.columns.any((c) => c.key.toLowerCase() == 'actions'))) {
+              } else if (key == 'actions' ||
+                  (key == 'status' &&
+                      !widget.columns
+                          .any((c) => c.key.toLowerCase() == 'actions'))) {
                 final canPrev = _currentPage > 1;
                 final canNext = (_currentPage * 50) < totalCount;
 
@@ -879,10 +1145,13 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
     if (key == 'freshpcs') {
       int totalPcs = 0;
       for (final r in widget.rows) {
-        final rawVal = r.rawData?['freshpcs_num'] ?? r.rawData?['freshpcs'] ?? r.quantity;
+        final rawVal =
+            r.rawData?['freshpcs_num'] ?? r.rawData?['freshpcs'] ?? r.quantity;
         final numVal = (rawVal is num)
             ? rawVal.toInt()
-            : int.tryParse(rawVal.toString().replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+            : int.tryParse(
+                    rawVal.toString().replaceAll(RegExp(r'[^0-9]'), '')) ??
+                0;
         totalPcs += numVal;
       }
       return _formatNumber(totalPcs);
@@ -987,8 +1256,7 @@ class _FabricImageGalleryDialog extends StatefulWidget {
       _FabricImageGalleryDialogState();
 }
 
-class _FabricImageGalleryDialogState
-    extends State<_FabricImageGalleryDialog> {
+class _FabricImageGalleryDialogState extends State<_FabricImageGalleryDialog> {
   int _selectedImageIndex = 0;
 
   @override
@@ -1026,7 +1294,8 @@ class _FabricImageGalleryDialogState
             // Header
             Row(
               children: [
-                Icon(shad.LucideIcons.scissors, size: 18, color: colors.primary),
+                Icon(shad.LucideIcons.scissors,
+                    size: 18, color: colors.primary),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
@@ -1166,8 +1435,8 @@ class _FabricImageGalleryDialogState
             const SizedBox(height: 4),
             Text(
               'Saree Lot #${row.voucherNo.replaceAll(RegExp(r'[^\d]'), '')} • ${row.partyName}',
-              style:
-                  theme.typography.xSmall.copyWith(color: colors.mutedForeground),
+              style: theme.typography.xSmall
+                  .copyWith(color: colors.mutedForeground),
             ),
           ],
         ),

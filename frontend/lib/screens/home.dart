@@ -28,6 +28,20 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
   final List<DynamicTabItem> _openTabs = [];
   int _selectedTabWorkspaceIndex = 0;
   bool _isSidebarExpanded = false;
+  bool _isModuleLoading = false;
+
+  void _triggerModuleLoading() {
+    setState(() {
+      _isModuleLoading = true;
+    });
+    Future.delayed(const Duration(milliseconds: 700), () {
+      if (mounted) {
+        setState(() {
+          _isModuleLoading = false;
+        });
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -219,6 +233,7 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
       _showGlobalSearch();
       return;
     }
+    _triggerModuleLoading();
     final tabId = index.toString();
     final existingIndex = _openTabs.indexWhere((t) => t.id == tabId);
     if (existingIndex != -1) {
@@ -655,8 +670,11 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
           content: DynamicHeaderTabs(
             tabs: _openTabs,
             selectedIndex: _selectedTabWorkspaceIndex,
-            onTabSelected: (idx) =>
-                setState(() => _selectedTabWorkspaceIndex = idx),
+            isLoading: _isModuleLoading,
+            onTabSelected: (idx) {
+              _triggerModuleLoading();
+              setState(() => _selectedTabWorkspaceIndex = idx);
+            },
             onTabClosed: _handleTabClosed,
             onSearchTriggered: _showGlobalSearch,
             isSidebarExpanded: _isSidebarExpanded,
