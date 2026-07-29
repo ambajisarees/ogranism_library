@@ -3,6 +3,25 @@
 > **Developer**: Smit · www.ambajisaree.com
 > **Convention**: Newest entries at top. Each day is a self-contained section tagged with Machine Agent origin (`[Windows Workstation]` vs `[MacBook Workstation]`).
 
+## 2026-07-29 · [Windows Workstation] · Standardized 12px / 8px / 8px Vertical Gap System, DAB 34px Height, Autocompletes & DDT Grouping Refinements
+
+Shipped standardized vertical spacing tokens, enhanced `DynamicActionBar` (DAB) with optional Autocomplete slots and tooltipped Grouping view switcher, refined `DynamicDenseTable` (DDT) row grouping with column-aligned summary metrics, and resolved double-border artifacts.
+
+### Standardized Master Vertical Gap System
+- **PH ➔ CT (Page Header to Context Tabs / Main Canvas)**: Standardized to `const shad.DensityGap(shad.gapMd)` (`12.0px` native gap token) to provide optimal visual breathing room below page title text descenders (lower bounds like 'g', 'p', 'y').
+- **CT ➔ DAB (Context Tabs to Dynamic Action Bar)**: Standardized to `const shad.DensityGap(shad.gapSm)` (`8.0px` native gap token).
+- **DAB ➔ CONTENT (Dynamic Action Bar to Content View)**: Standardized to `const shad.DensityGap(shad.gapSm)` (`8.0px` native gap token).
+
+### DynamicActionBar (DAB) 34px Height & Controls
+- **View Switcher 34px Height Alignment**: Applied `density: shad.ButtonDensity.normal` directly to `shad.IconButton.outline` in `_buildViewButton`, locking View Switcher icon buttons (`table`, `list`, `grid`, `board`) to exact `34.0px` height matching `MicroButtons` and `shad.TextField`.
+- **Search & Autocomplete Vertical Padding**: Fine-tuned `shad.TextField` vertical padding to `7.0 * theme.scaling` with crisp white `colors.card` surface.
+- **Grouping Row & Tooltips**: Added leading `Group by:` label (`Text('Group by:', style: theme.typography.xSmall...)`) and tooltipped `shad.IconButton.outline` buttons (`None`, `Date`, `Rate`, `Design No`) with hover tooltips (`"Group by None"`, etc.).
+
+### DynamicDenseTable (DDT) Border & Grouping Fixes
+- **Footer Border**: Removed redundant `shad.Divider` before `_buildTableFooterRow` to eliminate double-thick borders above table footer.
+- **Group Header Row Standardization**: Standardized height (`vertical: 10`), chevron in `24px` box, checkbox in `32px` box, single border divider, and added `Flexible` truncation to `groupTitle` preventing flex overflows.
+- **Column-Aligned Group Summaries**: Mapped `_buildGroupHeaderCell` to position Group Name + count badge under Column 1 and Total Mts aggregate under Quantity column.
+
 ---
 
 ## 2026-07-28 · [MacBook Workstation] · 3-State PageHeader, Zero-Overhead PageFormCanvas, 2-Column Form Canvas & Symmetric 12px TabPane Token Padding
