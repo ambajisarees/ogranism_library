@@ -1,2 +1,0 @@
-class PurchaseOrderModel {}
-class PurchaseOrderIntentModel {}

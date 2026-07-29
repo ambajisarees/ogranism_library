@@ -1,2 +1,0 @@
-class BillHeaderModel {}
-class BillDetailModel {}
