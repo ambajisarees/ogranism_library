@@ -1,3 +1,8 @@
+/// LLM NOTE: DabSubmodulePopover & DabSubmoduleItem
+/// - Level: DAB Popover Widget
+/// - Purpose: Submodule switcher popover menu for DynamicActionBar with live search filter when items > 5 and vertical list of MicroButtons.
+/// - Widget Composition: shad.Card -> Column(Search TextField + Scrollable MicroButton list).
+
 import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 import '../../micro_level/micro_button.dart';

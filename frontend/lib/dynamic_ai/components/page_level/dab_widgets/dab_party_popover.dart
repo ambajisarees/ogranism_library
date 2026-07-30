@@ -1,3 +1,8 @@
+/// LLM NOTE: DabPartyPopover
+/// - Level: DAB Popover Widget
+/// - Purpose: Multi-select supplier/party selection popover for DynamicActionBar featuring real-time search, Select All, and Clear quick actions.
+/// - Widget Composition: shad.Card -> Column(Search Bar + Action Buttons Row + Scrollable Checkbox List).
+
 import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 

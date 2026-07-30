@@ -9,8 +9,8 @@ This document defines the **Master Guidelines and Initial System Prompt Template
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                       MASTER CHAT WINDOW (Parent)                       │
-│ Conversation ID: def5a9d9-ee76-4d30-be57-1551666ddd2e                 │
-│ Role: Core Architect, System Guardian & Git Release Controller          │
+│ Conversation ID: f930e306-3b6b-43c2-ac2b-ddb8915f484b                 │
+│ Role: Master Orchestrator, Core Architect & System Guardian            │
 │ Allowed Paths: lib/models/core/, lib/services/core/, lib/dynamic_ai/  │
 └────────────────────────────────────┬────────────────────────────────────┘
                                      │
@@ -34,7 +34,7 @@ When opening any new Chat Window in Antigravity 2.0 for a specific module, the a
    - Models: [lib/models/core/sq/](file:///Users/smittal/Developer/ogranism_library/textile_erp/frontend/lib/models/core/sq/) & [lib/models/core/sb/](file:///Users/smittal/Developer/ogranism_library/textile_erp/frontend/lib/models/core/sb/)
    - Services: [lib/services/core/sq/](file:///Users/smittal/Developer/ogranism_library/textile_erp/frontend/lib/services/core/sq/) & [lib/services/core/sb/](file:///Users/smittal/Developer/ogranism_library/textile_erp/frontend/lib/services/core/sb/)
 3. **Dynamic AI Reusable UI Engine**: [lib/dynamic_ai/components/page_level/](file:///Users/smittal/Developer/ogranism_library/textile_erp/frontend/lib/dynamic_ai/components/page_level/) (`PageHeader`, `DynamicActionBar`, `DabSubmodulePopover`, `DynamicDenseTable`, `DynamicList`, `MicroButton`).
-4. **Master Chat Channel**: Target `Conversation ID`: **`def5a9d9-ee76-4d30-be57-1551666ddd2e`**.
+4. **Master Chat Channel (Master Orchestrator)**: Target `Conversation ID`: **`f930e306-3b6b-43c2-ac2b-ddb8915f484b`**.
 
 ---
 
@@ -55,8 +55,8 @@ When opening any new Chat Window in Antigravity 2.0 for a specific module, the a
 If your module agent requires a change to a shared Core Service (`sq_bills_service`, `sq_series_service`, etc.) or a shared `dynamic_ai` component:
 
 1. **DO NOT edit the core file directly.**
-2. Send a message to Master Chat using the `send_message` tool:
-   - **Recipient**: `def5a9d9-ee76-4d30-be57-1551666ddd2e`
+2. Send a message to Master Orchestrator using the `send_message` tool:
+   - **Recipient**: `f930e306-3b6b-43c2-ac2b-ddb8915f484b`
    - **Message**:
      ```markdown
      [CORE_MUTATION_REQUEST]
@@ -87,8 +87,8 @@ Hello Agent! You are the dedicated Module Developer for the **[MODULE NAME] ([mn
 
 ### 🔒 Core Layer Contract
 - Shared core models (`lib/models/core/`), services (`lib/services/core/`), and UI components (`lib/dynamic_ai/`) are **READ-ONLY**.
-- If you need a core file updated, send a message to Master Chat using `send_message`:
-  - Recipient: `def5a9d9-ee76-4d30-be57-1551666ddd2e`
+- If you need a core file updated, send a message to Master Orchestrator using `send_message`:
+  - Recipient: `f930e306-3b6b-43c2-ac2b-ddb8915f484b`
 
 ### 🚀 Task Objective
 [DESCRIBE YOUR TASK FOR THIS MODULE HERE]

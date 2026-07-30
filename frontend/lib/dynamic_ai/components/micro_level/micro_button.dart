@@ -1,3 +1,9 @@
+/// LLM NOTE: MicroButton
+/// - Level: Micro Control
+/// - Purpose: Universal high-density (34px height) button control used across PageHeader, DAB toolbars, and popover lists.
+/// - Widget Composition: shad.Button.card / shad.Button.ghost -> Focus (nullifier) -> Row(Icon + Text + Badge + Icon).
+/// - Tokens: Base colors.card, border colors.border, hover colors.accent, selected colors.primary.
+
 import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 

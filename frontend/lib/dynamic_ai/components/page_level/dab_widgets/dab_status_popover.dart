@@ -1,3 +1,8 @@
+/// LLM NOTE: DabStatusPopover
+/// - Level: DAB Popover Widget
+/// - Purpose: Document status filter popover checklist for DynamicActionBar providing PENDING, COMPLETED, and IN_PROCESS multi-selection.
+/// - Widget Composition: shad.Card -> Column(Checklist items with shad.Checkbox).
+
 import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 

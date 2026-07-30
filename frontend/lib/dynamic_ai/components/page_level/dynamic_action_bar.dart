@@ -1,3 +1,9 @@
+/// LLM NOTE: DynamicActionBar (DAB)
+/// - Level: Page-Level Action Toolbar (34px Height)
+/// - Purpose: High-density toolbar providing submodule switching, search input, party/date/status filter triggers, active filter chips, view mode toggling, and overflow actions.
+/// - Widget Composition: Container(34px height) -> Row(Submodule Popover Trigger + Search TextField + Filter Buttons + View Toggle + Overflow Button).
+/// - Integrated Popovers: DabSubmodulePopover, DabPartyPopover, DabDatePopover, DabStatusPopover, DabFilterPopover, DabOverflowPopover.
+
 import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 import '../micro_level/micro_button.dart';

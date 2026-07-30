@@ -1,3 +1,9 @@
+/// LLM NOTE: DynamicDenseTable
+/// - Level: Page-Level Data Grid / Table
+/// - Purpose: High-density enterprise data table with multi-column sorting, selection checkboxes, summary calculation row, custom cell formatting, pagination controls, and empty/loading states.
+/// - Widget Composition: shad.OutlinedContainer -> Column(Header Row + Scrollable Rows ListView.builder + Summary Calculation Row + Pagination Control Footer).
+/// - Integrated Components: shad.Checkbox, shad.Badge, shad.Button.
+
 import 'package:flutter/material.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 

@@ -1,3 +1,9 @@
+/// LLM NOTE: PageHeader
+/// - Level: Page-Level Top Header Bar
+/// - Purpose: Top screen header supporting 3 operational modes (standard, adding, editing), document IDs, module switcher popover, tabs slot, and auto-generated or custom action buttons.
+/// - Widget Composition: shad.OutlinedContainer -> Row(Back MicroButton + Title/DocID + Module Popover + Spacer + Tabs Slot + Action MicroButtons).
+/// - Integrated Controls: MicroButton, shad.Popover, shad.Badge, shad.OutlinedContainer.
+
 import 'package:flutter/material.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 import '../micro_level/micro_button.dart';

@@ -1,3 +1,9 @@
+/// LLM NOTE: PageFormCanvas
+/// - Level: Page-Level Form Layout Surface
+/// - Purpose: 2-pane responsive form canvas framing main form content (flexed up to 1400px) alongside an optional fixed-width right sidebar (default 340px) and top header row.
+/// - Widget Composition: LayoutBuilder -> Center -> ConstrainedBox(max 1400px) -> Column(Header + Row(Expanded(mainPane) + SizedBox(sidePane))).
+/// - Scroll Control: Bounded layout when isScrollable=false allows inner table expanded scrolling; scrollable when isScrollable=true.
+
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 

@@ -1,3 +1,8 @@
+/// LLM NOTE: DabFilterPopover
+/// - Level: DAB Popover Widget
+/// - Purpose: Generic searchable multi-select popover for custom filter parameters with top search bar and checkbox options.
+/// - Widget Composition: shad.Card -> Column(Title + Search TextField + Scrollable Checkbox list).
+
 import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 

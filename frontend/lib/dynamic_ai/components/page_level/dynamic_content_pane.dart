@@ -1,3 +1,9 @@
+/// LLM NOTE: DynamicContentPane
+/// - Level: Page-Level Content Container
+/// - Purpose: Surface card container with sticky header bar, flexible child body area, and optional sticky summary footer.
+/// - Widget Composition: Expanded -> shad.OutlinedContainer -> Column(Sticky Header Container + Body Expanded(child) + Sticky Footer Container).
+/// - Tokens: Uses colors.card background, colors.border, and radiusMd.
+
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 

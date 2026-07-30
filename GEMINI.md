@@ -80,10 +80,10 @@
   - `so` $\rightarrow$ Sales Orders
 
 ## 10. Multi-Agent Domain Scoping & Core Escalation Protocol
-- **Master Chat Channel**: Target Conversation ID: **`def5a9d9-ee76-4d30-be57-1551666ddd2e`** (System Architect & Core Guardian).
+- **Master Chat Channel (Master Orchestrator)**: Target Conversation ID: **`f930e306-3b6b-43c2-ac2b-ddb8915f484b`** (System Architect & Core Guardian).
 - **Domain Boundaries**:
   - Module Chat Windows (Tabs) are **STRICTLY BOUND** to `frontend/lib/screens/production/<module>/`, `frontend/lib/models/production/mdl_<mns>.dart`, and `frontend/lib/services/production/srv_<mns>.dart`.
   - Shared Core Layers (`lib/models/core/`, `lib/services/core/`, `lib/dynamic_ai/`) are **READ-ONLY** for module chat windows.
 - **Core Mutation Protocol**:
-  - Module chat windows request core updates by sending a message to Master Chat (`def5a9d9-ee76-4d30-be57-1551666ddd2e`) via `send_message`.
+  - Module chat windows request core updates by sending a message to Master Orchestrator (`f930e306-3b6b-43c2-ac2b-ddb8915f484b`) via `send_message`.
 - **Master SOP Guideline**: Refer to [docs/module_agent_guideline.md](file:///Users/smittal/Developer/ogranism_library/textile_erp/docs/module_agent_guideline.md) for full setup guidelines and the initial copy-paste prompt template.

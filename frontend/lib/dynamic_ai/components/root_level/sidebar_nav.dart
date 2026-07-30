@@ -1,3 +1,9 @@
+/// LLM NOTE: DynamicSidebarNav & DynamicSidebarNavItem
+/// - Level: Root Primary Navigation Sidebar
+/// - Purpose: Pure native wrapper around shad.NavigationSidebar providing primary module navigation, section headers, collapsed/expanded states, and footer actions.
+/// - Widget Composition: shad.NavigationSidebar -> header + children(shad.NavigationItem / shad.NavigationButton) + footer.
+/// - Rules: Obey Sidebar Sliver Contract: All children must be native AbstractNavigationButton instances; section headers are disabled NavigationItems.
+
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 

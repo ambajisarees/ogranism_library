@@ -1,3 +1,8 @@
+/// LLM NOTE: ReportCard
+/// - Level: Page-Level Metric / KPI Card Component
+/// - Purpose: Reusable dashboard KPI card featuring large topic icon, title, subtitle, primary metric text, secondary status chip, and active selection border/shadow.
+/// - Widget Composition: Focus -> GestureDetector -> Container(BoxDecoration) -> Column(Top Row: Icon + Title + Subtitle + Bottom Row: Metric Text + Status Badge).
+
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
