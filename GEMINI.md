@@ -62,12 +62,9 @@
   - Only native `shadcn_flutter` controls (`shad.Card`, `shad.OutlinedContainer`, `shad.Button`, `shad.Badge`, `shad.Checkbox`, `shad.TextField`, etc.) are used for building UI scaffolding.
 
 ## 9. Master Architecture Strategy & Naming Conventions (`mns`)
-- **Core Layer Architecture (Read-Only 1:1 Schema Mirrors - IMMUTABLE)**:
-  - **Canonical Models** (`lib/models/core/sq/` & `lib/models/core/sb/`): 1 file per Supabase table (`sq_<table_name>.dart` or `sb_<table_name>.dart`). These are strict 1-to-1 database mirrors verified with human input and MUST NOT be altered or polluted with module-specific logic.
-  - **Canonical Services** (`lib/services/core/sq/` & `lib/services/core/sb/`): 1 singleton service per Supabase table (`sq_<table_name>_service.dart` or `sb_<table_name>_service.dart`). Handles raw table queries without module bias.
-- **Module Layer Architecture (Domain-Specific Wrappers)**:
-  - **Module Data Models** (`lib/models/production/mdl_<mns>.dart` e.g., `mdl_po.dart`): Adapts canonical models into domain objects with module-specific getters, category enums, status logic, and computed metrics.
-  - **Module Services** (`lib/services/production/srv_<mns>.dart` e.g., `srv_po.dart`): Wraps core table services, applies module category filters (`TYPE` = `O13`/`O14`/`O15`/`O16`), handles search queries, and orchestrates transactional writes.
+- **Core Layer Architecture**:
+  - **Canonical Models** (`lib/models/core/sq/` & `lib/models/core/sb/`): 1 file per Supabase table (`sq_<table_name>.dart` or `sb_<table_name>.dart`).
+  - **Canonical Services** (`lib/services/core/sq/` & `lib/services/core/sb/`): 1 singleton service per Supabase table (`sq_<table_name>_service.dart` or `sb_<table_name>_service.dart`).
 - **Dynamic AI Reusable Component Engine** (`lib/dynamic_ai/components/`):
   - Generic, highly-configurable UI engines (`DynamicDenseTable`, `DynamicActionBar`, `DynamicFilterBar`, `DynamicDetailCanvas`, `DynamicFormModal`) that handle 90% of UI rendering globally.
 - **Lean Module File Structure (3–5 Files per Module)**:
@@ -82,28 +79,11 @@
   - `cc` $\rightarrow$ Cutting Cards
   - `so` $\rightarrow$ Sales Orders
 
-## 10. Mandatory LLM Notes & Self-Documenting Header Block
-- **Gold Standard Requirement**: EVERY newly created or updated Dart code file (Data Models, Services, Dynamic AI Widgets, Screen Containers) MUST include a structured LLM Notes Header Block at the top of the file before any package imports.
-- **Header Block Standard Structure**:
-  ```dart
-  /*
-  ================================================================================
-  LLM CONTEXT & QUERY SPACE
-  ================================================================================
-  1. DOMAIN & PURPOSE:
-     - 2-4 sentence summary of what this file does, its target schema/table, and role in the pipeline.
-
-  2. BUSINESS LOGIC & DATA CONTRACTS:
-     - Key field mappings, composite joins (CNO/VNO/TYPE), pendency rules, or UI component guarantees.
-
-  3. DATA AUDIT / NULL RATES / GOTCHAS:
-     - Audited schema column notes, 0-count null rate flags, or Airbyte read-only gotchas.
-
-  4. OPEN QUESTIONS & CLARIFICATIONS:
-     - Logical querying space for pending user clarifications, future workflow options, or edge-case handling.
-  ================================================================================
-  */
-  ```
-
-
-
+## 10. Multi-Agent Domain Scoping & Core Escalation Protocol
+- **Master Chat Channel**: Target Conversation ID: **`def5a9d9-ee76-4d30-be57-1551666ddd2e`** (System Architect & Core Guardian).
+- **Domain Boundaries**:
+  - Module Chat Windows (Tabs) are **STRICTLY BOUND** to `frontend/lib/screens/production/<module>/`, `frontend/lib/models/production/mdl_<mns>.dart`, and `frontend/lib/services/production/srv_<mns>.dart`.
+  - Shared Core Layers (`lib/models/core/`, `lib/services/core/`, `lib/dynamic_ai/`) are **READ-ONLY** for module chat windows.
+- **Core Mutation Protocol**:
+  - Module chat windows request core updates by sending a message to Master Chat (`def5a9d9-ee76-4d30-be57-1551666ddd2e`) via `send_message`.
+- **Master SOP Guideline**: Refer to [docs/module_agent_guideline.md](file:///Users/smittal/Developer/ogranism_library/textile_erp/docs/module_agent_guideline.md) for full setup guidelines and the initial copy-paste prompt template.
