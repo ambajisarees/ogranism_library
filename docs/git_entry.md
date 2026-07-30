@@ -16,8 +16,8 @@ gitGraph
    commit id: "b770663 (Win)" tag: "Merge purorders"
    commit id: "23c2aa8 (Win)" tag: "Widget test fix"
    commit id: "2026-07-25 (Mac)" tag: "DynamicDenseTable"
-   commit id: "2026-07-26 (Win)" tag: "Slate10 HeaderTabs"
-   commit id: "2026-07-27 (Win)" tag: "Table Footer & Stone 980"
+   commit id: "2026-07-29 (Mac)" tag: "Canonical Core Layer"
+   commit id: "2026-07-30 (Win)" tag: "v1.0.0-mns"
 ```
 
 ---
@@ -26,6 +26,7 @@ gitGraph
 
 | Date | Machine Agent | Action | Target Branch / Hash | Key Changes & Objectives |
 | :--- | :--- | :--- | :--- | :--- |
+| **2026-07-30** | 💻 `[Windows Workstation]` | **Tag & Push** | `v1.0.0-mns` | Officially tagged **`v1.0.0-mns`** baseline for production MNS release (`po`, `cc`, `pb`). Archived legacy Organism prototype build as **`v0.0.1`** in `_backups/releases/`. |
 | **2026-07-30** | 💻 `[Windows Workstation]` | **Commit & Push** | `master` (`origin/master`) | MNS architecture overhaul for Cutting Cards (`cc`) and Purchase Bills (`pb`), line item source routing (`sq_PINVTRN` for Grey, `sq_MILLREC` for Mill, `sq_BILLDET` for others), MicroButton overflow fix, & retired 11 legacy production files. |
 | **2026-07-29** | 🍏 `[MacBook Workstation]` | **Commit & Push** | `master` (`origin/master`) | Shipped 7 canonical core data models (`sq_bills`, `sq_pinvtrn`, `sq_millrec`, `sq_chaltrn`, `sq_billdet`, `sb_cutdet`, `sb_cutdet_summary`), 7 core services, 3-way card linkage engine, Mill Programs module, `GEMINI.md` Section 9, & legacy reference cleanup. |
 | **2026-07-29** | 💻 `[Windows Workstation]` | **Commit & Push** | `master` (`origin/master`) | Standardized 12px/8px/8px vertical gap tokens, DAB 34px height alignment, crisp white autocompletes, tooltipped grouping switcher, and DDT row grouping column-aligned summary view. |
