@@ -3,7 +3,30 @@
 > **Developer**: Smit · www.ambajisaree.com
 > **Convention**: Newest entries at top. Each day is a self-contained section tagged with Machine Agent origin (`[Windows Workstation]` vs `[MacBook Workstation]`).
 
-## 2026-07-29 · [MacBook Workstation] · 7 Canonical Core Data Models, 7 Core Services, 3-Way Card Linkage Engine & Mill Programs Module
+## 2026-07-30 · [Windows Workstation] · Cutting Cards & Purchase Bills MNS Overhaul, Table Source Routing, Flexible MicroButton & Legacy Cleanup
+
+Completed full MNS architecture standardization across all three core Production sub-domains (`po`, `cc`, `pb`), implemented line-item source table routing (`sq_PINVTRN` for Grey, `sq_MILLREC` for Mill, `sq_BILLDET` for all others), resolved `MicroButton` flex overflows, and retired all 11 legacy production files.
+
+### Cutting Cards (`cc`) MNS Standardization & DB Fix
+- **Module Architecture**: Standardized Cutting Cards into `mdl_cc.dart`, `srv_cc.dart`, `scr_cc_landing.dart`, `scr_cc_detail_canvas.dart`, `scr_cc_form_dialog.dart`, and `scr_cc_dashboard_pane.dart`.
+- **Database Join Fix**: Fixed eager-loading PostgREST join on `MULTI_VNO` (`.inFilter('MULTI_VNO', vnos)`), resolving Postgres 42703 column error.
+- **Legacy Cleanup**: Retired and deleted original 4 legacy Cutting Card files.
+
+### Purchase Bills (`pb`) MNS Overhaul & Table Routing
+- **Table Source Routing**: Configured `srv_pb.dart` and `mdl_pb.dart` to dynamically route detail line items based on category series code (`TYPE`):
+  - `Grey` (`P1`): Line items from `sq_PINVTRN` (`CNO`, `VNO`, `TYPE`)
+  - `Mill` (`J1`): Line items from `sq_MILLREC` (`CNO`, `VNO`, `TYPE`)
+  - All other 8 submodules (`p11` Lace, `P2` Finish, `P6` Modelling, `P26` Stitching, `P27` Diamond, `P28` Embroidery, `P29` Charak, `P4` Packing): Line items from `sq_BILLDET` (`CNO`, `VNO`, `TYPE`)
+- **Landing Workstation**: Built `scr_pb_landing.dart` featuring `PageHeader` (`Purchase Bills`, `+ New Bill` button), Context Tabs (`Dashboard`, `Details`, `Tasks`), `DynamicActionBar` with 10-category `submoduleWidget` popover overlay using native Lucide icons (`package`, `factory`, `scissors`, `sparkles`, `camera`, `shirt`, `gem`, `flower`, `waves`, `box`), and `ScrPbDetailCanvas`.
+
+### MicroButton Text Overflow Prevention
+- **Flexible Truncation**: Wrapped Text label in `Flexible(child: Text(..., overflow: TextOverflow.ellipsis))` inside `micro_button.dart` to prevent flex layout overflows when displaying longer submodule labels (e.g. `Packing Material`).
+
+### Complete Legacy Production File Retirement
+- **11 Legacy Files Removed**: Deleted legacy files for Purchase Bills (4 files + widgets folder), Mill Programs (3 files), and Printing Recipes (4 files).
+- **Clean Analyzer Output**: `flutter analyze` completed with **No issues found!** (ran in 8.1s).
+
+---
 
 Shipped 7 canonical 1-to-1 core Supabase data models, 7 singleton table services, 3-way card linkage engine (`reccardno` ➔ `sq_MILLREC` ➔ `sq_PINVTRN`), `ReportCard` AI component, Mill Programs screen (`screen_mill_programs.dart`), Section 9 Master Architecture Strategy in `GEMINI.md`, and cleaned up legacy organism reference directories.
 

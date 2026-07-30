@@ -8,13 +8,11 @@ import '../core/keyboard_manager_widget.dart';
 import '../main.dart';
 import '../services/core/service_supabase.dart';
 import 'demo_screen.dart';
-import 'production/cutting/screen_cutting_landing.dart';
-import 'production/purchase_bills/screen_purchase_bills_landing.dart';
+import 'production/cutting/scr_cc_landing.dart';
+import 'production/purchase_bills/scr_pb_landing.dart';
+import 'production/purchase_orders/scr_po_landing.dart';
 import 'crm/screen_crm_workspace.dart';
 import 'crm/screen_google_contacts_sync.dart';
-import 'production/purchase_orders/scr_po_landing.dart';
-import 'production/recipes/screen_recipes_landing.dart';
-import 'production/programs/screen_mill_programs.dart';
 import 'library/screen_component_library.dart';
 import 'showcase/screen_showcase.dart';
 
@@ -549,13 +547,12 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
       case 5:
         return const ScrPoLanding();
       case 6:
-        return const ScreenCuttingLanding();
+        return const ScrCcLanding();
       case 103:
-        return const ScreenRecipesLanding();
       case 104:
-        return const ScreenMillPrograms();
+        return const DemoScreen();
       case 105:
-        return const ScreenPurchaseBillsLanding();
+        return const ScrPbLanding();
       case 107:
         return const CrmWorkspacePage();
       case 111:

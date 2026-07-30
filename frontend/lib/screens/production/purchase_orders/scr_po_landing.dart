@@ -1,3 +1,28 @@
+/*
+================================================================================
+LLM CONTEXT & QUERY SPACE — PURCHASE ORDERS LANDING SCREEN (scr_po_landing.dart)
+================================================================================
+1. DOMAIN & PURPOSE:
+   - Primary landing container screen for Purchase Orders (`po`).
+   - Manages the 5 PO submodules: Grey, Finish (`O13`), Lace (`O14`), Packing (`O15`), Studio (`O16`).
+   - Supports dual view modes: Full Dense Table View (`table`) and Master-Detail Split View (`split`).
+
+2. BUSINESS LOGIC & DATA CONTRACTS:
+   - Consumes module-level service `SrvPo` and module model `MdlPoHeader`.
+   - Core models `SqBillsModel` and `SqBilldetModel` remain 100% untouched and immutable.
+   - Live category counts fetched on startup for all 5 submodules.
+   - Default view displays ALL entries, with Status popover filtering for `All`, `Pending`, `Completed`.
+   - Dedicated Party Popover filtering powered by `_poService.getPartyOptions()`.
+
+3. DATA AUDIT / NULL RATES / GOTCHAS:
+   - `sq_BILLS` is Airbyte-managed read-only mirror.
+   - `Grey` category has no series code in legacy `sq_BILLS` (`seriesCode == null`), rendering empty state until raw grey PO table is assigned.
+
+4. OPEN QUESTIONS & CLARIFICATIONS:
+   - Should New Purchase Order creation write via Edge Function to custom `sb_purord` or directly generate `sq_BILLS` equivalent vouchers?
+================================================================================
+*/
+
 import 'package:flutter/material.dart' hide Card;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
@@ -8,24 +33,12 @@ import '../../../dynamic_ai/components/micro_level/micro_button.dart';
 import '../../../dynamic_ai/components/page_level/dynamic_dense_table.dart';
 import '../../../dynamic_ai/components/page_level/dynamic_list.dart';
 import '../../../dynamic_ai/components/page_level/dynamic_list_card.dart';
-import '../../../models/core/sq/sq_bills.dart';
-import '../../../services/core/sq/sq_bills_service.dart';
+import '../../../models/production/mdl_po.dart';
+import '../../../services/production/srv_po.dart';
 import 'scr_po_detail_canvas.dart';
 
-/// Submodule Categories for Purchase Orders
-enum PoSubmoduleCategory {
-  grey(null, 'Grey', shad.LucideIcons.scroll),
-  finish('O13', 'Finish', shad.LucideIcons.packageCheck),
-  lace('O14', 'Lace', shad.LucideIcons.sparkles),
-  packing('O15', 'Packing', shad.LucideIcons.box),
-  studio('O16', 'Studio', shad.LucideIcons.camera);
-
-  final String? seriesCode;
-  final String label;
-  final IconData icon;
-
-  const PoSubmoduleCategory(this.seriesCode, this.label, this.icon);
-}
+/// Alias `PoSubmoduleCategory` to module domain model `PoCategory` for backward compatibility
+typedef PoSubmoduleCategory = PoCategory;
 
 /// [ScrPoLanding] — Main Landing Container Screen for Purchase Orders.
 class ScrPoLanding extends StatefulWidget {
@@ -36,15 +49,23 @@ class ScrPoLanding extends StatefulWidget {
 }
 
 class _ScrPoLandingState extends State<ScrPoLanding> {
-  final SqBillsService _billsService = SqBillsService();
+  final SrvPo _poService = SrvPo();
   final TextEditingController _searchController = TextEditingController();
 
-  PoSubmoduleCategory _selectedCategory = PoSubmoduleCategory.finish;
+  PoCategory _selectedCategory = PoCategory.finish;
+  Map<PoCategory, int> _categoryCounts = {};
   String _viewMode = 'table'; // 'table' or 'split'
   String? _searchQuery;
 
-  List<SqBillsModel> _orders = [];
-  SqBillsModel? _selectedOrder;
+  // Filter States
+  Set<String> _selectedParties = {};
+  List<String> _partyOptions = [];
+  Set<String> _selectedStatuses = {}; // Empty by default = Show ALL entries!
+  shad.CalendarValue? _selectedDateRange;
+  String? _selectedDateLabel;
+
+  List<MdlPoHeader> _orders = [];
+  MdlPoHeader? _selectedOrder;
   bool _isLoading = true;
   int _totalCount = 0;
   int _offset = 0;
@@ -53,13 +74,35 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
   @override
   void initState() {
     super.initState();
-    _fetchHeaders(resetOffset: true);
+    _loadInitialData();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadInitialData() async {
+    _loadCategoryCounts();
+    _loadPartyOptions();
+    _fetchHeaders(resetOffset: true);
+  }
+
+  Future<void> _loadCategoryCounts() async {
+    final counts = await _poService.getCategoryCounts();
+    if (!mounted) return;
+    setState(() {
+      _categoryCounts = counts;
+    });
+  }
+
+  Future<void> _loadPartyOptions() async {
+    final parties = await _poService.getPartyOptions(category: _selectedCategory);
+    if (!mounted) return;
+    setState(() {
+      _partyOptions = parties;
+    });
   }
 
   Future<void> _fetchHeaders({bool resetOffset = false}) async {
@@ -73,23 +116,16 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
       _isLoading = true;
     });
 
-    final seriesCode = _selectedCategory.seriesCode;
-    if (seriesCode == null) {
-      // Grey / Empty category
-      setState(() {
-        _orders = [];
-        _totalCount = 0;
-        _isLoading = false;
-        _selectedOrder = null;
-      });
-      return;
-    }
-
-    final res = await _billsService.getPaginatedBills(
+    final dateRange = _selectedDateRange?.toRange();
+    final res = await _poService.getPurchaseOrders(
       offset: _offset,
       limit: _limit,
-      type: seriesCode,
-      partyName: _searchQuery,
+      category: _selectedCategory,
+      searchQuery: _searchQuery,
+      selectedParties: _selectedParties,
+      selectedStatuses: _selectedStatuses,
+      startDate: dateRange?.start,
+      endDate: dateRange?.end,
     );
 
     if (!mounted) return;
@@ -104,9 +140,30 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
     });
   }
 
-  String _formatDate(DateTime? dt) {
-    if (dt == null) return '';
-    return '${dt.day}/${dt.month}/${dt.year}';
+  void _onCategoryChanged(PoCategory category) {
+    if (_selectedCategory == category) return;
+    setState(() {
+      _selectedCategory = category;
+      _selectedParties.clear();
+      _selectedStatuses.clear();
+      _selectedDateRange = null;
+      _selectedDateLabel = null;
+      _selectedOrder = null;
+    });
+    _loadPartyOptions();
+    _fetchHeaders(resetOffset: true);
+  }
+
+  void _onClearAllFilters() {
+    _searchController.clear();
+    setState(() {
+      _searchQuery = null;
+      _selectedParties.clear();
+      _selectedStatuses.clear();
+      _selectedDateRange = null;
+      _selectedDateLabel = null;
+    });
+    _fetchHeaders(resetOffset: true);
   }
 
   @override
@@ -114,17 +171,20 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
     final theme = shad.Theme.of(context);
     final colors = theme.colorScheme;
 
+    final activeCount = _categoryCounts[_selectedCategory] ?? _totalCount;
+    final hasFilters = _selectedParties.isNotEmpty || _selectedStatuses.isNotEmpty || _selectedDateRange != null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 1. Page Header (Title + Breadcrumb/Description)
+        // 1. Page Header
         PageHeader(
           title: 'Purchase Orders',
         ),
 
         const shad.DensityGap(shad.gapSm),
 
-        // 2. Dynamic Action Bar (DAB with Submodule MicroButton Popover Caller)
+        // 2. Dynamic Action Bar
         DynamicActionBar(
           entityName: 'Orders',
           selectedView: _viewMode,
@@ -138,7 +198,7 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
               return MicroButton(
                 leadingIcon: _selectedCategory.icon,
                 label: _selectedCategory.label,
-                badgeCount: _totalCount,
+                badgeCount: activeCount,
                 trailingIcon: shad.LucideIcons.chevronDown,
                 isSelected: true,
                 onPressed: () {
@@ -148,25 +208,20 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
                       anchorAlignment: Alignment.bottomLeft,
                       alignment: Alignment.topLeft,
                       offset: const Offset(0, 4),
-                      builder: (popContext) => DabSubmodulePopover<PoSubmoduleCategory>(
+                      builder: (popContext) => DabSubmodulePopover<PoCategory>(
                         title: 'Submodule',
                         selectedId: _selectedCategory,
-                        items: PoSubmoduleCategory.values
+                        items: PoCategory.values
                             .map(
-                              (c) => DabSubmoduleItem<PoSubmoduleCategory>(
+                              (c) => DabSubmoduleItem<PoCategory>(
                                 id: c,
                                 label: c.label,
                                 icon: c.icon,
-                                count: c == _selectedCategory ? _orders.length : 0,
+                                count: _categoryCounts[c] ?? 0,
                               ),
                             )
                             .toList(),
-                        onSelected: (cat) {
-                          setState(() {
-                            _selectedCategory = cat;
-                          });
-                          _fetchHeaders(resetOffset: true);
-                        },
+                        onSelected: _onCategoryChanged,
                       ),
                     ),
                   );
@@ -179,6 +234,35 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
             _searchQuery = val.trim();
             _fetchHeaders(resetOffset: true);
           },
+          // Party Filter Popover Slot
+          selectedParties: _selectedParties,
+          partyOptions: _partyOptions,
+          onPartyChanged: (set) {
+            setState(() {
+              _selectedParties = set;
+            });
+            _fetchHeaders(resetOffset: true);
+          },
+          // Status Filter Slot (All, Pending, Completed)
+          selectedStatuses: _selectedStatuses,
+          onStatusChanged: (statuses) {
+            setState(() {
+              _selectedStatuses = statuses;
+            });
+            _fetchHeaders(resetOffset: true);
+          },
+          // Date Range Filter Slot
+          selectedDateRange: _selectedDateRange,
+          selectedDateLabel: _selectedDateLabel,
+          onDateRangeSelected: (range) {
+            setState(() {
+              _selectedDateRange = range;
+              _selectedDateLabel = range != null ? 'Selected Date Range' : null;
+            });
+            _fetchHeaders(resetOffset: true);
+          },
+          hasActiveFilters: hasFilters,
+          onClearAllFilters: _onClearAllFilters,
         ),
 
         const SizedBox(height: 12),
@@ -202,11 +286,69 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
     );
   }
 
+  static const List<DynamicTableColumnSpec> _poTableColumns = [
+    DynamicTableColumnSpec(label: 'ORDER #', key: 'vno', width: 110),
+    DynamicTableColumnSpec(label: 'DATE', key: 'date', width: 95),
+    DynamicTableColumnSpec(label: 'PARTY / SUPPLIER', key: 'party', flex: 2),
+    DynamicTableColumnSpec(label: 'FABRIC', key: 'fabric', flex: 2),
+    DynamicTableColumnSpec(label: 'TOTAL MTRS', key: 'totalMtrs', alignment: Alignment.centerRight, flex: 1),
+    DynamicTableColumnSpec(label: 'TOTAL PCS', key: 'totalPcs', alignment: Alignment.centerRight, flex: 1),
+    DynamicTableColumnSpec(label: 'RATE', key: 'rate', alignment: Alignment.centerRight, flex: 1),
+    DynamicTableColumnSpec(label: 'AMOUNT', key: 'amount', alignment: Alignment.centerRight, flex: 1),
+    DynamicTableColumnSpec(label: '', key: 'actions', width: 72, alignment: Alignment.center),
+  ];
+
+  List<DynamicTableRowData> _mapOrdersToRows() {
+    return _orders.map((o) {
+      return DynamicTableRowData(
+        id: o.vno.toString(),
+        voucherNo: o.displayOrderNo,
+        partyName: o.partyName.isNotEmpty ? o.partyName : 'Unknown Party',
+        designPattern: o.primaryFabric,
+        quantity: o.totalMeters > 0 ? '${o.totalMeters.toStringAsFixed(1)} Mtr' : '-',
+        amount: o.formattedFinalAmount(),
+        amountValue: o.finalAmount > 0 ? o.finalAmount : o.billAmount,
+        status: o.isPending ? 'PENDING' : 'COMPLETED',
+        childRows: o.lineItems.map((item) {
+          return DynamicTableRowData(
+            id: item.srNo.toString(),
+            voucherNo: item.srNo.toString(),
+            partyName: '',
+            designPattern: item.quality.isNotEmpty ? item.quality : 'N/A',
+            quantity: item.meters > 0 ? '${item.meters.toStringAsFixed(1)} Mtr' : '-',
+            amount: item.formattedAmount(),
+            amountValue: item.amount,
+            status: '',
+            rawData: {
+              'pcs': item.pieces > 0 ? '${item.pieces.toInt()}' : '',
+              'rate': item.rate > 0 ? item.rate.toStringAsFixed(2) : '',
+              'rateFormatted': item.rate > 0 ? '₹${item.rate.toStringAsFixed(2)}' : '-',
+            },
+          );
+        }).toList(),
+        rawData: {
+          'date': o.formattedDate,
+          'totalPcs': o.totalPieces > 0 ? '${o.totalPieces} Pcs' : '-',
+          'rate': o.formattedRate(),
+        },
+      );
+    }).toList();
+  }
+
   /// Full-Page Dense Table Grid
   Widget _buildTabularView() {
     return DynamicDenseTable(
-      rows: _orders.map((o) => o.toRowData()).toList(),
-      columns: SqBillsTableMapper.defaultColumns,
+      rows: _mapOrdersToRows(),
+      columns: _poTableColumns,
+      enableExpansion: true,
+      totalRecords: _totalCount,
+      currentPage: (_offset ~/ _limit) + 1,
+      onPageChanged: (page) {
+        setState(() {
+          _offset = (page - 1) * _limit;
+        });
+        _fetchHeaders(resetOffset: false);
+      },
       onRowTap: (row) {
         final order = _orders.firstWhere((o) => o.vno.toString() == row.id, orElse: () => _orders.first);
         setState(() {
@@ -223,12 +365,15 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
         .map(
           (o) => DynamicListItem(
             id: o.vno.toString(),
-            title: 'Order #${o.vno}',
-            subtitle: o.partyName.isNotEmpty ? o.partyName : 'Unknown Party',
-            topLeading: shad.Chip(child: Text(o.type)),
-            topTrailing: _formatDate(o.date),
-            amount: o.finalAmount > 0 ? '₹${o.finalAmount.toStringAsFixed(2)}' : null,
-            rawData: o.toJson(),
+            title: o.partyName.isNotEmpty ? o.partyName : 'Unknown Party',
+            subtitle: '${o.displayOrderNo} • ${o.formattedDate}',
+            topLeading: o.isPending
+                ? const shad.OutlineBadge(child: Text('Pending'))
+                : const shad.PrimaryBadge(child: Text('Completed')),
+            topTrailing: o.formattedDate,
+            amount: o.formattedFinalAmount(),
+            indexNumber: '${o.vno}',
+            rawData: o.core.toJson(),
           ),
         )
         .toList();

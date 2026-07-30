@@ -4,6 +4,7 @@ import '../micro_level/micro_button.dart';
 import 'dab_widgets/dab_date_popover.dart';
 import 'dab_widgets/dab_filter_popover.dart';
 import 'dab_widgets/dab_overflow_popover.dart';
+import 'dab_widgets/dab_party_popover.dart';
 import 'dab_widgets/dab_status_popover.dart';
 
 /// Legacy option model for popovers.
@@ -69,6 +70,10 @@ class DynamicActionBar extends StatelessWidget {
   final List<String> qualityOptions;
   final ValueChanged<Set<String>>? onQualityChanged;
 
+  final Set<String> selectedParties;
+  final List<String> partyOptions;
+  final ValueChanged<Set<String>>? onPartyChanged;
+
   final Set<String> selectedStatuses;
   final ValueChanged<Set<String>>? onStatusChanged;
 
@@ -115,6 +120,9 @@ class DynamicActionBar extends StatelessWidget {
     this.selectedQualities = const {},
     this.qualityOptions = const [],
     this.onQualityChanged,
+    this.selectedParties = const {},
+    this.partyOptions = const [],
+    this.onPartyChanged,
     this.selectedStatuses = const {},
     this.onStatusChanged,
     this.onOverflowFilterPressed,
@@ -137,6 +145,11 @@ class DynamicActionBar extends StatelessWidget {
     final theme = shad.Theme.of(context);
     final colors = theme.colorScheme;
 
+    final partyLabel = selectedParties.isEmpty
+        ? 'Party'
+        : (selectedParties.length == 1
+            ? selectedParties.first
+            : 'Party (${selectedParties.length})');
     final millLabel = selectedMills.isEmpty
         ? 'Mill'
         : (selectedMills.length == 1
@@ -287,73 +300,109 @@ class DynamicActionBar extends StatelessWidget {
             // INDEX 2: Filter Button Cards (Optional)
             // ==========================================
             if (showFilterButtons) ...[
-              // 1. Mill Filter Card + Popover
-              Padding(
-                padding: EdgeInsets.only(right: 8 * theme.scaling),
-                child: Builder(
-                  builder: (btnContext) {
-                    return MicroButton(
-                      leadingIcon: shad.LucideIcons.warehouse,
-                      label: millLabel,
-                      badgeCount: selectedMills.length > 1
-                          ? selectedMills.length
-                          : null,
-                      trailingIcon: shad.LucideIcons.chevronDown,
-                      isSelected: selectedMills.isNotEmpty,
-                      onPressed: () {
-                        shad.showOverlay(
-                          btnContext,
-                          shad.PopoverConfiguration(
-                            anchorAlignment: Alignment.bottomCenter,
-                            alignment: Alignment.topCenter,
-                            offset: const Offset(0, 4),
-                            builder: (context) => DabFilterPopover(
-                              title: 'Mill',
-                              options: millOptions,
-                              selectedValues: selectedMills,
-                              onChanged: (set) => onMillChanged?.call(set),
+              // 0. Party Filter Card + Popover
+              if (onPartyChanged != null || partyOptions.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(right: 8 * theme.scaling),
+                  child: Builder(
+                    builder: (btnContext) {
+                      return MicroButton(
+                        leadingIcon: shad.LucideIcons.users,
+                        label: partyLabel,
+                        badgeCount: selectedParties.length > 1
+                            ? selectedParties.length
+                            : null,
+                        trailingIcon: shad.LucideIcons.chevronDown,
+                        isSelected: selectedParties.isNotEmpty,
+                        onPressed: () {
+                          shad.showOverlay(
+                            btnContext,
+                            shad.PopoverConfiguration(
+                              anchorAlignment: Alignment.bottomCenter,
+                              alignment: Alignment.topCenter,
+                              offset: const Offset(0, 4),
+                              builder: (context) => DabPartyPopover(
+                                selectedParties: selectedParties,
+                                partyOptions: partyOptions,
+                                onChanged: (set) => onPartyChanged?.call(set),
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    );
-                  },
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
+
+              // 1. Mill Filter Card + Popover
+              if (onMillChanged != null || millOptions.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(right: 8 * theme.scaling),
+                  child: Builder(
+                    builder: (btnContext) {
+                      return MicroButton(
+                        leadingIcon: shad.LucideIcons.warehouse,
+                        label: millLabel,
+                        badgeCount: selectedMills.length > 1
+                            ? selectedMills.length
+                            : null,
+                        trailingIcon: shad.LucideIcons.chevronDown,
+                        isSelected: selectedMills.isNotEmpty,
+                        onPressed: () {
+                          shad.showOverlay(
+                            btnContext,
+                            shad.PopoverConfiguration(
+                              anchorAlignment: Alignment.bottomCenter,
+                              alignment: Alignment.topCenter,
+                              offset: const Offset(0, 4),
+                              builder: (context) => DabFilterPopover(
+                                title: 'Mill',
+                                options: millOptions,
+                                selectedValues: selectedMills,
+                                onChanged: (set) => onMillChanged?.call(set),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
 
               // 2. Quality Filter Card + Popover
-              Padding(
-                padding: EdgeInsets.only(right: 8 * theme.scaling),
-                child: Builder(
-                  builder: (btnContext) {
-                    return MicroButton(
-                      leadingIcon: shad.LucideIcons.scissors,
-                      label: qualityLabel,
-                      badgeCount: selectedQualities.length > 1
-                          ? selectedQualities.length
-                          : null,
-                      trailingIcon: shad.LucideIcons.chevronDown,
-                      isSelected: selectedQualities.isNotEmpty,
-                      onPressed: () {
-                        shad.showOverlay(
-                          btnContext,
-                          shad.PopoverConfiguration(
-                            anchorAlignment: Alignment.bottomCenter,
-                            alignment: Alignment.topCenter,
-                            offset: const Offset(0, 4),
-                            builder: (context) => DabFilterPopover(
-                              title: 'Quality',
-                              options: qualityOptions,
-                              selectedValues: selectedQualities,
-                              onChanged: (set) => onQualityChanged?.call(set),
+              if (onQualityChanged != null || qualityOptions.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(right: 8 * theme.scaling),
+                  child: Builder(
+                    builder: (btnContext) {
+                      return MicroButton(
+                        leadingIcon: shad.LucideIcons.scissors,
+                        label: qualityLabel,
+                        badgeCount: selectedQualities.length > 1
+                            ? selectedQualities.length
+                            : null,
+                        trailingIcon: shad.LucideIcons.chevronDown,
+                        isSelected: selectedQualities.isNotEmpty,
+                        onPressed: () {
+                          shad.showOverlay(
+                            btnContext,
+                            shad.PopoverConfiguration(
+                              anchorAlignment: Alignment.bottomCenter,
+                              alignment: Alignment.topCenter,
+                              offset: const Offset(0, 4),
+                              builder: (context) => DabFilterPopover(
+                                title: 'Quality',
+                                options: qualityOptions,
+                                selectedValues: selectedQualities,
+                                onChanged: (set) => onQualityChanged?.call(set),
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    );
-                  },
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
 
               // 3. Status Filter Card + Popover
               Padding(

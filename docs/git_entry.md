@@ -26,6 +26,7 @@ gitGraph
 
 | Date | Machine Agent | Action | Target Branch / Hash | Key Changes & Objectives |
 | :--- | :--- | :--- | :--- | :--- |
+| **2026-07-30** | 💻 `[Windows Workstation]` | **Commit & Push** | `master` (`origin/master`) | MNS architecture overhaul for Cutting Cards (`cc`) and Purchase Bills (`pb`), line item source routing (`sq_PINVTRN` for Grey, `sq_MILLREC` for Mill, `sq_BILLDET` for others), MicroButton overflow fix, & retired 11 legacy production files. |
 | **2026-07-29** | 🍏 `[MacBook Workstation]` | **Commit & Push** | `master` (`origin/master`) | Shipped 7 canonical core data models (`sq_bills`, `sq_pinvtrn`, `sq_millrec`, `sq_chaltrn`, `sq_billdet`, `sb_cutdet`, `sb_cutdet_summary`), 7 core services, 3-way card linkage engine, Mill Programs module, `GEMINI.md` Section 9, & legacy reference cleanup. |
 | **2026-07-29** | 💻 `[Windows Workstation]` | **Commit & Push** | `master` (`origin/master`) | Standardized 12px/8px/8px vertical gap tokens, DAB 34px height alignment, crisp white autocompletes, tooltipped grouping switcher, and DDT row grouping column-aligned summary view. |
 | **2026-07-28** | 🍏 `[MacBook Workstation]` | **Commit & Merge & Push** | `master` (`origin/master`) | Shipped 3-state `PageHeader` (`standard`, `adding`, `editing`), zero-overhead `PageFormCanvas` with pixel-perfect 1200px max-width alignment, dedicated 2-column form layout (`CreatePageLayout`), dynamic list/content pane skeletons, and symmetric 12px (`shad.padMd`) `HeaderTabs` child padding. |

@@ -1,15 +1,38 @@
+/*
+================================================================================
+LLM CONTEXT & QUERY SPACE — PO DETAIL CANVAS (scr_po_detail_canvas.dart)
+================================================================================
+1. DOMAIN & PURPOSE:
+   - Detailed inspection canvas & line-items table for a selected Purchase Order header.
+   - Renders PO summary metrics card (Party, Quality, Date, Final Amount) and fetches line-items.
+
+2. BUSINESS LOGIC & DATA CONTRACTS:
+   - Accepts module domain model `MdlPoHeader`.
+   - Uses `SrvPo` to fetch detail line items (`MdlPoLineItem`).
+   - Requires composite join keys `CNO = header.cno AND VNO = header.vno AND TYPE = header.type`.
+
+3. DATA AUDIT / NULL RATES / GOTCHAS:
+   - Line item rate and amount fields default defensively (`?? 0.0`) when unpopulated in Airbyte sync.
+   - Truncated text handles lengthy supplier names cleanly via native typography scaling.
+
+4. OPEN QUESTIONS & CLARIFICATIONS:
+   - Do Purchase Orders require attachment scan previews (PO PDF / Supplier Quotation scans) in this right-hand canvas?
+================================================================================
+*/
+
 import 'package:flutter/material.dart' hide Card;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 import 'package:intl/intl.dart';
 
+import '../../../models/production/mdl_po.dart';
+import '../../../services/production/srv_po.dart';
 import '../../../models/core/sq/sq_bills.dart';
 import '../../../models/core/sq/sq_billdet.dart';
-import '../../../services/core/sq/sq_billdet_service.dart';
 import '../../../dynamic_ai/components/page_level/dynamic_dense_table.dart';
 
 /// [ScrPoDetailCanvas] — Detail inspection canvas & line-items table for Purchase Orders.
 class ScrPoDetailCanvas extends StatefulWidget {
-  final SqBillsModel header;
+  final MdlPoHeader header;
   final VoidCallback? onClose;
 
   const ScrPoDetailCanvas({
@@ -23,10 +46,10 @@ class ScrPoDetailCanvas extends StatefulWidget {
 }
 
 class _ScrPoDetailCanvasState extends State<ScrPoDetailCanvas> {
-  final SqBilldetService _billdetService = SqBilldetService();
+  final SrvPo _poService = SrvPo();
   final NumberFormat _currencyFmt = NumberFormat.currency(symbol: '₹', decimalDigits: 2, locale: 'en_IN');
 
-  List<SqBilldetModel> _lineItems = [];
+  List<MdlPoLineItem> _lineItems = [];
   bool _isLoadingLineItems = true;
 
   @override
@@ -48,7 +71,7 @@ class _ScrPoDetailCanvasState extends State<ScrPoDetailCanvas> {
       _isLoadingLineItems = true;
     });
 
-    final items = await _billdetService.getLineItemsForBill(
+    final items = await _poService.getPurchaseOrderLineItems(
       vno: widget.header.vno,
       type: widget.header.type,
       cno: widget.header.cno,
@@ -59,11 +82,6 @@ class _ScrPoDetailCanvasState extends State<ScrPoDetailCanvas> {
       _lineItems = items;
       _isLoadingLineItems = false;
     });
-  }
-
-  String _formatDate(DateTime? dt) {
-    if (dt == null) return 'N/A';
-    return '${dt.day}/${dt.month}/${dt.year}';
   }
 
   @override
@@ -86,7 +104,7 @@ class _ScrPoDetailCanvasState extends State<ScrPoDetailCanvas> {
                   Row(
                     children: [
                       Text(
-                        'ORDER #${h.vno}',
+                        h.displayOrderNo,
                         style: theme.typography.h4.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(width: 8),
@@ -123,14 +141,14 @@ class _ScrPoDetailCanvasState extends State<ScrPoDetailCanvas> {
                     child: _buildInfoItem(
                       theme,
                       SqBillsLabels.date,
-                      _formatDate(h.date),
+                      h.formattedDate,
                     ),
                   ),
                   Expanded(
                     child: _buildInfoItem(
                       theme,
                       SqBillsLabels.finalAmt,
-                      _currencyFmt.format(h.finalAmount),
+                      h.formattedFinalAmount(_currencyFmt),
                       isHighlight: true,
                     ),
                   ),
@@ -166,12 +184,12 @@ class _ScrPoDetailCanvasState extends State<ScrPoDetailCanvas> {
                       : _lineItems.isEmpty
                           ? Center(
                               child: Text(
-                                'No line items found for Order #${h.vno}',
+                                'No line items found for ${h.displayOrderNo}',
                                 style: theme.typography.textSmall.copyWith(color: colors.mutedForeground),
                               ),
                             )
                           : DynamicDenseTable(
-                              rows: _lineItems.map((item) => item.toRowData(_currencyFmt)).toList(),
+                              rows: _lineItems.map((item) => item.core.toRowData(_currencyFmt)).toList(),
                               columns: SqBilldetTableMapper.defaultColumns,
                             ),
                 ),

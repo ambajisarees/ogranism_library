@@ -16,6 +16,7 @@ class MicroButton extends StatefulWidget {
   final dynamic badgeCount;
   final IconData? trailingIcon;
   final bool isSelected;
+  final bool isGhost;
   final VoidCallback? onPressed;
   final FocusNode? focusNode;
   final bool autoFocus;
@@ -27,6 +28,7 @@ class MicroButton extends StatefulWidget {
     this.badgeCount,
     this.trailingIcon,
     this.isSelected = false,
+    this.isGhost = false,
     this.onPressed,
     this.focusNode,
     this.autoFocus = false,
@@ -87,15 +89,19 @@ class _MicroButtonState extends State<MicroButton> {
         widget.trailingIcon == null &&
         widget.badgeCount == null;
 
-    final border = Border.all(
-      color: _isFocused
-          ? colors.primary.withAlpha(153)
-          : colors.border,
-      width: _isFocused ? 1.5 : 1.0,
-    );
+    final border = widget.isGhost
+        ? Border.all(
+            color: _isFocused ? colors.primary.withAlpha(153) : const Color(0x00000000),
+            width: _isFocused ? 1.5 : 0.0,
+          )
+        : Border.all(
+            color: _isFocused ? colors.primary.withAlpha(153) : colors.border,
+            width: _isFocused ? 1.5 : 1.0,
+          );
 
-    // Hover background color (only modifies fill to colors.accent)
-    final backgroundColor = _isHovered ? colors.accent : colors.card;
+    final backgroundColor = widget.isGhost
+        ? ((_isHovered || widget.isSelected) ? colors.accent : const Color(0x00000000))
+        : (_isHovered ? colors.accent : colors.card);
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -139,11 +145,14 @@ class _MicroButtonState extends State<MicroButton> {
 
               // 2. Text Label
               if (widget.label.isNotEmpty) ...[
-                Text(
-                  widget.label,
-                  style: theme.typography.textSmall.copyWith(
-                    fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.normal,
-                    color: colors.foreground,
+                Flexible(
+                  child: Text(
+                    widget.label,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.typography.textSmall.copyWith(
+                      fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: colors.foreground,
+                    ),
                   ),
                 ),
               ],

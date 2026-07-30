@@ -1,3 +1,24 @@
+/*
+================================================================================
+LLM CONTEXT & QUERY SPACE — SQ BILLDET SERVICE (sq_billdet_service.dart)
+================================================================================
+1. DOMAIN & PURPOSE:
+   - Canonical core service singleton for table `sq_BILLDET` in target schema `IMMBE2627`.
+   - Fetches detail line items for voucher headers (POs, PBs, Sales Invoices).
+
+2. BUSINESS LOGIC & DATA CONTRACTS:
+   - Always requires 3-key composite join (`CNO = cno AND VNO = vno AND TYPE = type`) to prevent fan-outs.
+   - Orders line items sequentially by `SRNO`.
+
+3. DATA AUDIT / NULL RATES / GOTCHAS:
+   - `sq_BILLDET` is Airbyte mirror, strictly read-only.
+   - Default fallbacks (`?? 0.0`) prevent null unwrapping crashes on missing numeric rates.
+
+4. OPEN QUESTIONS & CLARIFICATIONS:
+   - Should batch queries (fetching line items for 50 headers simultaneously) use RPC procedures?
+================================================================================
+*/
+
 import 'package:flutter/foundation.dart';
 import '../../../models/core/sq/sq_billdet.dart';
 import '../service_supabase.dart';

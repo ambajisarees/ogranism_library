@@ -1,18 +1,29 @@
+/*
+================================================================================
+LLM CONTEXT & QUERY SPACE — SQ BILLS SERVICE (sq_bills_service.dart)
+================================================================================
+1. DOMAIN & PURPOSE:
+   - Canonical core service singleton for table `sq_BILLS` in target schema `IMMBE2627`.
+   - Provides paginated header fetching, series filtering (`TYPE`), count aggregation, and key lookups.
+
+2. BUSINESS LOGIC & DATA CONTRACTS:
+   - Schema isolated via `.schema('IMMBE2627')`.
+   - Enforces fiscal year filter `VNO < 100000`.
+   - Requires composite join keys `CNO / VNO / TYPE` to uniquely identify header records.
+
+3. DATA AUDIT / NULL RATES / GOTCHAS:
+   - `sq_BILLS` is Airbyte mirror, strictly read-only.
+   - Use CountOption.exact for PostgREST pagination accuracy.
+
+4. OPEN QUESTIONS & CLARIFICATIONS:
+   - Should server-side Postgres RPC views (`vwsq_`) be used for multi-series queries?
+================================================================================
+*/
+
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../models/core/sq/sq_bills.dart';
 import '../service_supabase.dart';
-
-/// Standardized Paginated Result wrapper.
-class PaginatedResult<T> {
-  final List<T> data;
-  final int totalCount;
-
-  const PaginatedResult({
-    required this.data,
-    required this.totalCount,
-  });
-}
 
 /// [SqBillsService] — Canonical Core Service Layer for `sq_BILLS` (Read-Only Airbyte Mirror).
 class SqBillsService {
@@ -108,10 +119,12 @@ class SqBillsService {
       return PaginatedResult(
         data: items,
         totalCount: totalCount,
+        offset: offset,
+        limit: limit,
       );
     } catch (e, stack) {
       debugPrint('Error in SqBillsService.getPaginatedBills: $e\n$stack');
-      return const PaginatedResult(data: [], totalCount: 0);
+      return PaginatedResult(data: [], totalCount: 0, offset: offset, limit: limit, error: e.toString());
     }
   }
 

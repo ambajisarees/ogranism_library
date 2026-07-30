@@ -10,7 +10,7 @@ import '../dynamic_ai/components/page_level/dynamic_list_card.dart';
 import '../dynamic_ai/components/page_level/dynamic_content_pane.dart';
 import '../dynamic_ai/components/micro_level/micro_button.dart';
 import '../dynamic_ai/components/root_level/header_tabs.dart';
-import '../models/production/purchase_orders/purchase_order_category.dart';
+import 'production/purchase_orders/scr_po_landing.dart';
 
 class DemoScreen extends StatefulWidget {
   const DemoScreen({super.key});
@@ -27,13 +27,13 @@ class _DemoScreenState extends State<DemoScreen> {
   String? _searchQuery;
 
   // Submodule Category Selector State
-  PurchaseOrderCategory _selectedCategory = PurchaseOrderCategory.finish;
-  final Map<PurchaseOrderCategory, int> _categoryCounts = {
-    PurchaseOrderCategory.grey: 0,
-    PurchaseOrderCategory.finish: 13,
-    PurchaseOrderCategory.lace: 0,
-    PurchaseOrderCategory.studio: 0,
-    PurchaseOrderCategory.packing: 0,
+  PoSubmoduleCategory _selectedCategory = PoSubmoduleCategory.finish;
+  final Map<PoSubmoduleCategory, int> _categoryCounts = {
+    PoSubmoduleCategory.grey: 0,
+    PoSubmoduleCategory.finish: 13,
+    PoSubmoduleCategory.lace: 0,
+    PoSubmoduleCategory.studio: 0,
+    PoSubmoduleCategory.packing: 0,
   };
 
   // Base Landing Page Filter State
@@ -430,11 +430,11 @@ class _DemoScreenState extends State<DemoScreen> {
                         alignment: Alignment.topLeft,
                         offset: const Offset(0, 4),
                         builder: (context) =>
-                            DabSubmodulePopover<PurchaseOrderCategory>(
+                            DabSubmodulePopover<PoSubmoduleCategory>(
                           title: 'Submodule',
                           selectedId: _selectedCategory,
-                          items: PurchaseOrderCategory.values.map((cat) {
-                            return DabSubmoduleItem<PurchaseOrderCategory>(
+                          items: PoSubmoduleCategory.values.map((cat) {
+                            return DabSubmoduleItem<PoSubmoduleCategory>(
                               id: cat,
                               label: cat.label,
                               icon: cat.icon,

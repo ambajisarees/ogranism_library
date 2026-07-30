@@ -115,6 +115,7 @@ class _DabSubmodulePopoverState<T> extends State<DabSubmodulePopover<T>> {
                             label: item.label,
                             badgeCount: item.count,
                             isSelected: isSelected,
+                            isGhost: true,
                             onPressed: () {
                               shad.closeOverlay(context);
                               widget.onSelected(item.id);

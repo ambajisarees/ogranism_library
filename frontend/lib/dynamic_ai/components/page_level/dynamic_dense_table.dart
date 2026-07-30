@@ -33,6 +33,7 @@ class DynamicTableRowData {
   final String? expandedDetails;
   final String? thumbnailUrl;
   final List<String> imageUrls;
+  final List<DynamicTableRowData> childRows;
   final Map<String, dynamic>? rawData;
 
   const DynamicTableRowData({
@@ -47,6 +48,7 @@ class DynamicTableRowData {
     this.expandedDetails,
     this.thumbnailUrl,
     this.imageUrls = const [],
+    this.childRows = const [],
     this.rawData,
   });
 }
@@ -97,10 +99,20 @@ class DynamicDenseTable extends StatefulWidget {
 class _DynamicDenseTableState extends State<DynamicDenseTable> {
   int _currentPage = 1;
   late Set<String> _selectedIds;
-  int _expandedIndex = -1;
+  final Set<int> _expandedIndices = {};
   String? _activeSortKey;
   bool _isAscending = true;
   final Map<String, bool> _hoveredHeaders = {};
+
+  void _toggleExpandAll() {
+    setState(() {
+      if (_expandedIndices.length == widget.rows.length) {
+        _expandedIndices.clear();
+      } else {
+        _expandedIndices.addAll(List.generate(widget.rows.length, (i) => i));
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -345,7 +357,7 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
           final row = groupRows[i];
           final globalIndex = widget.rows.indexOf(row);
           final isSelected = _selectedIds.contains(row.id);
-          final isExpanded = _expandedIndex == globalIndex;
+          final isExpanded = _expandedIndices.contains(globalIndex);
 
           widgets.add(
             Column(
@@ -355,7 +367,11 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
                   onTap: () {
                     if (widget.enableExpansion) {
                       setState(() {
-                        _expandedIndex = isExpanded ? -1 : globalIndex;
+                        if (isExpanded) {
+                          _expandedIndices.remove(globalIndex);
+                        } else {
+                          _expandedIndices.add(globalIndex);
+                        }
                       });
                     }
                     widget.onRowTap?.call(row);
@@ -372,8 +388,11 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
                             child: GestureDetector(
                               onTap: () {
                                 setState(() {
-                                  _expandedIndex =
-                                      isExpanded ? -1 : globalIndex;
+                                  if (isExpanded) {
+                                    _expandedIndices.remove(globalIndex);
+                                  } else {
+                                    _expandedIndices.add(globalIndex);
+                                  }
                                 });
                               },
                               child: Icon(
@@ -457,7 +476,7 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
               ...List.generate(widget.rows.length, (index) {
                 final row = widget.rows[index];
                 final isSelected = _selectedIds.contains(row.id);
-                final isExpanded = _expandedIndex == index;
+                final isExpanded = _expandedIndices.contains(index);
 
                 return Column(
                   mainAxisSize: MainAxisSize.min,
@@ -466,7 +485,11 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
                       onTap: () {
                         if (widget.enableExpansion) {
                           setState(() {
-                            _expandedIndex = isExpanded ? -1 : index;
+                            if (isExpanded) {
+                              _expandedIndices.remove(index);
+                            } else {
+                              _expandedIndices.add(index);
+                            }
                           });
                         }
                         widget.onRowTap?.call(row);
@@ -484,7 +507,11 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
                                 child: GestureDetector(
                                   onTap: () {
                                     setState(() {
-                                      _expandedIndex = isExpanded ? -1 : index;
+                                      if (isExpanded) {
+                                        _expandedIndices.remove(index);
+                                      } else {
+                                        _expandedIndices.add(index);
+                                      }
                                     });
                                   },
                                   child: Icon(
@@ -519,27 +546,29 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
                       ),
                     ),
 
-                    // Accordion Expansion Row Details (Optional)
+                    // Accordion Expansion Row Details or Nested Line Items
                     if (widget.enableExpansion && isExpanded)
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        color: colors.muted.withAlpha(80),
-                        child: Row(
-                          children: [
-                            Icon(shad.LucideIcons.cornerDownRight,
-                                size: 16, color: colors.primary),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                row.expandedDetails ??
-                                    'Expanded Details: Grey Fabric Lot #${row.voucherNo.replaceAll(RegExp(r'[^0-9]'), '')} • Station: Surat Warehouse • Dispatcher: Ambaji ERP Operator',
-                                style: theme.typography.xSmall,
+                      row.childRows.isNotEmpty
+                          ? _buildNestedSubRows(context, row, theme, colors)
+                          : Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(12),
+                              color: colors.muted.withAlpha(80),
+                              child: Row(
+                                children: [
+                                  Icon(shad.LucideIcons.cornerDownRight,
+                                      size: 16, color: colors.primary),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      row.expandedDetails ??
+                                          'Expanded Details: Grey Fabric Lot #${row.voucherNo.replaceAll(RegExp(r'[^0-9]'), '')} • Station: Surat Warehouse • Dispatcher: Ambaji ERP Operator',
+                                      style: theme.typography.xSmall,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
 
                     shad.Divider(color: colors.border),
                   ],
@@ -674,19 +703,37 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
         ),
       );
     } else {
-      cellChild = Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: Text(
-          labelText,
-          style: theme.typography.xSmall.copyWith(
-            fontWeight: FontWeight.w600,
-            color: colors.mutedForeground,
-            letterSpacing: 0.5,
+      if (isActionsCol && widget.enableExpansion) {
+        final isAllExp = widget.rows.isNotEmpty && _expandedIndices.length == widget.rows.length;
+        cellChild = shad.Tooltip(
+          tooltip: (context) => shad.TooltipContainer(
+            child: Text(isAllExp ? 'Collapse All Rows' : 'Expand All Rows'),
           ),
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
-        ),
-      );
+          child: shad.IconButton.ghost(
+            size: shad.ButtonSize.small,
+            icon: Icon(
+              isAllExp ? shad.LucideIcons.chevronsDownUp : shad.LucideIcons.chevronsUpDown,
+              size: 14,
+              color: isAllExp ? colors.primary : colors.mutedForeground,
+            ),
+            onPressed: _toggleExpandAll,
+          ),
+        );
+      } else {
+        cellChild = Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          child: Text(
+            labelText,
+            style: theme.typography.xSmall.copyWith(
+              fontWeight: FontWeight.w600,
+              color: colors.mutedForeground,
+              letterSpacing: 0.5,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        );
+      }
     }
 
     final alignWidget = Align(
@@ -819,7 +866,7 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
 
       case 'cutdate':
       case 'date':
-        final dateText = row.rawData?['cutdate']?.toString() ?? '';
+        final dateText = row.rawData?['date']?.toString() ?? row.rawData?['cutdate']?.toString() ?? '';
         childContent = Text(
           dateText,
           style: theme.typography.textSmall,
@@ -837,6 +884,7 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
         );
         break;
 
+      case 'fabric':
       case 'quality':
       case 'greyqual':
       case 'design':
@@ -851,8 +899,22 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
         );
         break;
 
+      case 'rate':
+        final rateText = row.rawData?['rate']?.toString() ?? '';
+        childContent = Text(
+          rateText,
+          style: theme.typography.mono.copyWith(
+            fontSize: 13 * theme.scaling,
+            fontWeight: FontWeight.w500,
+          ),
+        );
+        break;
+
+      case 'totalmtrs':
+      case 'totmts':
+      case 'mtrs':
       case 'cutlength':
-        final lenText = row.rawData?['cutlength']?.toString() ?? '';
+        final lenText = row.rawData?['cutlength']?.toString() ?? row.quantity;
         childContent = Text(
           lenText,
           style: theme.typography.mono.copyWith(
@@ -862,10 +924,12 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
         );
         break;
 
+      case 'totalpcs':
+      case 'totpcs':
       case 'freshpcs':
       case 'qty':
       case 'quantity':
-        final pcsText = row.rawData?['freshpcs']?.toString() ?? row.quantity;
+        final pcsText = row.rawData?['totalPcs']?.toString() ?? row.rawData?['freshpcs']?.toString() ?? row.quantity;
         childContent = Text(
           pcsText,
           style: theme.typography.mono.copyWith(
@@ -944,6 +1008,117 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
       flex: col.flex,
       child: alignWidget,
     );
+  }
+
+  Widget _buildNestedSubRows(
+    BuildContext context,
+    DynamicTableRowData parentRow,
+    shad.ThemeData theme,
+    shad.ColorScheme colors,
+  ) {
+    return Container(
+      width: double.infinity,
+      color: colors.muted.withAlpha(35),
+      child: Column(
+        children: parentRow.childRows.map((childRow) {
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: colors.border.withAlpha(60))),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (widget.enableExpansion) const SizedBox(width: 32), // 24 + 8 spacer
+                const SizedBox(width: 44), // 32 checkbox + 12 spacer
+                ...widget.columns.map((col) => _buildSubRowCell(context, col, childRow, theme, colors)),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildSubRowCell(
+    BuildContext context,
+    DynamicTableColumnSpec col,
+    DynamicTableRowData childRow,
+    shad.ThemeData theme,
+    shad.ColorScheme colors,
+  ) {
+    Widget childContent;
+    final key = col.key.toLowerCase();
+
+    if (key == 'vno' || key == 'voucherno' || key == 'order') {
+      childContent = Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(shad.LucideIcons.cornerDownRight, size: 12, color: colors.mutedForeground),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              '#${childRow.id}',
+              style: theme.typography.mono.copyWith(fontSize: 11, color: colors.mutedForeground),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
+        ],
+      );
+    } else if (key == 'fabric' || key == 'qual' || key == 'quality') {
+      childContent = Text(
+        childRow.designPattern,
+        style: theme.typography.xSmall.copyWith(fontWeight: FontWeight.bold, color: colors.foreground),
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
+      );
+    } else if (key == 'totalmtrs' || key == 'totmts' || key == 'mtrs' || key == 'meters' || key == 'quantity') {
+      childContent = Text(
+        childRow.quantity,
+        style: theme.typography.mono.copyWith(fontSize: 12, color: colors.foreground),
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
+      );
+    } else if (key == 'totalpcs' || key == 'totpcs' || key == 'pcs' || key == 'pieces') {
+      final pcs = childRow.rawData?['pcs']?.toString() ?? '';
+      childContent = Text(
+        pcs.isNotEmpty ? '$pcs Pcs' : '-',
+        style: theme.typography.mono.copyWith(fontSize: 12, color: colors.foreground),
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
+      );
+    } else if (key == 'rate') {
+      childContent = Text(
+        childRow.rawData?['rateFormatted']?.toString() ?? childRow.rawData?['rate']?.toString() ?? '-',
+        style: theme.typography.mono.copyWith(fontSize: 12, color: colors.foreground),
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
+      );
+    } else if (key == 'amount' || key == 'finalamt' || key == 'billamt') {
+      childContent = Text(
+        childRow.amount,
+        style: theme.typography.mono.copyWith(fontSize: 12, fontWeight: FontWeight.w500, color: colors.foreground),
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
+      );
+    } else {
+      childContent = const SizedBox.shrink();
+    }
+
+    final alignWidget = Align(
+      alignment: col.alignment,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        child: childContent,
+      ),
+    );
+
+    if (col.width != null) {
+      return SizedBox(width: col.width, child: alignWidget);
+    }
+    return Expanded(flex: col.flex, child: alignWidget);
   }
 
   Widget _buildStatusBadge(String status) {
@@ -1075,32 +1250,37 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
                 final canPrev = _currentPage > 1;
                 final canNext = (_currentPage * 50) < totalCount;
 
-                footerCellChild = Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    shad.IconButton.ghost(
-                      size: shad.ButtonSize.small,
-                      icon: const Icon(shad.LucideIcons.chevronLeft, size: 16),
-                      onPressed: canPrev
-                          ? () {
-                              setState(() => _currentPage--);
-                              widget.onPageChanged?.call(_currentPage);
-                            }
-                          : null,
-                    ),
-                    const SizedBox(width: 4),
-                    shad.IconButton.ghost(
-                      size: shad.ButtonSize.small,
-                      icon: const Icon(shad.LucideIcons.chevronRight, size: 16),
-                      onPressed: canNext
-                          ? () {
-                              setState(() => _currentPage++);
-                              widget.onPageChanged?.call(_currentPage);
-                            }
-                          : null,
-                    ),
-                  ],
+                footerCellChild = FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      shad.IconButton.ghost(
+                        density: shad.ButtonDensity.compact,
+                        size: shad.ButtonSize.xSmall,
+                        icon: const Icon(shad.LucideIcons.chevronLeft, size: 14),
+                        onPressed: canPrev
+                            ? () {
+                                setState(() => _currentPage--);
+                                widget.onPageChanged?.call(_currentPage);
+                              }
+                            : null,
+                      ),
+                      const SizedBox(width: 2),
+                      shad.IconButton.ghost(
+                        density: shad.ButtonDensity.compact,
+                        size: shad.ButtonSize.xSmall,
+                        icon: const Icon(shad.LucideIcons.chevronRight, size: 14),
+                        onPressed: canNext
+                            ? () {
+                                setState(() => _currentPage++);
+                                widget.onPageChanged?.call(_currentPage);
+                              }
+                            : null,
+                      ),
+                    ],
+                  ),
                 );
               }
             }
