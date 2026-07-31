@@ -1,11 +1,15 @@
 /// LLM NOTE: DynamicDenseTable
-/// - Level: Page-Level Data Grid / Table
-/// - Purpose: High-density enterprise data table with multi-column sorting, selection checkboxes, summary calculation row, custom cell formatting, pagination controls, and empty/loading states.
+/// - Level: Core Data Grid Component
+/// - Purpose: High-density desktop data table with sticky column headers, custom cell builders, sortable column triggers, row selection checkboxes, and compact footer pagination.
+
+library;
+
 /// - Widget Composition: shad.OutlinedContainer -> Column(Header Row + Scrollable Rows ListView.builder + Summary Calculation Row + Pagination Control Footer).
 /// - Integrated Components: shad.Checkbox, shad.Badge, shad.Button.
 
 import 'package:flutter/material.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
+import '../micro_level/dynamic_pagination.dart';
 
 /// Specification model for configuring a data table column.
 class DynamicTableColumnSpec {
@@ -583,21 +587,33 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
           ],
         );
 
-        if (isBounded) {
-          rowsContent = Flexible(
+        final bool isCompactCount = widget.rows.length < 10;
+
+        Widget scrollableRows;
+        if (isBounded && !isCompactCount) {
+          scrollableRows = Expanded(
+            child: SingleChildScrollView(
+              child: rowsContent,
+            ),
+          );
+        } else {
+          scrollableRows = ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: 520 * theme.scaling),
             child: SingleChildScrollView(
               child: rowsContent,
             ),
           );
         }
 
-        return shad.OutlinedContainer(
+        Widget tableWidget = shad.OutlinedContainer(
           borderColor: colors.border,
           borderRadius: BorderRadius.circular(theme.radiusMd),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: (isBounded && !isCompactCount)
+                ? MainAxisSize.max
+                : MainAxisSize.min,
             children: [
-              // 1. HEADER ROW (Same vertical padding as data rows: horizontal 16, vertical 10, Slate 10 token #FCFDFE)
+              // 1. STICKY HEADER ROW
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -633,12 +649,40 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
               ),
               shad.Divider(color: colors.border),
 
-              // 2. DATA ROWS (Flexible & Scrollable if bounded, else natural Column)
-              rowsContent,
-              // 3. TABLE FOOTER ROW (3 Areas: Record/Selection Counter, Numerical Column Computations, Compact 2-Button Pagination)
-              _buildTableFooterRow(context, theme, colors),
+              // 2. DATA ROWS (Scrollable)
+              scrollableRows,
+
+              // 3. STICKY SUMMARY ROW (Matches Sticky Header Specs 100%)
+              if (widget.showSummaryRow) ...[
+                shad.Divider(color: colors.border),
+                _buildSummaryRow(context, theme, colors, defaultHeaderFooterBg),
+              ],
             ],
           ),
+        );
+
+        if (isBounded && !isCompactCount) {
+          tableWidget = Expanded(child: tableWidget);
+        }
+
+        return Column(
+          mainAxisSize: (isBounded && !isCompactCount)
+              ? MainAxisSize.max
+              : MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            tableWidget,
+            // 4. STANDALONE DYNAMIC PAGINATION (Sits outside table card surface)
+            DynamicPagination(
+              totalRecords: widget.totalRecords ?? widget.rows.length,
+              currentPage: _currentPage,
+              selectedCount: _selectedIds.length,
+              onPageChanged: (newPage) {
+                setState(() => _currentPage = newPage);
+                widget.onPageChanged?.call(newPage);
+              },
+            ),
+          ],
         );
       },
     );
@@ -1140,28 +1184,17 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
     }
   }
 
-  Widget _buildTableFooterRow(
+  Widget _buildSummaryRow(
     BuildContext context,
     shad.ThemeData theme,
     shad.ColorScheme colors,
+    Color defaultHeaderFooterBg,
   ) {
-    final totalCount = widget.totalRecords ?? widget.rows.length;
-    final displayedCount = widget.rows.length;
-    final selectedCount = _selectedIds.length;
-
-    final startIdx = displayedCount > 0 ? (_currentPage - 1) * 50 + 1 : 0;
-    final endIdx = (_currentPage - 1) * 50 + displayedCount;
-
-    final recordText = selectedCount > 0
-        ? '$selectedCount of ${_formatNumber(totalCount)} Selected'
-        : '$startIdx-$endIdx of ${_formatNumber(totalCount)} Records';
-
-    final isDark = theme.colorScheme.brightness == Brightness.dark;
-    final defaultHeaderFooterBg =
-        isDark ? const Color(0xFF141210) : const Color(0xFFFCFDFE);
-
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: EdgeInsets.symmetric(
+        horizontal: 16 * theme.scaling,
+        vertical: 14 * theme.scaling,
+      ),
       color: widget.headerBackgroundColor ?? defaultHeaderFooterBg,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -1176,117 +1209,32 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
           const SizedBox(width: 32),
           const SizedBox(width: 12),
 
-          // 1:1 Column Alignment Mapping for Footer Row (Merging Col 0 & Col 1 for Record Text)
+          // 1:1 Column Alignment Mapping for Totals
           ...List.generate(widget.columns.length, (index) {
-            if (index == 1 && widget.columns.length >= 2) {
-              return const SizedBox.shrink();
-            }
-
             final col = widget.columns[index];
-            Widget? footerCellChild;
-            double? cellWidth = col.width;
-            int cellFlex = col.flex;
+            Widget? cellChild;
 
-            if (index == 0 && widget.columns.length >= 2) {
-              final col1 = widget.columns[1];
-              if (col.width != null || col1.width != null) {
-                cellWidth = (col.width ?? 0.0) + (col1.width ?? 0.0);
-              } else {
-                cellFlex = col.flex + col1.flex;
-              }
-
-              footerCellChild = Text(
-                recordText,
-                maxLines: 1,
-                softWrap: false,
-                style: theme.typography.textSmall.copyWith(
-                  fontWeight:
-                      selectedCount > 0 ? FontWeight.bold : FontWeight.normal,
+            if (index == 0) {
+              cellChild = Text(
+                'TOTALS',
+                style: theme.typography.xSmall.copyWith(
+                  fontWeight: FontWeight.bold,
                   color: colors.foreground,
+                  letterSpacing: 0.5,
                 ),
               );
             } else {
-              final key = col.key.toLowerCase();
-              if (key == 'qty' || key == 'quantity' || key == 'freshpcs') {
-                final computation = _computeColumnStat(col);
-                if (computation != null) {
-                  footerCellChild = Text(
-                    computation,
-                    style: theme.typography.mono.copyWith(
-                      fontSize: 13 * theme.scaling,
-                      fontWeight: FontWeight.w500,
-                      color: colors.foreground,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  );
-                }
-              } else if (key == 'amount' || key == 'costperpc') {
-                final computation = _computeColumnStat(col);
-                if (computation != null) {
-                  footerCellChild = Text(
-                    computation,
-                    style: theme.typography.mono.copyWith(
-                      fontSize: 13 * theme.scaling,
-                      fontWeight: FontWeight.w500,
-                      color: colors.foreground,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  );
-                }
-              } else if (key == 'freshpct') {
-                final computation = _computeColumnStat(col);
-                if (computation != null) {
-                  footerCellChild = Text(
-                    computation,
-                    style: theme.typography.mono.copyWith(
-                      fontSize: 13 * theme.scaling,
-                      fontWeight: FontWeight.w500,
-                      color: colors.foreground,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  );
-                }
-              } else if (key == 'actions' ||
-                  (key == 'status' &&
-                      !widget.columns
-                          .any((c) => c.key.toLowerCase() == 'actions'))) {
-                final canPrev = _currentPage > 1;
-                final canNext = (_currentPage * 50) < totalCount;
-
-                footerCellChild = FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      shad.IconButton.ghost(
-                        density: shad.ButtonDensity.compact,
-                        size: shad.ButtonSize.xSmall,
-                        icon: const Icon(shad.LucideIcons.chevronLeft, size: 14),
-                        onPressed: canPrev
-                            ? () {
-                                setState(() => _currentPage--);
-                                widget.onPageChanged?.call(_currentPage);
-                              }
-                            : null,
-                      ),
-                      const SizedBox(width: 2),
-                      shad.IconButton.ghost(
-                        density: shad.ButtonDensity.compact,
-                        size: shad.ButtonSize.xSmall,
-                        icon: const Icon(shad.LucideIcons.chevronRight, size: 14),
-                        onPressed: canNext
-                            ? () {
-                                setState(() => _currentPage++);
-                                widget.onPageChanged?.call(_currentPage);
-                              }
-                            : null,
-                      ),
-                    ],
+              final computation = _computeColumnStat(col);
+              if (computation != null) {
+                cellChild = Text(
+                  computation,
+                  style: theme.typography.mono.copyWith(
+                    fontSize: 13 * theme.scaling,
+                    fontWeight: FontWeight.bold,
+                    color: colors.foreground,
                   ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 );
               }
             }
@@ -1295,16 +1243,16 @@ class _DynamicDenseTableState extends State<DynamicDenseTable> {
               alignment: index == 0 ? Alignment.centerLeft : col.alignment,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 6),
-                child: footerCellChild ?? const SizedBox.shrink(),
+                child: cellChild ?? const SizedBox.shrink(),
               ),
             );
 
-            if (cellWidth != null && cellWidth > 0) {
-              return SizedBox(width: cellWidth, child: alignWidget);
+            if (col.width != null) {
+              return SizedBox(width: col.width, child: alignWidget);
             }
 
             return Expanded(
-              flex: cellFlex,
+              flex: col.flex,
               child: alignWidget,
             );
           }),

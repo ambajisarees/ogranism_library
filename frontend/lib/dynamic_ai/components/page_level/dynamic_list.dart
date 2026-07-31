@@ -1,8 +1,8 @@
 /// LLM NOTE: DynamicList
-/// - Level: Page-Level Master List Pane
-/// - Purpose: Left Master List sidebar pane providing search filtering, paginated list cards (25 items/page), total record counters, and item selection state.
-/// - Widget Composition: Container(width 340px) -> Column(Header Search TextField + Scrollable ListView.builder of DynamicListCard + Pagination Footer).
-/// - Sub-widgets: DynamicListCard.
+/// - Level: Page View Component
+/// - Purpose: High-density vertical list view container for compact document record rendering with dividers and hover state animations.
+
+library;
 
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;

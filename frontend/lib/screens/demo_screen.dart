@@ -355,7 +355,7 @@ class _DemoScreenState extends State<DemoScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // 1. PAGE HEADER (Title: Cutting Cards + Primary Add Button)
-          PageHeader<void>(
+          PageHeader(
             title: 'Cutting Cards',
             mode: PageHeaderMode.standard,
             actions: [
@@ -608,7 +608,7 @@ class _DemoScreenState extends State<DemoScreen> {
     return PageFormCanvas(
       maxWidth: 1400.0,
       sidePaneWidth: 340.0,
-      header: PageHeader<void>(
+      header: PageHeader(
         title: 'Cutting Card',
         mode: PageHeaderMode.adding,
         onBack: () => setState(() => _isCreating = false),

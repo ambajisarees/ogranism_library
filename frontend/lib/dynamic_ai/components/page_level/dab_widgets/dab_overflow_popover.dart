@@ -1,6 +1,8 @@
 /// LLM NOTE: DabOverflowPopover
-/// - Level: DAB Popover Widget
+/// - Level: DAB Popover Component
 /// - Purpose: Overflow menu for Three-Dots trailing button in DynamicActionBar providing quick actions (Export View Data, Column Visibility, Density Toggle, Reset Layout).
+
+library;
 /// - Widget Composition: shad.Card -> Column(Vertical list of action buttons with leading icons).
 
 import 'package:flutter/widgets.dart';

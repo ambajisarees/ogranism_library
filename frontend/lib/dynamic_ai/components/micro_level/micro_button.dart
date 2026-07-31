@@ -1,8 +1,16 @@
 /// LLM NOTE: MicroButton
-/// - Level: Micro Control
-/// - Purpose: Universal high-density (34px height) button control used across PageHeader, DAB toolbars, and popover lists.
-/// - Widget Composition: shad.Button.card / shad.Button.ghost -> Focus (nullifier) -> Row(Icon + Text + Badge + Icon).
-/// - Tokens: Base colors.card, border colors.border, hover colors.accent, selected colors.primary.
+/// - Level: Micro-Control UI Token / Action Card (34px Height)
+/// - Role: Universal compact button control used across PageHeader, DynamicActionBar (DAB), filter triggers, submodule selectors, and popover checklist items.
+/// - Widget Composition: MouseRegion -> shad.Button.outline -> Focus (nullifier: canRequestFocus: false) -> Row(Icon + Text + Badge + Icon).
+/// - Specifications:
+///   - Base surface: `colors.card` (normal) | `colors.accent` (hover/selected ghost) | transparent (ghost)
+///   - Border outline: 1.0px `colors.border` (normal) | 1.0px `colors.primary.withAlpha(153)` (focused)
+///   - Border radius: 6px (`theme.radiusMd`)
+///   - Padding: EdgeInsets.symmetric(horizontal: 12 * theme.scaling, vertical: 8 * theme.scaling) [Icon-Only: 8px horizontal]
+///   - Typography: `theme.typography.textSmall` (label - semibold w600 when selected) & `theme.typography.xSmall` (badge - semibold w600 for all states)
+///   - Focus Machine: Focus outlines paint exclusively on outer card border via Focus nullifier wrapper.
+
+library;
 
 import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
@@ -13,7 +21,7 @@ import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 /// - Base border: 1px `colors.border`
 /// - Corner radius: `theme.radiusMd` (6px)
 /// - Hover state: Only modifies background fill to `colors.accent`
-/// - Focus state: 1.5px `colors.primary.withAlpha(153)` outer border
+/// - Focus state: 1.0px `colors.primary.withAlpha(153)` outer border
 /// - Selected state: Passes `colors.primary` to leading icon & `FontWeight.bold` to label
 /// - Focus Nullifier: Wraps all inner children in `Focus(canRequestFocus: false, skipTraversal: true, descendantsAreFocusable: false)`
 class MicroButton extends StatefulWidget {
@@ -98,11 +106,11 @@ class _MicroButtonState extends State<MicroButton> {
     final border = widget.isGhost
         ? Border.all(
             color: _isFocused ? colors.primary.withAlpha(153) : const Color(0x00000000),
-            width: _isFocused ? 1.5 : 0.0,
+            width: _isFocused ? 1.0 : 0.0,
           )
         : Border.all(
             color: _isFocused ? colors.primary.withAlpha(153) : colors.border,
-            width: _isFocused ? 1.5 : 1.0,
+            width: 1.0,
           );
 
     final backgroundColor = widget.isGhost
@@ -112,9 +120,9 @@ class _MicroButtonState extends State<MicroButton> {
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
-      child: shad.Button.card(
+      child: shad.Button.outline(
         focusNode: _effectiveFocusNode,
-        style: const shad.ButtonStyle.card()
+        style: const shad.ButtonStyle.outline()
             .withBackgroundColor(
               color: backgroundColor,
             )
@@ -156,14 +164,14 @@ class _MicroButtonState extends State<MicroButton> {
                     widget.label,
                     overflow: TextOverflow.ellipsis,
                     style: theme.typography.textSmall.copyWith(
-                      fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.normal,
                       color: colors.foreground,
                     ),
                   ),
                 ),
               ],
 
-              // 3. Native Badge / Chip (PrimaryBadge when selected, SecondaryBadge when normal)
+              // 3. Native Badge / Chip (PrimaryBadge with semibold when selected, SecondaryBadge with semibold muted when unselected)
               if (widget.badgeCount != null) ...[
                 if (widget.label.isNotEmpty || widget.leadingIcon != null)
                   const shad.DensityGap(shad.gapSm),
@@ -173,7 +181,7 @@ class _MicroButtonState extends State<MicroButton> {
                           widget.badgeCount.toString(),
                           style: theme.typography.xSmall.copyWith(
                             fontSize: 10 * theme.scaling,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       )
@@ -182,6 +190,8 @@ class _MicroButtonState extends State<MicroButton> {
                           widget.badgeCount.toString(),
                           style: theme.typography.xSmall.copyWith(
                             fontSize: 10 * theme.scaling,
+                            fontWeight: FontWeight.w600,
+                            color: colors.mutedForeground,
                           ),
                         ),
                       ),

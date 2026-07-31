@@ -1,6 +1,8 @@
 /// LLM NOTE: DabDatePopover
-/// - Level: DAB Popover Widget
-/// - Purpose: Split-pane date range picker popover with quick presets list (Today, Yesterday, Last 28 Days, etc.) on the left and full calendar picker on the right.
+/// - Level: DAB Popover Component
+/// - Purpose: Quick date range picker popover with presets (Today, Yesterday, Last 7 Days, Month-to-date) and custom calendar range selector for DynamicActionBar.
+
+library;
 /// - Widget Composition: shad.Card -> Row(Left Column Presets + VerticalDivider + Right Column shad.Calendar & Apply Button).
 
 import 'package:flutter/widgets.dart';

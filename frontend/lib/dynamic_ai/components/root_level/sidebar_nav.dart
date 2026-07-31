@@ -1,3 +1,9 @@
+/// LLM NOTE: DynamicSidebarNav & DynamicSidebarGroup
+/// - Level: Root App Left Navigation Sidebar
+/// - Purpose: Collapsible left navigation sidebar managing module sections, active item highlighting, badge counters, and keyboard navigation.
+
+library;
+
 /// LLM NOTE: DynamicSidebarNav & DynamicSidebarNavItem
 /// - Level: Root Primary Navigation Sidebar
 /// - Purpose: Pure native wrapper around shad.NavigationSidebar providing primary module navigation, section headers, collapsed/expanded states, and footer actions.

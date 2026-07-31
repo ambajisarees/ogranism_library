@@ -1,7 +1,9 @@
 /// LLM NOTE: DynamicHeaderTabs, DynamicTabItem & PageLoadingNotification
 /// - Level: Root App Workspace Header Bar (48px Height)
 /// - Purpose: Top workspace tab bar supporting multi-tab navigation, tab creation/closing, global Ctrl+K search trigger, theme toggle, notification bell, and a 2px active progress bar dispatched via PageLoadingNotification.
-/// - Widget Composition: NotificationListener<PageLoadingNotification> -> Column(Top Header Row + 2px Progress Bar + Active Tab Content).
+/// - Widget Composition: NotificationListener`PageLoadingNotification` -> Column(Top Header Row + 2px Progress Bar + Active Tab Content).
+
+library;
 
 import 'package:flutter/material.dart' hide Card, Tab, Badge, Scaffold;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;

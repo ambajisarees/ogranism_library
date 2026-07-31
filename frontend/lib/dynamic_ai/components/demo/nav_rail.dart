@@ -1,6 +1,9 @@
-/// LLM NOTE: DynamicNavRail & DynamicNavRailItem
-/// - Level: Demo / Fallback Navigation Rail
-/// - Purpose: Alternative slim navigation rail implementation for compact displays.
+/// LLM NOTE: DynamicNavRail
+/// - Level: Root Layout Component
+/// - Purpose: Collapsible secondary vertical navigation rail for compact views or specialized sub-module sidebars.
+
+library;
+
 /// - Widget Composition: Container -> Column(Header + Nav items list + Footer items).
 
 import 'package:flutter/material.dart' hide Card, Tab, Badge;

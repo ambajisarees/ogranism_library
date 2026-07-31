@@ -4,6 +4,8 @@
 /// - Widget Composition: Expanded -> shad.OutlinedContainer -> Column(Sticky Header Container + Body Expanded(child) + Sticky Footer Container).
 /// - Tokens: Uses colors.card background, colors.border, and radiusMd.
 
+library;
+
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 

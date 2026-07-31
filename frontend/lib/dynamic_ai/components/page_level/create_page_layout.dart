@@ -3,6 +3,8 @@
 /// - Purpose: Reference 2-column creation form layout (68% primary form column, 32% live calculations summary sidebar) showing line-item addition/deletion and tax calculations (subtotal, CGST, SGST, grand total).
 /// - Widget Composition: Row -> Expanded(flex: 68) [Bill Info Card + Line Items Table Card] + Expanded(flex: 32) [Summary Card + Save Button].
 
+library;
+
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 

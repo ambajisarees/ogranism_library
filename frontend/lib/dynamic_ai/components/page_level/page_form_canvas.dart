@@ -4,6 +4,8 @@
 /// - Widget Composition: LayoutBuilder -> Center -> ConstrainedBox(max 1400px) -> Column(Header + Row(Expanded(mainPane) + SizedBox(sidePane))).
 /// - Scroll Control: Bounded layout when isScrollable=false allows inner table expanded scrolling; scrollable when isScrollable=true.
 
+library;
+
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 

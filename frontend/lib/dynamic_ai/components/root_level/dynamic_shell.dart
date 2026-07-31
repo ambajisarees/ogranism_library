@@ -3,6 +3,8 @@
 /// - Purpose: Top-level workspace scaffold framing the left navigation sidebar (Level 0 flush background) and main workspace view surface (Level 1 padded elevated card).
 /// - Widget Composition: shad.Scaffold -> Row(sidebar + Expanded(Padding(8px) -> content)).
 
+library;
+
 import 'package:flutter/material.dart' hide Card, Tab, Badge, Scaffold;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 

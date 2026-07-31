@@ -4,6 +4,8 @@
 /// - Widget Composition: MouseRegion + GestureDetector -> Container -> Column(Top Row + Middle Row + Bottom Row).
 /// - Models: DynamicListItem data class.
 
+library;
+
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
