@@ -28,13 +28,13 @@ LLM CONTEXT & QUERY SPACE — PURCHASE BILLS LANDING SCREEN (scr_pb_landing.dart
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
-import '../../../dynamic_ai/components/page_level/page_header.dart';
-import '../../../dynamic_ai/components/page_level/dynamic_action_bar.dart';
-import '../../../dynamic_ai/components/page_level/dab_widgets/dab_submodule_popover.dart';
-import '../../../dynamic_ai/components/micro_level/micro_button.dart';
-import '../../../dynamic_ai/components/page_level/dynamic_dense_table.dart';
-import '../../../dynamic_ai/components/page_level/dynamic_list.dart';
-import '../../../dynamic_ai/components/page_level/dynamic_list_card.dart';
+import '../../../dynamic_ai/page/dy_page_header.dart';
+import '../../../dynamic_ai/page/dy_action_bar.dart';
+import '../../../dynamic_ai/micro/dab/dab_submodule_pop.dart';
+import '../../../dynamic_ai/micro/dy_micro_button.dart';
+import '../../../dynamic_ai/page/dy_table_pane.dart';
+import '../../../dynamic_ai/page/dy_list_pane.dart';
+import '../../../dynamic_ai/micro/cards/dy_list_item.dart';
 import '../../../models/production/mdl_pb.dart';
 import '../../../services/production/srv_pb.dart';
 import 'scr_pb_detail_canvas.dart';

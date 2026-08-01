@@ -22,11 +22,11 @@ LLM CONTEXT & QUERY SPACE — CUTTING CARDS LANDING SCREEN (scr_cc_landing.dart)
 import 'package:flutter/material.dart' hide Card;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
-import '../../../dynamic_ai/components/page_level/page_header.dart';
-import '../../../dynamic_ai/components/page_level/dynamic_action_bar.dart';
-import '../../../dynamic_ai/components/page_level/dynamic_dense_table.dart';
-import '../../../dynamic_ai/components/page_level/dynamic_list.dart';
-import '../../../dynamic_ai/components/page_level/dynamic_list_card.dart';
+import '../../../dynamic_ai/page/dy_page_header.dart';
+import '../../../dynamic_ai/page/dy_action_bar.dart';
+import '../../../dynamic_ai/page/dy_table_pane.dart';
+import '../../../dynamic_ai/page/dy_list_pane.dart';
+import '../../../dynamic_ai/micro/cards/dy_list_item.dart';
 import '../../../models/production/mdl_cc.dart';
 import '../../../services/production/srv_cc.dart';
 import 'scr_cc_detail_canvas.dart';

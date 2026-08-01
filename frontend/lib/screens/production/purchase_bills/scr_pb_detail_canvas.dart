@@ -18,7 +18,7 @@ import 'package:flutter/material.dart' hide Card;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
 import '../../../models/production/mdl_pb.dart';
-import '../../../dynamic_ai/components/page_level/dynamic_dense_table.dart';
+import '../../../dynamic_ai/page/dy_table_pane.dart';
 
 /// [ScrPbDetailCanvas] — Inspector & Line-Items Breakdown Canvas for Purchase Bills.
 class ScrPbDetailCanvas extends StatelessWidget {

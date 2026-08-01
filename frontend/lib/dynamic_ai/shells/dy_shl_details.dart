@@ -1,0 +1,340 @@
+/*
+================================================================================
+LLM CONTEXT & QUERY SPACE — DYNAMIC DETAILS PAGE SHELL (dy_shl_details.dart)
+================================================================================
+1. DOMAIN & PURPOSE:
+   - Master details page shell orchestrator for all ERP module landing screens.
+   - Framing PageHeader (PH) -> gapLg (16px) -> DynamicActionBar (DAB) -> gapLg (16px) -> View Router.
+   - Manages 3 confirmed view modes (`table`, `list`, `cards`) + `board` placeholder.
+
+2. BUSINESS LOGIC & DATA CONTRACTS:
+   - Enforces exact flex splits for split-view modes:
+     - List View: `flex: 2 : 6` (25% DynamicList / 75% DyDetailsPane)
+     - Cards View: `flex: 6 : 2` (75% DyViewCard / 25% DyDetailsPane)
+   - Encapsulates `AnimatedSwitcher` (150ms Fade) for zero-shift view mode switching.
+   - Uses native `shadcn_flutter` color, density, and typography tokens strictly.
+================================================================================
+*/
+
+import 'package:flutter/material.dart' hide Card, Tab, Badge;
+import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
+import '../specs/dy_grid_system.dart';
+import '../page/dy_page_header.dart';
+import '../page/dy_action_bar.dart';
+import '../page/dy_table_pane.dart';
+import '../page/dy_list_pane.dart';
+import '../page/dy_card_pane.dart';
+import '../page/dy_kanban_pane.dart';
+import '../page/dy_details_pane.dart';
+import '../micro/cards/dy_grid_card.dart';
+import '../micro/cards/dy_list_item.dart';
+import '../micro/cards/dy_kanban_item.dart';
+
+/// [DyShlDetails] — Master Details Page Shell framing PH -> 16px -> DAB -> 16px -> View Router.
+class DyShlDetails extends StatelessWidget {
+  // 1. PageHeader Props
+  final String title;
+  final PageHeaderMode headerMode;
+  final Widget? pageTabs;
+  final List<Widget> headerActions;
+  final String? docId;
+  final String? moduleName;
+
+  // 2. DynamicActionBar (DAB) Props
+  final String entityName;
+  final String selectedViewMode;
+  final ValueChanged<String> onViewModeChanged;
+  final Widget? submoduleWidget;
+  final String? searchQuery;
+  final ValueChanged<String?>? onSearchChanged;
+  final Set<String> selectedMills;
+  final List<String> millOptions;
+  final ValueChanged<Set<String>>? onMillChanged;
+  final Set<String> selectedQualities;
+  final List<String> qualityOptions;
+  final ValueChanged<Set<String>>? onQualityChanged;
+  final Set<String> selectedStatuses;
+  final ValueChanged<Set<String>>? onStatusChanged;
+  final shad.CalendarValue? selectedDateRange;
+  final String? selectedDateLabel;
+  final ValueChanged<shad.CalendarValue?>? onDateRangeSelected;
+  final bool hasActiveFilters;
+  final VoidCallback? onClearAllFilters;
+
+  // 3. View Data & Content Props
+  final List<DynamicTableColumnSpec> tableColumns;
+  final List<DynamicTableRowData> tableRows;
+  final List<DyGridItem> gridItems;
+  final List<DynamicListItem> listItems;
+  final DyGridItem? selectedGridItem;
+  final ValueChanged<DyGridItem?>? onGridItemSelected;
+  final DynamicListItem? selectedListItem;
+  final ValueChanged<DynamicListItem?>? onListItemSelected;
+  final bool isLoading;
+  final int? totalRecords;
+
+  const DyShlDetails({
+    super.key,
+    required this.title,
+    this.headerMode = PageHeaderMode.standard,
+    this.pageTabs,
+    this.headerActions = const [],
+    this.docId,
+    this.moduleName,
+    required this.entityName,
+    required this.selectedViewMode,
+    required this.onViewModeChanged,
+    this.submoduleWidget,
+    this.searchQuery,
+    this.onSearchChanged,
+    this.selectedMills = const {},
+    this.millOptions = const [],
+    this.onMillChanged,
+    this.selectedQualities = const {},
+    this.qualityOptions = const [],
+    this.onQualityChanged,
+    this.selectedStatuses = const {},
+    this.onStatusChanged,
+    this.selectedDateRange,
+    this.selectedDateLabel,
+    this.onDateRangeSelected,
+    this.hasActiveFilters = false,
+    this.onClearAllFilters,
+    required this.tableColumns,
+    required this.tableRows,
+    required this.gridItems,
+    required this.listItems,
+    this.selectedGridItem,
+    this.onGridItemSelected,
+    this.selectedListItem,
+    this.onListItemSelected,
+    this.isLoading = false,
+    this.totalRecords,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = shad.Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // 1. PAGE HEADER (Title + Context PageTabs + Actions)
+        PageHeader(
+          title: title,
+          mode: headerMode,
+          moduleName: moduleName,
+          docId: docId,
+          pageTabs: pageTabs,
+          actions: headerActions,
+        ),
+        const shad.DensityGap(shad.gapLg),
+
+        // 2. DYNAMIC ACTION BAR (DAB: Submodules, Search, Filters, View Switcher)
+        DynamicActionBar(
+          entityName: entityName,
+          selectedView: selectedViewMode,
+          onViewChanged: onViewModeChanged,
+          submoduleWidget: submoduleWidget,
+          searchQuery: searchQuery,
+          onSearchChanged: onSearchChanged,
+          selectedMills: selectedMills,
+          millOptions: millOptions,
+          onMillChanged: onMillChanged,
+          selectedQualities: selectedQualities,
+          qualityOptions: qualityOptions,
+          onQualityChanged: onQualityChanged,
+          selectedStatuses: selectedStatuses,
+          onStatusChanged: onStatusChanged,
+          selectedDateRange: selectedDateRange,
+          selectedDateLabel: selectedDateLabel,
+          onDateRangeSelected: onDateRangeSelected,
+          hasActiveFilters: hasActiveFilters,
+          onClearAllFilters: onClearAllFilters,
+        ),
+        const shad.DensityGap(shad.gapLg),
+
+        // 3. DYNAMIC CONTENT AREA VIEW ROUTER (150ms AnimatedSwitcher Fade Transition)
+        Expanded(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 150),
+            switchInCurve: Curves.easeInOut,
+            switchOutCurve: Curves.easeInOut,
+            child: KeyedSubtree(
+              key: ValueKey<String>(selectedViewMode),
+              child: _buildContentView(context, theme, colors),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContentView(
+    BuildContext context,
+    shad.ThemeData theme,
+    shad.ColorScheme colors,
+  ) {
+    switch (selectedViewMode) {
+      case 'table':
+        return Align(
+          alignment: Alignment.topCenter,
+          child: DyTablePane(
+            columns: tableColumns,
+            rows: tableRows,
+            enableExpansion: true,
+            isLoading: isLoading,
+            totalRecords: totalRecords,
+          ),
+        );
+
+      case 'list':
+        final activeListItem = selectedListItem ?? (listItems.isNotEmpty ? listItems.first : null);
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Left Master List (Fixed 360px Width as per DyGridSystem)
+            DyListPane(
+              width: DyGridSystem.fixedListMasterWidth * theme.scaling,
+              items: listItems,
+              selectedItem: activeListItem,
+              onItemSelected: onListItemSelected ?? (_) {},
+              showHeader: false,
+              isLoading: isLoading,
+              totalRecords: totalRecords,
+            ),
+            const shad.DensityGap(shad.gapLg),
+
+            // Right Details Inspection Canvas (Expanded to fill 100% of remaining space)
+            Expanded(
+              child: _buildDetailsPane(
+                title: activeListItem?.title ?? 'No Item Selected',
+                subtitle: '${activeListItem?.indexNumber ?? ''} • ${activeListItem?.subtitle ?? ''}',
+                amount: activeListItem?.amount ?? '₹0',
+              ),
+            ),
+          ],
+        );
+
+      case 'cards':
+        final activeGridItem = selectedGridItem ?? (gridItems.isNotEmpty ? gridItems.first : null);
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Left Vertical Cards Grid (Flex 9 = 75% as per DyGridSystem)
+            Expanded(
+              flex: DyGridSystem.flexCardsGrid,
+              child: DyCardPane(
+                items: gridItems,
+                selectedItem: activeGridItem,
+                onItemSelected: onGridItemSelected ?? (_) {},
+                isLoading: isLoading,
+                totalRecords: totalRecords,
+              ),
+            ),
+            const shad.DensityGap(shad.gapLg),
+
+            // Right Details Inspection Pane (Flex 3 = 25% as per DyGridSystem)
+            Expanded(
+              flex: DyGridSystem.flexCardsInspector,
+              child: _buildDetailsPane(
+                title: activeGridItem?.title ?? 'No Card Selected',
+                subtitle: '${activeGridItem?.voucherNo ?? ''} • ${activeGridItem?.partyName ?? ''}',
+                amount: activeGridItem?.amount ?? '₹0',
+              ),
+            ),
+          ],
+        );
+
+      case 'board':
+        final kanbanItems = gridItems.map((item) {
+          final statusStr = (item.statusBadge is shad.OutlineBadge)
+              ? ((item.statusBadge as shad.OutlineBadge).child as Text).data ?? 'UNCUT'
+              : 'UNCUT';
+
+          return DyKanbanItem(
+            id: item.id,
+            title: item.title,
+            voucherNo: item.voucherNo,
+            partyName: item.partyName,
+            designPattern: item.designPattern,
+            quantity: item.quantity,
+            amount: item.amount,
+            status: statusStr,
+            statusBadge: item.statusBadge,
+          );
+        }).toList();
+
+        final stages = [
+          {'title': 'UNCUT', 'color': const Color(0xFF3B82F6)},
+          {'title': 'IN CUTTING', 'color': const Color(0xFFF59E0B)},
+          {'title': 'MILL DISPATCH', 'color': const Color(0xFF8B5CF6)},
+          {'title': 'COMPLETED', 'color': const Color(0xFF10B981)},
+        ];
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: stages.asMap().entries.map((entry) {
+            final idx = entry.key;
+            final stage = entry.value;
+            final stageTitle = stage['title'] as String;
+            final stageColor = stage['color'] as Color;
+            final stageItems = kanbanItems.where((i) => i.status == stageTitle).toList();
+
+            return Expanded(
+              flex: DyGridSystem.flexBoard4PaneEqual,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DyKanbanPane(
+                      stageTitle: stageTitle,
+                      stageColor: stageColor,
+                      items: stageItems,
+                      selectedItem: null,
+                      onItemSelected: (_) {},
+                      onAddItem: () {},
+                    ),
+                  ),
+                  if (idx < stages.length - 1) const shad.DensityGap(shad.gapLg),
+                ],
+              ),
+            );
+          }).toList(),
+        );
+
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildDetailsPane({
+    required String title,
+    required String subtitle,
+    required String amount,
+  }) {
+    return DyDetailsPane(
+      title: title,
+      subtitle: subtitle,
+      statusBadge: const shad.SecondaryBadge(child: Text('UNCUT')),
+      metadata: {
+        'Voucher No': 'CC-1041',
+        'Party / Weaver': 'Ambaji Silks & Textiles',
+        'Design & Quality': title,
+        'Lot Number': 'Lot #101',
+        'Quantity': '45.0 Mts',
+        'Amount': amount,
+        'Date': '01 Aug 2026',
+        'Status': 'Pending Cutting',
+      },
+      imageUrls: const [
+        'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&auto=format&fit=crop&q=60',
+        'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&auto=format&fit=crop&q=60',
+        'https://images.unsplash.com/photo-1609357605129-26f69add5d6e?w=600&auto=format&fit=crop&q=60',
+      ],
+      onPrint: () {},
+      onEdit: () {},
+      onDelete: () {},
+    );
+  }
+}

@@ -28,7 +28,7 @@ import '../../../models/production/mdl_po.dart';
 import '../../../services/production/srv_po.dart';
 import '../../../models/core/sq/sq_bills.dart';
 import '../../../models/core/sq/sq_billdet.dart';
-import '../../../dynamic_ai/components/page_level/dynamic_dense_table.dart';
+import '../../../dynamic_ai/page/dy_table_pane.dart';
 
 /// [ScrPoDetailCanvas] — Detail inspection canvas & line-items table for Purchase Orders.
 class ScrPoDetailCanvas extends StatefulWidget {

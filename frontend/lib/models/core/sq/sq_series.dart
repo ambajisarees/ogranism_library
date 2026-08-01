@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import '../../../dynamic_ai/components/page_level/dynamic_dense_table.dart';
+import '../../../dynamic_ai/page/dy_table_pane.dart';
 
 /*
 ================================================================================

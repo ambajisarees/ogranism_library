@@ -36,12 +36,12 @@ Backend/Edge Functions live in `backend/supabase/functions/*/index.ts` (Deno). T
 - **Writes**: all mutations go through **Edge Functions** (`backend/supabase/functions/`) called via `_db.client.functions.invoke(...)`, never direct `.insert()`/`.update()` from Flutter, since business writes are batch/transactional across multiple legacy tables.
 
 ### The legacy voucher system
-The business domain is built around ~73 legacy "voucher module" codes (e.g. `P1` Grey Purchase, `O5` Job Work Dispatch, `S1` Finish Sales) defined in `frontend/lib/constants/legacy_constants.dart` and fully documented in [docs/legacy_modules_guide.md](docs/legacy_modules_guide.md). Key rules that apply everywhere this data is touched:
+The business domain is built around ~73 legacy "voucher module" codes (e.g. `P1` Grey Purchase, `O5` Job Work Dispatch, `S1` Finish Sales) defined in `frontend/lib/constants/legacy_constants.dart` and fully documented in [docs/history/legacy_modules_guide.md](docs/history/legacy_modules_guide.md). Key rules that apply everywhere this data is touched:
 - **Join rule**: header/detail joins must always include all three of `CNO = DETAIL.CNO AND VNO = DETAIL.VNO AND TYPE = DETAIL.TYPE` — omitting `TYPE` causes row explosions (fan-out) since `VNO` resets per series per fiscal year.
 - **Pendency rule**: a record is "pending"/open when `CLOSED IS NULL OR CLOSED = '' OR CLOSED = 'N'`.
 - **Settlement**: `sq_RECPAY` links receipts to invoices via `BILLVNO/BILLTYPE` ↔ `RECVNO/RECTYPE`; a bill is outstanding if summed `sq_RECPAY` payments < `sq_BILLS.finalamt`.
 - **Fiscal year VNO prefixes**: carried-forward records use `VNO` prefixes (`10` = FY26-27 carry, `20` = FY27-28); filter current-year-only queries with e.g. `VNO < 1000000`.
-- Before building against any `sq_*`/`sb_*` table, check its audit doc in `backend/schema_docs/` (organized `01_constants` → `06_media`) for null rates and type mappings — this is the mandatory "Audit-First" workflow (see [docs/architecture_pattern_guide.md](docs/architecture_pattern_guide.md)).
+- Before building against any `sq_*`/`sb_*` table, check its audit doc in `backend/schema_docs/` (organized `01_constants` → `06_media`) for null rates and type mappings — this is the mandatory "Audit-First" workflow (see [docs/architecture/architecture_pattern_guide.md](docs/architecture/architecture_pattern_guide.md)).
 
 ### Frontend structure
 - `lib/config/` — Supabase client config.
@@ -58,7 +58,7 @@ The business domain is built around ~73 legacy "voucher module" codes (e.g. `P1`
     - `[feature]_lot_group.dart` / other helpers — sub-components supporting selection views.
 - `lib/organism_design/` — the in-house component library (see below). Files inside it must **never** import `index.dart` — use direct relative imports (`../theme.dart`, `../cells.dart`) to avoid circular barrel imports.
 
-Full patterns and copy-paste templates for models/services (including the "select all in A not in B" RPC pattern for bypassing PostgREST's 1000-row limit) are in [docs/architecture_pattern_guide.md](docs/architecture_pattern_guide.md).
+Full patterns and copy-paste templates for models/services (including the "select all in A not in B" RPC pattern for bypassing PostgREST's 1000-row limit) are in [docs/architecture/architecture_pattern_guide.md](docs/architecture/architecture_pattern_guide.md).
 
 ### Organism Design System
 A 6-layer atomic hierarchy in `lib/organism_design/` — compose from these, never raw `Container`/`Column` scaffolding when a component exists:
@@ -70,7 +70,7 @@ A 6-layer atomic hierarchy in `lib/organism_design/` — compose from these, nev
 5. **Organs** — assembled blocks (`OrganPaneHeader`, `OrganPaneList`, `OrganSectionCanvas`, `NavBoat`).
 6. **Systems** — page blueprints (`SystemAppMasterLayout` — the standard split-pane registry/detail workstation; `OrganAppShell` — top-level scaffold).
 
-Every registry screen (list + detail split pane) follows one standard composition: a service singleton feeds `_items`/`_selected`/pagination state into `SystemAppMasterLayout(paneHeader:, paneList:, sectionCanvas:, ...)`. See the full template in [docs/architecture_pattern_guide.md](docs/architecture_pattern_guide.md) or `claude_skills/ambaji-erp-builder/SKILL.md`.
+Every registry screen (list + detail split pane) follows one standard composition: a service singleton feeds `_items`/`_selected`/pagination state into `SystemAppMasterLayout(paneHeader:, paneList:, sectionCanvas:, ...)`. See the full template in [docs/architecture/architecture_pattern_guide.md](docs/architecture/architecture_pattern_guide.md) or `claude_skills/ambaji-erp-builder/SKILL.md`.
 
 ### File naming (mandatory)
 - `model_*.dart`, `service_*.dart`, `screen_*.dart` — no standalone/ad-hoc widget files; domain-specific visual components belong in `organism_design/domain/`.
@@ -82,10 +82,10 @@ Every registry screen (list + detail split pane) follows one standard compositio
 - Icons are `lucide_icons_flutter` only — never Material Icons — in application UI.
 
 ### Where to look for more context
-- [docs/legacy_modules_guide.md](docs/legacy_modules_guide.md) — full 73-module voucher reference, relational flow diagram, financial settlement logic.
-- [docs/architecture_pattern_guide.md](docs/architecture_pattern_guide.md) — model/service/RPC code templates.
+- [docs/history/legacy_modules_guide.md](docs/history/legacy_modules_guide.md) — full 73-module voucher reference, relational flow diagram, financial settlement logic.
+- [docs/architecture/architecture_pattern_guide.md](docs/architecture/architecture_pattern_guide.md) — model/service/RPC code templates.
 - `backend/schema_docs/` — per-table audit docs (null rates, distributions) — read before writing any query against a new table.
 - `backend/analysis/*.md` — deeper narrative write-ups of the financial, material-flow, sales/jobwork, and operational pipelines.
-- `docs/dev_log.md` — running changelog; also holds the canonical "Conventions & Rules" section at the bottom.
+- `docs/history/dev_log.md` — running changelog; also holds the canonical "Conventions & Rules" section at the bottom.
 - `docs/plans/` — task briefs written by a planning pass (Claude) for build execution (Gemini/Antigravity IDE); check `docs/plans/README.md` for status of in-flight features.
 - `claude_skills/ambaji-erp-builder/SKILL.md` and `.agents/workflows/flutter.md` — same content as this file's architecture section, packaged as an invokable skill/workflow.

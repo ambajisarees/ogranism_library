@@ -86,4 +86,4 @@
   - Shared Core Layers (`lib/models/core/`, `lib/services/core/`, `lib/dynamic_ai/`) are **READ-ONLY** for module chat windows.
 - **Core Mutation Protocol**:
   - Module chat windows request core updates by sending a message to Master Orchestrator (`f930e306-3b6b-43c2-ac2b-ddb8915f484b`) via `send_message`.
-- **Master SOP Guideline**: Refer to [docs/module_agent_guideline.md](file:///Users/smittal/Developer/ogranism_library/textile_erp/docs/module_agent_guideline.md) for full setup guidelines and the initial copy-paste prompt template.
+- **Master SOP Guideline**: Refer to [docs/guidelines/module_agent_guideline.md](file:///Users/smittal/Developer/ogranism_library/textile_erp/docs/guidelines/module_agent_guideline.md) for full setup guidelines and the initial copy-paste prompt template.

@@ -20,7 +20,7 @@ LLM CONTEXT & QUERY SPACE
 import 'package:flutter/material.dart' hide Card;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 import '../../../models/production/mdl_cc.dart';
-import '../../../dynamic_ai/components/page_level/dynamic_dense_table.dart';
+import '../../../dynamic_ai/page/dy_table_pane.dart';
 
 /// [ScrCcDetailCanvas] — Inspector & Detail Canvas for Multi-Cutting Cards.
 class ScrCcDetailCanvas extends StatelessWidget {

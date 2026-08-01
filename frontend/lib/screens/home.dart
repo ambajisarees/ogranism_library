@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 import 'package:window_manager/window_manager.dart';
-import '../dynamic_ai/components/root_level/dynamic_shell.dart';
-import '../dynamic_ai/components/root_level/sidebar_nav.dart';
-import '../dynamic_ai/components/root_level/header_tabs.dart';
+import '../dynamic_ai/root/dy_shell.dart';
+import '../dynamic_ai/root/sidebar_nav.dart';
+import '../dynamic_ai/root/dy_module_tabs.dart';
 import '../core/keyboard_manager_widget.dart';
 import '../main.dart';
 import '../services/core/service_supabase.dart';
