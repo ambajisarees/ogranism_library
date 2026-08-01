@@ -198,8 +198,8 @@ class _DynamicHeaderTabsState extends State<DynamicHeaderTabs> {
                   skipTraversal: true,
                   child: Padding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 8.0 * theme.scaling,
-                      vertical: 4.0 * theme.scaling,
+                      horizontal: 24.0 * theme.scaling,
+                      vertical: 16.0 * theme.scaling,
                     ),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(minWidth: tabMinWidth),

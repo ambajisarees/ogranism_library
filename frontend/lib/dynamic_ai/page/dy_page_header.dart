@@ -199,9 +199,11 @@ class PageHeader extends StatelessWidget {
       }
     }
 
-    return FocusTraversalGroup(
-      policy: WidgetOrderTraversalPolicy(),
-      child: Row(
+    return SizedBox(
+      width: double.infinity,
+      child: FocusTraversalGroup(
+        policy: WidgetOrderTraversalPolicy(),
+        child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Prepend Back Arrow for Adding / Editing modes or when onBack is provided
@@ -216,6 +218,8 @@ class PageHeader extends StatelessWidget {
           // Title Text
           Text(
             titleText,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
             style: theme.typography.h2.copyWith(
               fontWeight: FontWeight.bold,
               letterSpacing: -0.5,
@@ -259,6 +263,7 @@ class PageHeader extends StatelessWidget {
           ],
         ],
       ),
-    );
+    ),
+  );
   }
 }

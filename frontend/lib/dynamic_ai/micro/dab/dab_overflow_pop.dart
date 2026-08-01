@@ -8,6 +8,8 @@ library;
 import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
+import '../../specs/dy_grid_system.dart';
+
 /// Overflow Popover for Three-Dots trailing button in DAB:
 /// Displays additional table/data actions (Export, Column Specs, Density, Reset)
 class DabOverflowPopover extends StatelessWidget {
@@ -65,9 +67,9 @@ class DabOverflowPopover extends StatelessWidget {
     ];
 
     return shad.Card(
-      padding: EdgeInsets.all(6 * theme.scaling),
+      padding: EdgeInsets.all(8 * theme.scaling),
       child: SizedBox(
-        width: 190 * theme.scaling,
+        width: DyGridSystem.popWidthStandard * theme.scaling,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -88,24 +90,18 @@ class DabOverflowPopover extends StatelessWidget {
             ),
             const shad.DensityGap(shad.gapXs),
             ...options.map((opt) {
-              return GestureDetector(
-                onTap: opt.onTap,
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 8 * theme.scaling,
-                    vertical: 6 * theme.scaling,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(theme.radiusSm),
-                  ),
+              return Padding(
+                padding: EdgeInsets.only(bottom: 4 * theme.scaling),
+                child: shad.GhostButton(
+                  onPressed: opt.onTap,
                   child: Row(
                     children: [
                       Icon(
                         opt.icon,
                         size: 14 * theme.scaling,
-                        color: colors.foreground,
+                        color: colors.mutedForeground,
                       ),
-                      const shad.DensityGap(shad.gapSm),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           opt.label,

@@ -18,10 +18,9 @@ import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 import '../micro/dy_micro_button.dart';
 import '../micro/dab/dab_date_pop.dart';
-import '../micro/dab/dab_filter_pop.dart';
 import '../micro/dab/dab_overflow_pop.dart';
-import '../micro/dab/dab_party_pop.dart';
-import '../micro/dab/dab_status_pop.dart';
+import '../micro/dab/dab_select_pop.dart';
+import '../micro/dab/dab_slider_pop.dart';
 
 /// Legacy option model for popovers.
 class DynamicActionOption {
@@ -328,9 +327,10 @@ class DynamicActionBar extends StatelessWidget {
                             anchorAlignment: Alignment.bottomLeft,
                             alignment: Alignment.topLeft,
                             offset: const Offset(0, 4),
-                            builder: (context) => DabPartyPopover(
-                              selectedParties: selectedParties,
-                              partyOptions: partyOptions,
+                            builder: (context) => DabSelectPopover(
+                              title: 'Party',
+                              options: partyOptions,
+                              selectedValues: selectedParties,
                               onChanged: (set) => onPartyChanged?.call(set),
                             ),
                           ),
@@ -359,7 +359,7 @@ class DynamicActionBar extends StatelessWidget {
                             anchorAlignment: Alignment.bottomLeft,
                             alignment: Alignment.topLeft,
                             offset: const Offset(0, 4),
-                            builder: (context) => DabFilterPopover(
+                            builder: (context) => DabSelectPopover(
                               title: 'Mill',
                               options: millOptions,
                               selectedValues: selectedMills,
@@ -391,7 +391,7 @@ class DynamicActionBar extends StatelessWidget {
                             anchorAlignment: Alignment.bottomLeft,
                             alignment: Alignment.topLeft,
                             offset: const Offset(0, 4),
-                            builder: (context) => DabFilterPopover(
+                            builder: (context) => DabSelectPopover(
                               title: 'Fabric',
                               options: fabricOptions,
                               selectedValues: selectedFabrics,
@@ -423,8 +423,10 @@ class DynamicActionBar extends StatelessWidget {
                             anchorAlignment: Alignment.bottomLeft,
                             alignment: Alignment.topLeft,
                             offset: const Offset(0, 4),
-                            builder: (context) => DabStatusPopover(
-                              selectedStatuses: selectedStatuses,
+                            builder: (context) => DabSelectPopover(
+                              title: 'Status',
+                              options: const ['UNCUT', 'IN CUTTING', 'MILL DISPATCH', 'COMPLETED'],
+                              selectedValues: selectedStatuses,
                               onChanged: (set) => onStatusChanged?.call(set),
                             ),
                           ),
@@ -435,6 +437,37 @@ class DynamicActionBar extends StatelessWidget {
                 ),
                 const shad.DensityGap(shad.gapSm),
               ],
+              // 5. Range Slider MicroButton
+              Builder(
+                builder: (btnContext) {
+                  return MicroButton(
+                    leadingIcon: shad.LucideIcons.slidersHorizontal,
+                    label: 'Range',
+                    badgeCount: 0,
+                    trailingIcon: shad.LucideIcons.chevronDown,
+                    isSelected: false,
+                    onPressed: () {
+                      shad.showOverlay(
+                        btnContext,
+                        shad.PopoverConfiguration(
+                          anchorAlignment: Alignment.bottomLeft,
+                          alignment: Alignment.topLeft,
+                          offset: const Offset(0, 4),
+                          builder: (context) => DabSliderPopover(
+                            title: 'Meters Range',
+                            min: 0,
+                            max: 1000,
+                            startValue: 100,
+                            endValue: 500,
+                            onChanged: (start, end) {},
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+              const shad.DensityGap(shad.gapSm),
             ],
 
             // ==========================================

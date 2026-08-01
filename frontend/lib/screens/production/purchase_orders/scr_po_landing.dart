@@ -4,43 +4,31 @@ LLM CONTEXT & QUERY SPACE — PURCHASE ORDERS LANDING SCREEN (scr_po_landing.dar
 ================================================================================
 1. DOMAIN & PURPOSE:
    - Primary landing container screen for Purchase Orders (`po`).
-   - Manages the 5 PO submodules: Grey, Finish (`O13`), Lace (`O14`), Packing (`O15`), Studio (`O16`).
-   - Supports dual view modes: Full Dense Table View (`table`) and Master-Detail Split View (`split`).
+   - Manages the 5 PO submodules: Finish (`O13`), Lace (`O14`), Packing (`O15`), Studio (`O16`), Grey.
+   - Integrates PageHeader (Details, Reports, Links tabs + Print/Export secondary actions), DynamicActionBar (DAB filters + Grouping selector), and DyShlDetails.
 
 2. BUSINESS LOGIC & DATA CONTRACTS:
+   - PageHeader: Details (Def), Reports, Links tabs. Actions: Print & Export (Secondary buttons).
+   - Grouping Engine: Default = 2-tiered (def + child). Grouped = 3-tiered (group -> def -> child). Group rows wrap def rows.
    - Consumes module-level service `SrvPo` and module model `MdlPoHeader`.
-   - Core models `SqBillsModel` and `SqBilldetModel` remain 100% untouched and immutable.
-   - Live category counts fetched on startup for all 5 submodules.
-   - Default view displays ALL entries, with Status popover filtering for `All`, `Pending`, `Completed`.
-   - Dedicated Party Popover filtering powered by `_poService.getPartyOptions()`.
-
-3. DATA AUDIT / NULL RATES / GOTCHAS:
-   - `sq_BILLS` is Airbyte-managed read-only mirror.
-   - `Grey` category has no series code in legacy `sq_BILLS` (`seriesCode == null`), rendering empty state until raw grey PO table is assigned.
-
-4. OPEN QUESTIONS & CLARIFICATIONS:
-   - Should New Purchase Order creation write via Edge Function to custom `sb_purord` or directly generate `sq_BILLS` equivalent vouchers?
 ================================================================================
 */
+
+library;
 
 import 'package:flutter/material.dart' hide Card;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
 import '../../../dynamic_ai/page/dy_page_header.dart';
-import '../../../dynamic_ai/page/dy_action_bar.dart';
 import '../../../dynamic_ai/micro/dab/dab_submodule_pop.dart';
 import '../../../dynamic_ai/micro/dy_micro_button.dart';
-import '../../../dynamic_ai/page/dy_table_pane.dart';
-import '../../../dynamic_ai/page/dy_list_pane.dart';
-import '../../../dynamic_ai/micro/cards/dy_list_item.dart';
+import '../../../dynamic_ai/micro/table/dy_table_models.dart';
+import '../../../dynamic_ai/shells/dy_shl_details.dart';
 import '../../../models/production/mdl_po.dart';
 import '../../../services/production/srv_po.dart';
-import 'scr_po_detail_canvas.dart';
 
-/// Alias `PoSubmoduleCategory` to module domain model `PoCategory` for backward compatibility
 typedef PoSubmoduleCategory = PoCategory;
 
-/// [ScrPoLanding] — Main Landing Container Screen for Purchase Orders.
 class ScrPoLanding extends StatefulWidget {
   const ScrPoLanding({super.key});
 
@@ -54,13 +42,21 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
 
   PoCategory _selectedCategory = PoCategory.finish;
   Map<PoCategory, int> _categoryCounts = {};
-  String _viewMode = 'table'; // 'table' or 'split'
+  String _viewMode = 'table';
+  int _contextTabIndex = 0;
+  String _groupingMode = 'none'; // 'none', 'party', 'quality'
+
+  void _onGroupingChanged(String mode) {
+    setState(() {
+      _groupingMode = mode;
+    });
+  }
   String? _searchQuery;
 
   // Filter States
   Set<String> _selectedParties = {};
   List<String> _partyOptions = [];
-  Set<String> _selectedStatuses = {}; // Empty by default = Show ALL entries!
+  Set<String> _selectedStatuses = {};
   shad.CalendarValue? _selectedDateRange;
   String? _selectedDateLabel;
 
@@ -162,6 +158,7 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
       _selectedStatuses.clear();
       _selectedDateRange = null;
       _selectedDateLabel = null;
+      _onGroupingChanged('none');
     });
     _fetchHeaders(resetOffset: true);
   }
@@ -169,251 +166,290 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
   @override
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
-    final colors = theme.colorScheme;
 
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // 1. PAGE HEADER (Title: Purchase Orders, Tabs: Details/Reports/Links, Secondary Actions: Print/Export)
+        PageHeader(
+          title: 'Purchase Orders',
+          mode: PageHeaderMode.standard,
+          pageTabs: PageTabs(
+            selectedIndex: _contextTabIndex,
+            tabs: const ['Details', 'Reports', 'Links'],
+            onTabChanged: (idx) {
+              setState(() {
+                _contextTabIndex = idx;
+              });
+            },
+          ),
+          actions: [
+            shad.OutlineButton(
+              onPressed: () {},
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(shad.LucideIcons.printer, size: 14 * theme.scaling),
+                  const SizedBox(width: 6),
+                  const Text('Print'),
+                ],
+              ),
+            ),
+            shad.OutlineButton(
+              onPressed: () {},
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(shad.LucideIcons.fileOutput, size: 14 * theme.scaling),
+                  const SizedBox(width: 6),
+                  const Text('Export'),
+                ],
+              ),
+            ),
+          ],
+        ),
+
+        // 24px Vertical Gap Token between PageHeader and DAB
+        const shad.DensityGap(shad.gapLg),
+
+        // 2. MAIN CONTENT AREA (Tab 0: Details Shell, Tab 1: Reports, Tab 2: Links)
+        Expanded(
+          child: _buildTabContent(theme),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTabContent(shad.ThemeData theme) {
+    if (_contextTabIndex == 1) {
+      return Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.card,
+          borderRadius: BorderRadius.circular(theme.radiusMd),
+          border: Border.all(color: theme.colorScheme.border),
+        ),
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              shad.LucideIcons.chartBar,
+              size: 32 * theme.scaling,
+              color: theme.colorScheme.mutedForeground,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Purchase Orders Reports',
+              style: theme.typography.h3.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Analytics and summary metrics for ${_selectedCategory.label} Purchase Orders',
+              style: theme.typography.textSmall.copyWith(color: theme.colorScheme.mutedForeground),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_contextTabIndex == 2) {
+      return Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.card,
+          borderRadius: BorderRadius.circular(theme.radiusMd),
+          border: Border.all(color: theme.colorScheme.border),
+        ),
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              shad.LucideIcons.link,
+              size: 32 * theme.scaling,
+              color: theme.colorScheme.mutedForeground,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Purchase Orders Links & Integrations',
+              style: theme.typography.h3.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Linked Bills, Challans, and Mill Receipts',
+              style: theme.typography.textSmall.copyWith(color: theme.colorScheme.mutedForeground),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Default Tab (0: Details Shell)
     final activeCount = _categoryCounts[_selectedCategory] ?? _totalCount;
     final hasFilters = _selectedParties.isNotEmpty || _selectedStatuses.isNotEmpty || _selectedDateRange != null;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 1. Page Header
-        PageHeader(
-          title: 'Purchase Orders',
-        ),
-
-        const shad.DensityGap(shad.gapSm),
-
-        // 2. Dynamic Action Bar
-        DynamicActionBar(
-          entityName: 'Orders',
-          selectedView: _viewMode,
-          onViewChanged: (mode) {
-            setState(() {
-              _viewMode = mode;
-            });
-          },
-          submoduleWidget: Builder(
-            builder: (btnContext) {
-              return MicroButton(
-                leadingIcon: _selectedCategory.icon,
-                label: _selectedCategory.label,
-                badgeCount: activeCount,
-                trailingIcon: shad.LucideIcons.chevronDown,
-                isSelected: true,
-                onPressed: () {
-                  shad.showOverlay(
-                    btnContext,
-                    shad.PopoverConfiguration(
-                      anchorAlignment: Alignment.bottomLeft,
-                      alignment: Alignment.topLeft,
-                      offset: const Offset(0, 4),
-                      builder: (popContext) => DabSubmodulePopover<PoCategory>(
-                        title: 'Submodule',
-                        selectedId: _selectedCategory,
-                        items: PoCategory.values
-                            .map(
-                              (c) => DabSubmoduleItem<PoCategory>(
-                                id: c,
-                                label: c.label,
-                                icon: c.icon,
-                                count: _categoryCounts[c] ?? 0,
-                              ),
-                            )
-                            .toList(),
-                        onSelected: _onCategoryChanged,
-                      ),
-                    ),
-                  );
-                },
+    return DyShlDetails(
+      title: 'Purchase Orders',
+      entityName: 'Orders',
+      moduleName: 'purchase_orders',
+      selectedViewMode: _viewMode,
+      onViewModeChanged: (mode) {
+        setState(() {
+          _viewMode = mode;
+        });
+      },
+      submoduleWidget: Builder(
+        builder: (btnContext) {
+          return MicroButton(
+            leadingIcon: _selectedCategory.icon,
+            label: _selectedCategory.label,
+            badgeCount: activeCount,
+            trailingIcon: shad.LucideIcons.chevronDown,
+            isSelected: true,
+            onPressed: () {
+              shad.showOverlay(
+                btnContext,
+                shad.PopoverConfiguration(
+                  anchorAlignment: Alignment.bottomLeft,
+                  alignment: Alignment.topLeft,
+                  offset: const Offset(0, 4),
+                  builder: (popContext) => DabSubmodulePopover<PoCategory>(
+                    title: 'Submodule',
+                    selectedId: _selectedCategory,
+                    items: PoCategory.values
+                        .map(
+                          (c) => DabSubmoduleItem<PoCategory>(
+                            id: c,
+                            label: c.label,
+                            icon: c.icon,
+                            count: _categoryCounts[c] ?? 0,
+                          ),
+                        )
+                        .toList(),
+                    onSelected: _onCategoryChanged,
+                  ),
+                ),
               );
             },
-          ),
-          searchQuery: _searchQuery,
-          onSearchChanged: (val) {
-            _searchQuery = val.trim();
-            _fetchHeaders(resetOffset: true);
-          },
-          // Party Filter Popover Slot
-          selectedParties: _selectedParties,
-          partyOptions: _partyOptions,
-          onPartyChanged: (set) {
-            setState(() {
-              _selectedParties = set;
-            });
-            _fetchHeaders(resetOffset: true);
-          },
-          // Status Filter Slot (All, Pending, Completed)
-          selectedStatuses: _selectedStatuses,
-          onStatusChanged: (statuses) {
-            setState(() {
-              _selectedStatuses = statuses;
-            });
-            _fetchHeaders(resetOffset: true);
-          },
-          // Date Range Filter Slot
-          selectedDateRange: _selectedDateRange,
-          selectedDateLabel: _selectedDateLabel,
-          onDateRangeSelected: (range) {
-            setState(() {
-              _selectedDateRange = range;
-              _selectedDateLabel = range != null ? 'Selected Date Range' : null;
-            });
-            _fetchHeaders(resetOffset: true);
-          },
-          hasActiveFilters: hasFilters,
-          onClearAllFilters: _onClearAllFilters,
-        ),
-
-        const SizedBox(height: 12),
-
-        // 3. Main Content Area (Tabular vs Split View)
-        Expanded(
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _orders.isEmpty
-                  ? Center(
-                      child: Text(
-                        'No Purchase Orders found for ${_selectedCategory.label}',
-                        style: theme.typography.textSmall.copyWith(color: colors.mutedForeground),
-                      ),
-                    )
-                  : _viewMode == 'table'
-                      ? _buildTabularView()
-                      : _buildSplitView(),
-        ),
-      ],
-    );
-  }
-
-  static const List<DynamicTableColumnSpec> _poTableColumns = [
-    DynamicTableColumnSpec(label: 'ORDER #', key: 'vno', width: 110),
-    DynamicTableColumnSpec(label: 'DATE', key: 'date', width: 95),
-    DynamicTableColumnSpec(label: 'PARTY / SUPPLIER', key: 'party', flex: 2),
-    DynamicTableColumnSpec(label: 'FABRIC', key: 'fabric', flex: 2),
-    DynamicTableColumnSpec(label: 'TOTAL MTRS', key: 'totalMtrs', alignment: Alignment.centerRight, flex: 1),
-    DynamicTableColumnSpec(label: 'TOTAL PCS', key: 'totalPcs', alignment: Alignment.centerRight, flex: 1),
-    DynamicTableColumnSpec(label: 'RATE', key: 'rate', alignment: Alignment.centerRight, flex: 1),
-    DynamicTableColumnSpec(label: 'AMOUNT', key: 'amount', alignment: Alignment.centerRight, flex: 1),
-    DynamicTableColumnSpec(label: '', key: 'actions', width: 72, alignment: Alignment.center),
-  ];
-
-  List<DynamicTableRowData> _mapOrdersToRows() {
-    return _orders.map((o) {
-      return DynamicTableRowData(
-        id: o.vno.toString(),
-        voucherNo: o.displayOrderNo,
-        partyName: o.partyName.isNotEmpty ? o.partyName : 'Unknown Party',
-        designPattern: o.primaryFabric,
-        quantity: o.totalMeters > 0 ? '${o.totalMeters.toStringAsFixed(1)} Mtr' : '-',
-        amount: o.formattedFinalAmount(),
-        amountValue: o.finalAmount > 0 ? o.finalAmount : o.billAmount,
-        status: o.isPending ? 'PENDING' : 'COMPLETED',
-        childRows: o.lineItems.map((item) {
-          return DynamicTableRowData(
-            id: item.srNo.toString(),
-            voucherNo: item.srNo.toString(),
-            partyName: '',
-            designPattern: item.quality.isNotEmpty ? item.quality : 'N/A',
-            quantity: item.meters > 0 ? '${item.meters.toStringAsFixed(1)} Mtr' : '-',
-            amount: item.formattedAmount(),
-            amountValue: item.amount,
-            status: '',
-            rawData: {
-              'pcs': item.pieces > 0 ? '${item.pieces.toInt()}' : '',
-              'rate': item.rate > 0 ? item.rate.toStringAsFixed(2) : '',
-              'rateFormatted': item.rate > 0 ? '₹${item.rate.toStringAsFixed(2)}' : '-',
-            },
           );
-        }).toList(),
-        rawData: {
-          'date': o.formattedDate,
-          'totalPcs': o.totalPieces > 0 ? '${o.totalPieces} Pcs' : '-',
-          'rate': o.formattedRate(),
         },
-      );
-    }).toList();
-  }
-
-  /// Full-Page Dense Table Grid
-  Widget _buildTabularView() {
-    return DynamicDenseTable(
-      rows: _mapOrdersToRows(),
-      columns: _poTableColumns,
-      enableExpansion: true,
+      ),
+      searchQuery: _searchQuery,
+      onSearchChanged: (val) {
+        _searchQuery = val?.trim();
+        _fetchHeaders(resetOffset: true);
+      },
+      selectedMills: _selectedParties,
+      millOptions: _partyOptions,
+      onMillChanged: (set) {
+        setState(() {
+          _selectedParties = set;
+        });
+        _fetchHeaders(resetOffset: true);
+      },
+      selectedStatuses: _selectedStatuses,
+      onStatusChanged: (statuses) {
+        setState(() {
+          _selectedStatuses = statuses;
+        });
+        _fetchHeaders(resetOffset: true);
+      },
+      selectedDateRange: _selectedDateRange,
+      selectedDateLabel: _selectedDateLabel,
+      onDateRangeSelected: (range) {
+        setState(() {
+          _selectedDateRange = range;
+          _selectedDateLabel = range != null ? 'Selected Date Range' : null;
+        });
+        _fetchHeaders(resetOffset: true);
+      },
+      hasActiveFilters: hasFilters,
+      onClearAllFilters: _onClearAllFilters,
+      tableColumns: const [
+        DyTableColumnSpec(key: 'vno', label: 'Voucher No', flex: 1),
+        DyTableColumnSpec(key: 'partyName', label: 'Party / Weaver', flex: 2),
+        DyTableColumnSpec(key: 'designPattern', label: 'Design & Quality', flex: 2),
+        DyTableColumnSpec(key: 'quantity', label: 'Quantity', flex: 1, isNumeric: true),
+        DyTableColumnSpec(key: 'amount', label: 'Amount', flex: 1, isNumeric: true),
+        DyTableColumnSpec(key: 'status', label: 'Status', flex: 1, isSortable: false),
+      ],
+      tableRows: _buildMappedTableRows(),
       totalRecords: _totalCount,
-      currentPage: (_offset ~/ _limit) + 1,
-      onPageChanged: (page) {
-        setState(() {
-          _offset = (page - 1) * _limit;
-        });
-        _fetchHeaders(resetOffset: false);
-      },
-      onRowTap: (row) {
-        final order = _orders.firstWhere((o) => o.vno.toString() == row.id, orElse: () => _orders.first);
-        setState(() {
-          _selectedOrder = order;
-          _viewMode = 'split';
-        });
-      },
+      isLoading: _isLoading,
     );
   }
 
-  /// Master-Detail Split Pane View
-  Widget _buildSplitView() {
-    final listItems = _orders
-        .map(
-          (o) => DynamicListItem(
-            id: o.vno.toString(),
-            title: o.partyName.isNotEmpty ? o.partyName : 'Unknown Party',
-            subtitle: '${o.displayOrderNo} • ${o.formattedDate}',
-            topLeading: o.isPending
-                ? const shad.OutlineBadge(child: Text('Pending'))
-                : const shad.PrimaryBadge(child: Text('Completed')),
-            topTrailing: o.formattedDate,
-            amount: o.formattedFinalAmount(),
-            indexNumber: '${o.vno}',
-            rawData: o.core.toJson(),
+
+
+  /// Maps [MdlPoHeader] orders to 2-tiered (default) or 3-tiered (grouped) row structure
+  List<DyTableRowData> _buildMappedTableRows() {
+    if (_groupingMode == 'party') {
+      // Group by Party / Weaver Name (3-tiered)
+      final grouped = <String, List<MdlPoHeader>>{};
+      for (final o in _orders) {
+        final p = o.partyName.isNotEmpty ? o.partyName : 'Unknown Supplier';
+        grouped.putIfAbsent(p, () => []).add(o);
+      }
+
+      final result = <DyTableRowData>[];
+      grouped.forEach((party, partyOrders) {
+        final totalMts = partyOrders.fold<double>(0, (sum, o) => sum + o.totalMeters);
+        final totalAmt = partyOrders.fold<double>(0, (sum, o) => sum + (o.finalAmount > 0 ? o.finalAmount : o.billAmount));
+
+        result.add(
+          DyTableRowData(
+            id: 'group-${party.hashCode}',
+            rowType: DyTableRowType.group,
+            title: '$party (${partyOrders.length} Orders)',
+            partyName: party,
+            data: {
+              'vno': 'GROUP: ${party.toUpperCase()}',
+              'partyName': party,
+              'designPattern': '${partyOrders.length} Orders Summary',
+              'quantity': '${totalMts.toStringAsFixed(1)} Mts',
+              'amount': '₹${totalAmt.toStringAsFixed(2)}',
+              'status': 'ACTIVE',
+            },
+            children: partyOrders.map((o) => _mapOrderToDefRow(o)).toList(),
           ),
-        )
-        .toList();
+        );
+      });
+      return result;
+    }
 
-    final selectedListItem = _selectedOrder != null
-        ? listItems.firstWhere((item) => item.id == _selectedOrder!.vno.toString(), orElse: () => listItems.first)
-        : null;
+    // Default 2-Tiered Structure (def_row + child_rows)
+    return _orders.map((o) => _mapOrderToDefRow(o)).toList();
+  }
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Left Master List
-        DynamicList(
-          items: listItems,
-          selectedItem: selectedListItem,
-          onItemSelected: (item) {
-            if (item == null) return;
-            final order = _orders.firstWhere((o) => o.vno.toString() == item.id, orElse: () => _orders.first);
-            setState(() {
-              _selectedOrder = order;
-            });
+  DyTableRowData _mapOrderToDefRow(MdlPoHeader o) {
+    return DyTableRowData(
+      id: o.vno.toString(),
+      rowType: DyTableRowType.def,
+      voucherNo: o.displayOrderNo,
+      partyName: o.partyName.isNotEmpty ? o.partyName : 'Unknown Supplier',
+      data: {
+        'vno': o.displayOrderNo,
+        'partyName': o.partyName.isNotEmpty ? o.partyName : 'Unknown Supplier',
+        'designPattern': o.primaryFabric,
+        'quantity': o.totalMeters > 0 ? '${o.totalMeters.toStringAsFixed(1)} Mts' : '-',
+        'amount': o.formattedFinalAmount(),
+        'status': o.isPending ? 'PENDING' : 'COMPLETED',
+      },
+      children: o.lineItems.map((item) {
+        return DyTableRowData(
+          id: '${o.vno}-${item.srNo}',
+          rowType: DyTableRowType.child,
+          voucherNo: '${o.displayOrderNo}-${item.srNo}',
+          partyName: item.quality,
+          data: {
+            'vno': '${o.displayOrderNo}-${item.srNo}',
+            'partyName': item.quality,
+            'designPattern': 'Lot #${item.srNo} • ${item.pieces.toInt()} Pcs',
+            'quantity': item.meters > 0 ? '${item.meters.toStringAsFixed(1)} Mts' : '-',
+            'amount': item.formattedAmount(),
+            'status': 'UNCUT',
           },
-        ),
-
-        const SizedBox(width: 16),
-
-        // Right Detail Canvas
-        Expanded(
-          child: _selectedOrder != null
-              ? ScrPoDetailCanvas(
-                  header: _selectedOrder!,
-                  onClose: () {
-                    setState(() {
-                      _viewMode = 'table';
-                    });
-                  },
-                )
-              : const SizedBox.shrink(),
-        ),
-      ],
+        );
+      }).toList(),
     );
   }
 }

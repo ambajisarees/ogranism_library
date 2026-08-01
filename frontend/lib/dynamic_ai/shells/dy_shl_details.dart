@@ -21,7 +21,7 @@ import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 import '../specs/dy_grid_system.dart';
 import '../page/dy_page_header.dart';
 import '../page/dy_action_bar.dart';
-import '../page/dy_table_pane.dart';
+import '../page/dy_table.dart';
 import '../page/dy_list_pane.dart';
 import '../page/dy_card_pane.dart';
 import '../page/dy_kanban_pane.dart';
@@ -62,8 +62,8 @@ class DyShlDetails extends StatelessWidget {
   final VoidCallback? onClearAllFilters;
 
   // 3. View Data & Content Props
-  final List<DynamicTableColumnSpec> tableColumns;
-  final List<DynamicTableRowData> tableRows;
+  final List<DyTableColumnSpec> tableColumns;
+  final List<DyTableRowData> tableRows;
   final List<DyGridItem> gridItems;
   final List<DynamicListItem> listItems;
   final DyGridItem? selectedGridItem;
@@ -102,8 +102,8 @@ class DyShlDetails extends StatelessWidget {
     this.onClearAllFilters,
     required this.tableColumns,
     required this.tableRows,
-    required this.gridItems,
-    required this.listItems,
+    this.gridItems = const [],
+    this.listItems = const [],
     this.selectedGridItem,
     this.onGridItemSelected,
     this.selectedListItem,
@@ -120,18 +120,7 @@ class DyShlDetails extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // 1. PAGE HEADER (Title + Context PageTabs + Actions)
-        PageHeader(
-          title: title,
-          mode: headerMode,
-          moduleName: moduleName,
-          docId: docId,
-          pageTabs: pageTabs,
-          actions: headerActions,
-        ),
-        const shad.DensityGap(shad.gapLg),
-
-        // 2. DYNAMIC ACTION BAR (DAB: Submodules, Search, Filters, View Switcher)
+        // 1. DYNAMIC ACTION BAR (DAB: Submodules, Search, Filters, View Switcher)
         DynamicActionBar(
           entityName: entityName,
           selectedView: selectedViewMode,
@@ -180,12 +169,10 @@ class DyShlDetails extends StatelessWidget {
       case 'table':
         return Align(
           alignment: Alignment.topCenter,
-          child: DyTablePane(
+          child: DyTable(
             columns: tableColumns,
             rows: tableRows,
-            enableExpansion: true,
-            isLoading: isLoading,
-            totalRecords: totalRecords,
+            totalRecords: totalRecords ?? 0,
           ),
         );
 

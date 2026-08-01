@@ -55,7 +55,6 @@ class MicroButton extends StatefulWidget {
 class _MicroButtonState extends State<MicroButton> {
   late FocusNode _effectiveFocusNode;
   bool _isFocused = false;
-  bool _isHovered = false;
 
   @override
   void initState() {
@@ -114,103 +113,175 @@ class _MicroButtonState extends State<MicroButton> {
           );
 
     final backgroundColor = widget.isGhost
-        ? ((_isHovered || widget.isSelected) ? colors.accent : const Color(0x00000000))
-        : (_isHovered ? colors.accent : colors.card);
+        ? (widget.isSelected ? colors.accent : const Color(0x00000000))
+        : colors.card;
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: shad.Button.outline(
-        focusNode: _effectiveFocusNode,
-        style: const shad.ButtonStyle.outline()
-            .withBackgroundColor(
-              color: backgroundColor,
-            )
-            .withPadding(
-              padding: EdgeInsets.symmetric(
-                horizontal: isIconOnly ? 8 * theme.scaling : 12 * theme.scaling,
-                vertical: 8 * theme.scaling,
-              ),
-            )
-            .withBorderRadius(
-              borderRadius: BorderRadius.circular(theme.radiusMd),
-            )
-            .withBorder(
-              border: border,
-            ),
-        onPressed: widget.onPressed,
-        child: Focus(
-          canRequestFocus: false,
-          skipTraversal: true,
-          descendantsAreFocusable: false,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // 1. Optional Leading Icon
-              if (widget.leadingIcon != null) ...[
-                Icon(
-                  widget.leadingIcon,
-                  size: 16 * theme.scaling,
-                  color: widget.isSelected ? colors.primary : colors.mutedForeground,
-                ),
-                if (widget.label.isNotEmpty) const shad.DensityGap(shad.gapSm),
-              ],
+    final buttonStyle = (widget.isGhost
+            ? const shad.ButtonStyle.ghost()
+            : const shad.ButtonStyle.outline())
+        .withBackgroundColor(
+          color: backgroundColor,
+        )
+        .withPadding(
+          padding: EdgeInsets.symmetric(
+            horizontal: isIconOnly ? 8 * theme.scaling : 12 * theme.scaling,
+            vertical: 8 * theme.scaling,
+          ),
+        )
+        .withBorderRadius(
+          borderRadius: BorderRadius.circular(theme.radiusMd),
+        )
+        .withBorder(
+          border: border,
+        )
+        .copyWith(
+          decoration: (context, state, decoration) {
+            if (state.hovered) {
+              return (decoration as BoxDecoration? ?? const BoxDecoration())
+                  .copyWith(color: colors.accent);
+            }
+            return decoration;
+          },
+        );
 
-              // 2. Text Label
-              if (widget.label.isNotEmpty) ...[
-                Flexible(
-                  child: Text(
-                    widget.label,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.typography.textSmall.copyWith(
-                      fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.normal,
-                      color: colors.foreground,
+    return widget.isGhost
+        ? shad.Button.ghost(
+            focusNode: _effectiveFocusNode,
+            style: buttonStyle,
+            onPressed: widget.onPressed,
+            child: Focus(
+              canRequestFocus: false,
+              skipTraversal: true,
+              descendantsAreFocusable: false,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (widget.leadingIcon != null) ...[
+                    Icon(
+                      widget.leadingIcon,
+                      size: 16 * theme.scaling,
+                      color: widget.isSelected ? colors.primary : colors.mutedForeground,
                     ),
-                  ),
-                ),
-              ],
-
-              // 3. Native Badge / Chip (PrimaryBadge with semibold when selected, SecondaryBadge with semibold muted when unselected)
-              if (widget.badgeCount != null) ...[
-                if (widget.label.isNotEmpty || widget.leadingIcon != null)
-                  const shad.DensityGap(shad.gapSm),
-                widget.isSelected
-                    ? shad.PrimaryBadge(
-                        child: Text(
-                          widget.badgeCount.toString(),
-                          style: theme.typography.xSmall.copyWith(
-                            fontSize: 10 * theme.scaling,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      )
-                    : shad.SecondaryBadge(
-                        child: Text(
-                          widget.badgeCount.toString(),
-                          style: theme.typography.xSmall.copyWith(
-                            fontSize: 10 * theme.scaling,
-                            fontWeight: FontWeight.w600,
-                            color: colors.mutedForeground,
-                          ),
+                    if (widget.label.isNotEmpty) const shad.DensityGap(shad.gapSm),
+                  ],
+                  if (widget.label.isNotEmpty) ...[
+                    Flexible(
+                      child: Text(
+                        widget.label,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.typography.textSmall.copyWith(
+                          fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.normal,
+                          color: colors.foreground,
                         ),
                       ),
-              ],
-
-              // 4. Optional Trailing Action Indicator Icon
-              if (widget.trailingIcon != null) ...[
-                if (widget.label.isNotEmpty || widget.leadingIcon != null || widget.badgeCount != null)
-                  const shad.DensityGap(shad.gapSm),
-                Icon(
-                  widget.trailingIcon,
-                  size: 16 * theme.scaling,
-                  color: colors.mutedForeground,
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
+                    ),
+                  ],
+                  if (widget.badgeCount != null) ...[
+                    if (widget.label.isNotEmpty || widget.leadingIcon != null)
+                      const shad.DensityGap(shad.gapSm),
+                    widget.isSelected
+                        ? shad.PrimaryBadge(
+                            child: Text(
+                              widget.badgeCount.toString(),
+                              style: theme.typography.xSmall.copyWith(
+                                fontSize: 10 * theme.scaling,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          )
+                        : shad.SecondaryBadge(
+                            child: Text(
+                              widget.badgeCount.toString(),
+                              style: theme.typography.xSmall.copyWith(
+                                fontSize: 10 * theme.scaling,
+                                fontWeight: FontWeight.w600,
+                                color: colors.mutedForeground,
+                              ),
+                            ),
+                          ),
+                  ],
+                  if (widget.trailingIcon != null) ...[
+                    if (widget.label.isNotEmpty || widget.leadingIcon != null || widget.badgeCount != null)
+                      const shad.DensityGap(shad.gapSm),
+                    Icon(
+                      widget.trailingIcon,
+                      size: 16 * theme.scaling,
+                      color: colors.mutedForeground,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          )
+        : shad.Button.outline(
+            focusNode: _effectiveFocusNode,
+            style: buttonStyle,
+            onPressed: widget.onPressed,
+            child: Focus(
+              canRequestFocus: false,
+              skipTraversal: true,
+              descendantsAreFocusable: false,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (widget.leadingIcon != null) ...[
+                    Icon(
+                      widget.leadingIcon,
+                      size: 16 * theme.scaling,
+                      color: widget.isSelected ? colors.primary : colors.mutedForeground,
+                    ),
+                    if (widget.label.isNotEmpty) const shad.DensityGap(shad.gapSm),
+                  ],
+                  if (widget.label.isNotEmpty) ...[
+                    Flexible(
+                      child: Text(
+                        widget.label,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.typography.textSmall.copyWith(
+                          fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.normal,
+                          color: colors.foreground,
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (widget.badgeCount != null) ...[
+                    if (widget.label.isNotEmpty || widget.leadingIcon != null)
+                      const shad.DensityGap(shad.gapSm),
+                    widget.isSelected
+                        ? shad.PrimaryBadge(
+                            child: Text(
+                              widget.badgeCount.toString(),
+                              style: theme.typography.xSmall.copyWith(
+                                fontSize: 10 * theme.scaling,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          )
+                        : shad.SecondaryBadge(
+                            child: Text(
+                              widget.badgeCount.toString(),
+                              style: theme.typography.xSmall.copyWith(
+                                fontSize: 10 * theme.scaling,
+                                fontWeight: FontWeight.w600,
+                                color: colors.mutedForeground,
+                              ),
+                            ),
+                          ),
+                  ],
+                  if (widget.trailingIcon != null) ...[
+                    if (widget.label.isNotEmpty || widget.leadingIcon != null || widget.badgeCount != null)
+                      const shad.DensityGap(shad.gapSm),
+                    Icon(
+                      widget.trailingIcon,
+                      size: 16 * theme.scaling,
+                      color: colors.mutedForeground,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
   }
 }

@@ -33,6 +33,12 @@ abstract class DyGridSystem {
   static const double breakpointDesktopXl = 1920.0;
 
   // =========================================================================
+  // DAB POPOVER WIDTH MULTIPLIER STANDARDS
+  // =========================================================================
+  static const double popWidthStandard = 200.0; // 200px (Submodule, Slider, Select, Overflow)
+  static const double popWidthLarge = 400.0;    // 400px (Split Date Range Popover: 140px + 260px)
+
+  // =========================================================================
   // 2. ACTIVE ERP VIEW MODE SPLIT RATIOS (BY USE CASE & DYNAMIC COMPONENT)
   // =========================================================================
   static const int flexBase = 12;

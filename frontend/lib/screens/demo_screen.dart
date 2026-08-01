@@ -9,6 +9,7 @@ import '../dynamic_ai/micro/cards/dy_grid_card.dart';
 import '../dynamic_ai/micro/cards/dy_list_item.dart';
 import '../dynamic_ai/shells/dy_shl_details.dart';
 import '../dynamic_ai/micro/dy_micro_button.dart';
+import '../dynamic_ai/micro/table/dy_table_models.dart';
 import '../dynamic_ai/root/dy_module_tabs.dart';
 import 'production/purchase_orders/scr_po_landing.dart';
 
@@ -98,7 +99,7 @@ class _DemoScreenState extends State<DemoScreen> {
 
   // Selected Uncut Rolls for Batch Creation
   final Set<String> _selectedRollIds = {'roll-101', 'roll-102', 'roll-103'};
-  late final List<DynamicTableRowData> _allUncutRolls;
+  late final List<DyTableRowData> _allUncutRolls;
 
   @override
   void initState() {
@@ -115,7 +116,7 @@ class _DemoScreenState extends State<DemoScreen> {
 
   void _initMockUncutRolls() {
     _allUncutRolls = [
-      DynamicTableRowData(
+      DyTableRowData(
         id: 'roll-101',
         voucherNo: '10481',
         partyName: 'Ambaji Mills',
@@ -135,7 +136,7 @@ class _DemoScreenState extends State<DemoScreen> {
           'status': 'UNCUT'
         },
       ),
-      DynamicTableRowData(
+      DyTableRowData(
         id: 'roll-102',
         voucherNo: '10481',
         partyName: 'Ambaji Mills',
@@ -155,7 +156,7 @@ class _DemoScreenState extends State<DemoScreen> {
           'status': 'UNCUT'
         },
       ),
-      DynamicTableRowData(
+      DyTableRowData(
         id: 'roll-103',
         voucherNo: '10481',
         partyName: 'Ambaji Mills',
@@ -172,66 +173,6 @@ class _DemoScreenState extends State<DemoScreen> {
           'mill': 'Ambaji Mills',
           'qual': 'Chiffon Jacquard',
           'meters': 215.0,
-          'status': 'UNCUT'
-        },
-      ),
-      DynamicTableRowData(
-        id: 'roll-104',
-        voucherNo: '10482',
-        partyName: 'Shree Ram Processing',
-        designPattern: 'D-3021 (Chiffon Jacquard)',
-        quantity: '180.0 Mts',
-        amount: '₹36,000',
-        amountValue: 36000,
-        status: 'UNCUT',
-        expandedDetails:
-            'Lot #10482-A • Width: 44 Inches • Weaver: Shree Ram Processing • Quality: Chiffon Jacquard',
-        rawData: {
-          'cardNo': 'C-1004',
-          'vno': '10482',
-          'mill': 'Shree Ram Processing',
-          'qual': 'Chiffon Jacquard',
-          'meters': 180.0,
-          'status': 'UNCUT'
-        },
-      ),
-      DynamicTableRowData(
-        id: 'roll-105',
-        voucherNo: '10482',
-        partyName: 'Shree Ram Processing',
-        designPattern: 'D-5100 (Organza Print)',
-        quantity: '240.0 Mts',
-        amount: '₹51,000',
-        amountValue: 51000,
-        status: 'UNCUT',
-        expandedDetails:
-            'Lot #10482-B • Width: 54 Inches • Weaver: Shree Ram Processing • Quality: Organza Print',
-        rawData: {
-          'cardNo': 'C-1005',
-          'vno': '10482',
-          'mill': 'Shree Ram Processing',
-          'qual': 'Organza Print',
-          'meters': 240.0,
-          'status': 'UNCUT'
-        },
-      ),
-      DynamicTableRowData(
-        id: 'roll-106',
-        voucherNo: '10483',
-        partyName: 'Vrindavan Dyeing',
-        designPattern: 'D-5100 (Organza Print)',
-        quantity: '220.0 Mts',
-        amount: '₹46,750',
-        amountValue: 46750,
-        status: 'UNCUT',
-        expandedDetails:
-            'Lot #10483-A • Width: 54 Inches • Weaver: Vrindavan Dyeing • Quality: Organza Print',
-        rawData: {
-          'cardNo': 'C-1006',
-          'vno': '10483',
-          'mill': 'Vrindavan Dyeing',
-          'qual': 'Organza Print',
-          'meters': 220.0,
           'status': 'UNCUT'
         },
       ),
@@ -484,12 +425,12 @@ class _DemoScreenState extends State<DemoScreen> {
           _selectedDateRange != null,
       onClearAllFilters: _onResetFilters,
       tableColumns: const [
-        DynamicTableColumnSpec(key: 'vno', label: 'Voucher No', width: 110),
-        DynamicTableColumnSpec(key: 'partyName', label: 'Party / Weaver', width: 220),
-        DynamicTableColumnSpec(key: 'designPattern', label: 'Design & Quality', width: 200),
-        DynamicTableColumnSpec(key: 'quantity', label: 'Quantity', width: 130),
-        DynamicTableColumnSpec(key: 'amount', label: 'Amount', width: 140),
-        DynamicTableColumnSpec(key: 'status', label: 'Status', width: 120),
+        DyTableColumnSpec(key: 'vno', label: 'Voucher No', width: 110),
+        DyTableColumnSpec(key: 'partyName', label: 'Party / Weaver', width: 220),
+        DyTableColumnSpec(key: 'designPattern', label: 'Design & Quality', width: 200),
+        DyTableColumnSpec(key: 'quantity', label: 'Quantity', width: 130),
+        DyTableColumnSpec(key: 'amount', label: 'Amount', width: 140),
+        DyTableColumnSpec(key: 'status', label: 'Status', width: 120, isSortable: false),
       ],
       tableRows: _allUncutRolls,
       gridItems: gridItems,
@@ -511,7 +452,7 @@ class _DemoScreenState extends State<DemoScreen> {
 
     final displayedRolls = _allUncutRolls.where((roll) {
       if (_selectedFormMill != null && _selectedFormMill!.isNotEmpty) {
-        if (roll.partyName.toLowerCase() != _selectedFormMill!.toLowerCase()) {
+        if ((roll.partyName ?? '').toLowerCase() != _selectedFormMill!.toLowerCase()) {
           return false;
         }
       }
@@ -647,7 +588,17 @@ class _DemoScreenState extends State<DemoScreen> {
                 DynamicTableColumnSpec(
                     key: 'status', label: 'Status', width: 100),
               ],
-              rows: displayedRolls,
+              rows: displayedRolls.map((r) => DynamicTableRowData(
+                id: r.id,
+                voucherNo: r.voucherNo ?? '',
+                partyName: r.partyName ?? '',
+                designPattern: r.designPattern ?? '',
+                quantity: r.quantity ?? '',
+                amount: r.amount ?? '',
+                amountValue: 0.0,
+                status: r.status ?? '',
+                rawData: r.rawData,
+              )).toList(),
               selectedRowIds: _selectedRollIds,
               onSelectionChanged: (set) {
                 setState(() {

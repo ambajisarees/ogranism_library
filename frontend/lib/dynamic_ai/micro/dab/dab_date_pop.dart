@@ -9,7 +9,7 @@ import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
 /// Date Range Popover matching Reference 1:
-/// Left pane: Quick preset options (Today, Yesterday, This Week, Last 7 Days, Last 28 Days, This Month, Last Month, This Year)
+/// Left pane: Quick preset options (Today, This Week, This Month, Last 30 Days, Last 60 Days, Last 90 Days, This Year)
 /// Vertical Divider
 /// Right pane: Calendar range selection view
 class DabDatePopover extends StatefulWidget {
@@ -29,9 +29,10 @@ class DabDatePopover extends StatefulWidget {
 }
 
 class _DabDatePopoverState extends State<DabDatePopover> {
-  String? _activePreset = 'Last 28 Days';
+  String? _activePreset = 'Last 30 Days';
   late shad.CalendarValue _currentValue;
-  final shad.CalendarView _calendarView = shad.CalendarView.now();
+  DateTime _displayedMonth = DateTime.now();
+  shad.CalendarView get _calendarView => shad.CalendarView(_displayedMonth.year, _displayedMonth.month);
 
   @override
   void initState() {
@@ -39,9 +40,18 @@ class _DabDatePopoverState extends State<DabDatePopover> {
     final now = DateTime.now();
     _currentValue = widget.selectedRange ??
         shad.CalendarValue.range(
-          now.subtract(const Duration(days: 27)),
+          now.subtract(const Duration(days: 29)),
           now,
         );
+  }
+
+  String _getMonthName(int month) {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    if (month < 1 || month > 12) return '';
+    return months[month - 1];
   }
 
   void _applyPreset(String preset) {
@@ -53,31 +63,26 @@ class _DabDatePopoverState extends State<DabDatePopover> {
       case 'Today':
         start = now;
         break;
-      case 'Yesterday':
-        start = now.subtract(const Duration(days: 1));
-        end = start;
-        break;
       case 'This Week':
         start = now.subtract(Duration(days: now.weekday - 1));
-        break;
-      case 'Last 7 Days':
-        start = now.subtract(const Duration(days: 6));
-        break;
-      case 'Last 28 Days':
-        start = now.subtract(const Duration(days: 27));
         break;
       case 'This Month':
         start = DateTime(now.year, now.month, 1);
         break;
-      case 'Last Month':
-        start = DateTime(now.year, now.month - 1, 1);
-        end = DateTime(now.year, now.month, 0);
+      case 'Last 30 Days':
+        start = now.subtract(const Duration(days: 29));
+        break;
+      case 'Last 60 Days':
+        start = now.subtract(const Duration(days: 59));
+        break;
+      case 'Last 90 Days':
+        start = now.subtract(const Duration(days: 89));
         break;
       case 'This Year':
         start = DateTime(now.year, 1, 1);
         break;
       default:
-        start = now.subtract(const Duration(days: 27));
+        start = now.subtract(const Duration(days: 29));
     }
 
     setState(() {
@@ -94,23 +99,22 @@ class _DabDatePopoverState extends State<DabDatePopover> {
 
     final presets = [
       'Today',
-      'Yesterday',
       'This Week',
-      'Last 7 Days',
-      'Last 28 Days',
       'This Month',
-      'Last Month',
+      'Last 30 Days',
+      'Last 60 Days',
+      'Last 90 Days',
       'This Year',
     ];
 
     return shad.Card(
-      padding: EdgeInsets.all(12 * theme.scaling),
+      padding: EdgeInsets.all(8 * theme.scaling),
       child: IntrinsicHeight(
         child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Left Pane: Quick Presets
+            // Left Pane: Quick Presets (Width 140px, top aligned)
             SizedBox(
               width: 140 * theme.scaling,
               child: Column(
@@ -119,7 +123,7 @@ class _DabDatePopoverState extends State<DabDatePopover> {
                 children: presets.map((preset) {
                   final isSelected = _activePreset == preset;
                   return Padding(
-                    padding: EdgeInsets.symmetric(vertical: 2 * theme.scaling),
+                    padding: EdgeInsets.only(bottom: 4 * theme.scaling),
                     child: isSelected
                         ? shad.SecondaryButton(
                             onPressed: () => _applyPreset(preset),
@@ -151,22 +155,66 @@ class _DabDatePopoverState extends State<DabDatePopover> {
             ),
             const shad.DensityGap(shad.gapMd),
 
-            // Right Pane: Native Calendar
+            // Right Pane: Month Navigation Header + Native Calendar (Width 260px)
             SizedBox(
-              width: 280 * theme.scaling,
-              child: shad.Calendar(
-                value: _currentValue,
-                view: _calendarView,
-                selectionMode: shad.CalendarSelectionMode.range,
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() {
-                      _activePreset = null;
-                      _currentValue = val;
-                    });
-                    widget.onRangeSelected(val);
-                  }
-                },
+              width: 260 * theme.scaling,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Month Header Navigation Bar (Square Ghost Icon Buttons with 8px padding on all sides)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      shad.IconButton.secondary(
+                        icon: Icon(
+                          shad.LucideIcons.arrowLeft,
+                          size: 14 * theme.scaling,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _displayedMonth = DateTime(_displayedMonth.year, _displayedMonth.month - 1, 1);
+                          });
+                        },
+                      ),
+                      Text(
+                        '${_getMonthName(_displayedMonth.month)} ${_displayedMonth.year}',
+                        style: theme.typography.small.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: colors.foreground,
+                        ),
+                      ),
+                      shad.IconButton.secondary(
+                        icon: Icon(
+                          shad.LucideIcons.arrowRight,
+                          size: 14 * theme.scaling,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _displayedMonth = DateTime(_displayedMonth.year, _displayedMonth.month + 1, 1);
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  const shad.DensityGap(shad.gapMd),
+
+                  // Calendar View
+                  shad.Calendar(
+                    value: _currentValue,
+                    view: _calendarView,
+                    selectionMode: shad.CalendarSelectionMode.range,
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() {
+                          _activePreset = null;
+                          _currentValue = val;
+                        });
+                        widget.onRangeSelected(val);
+                      }
+                    },
+                  ),
+                ],
               ),
             ),
           ],
