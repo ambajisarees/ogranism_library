@@ -76,9 +76,7 @@ class _DyGridCardState extends State<DyGridCard> {
         ? colors.primary
         : (_isHovered ? colors.primary.withAlpha(150) : colors.border);
 
-    final cardBg = widget.isSelected
-        ? colors.primary.withAlpha(15)
-        : (_isHovered ? colors.accent.withAlpha(120) : colors.card);
+    final cardBg = colors.card;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),

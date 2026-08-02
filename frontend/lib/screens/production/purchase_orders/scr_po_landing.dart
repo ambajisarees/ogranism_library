@@ -20,10 +20,15 @@ import 'package:flutter/material.dart' hide Card;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
 import '../../../dynamic_ai/page/dy_page_header.dart';
+import '../../../dynamic_ai/micro/cards/dy_grid_card.dart';
+import '../../../dynamic_ai/micro/cards/dy_list_item.dart';
 import '../../../dynamic_ai/micro/dab/dab_submodule_pop.dart';
 import '../../../dynamic_ai/micro/dy_micro_button.dart';
 import '../../../dynamic_ai/micro/table/dy_table_models.dart';
+import '../../../dynamic_ai/shells/dy_shl_dash.dart';
 import '../../../dynamic_ai/shells/dy_shl_details.dart';
+import '../../../dynamic_ai/shells/dy_shl_reports.dart';
+import '../../../dynamic_ai/shells/dy_shl_tasks.dart';
 import '../../../models/production/mdl_po.dart';
 import '../../../services/production/srv_po.dart';
 
@@ -43,7 +48,7 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
   PoCategory _selectedCategory = PoCategory.finish;
   Map<PoCategory, int> _categoryCounts = {};
   String _viewMode = 'table';
-  int _contextTabIndex = 0;
+  int _contextTabIndex = 1;
   String _groupingMode = 'none'; // 'none', 'party', 'quality'
 
   void _onGroupingChanged(String mode) {
@@ -174,39 +179,15 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
         PageHeader(
           title: 'Purchase Orders',
           mode: PageHeaderMode.standard,
-          pageTabs: PageTabs(
+          subpages: PageSubpages(
             selectedIndex: _contextTabIndex,
-            tabs: const ['Details', 'Reports', 'Links'],
-            onTabChanged: (idx) {
+            labels: const ['Dash', 'Details', 'Reports', 'Tasks'],
+            onSubpageChanged: (idx) {
               setState(() {
                 _contextTabIndex = idx;
               });
             },
           ),
-          actions: [
-            shad.OutlineButton(
-              onPressed: () {},
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(shad.LucideIcons.printer, size: 14 * theme.scaling),
-                  const SizedBox(width: 6),
-                  const Text('Print'),
-                ],
-              ),
-            ),
-            shad.OutlineButton(
-              onPressed: () {},
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(shad.LucideIcons.fileOutput, size: 14 * theme.scaling),
-                  const SizedBox(width: 6),
-                  const Text('Export'),
-                ],
-              ),
-            ),
-          ],
         ),
 
         // 24px Vertical Gap Token between PageHeader and DAB
@@ -214,76 +195,38 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
 
         // 2. MAIN CONTENT AREA (Tab 0: Details Shell, Tab 1: Reports, Tab 2: Links)
         Expanded(
-          child: _buildTabContent(theme),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 150),
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            child: KeyedSubtree(
+              key: ValueKey<int>(_contextTabIndex),
+              child: _buildTabContent(theme),
+            ),
+          ),
         ),
       ],
     );
   }
 
   Widget _buildTabContent(shad.ThemeData theme) {
-    if (_contextTabIndex == 1) {
-      return Container(
-        decoration: BoxDecoration(
-          color: theme.colorScheme.card,
-          borderRadius: BorderRadius.circular(theme.radiusMd),
-          border: Border.all(color: theme.colorScheme.border),
-        ),
-        alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              shad.LucideIcons.chartBar,
-              size: 32 * theme.scaling,
-              color: theme.colorScheme.mutedForeground,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Purchase Orders Reports',
-              style: theme.typography.h3.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Analytics and summary metrics for ${_selectedCategory.label} Purchase Orders',
-              style: theme.typography.textSmall.copyWith(color: theme.colorScheme.mutedForeground),
-            ),
-          ],
-        ),
+    if (_contextTabIndex == 0) {
+      return const DyShlDash(
+        title: 'Purchase Orders',
       );
     }
 
     if (_contextTabIndex == 2) {
-      return Container(
-        decoration: BoxDecoration(
-          color: theme.colorScheme.card,
-          borderRadius: BorderRadius.circular(theme.radiusMd),
-          border: Border.all(color: theme.colorScheme.border),
-        ),
-        alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              shad.LucideIcons.link,
-              size: 32 * theme.scaling,
-              color: theme.colorScheme.mutedForeground,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Purchase Orders Links & Integrations',
-              style: theme.typography.h3.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Linked Bills, Challans, and Mill Receipts',
-              style: theme.typography.textSmall.copyWith(color: theme.colorScheme.mutedForeground),
-            ),
-          ],
-        ),
+      return const DyShlReports(
+        title: 'Purchase Orders',
       );
     }
 
-    // Default Tab (0: Details Shell)
+    if (_contextTabIndex == 3) {
+      return const DyShlTasks();
+    }
+
+    // Tab 1: Details Shell
     final activeCount = _categoryCounts[_selectedCategory] ?? _totalCount;
     final hasFilters = _selectedParties.isNotEmpty || _selectedStatuses.isNotEmpty || _selectedDateRange != null;
 
@@ -366,19 +309,75 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
       onClearAllFilters: _onClearAllFilters,
       tableColumns: const [
         DyTableColumnSpec(key: 'vno', label: 'Voucher No', flex: 1),
+        DyTableColumnSpec(key: 'date', label: 'Date', flex: 1),
+        DyTableColumnSpec(key: 'status', label: 'Status', flex: 1, isSortable: false),
         DyTableColumnSpec(key: 'partyName', label: 'Party / Weaver', flex: 2),
         DyTableColumnSpec(key: 'designPattern', label: 'Design & Quality', flex: 2),
+        DyTableColumnSpec(key: '_empty', label: '', flex: 3, isSortable: false),
         DyTableColumnSpec(key: 'quantity', label: 'Quantity', flex: 1, isNumeric: true),
         DyTableColumnSpec(key: 'amount', label: 'Amount', flex: 1, isNumeric: true),
-        DyTableColumnSpec(key: 'status', label: 'Status', flex: 1, isSortable: false),
       ],
       tableRows: _buildMappedTableRows(),
+      gridItems: _buildMappedGridItems(),
+      listItems: _buildMappedListItems(),
+      summaryTotals: _buildSummaryTotals(),
       totalRecords: _totalCount,
+      pageIndex: (_offset / _limit).floor() + 1,
+      onPageChanged: (page) {
+        setState(() {
+          _offset = (page - 1) * _limit;
+        });
+        _fetchHeaders();
+      },
       isLoading: _isLoading,
     );
   }
 
+  Map<String, String> _buildSummaryTotals() {
+    double totalMts = 0;
+    double totalAmt = 0;
+    for (final o in _orders) {
+      totalMts += o.totalMeters;
+      totalAmt += o.finalAmount > 0 ? o.finalAmount : o.billAmount;
+    }
+    return {
+      'quantity': '${totalMts.toStringAsFixed(1)} Mts',
+      'amount': '₹${totalAmt.toStringAsFixed(2)}',
+    };
+  }
 
+  String _formatShortDate(DateTime? dt) {
+    if (dt == null) return '-';
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return '${dt.day.toString().padLeft(2, '0')} ${months[dt.month - 1]}';
+  }
+
+  List<DyGridItem> _buildMappedGridItems() {
+    return _orders.map((o) {
+      return DyGridItem(
+        id: o.vno.toString(),
+        title: o.partyName.isNotEmpty ? o.partyName : 'Unknown Supplier',
+        voucherNo: o.displayOrderNo,
+        partyName: o.partyName.isNotEmpty ? o.partyName : 'Unknown Supplier',
+        designPattern: o.primaryFabric,
+        quantity: o.totalMeters > 0 ? '${o.totalMeters.toStringAsFixed(1)} Mts' : '-',
+        amount: o.formattedFinalAmount(),
+      );
+    }).toList();
+  }
+
+  List<DynamicListItem> _buildMappedListItems() {
+    return _orders.map((o) {
+      return DynamicListItem(
+        id: o.vno.toString(),
+        title: o.partyName.isNotEmpty ? o.partyName : 'Unknown Supplier',
+        subtitle: o.primaryFabric,
+        indexNumber: o.displayOrderNo,
+        amount: o.formattedFinalAmount(),
+        topTrailing: _formatShortDate(o.date),
+      );
+    }).toList();
+  }
 
   /// Maps [MdlPoHeader] orders to 2-tiered (default) or 3-tiered (grouped) row structure
   List<DyTableRowData> _buildMappedTableRows() {
@@ -403,11 +402,13 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
             partyName: party,
             data: {
               'vno': 'GROUP: ${party.toUpperCase()}',
+              'date': '-',
+              'status': 'ACTIVE',
               'partyName': party,
               'designPattern': '${partyOrders.length} Orders Summary',
+              '_empty': '',
               'quantity': '${totalMts.toStringAsFixed(1)} Mts',
               'amount': '₹${totalAmt.toStringAsFixed(2)}',
-              'status': 'ACTIVE',
             },
             children: partyOrders.map((o) => _mapOrderToDefRow(o)).toList(),
           ),
@@ -428,11 +429,13 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
       partyName: o.partyName.isNotEmpty ? o.partyName : 'Unknown Supplier',
       data: {
         'vno': o.displayOrderNo,
+        'date': _formatShortDate(o.date),
+        'status': o.isPending ? 'PENDING' : 'COMPLETED',
         'partyName': o.partyName.isNotEmpty ? o.partyName : 'Unknown Supplier',
         'designPattern': o.primaryFabric,
+        '_empty': '',
         'quantity': o.totalMeters > 0 ? '${o.totalMeters.toStringAsFixed(1)} Mts' : '-',
         'amount': o.formattedFinalAmount(),
-        'status': o.isPending ? 'PENDING' : 'COMPLETED',
       },
       children: o.lineItems.map((item) {
         return DyTableRowData(
@@ -442,11 +445,13 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
           partyName: item.quality,
           data: {
             'vno': '${o.displayOrderNo}-${item.srNo}',
+            'date': '-',
+            'status': 'UNCUT',
             'partyName': item.quality,
             'designPattern': 'Lot #${item.srNo} • ${item.pieces.toInt()} Pcs',
+            '_empty': '',
             'quantity': item.meters > 0 ? '${item.meters.toStringAsFixed(1)} Mts' : '-',
             'amount': item.formattedAmount(),
-            'status': 'UNCUT',
           },
         );
       }).toList(),

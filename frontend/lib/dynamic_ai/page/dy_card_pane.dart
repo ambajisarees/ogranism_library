@@ -75,7 +75,9 @@ class _DyViewCardState extends State<DyViewCard> {
                   ? Center(
                       child: Text(
                         'No cards available',
-                        style: theme.typography.textMuted,
+                        style: theme.typography.textSmall.copyWith(
+                          color: colors.mutedForeground,
+                        ),
                       ),
                     )
                   : GridView.builder(
@@ -99,7 +101,7 @@ class _DyViewCardState extends State<DyViewCard> {
                       },
                     )),
         ),
-        const shad.DensityGap(shad.gapLg),
+        const shad.DensityGap(shad.gapSm),
 
         DyPaginationRow(
           totalRecords: widget.totalRecords ?? widget.items.length,

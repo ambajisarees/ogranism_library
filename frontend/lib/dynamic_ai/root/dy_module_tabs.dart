@@ -8,6 +8,8 @@ library;
 import 'package:flutter/material.dart' hide Card, Tab, Badge, Scaffold;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
+import '../specs/dy_color_system.dart';
+
 /// Tab Data representation for Header Workspace Tabs.
 class DynamicTabItem {
   final String id;
@@ -107,11 +109,8 @@ class _DynamicHeaderTabsState extends State<DynamicHeaderTabs> {
 
     final isDark = theme.colorScheme.brightness == Brightness.dark;
 
-    // Light Theme: Slate 10 Token (#FCFDFE) - 0.4% tint above pure white (#FFFFFF)
-    // Dark Theme: Stone 980 Token (#141210) - 2% tint surface lift above base ground (#0C0A09 / #000000)
-    final surfaceCanvasColor = isDark
-        ? const Color(0xFF141210)
-        : const Color(0xFFFCFDFE);
+    // Protected Custom ERP Surface Canvas Tokens (Slate 10 / Stone 980)
+    final surfaceCanvasColor = DyColorSystem.resolveSurfaceCanvas(isDark);
 
     return NotificationListener<PageLoadingNotification>(
       onNotification: (notification) {
@@ -137,11 +136,6 @@ class _DynamicHeaderTabsState extends State<DynamicHeaderTabs> {
         child: shad.ComponentTheme<shad.TabPaneTheme>(
           data: shad.TabPaneTheme(
             backgroundColor: surfaceCanvasColor,
-            borderRadius: theme.borderRadiusLg,
-            border: BorderSide(
-              color: colors.border,
-              width: 1.0,
-            ),
           ),
           child: shad.TabPane<DynamicTabItem>(
             barHeight: barHeight,
@@ -198,8 +192,8 @@ class _DynamicHeaderTabsState extends State<DynamicHeaderTabs> {
                   skipTraversal: true,
                   child: Padding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 24.0 * theme.scaling,
-                      vertical: 16.0 * theme.scaling,
+                      horizontal: 12.0 * theme.scaling,
+                      vertical: 12.0 * theme.scaling,
                     ),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(minWidth: tabMinWidth),
@@ -209,7 +203,8 @@ class _DynamicHeaderTabsState extends State<DynamicHeaderTabs> {
                           focusNode: FocusNode(skipTraversal: true),
                           size: shad.ButtonSize.small,
                           density: shad.ButtonDensity.iconDense,
-                          icon: Icon(shad.LucideIcons.x, size: tabCloseIconSize),
+                          icon:
+                              Icon(shad.LucideIcons.x, size: tabCloseIconSize),
                           onPressed: () {
                             widget.onTabClosed(index);
                           },
@@ -244,16 +239,12 @@ class _DynamicHeaderTabsState extends State<DynamicHeaderTabs> {
                         child: Padding(
                           padding: EdgeInsets.only(
                             left: theme.density.baseContainerPadding *
-                                theme.scaling *
                                 shad.padLg,
                             right: theme.density.baseContainerPadding *
-                                theme.scaling *
                                 shad.padLg,
                             top: theme.density.baseContainerPadding *
-                                theme.scaling *
                                 shad.padLg,
                             bottom: theme.density.baseContainerPadding *
-                                theme.scaling *
                                 shad.padMd,
                           ),
                           child: tab.content,

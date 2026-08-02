@@ -86,4 +86,7 @@
   - Shared Core Layers (`lib/models/core/`, `lib/services/core/`, `lib/dynamic_ai/`) are **READ-ONLY** for module chat windows.
 - **Core Mutation Protocol**:
   - Module chat windows request core updates by sending a message to Master Orchestrator (`f930e306-3b6b-43c2-ac2b-ddb8915f484b`) via `send_message`.
-- **Master SOP Guideline**: Refer to [docs/guidelines/module_agent_guideline.md](file:///Users/smittal/Developer/ogranism_library/textile_erp/docs/guidelines/module_agent_guideline.md) for full setup guidelines and the initial copy-paste prompt template.
+## 11. Graphify Knowledge Graph Rules & Context Search
+- **Mandatory Graph-First Context Search**: Before doing raw file greps or asking architectural questions about component relationships, inspect `graphify-out/graph.json` via `graphify query "<question>"` or `graphify explain "<concept>"`.
+- **Relationship Tracing**: Use `graphify path "<ConceptA>" "<ConceptB>"` to trace dependencies and call chains between models, services, dynamic AI widgets, and `shadcn_flutter` controls.
+- **Keep Graph Current**: Whenever modifying codebase files in a session, WHEN USER SAYS GOODBYE, THEN RUN GRAPHIFY UPDATE

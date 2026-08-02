@@ -12,6 +12,7 @@ import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
 import 'dy_table_models.dart';
+import '../../specs/dy_color_system.dart';
 
 enum DySortDirection {
   ascending,
@@ -22,8 +23,9 @@ class DyTableHeader extends StatelessWidget {
   final List<DyTableColumnSpec> columns;
   final bool showCheckbox;
   final bool isAllSelected;
-  final ValueChanged<bool?>? onSelectAll;
+  final shad.CheckboxState? selectionState;
   final bool isAllExpanded;
+  final VoidCallback? onSelectAll;
   final VoidCallback? onToggleExpandAll;
   final String? activeSortKey;
   final DySortDirection? activeSortDirection;
@@ -34,8 +36,9 @@ class DyTableHeader extends StatelessWidget {
     required this.columns,
     this.showCheckbox = true,
     this.isAllSelected = false,
-    this.onSelectAll,
+    this.selectionState,
     this.isAllExpanded = false,
+    this.onSelectAll,
     this.onToggleExpandAll,
     this.activeSortKey,
     this.activeSortDirection,
@@ -46,10 +49,15 @@ class DyTableHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = colors.brightness == Brightness.dark;
+
+    final effectiveSelectionState = selectionState ??
+        (isAllSelected ? shad.CheckboxState.checked : shad.CheckboxState.unchecked);
 
     return Container(
+      height: 54 * theme.scaling,
       decoration: BoxDecoration(
-        color: colors.card,
+        color: DyColorSystem.resolveSurfaceCanvas(isDark),
         borderRadius: BorderRadius.vertical(top: Radius.circular(theme.radiusMd)),
         border: Border(
           bottom: BorderSide(color: colors.border, width: 1.0),
@@ -57,33 +65,39 @@ class DyTableHeader extends StatelessWidget {
       ),
       padding: EdgeInsets.symmetric(
         horizontal: 8 * theme.scaling,
-        vertical: 6 * theme.scaling,
+        vertical: 8 * theme.scaling,
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Column 0: Fixed Leading Actions (Expand/Collapse All + Select All Checkbox)
           SizedBox(
             width: 54 * theme.scaling,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                shad.IconButton.ghost(
-                  icon: Icon(
-                    isAllExpanded
-                        ? shad.LucideIcons.chevronsDown
-                        : shad.LucideIcons.chevronsRight,
-                    size: 14 * theme.scaling,
-                    color: colors.mutedForeground,
+                SizedBox(
+                  width: 28 * theme.scaling,
+                  height: 28 * theme.scaling,
+                  child: shad.IconButton.ghost(
+                    size: shad.ButtonSize.small,
+                    density: shad.ButtonDensity.compact,
+                    icon: Icon(
+                      isAllExpanded
+                          ? shad.LucideIcons.chevronsDownUp
+                          : shad.LucideIcons.chevronsUpDown,
+                      size: 16 * theme.scaling,
+                      color: colors.mutedForeground,
+                    ),
+                    onPressed: onToggleExpandAll,
                   ),
-                  onPressed: onToggleExpandAll,
                 ),
                 if (showCheckbox)
                   shad.Checkbox(
-                    state: isAllSelected
-                        ? shad.CheckboxState.checked
-                        : shad.CheckboxState.unchecked,
+                    state: effectiveSelectionState,
                     onChanged: (state) {
-                      onSelectAll?.call(state == shad.CheckboxState.checked);
+                      onSelectAll?.call();
                     },
                   ),
               ],
@@ -92,12 +106,11 @@ class DyTableHeader extends StatelessWidget {
 
           const SizedBox(width: 8),
 
-          // Dynamic Column Headers (Matching exact 6px cell padding for perfect start alignment)
+          // Dynamic Column Headers (Zero cell padding, ghost button with 2px padding on all sides)
           ...columns.map((col) {
             final isSortable = col.isSortable;
             final isSorted = activeSortKey == col.key;
             final sortDirection = isSorted ? activeSortDirection : null;
-
             final textColor = isSorted ? colors.foreground : colors.mutedForeground;
 
             Widget? sortIcon;
@@ -146,6 +159,7 @@ class DyTableHeader extends StatelessWidget {
                         ? MainAxisAlignment.end
                         : MainAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Flexible(
                         child: Text(
@@ -170,9 +184,9 @@ class DyTableHeader extends StatelessWidget {
             );
           }),
 
-          // Column Last: Empty blank column
+          // Column Last: Synchronized 72px blank space matching row trailing stack
           SizedBox(
-            width: 40 * theme.scaling,
+            width: 72 * theme.scaling,
             child: const SizedBox.shrink(),
           ),
         ],

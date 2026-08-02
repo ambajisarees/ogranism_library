@@ -12,7 +12,7 @@
 
 library;
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
 /// MicroButton: Universal reusable button control across PageHeader and DAB.
@@ -34,6 +34,7 @@ class MicroButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final FocusNode? focusNode;
   final bool autoFocus;
+  final EdgeInsetsGeometry? padding;
 
   const MicroButton({
     super.key,
@@ -46,6 +47,7 @@ class MicroButton extends StatefulWidget {
     this.onPressed,
     this.focusNode,
     this.autoFocus = false,
+    this.padding,
   });
 
   @override
@@ -104,7 +106,7 @@ class _MicroButtonState extends State<MicroButton> {
 
     final border = widget.isGhost
         ? Border.all(
-            color: _isFocused ? colors.primary.withAlpha(153) : const Color(0x00000000),
+            color: _isFocused ? colors.primary.withAlpha(153) : shad.Colors.transparent,
             width: _isFocused ? 1.0 : 0.0,
           )
         : Border.all(
@@ -113,7 +115,7 @@ class _MicroButtonState extends State<MicroButton> {
           );
 
     final backgroundColor = widget.isGhost
-        ? (widget.isSelected ? colors.accent : const Color(0x00000000))
+        ? (widget.isSelected ? colors.accent : shad.Colors.transparent)
         : colors.card;
 
     final buttonStyle = (widget.isGhost
@@ -123,10 +125,11 @@ class _MicroButtonState extends State<MicroButton> {
           color: backgroundColor,
         )
         .withPadding(
-          padding: EdgeInsets.symmetric(
-            horizontal: isIconOnly ? 8 * theme.scaling : 12 * theme.scaling,
-            vertical: 8 * theme.scaling,
-          ),
+          padding: widget.padding ??
+              EdgeInsets.symmetric(
+                horizontal: isIconOnly ? 8 * theme.scaling : 12 * theme.scaling,
+                vertical: 8 * theme.scaling,
+              ),
         )
         .withBorderRadius(
           borderRadius: BorderRadius.circular(theme.radiusMd),
@@ -144,144 +147,83 @@ class _MicroButtonState extends State<MicroButton> {
           },
         );
 
+    final childWidget = Focus(
+      canRequestFocus: false,
+      skipTraversal: true,
+      descendantsAreFocusable: false,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (widget.leadingIcon != null) ...[
+            Icon(
+              widget.leadingIcon,
+              size: 16 * theme.scaling,
+              color: widget.isSelected ? colors.primary : colors.mutedForeground,
+            ),
+            if (widget.label.isNotEmpty) const shad.DensityGap(shad.gapSm),
+          ],
+          if (widget.label.isNotEmpty) ...[
+            Flexible(
+              child: Text(
+                widget.label,
+                overflow: TextOverflow.ellipsis,
+                style: theme.typography.textSmall.copyWith(
+                  fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.normal,
+                  color: colors.foreground,
+                ),
+              ),
+            ),
+          ],
+          if (widget.badgeCount != null) ...[
+            if (widget.label.isNotEmpty || widget.leadingIcon != null)
+              const shad.DensityGap(shad.gapSm),
+            widget.isSelected
+                ? shad.PrimaryBadge(
+                    child: Text(
+                      widget.badgeCount.toString(),
+                      style: theme.typography.xSmall.copyWith(
+                        fontSize: 10 * theme.scaling,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  )
+                : shad.SecondaryBadge(
+                    child: Text(
+                      widget.badgeCount.toString(),
+                      style: theme.typography.xSmall.copyWith(
+                        fontSize: 10 * theme.scaling,
+                        fontWeight: FontWeight.w600,
+                        color: colors.mutedForeground,
+                      ),
+                    ),
+                  ),
+          ],
+          if (widget.trailingIcon != null) ...[
+            if (widget.label.isNotEmpty || widget.leadingIcon != null || widget.badgeCount != null)
+              const shad.DensityGap(shad.gapSm),
+            Icon(
+              widget.trailingIcon,
+              size: 16 * theme.scaling,
+              color: colors.mutedForeground,
+            ),
+          ],
+        ],
+      ),
+    );
+
     return widget.isGhost
         ? shad.Button.ghost(
             focusNode: _effectiveFocusNode,
             style: buttonStyle,
             onPressed: widget.onPressed,
-            child: Focus(
-              canRequestFocus: false,
-              skipTraversal: true,
-              descendantsAreFocusable: false,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (widget.leadingIcon != null) ...[
-                    Icon(
-                      widget.leadingIcon,
-                      size: 16 * theme.scaling,
-                      color: widget.isSelected ? colors.primary : colors.mutedForeground,
-                    ),
-                    if (widget.label.isNotEmpty) const shad.DensityGap(shad.gapSm),
-                  ],
-                  if (widget.label.isNotEmpty) ...[
-                    Flexible(
-                      child: Text(
-                        widget.label,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.typography.textSmall.copyWith(
-                          fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.normal,
-                          color: colors.foreground,
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (widget.badgeCount != null) ...[
-                    if (widget.label.isNotEmpty || widget.leadingIcon != null)
-                      const shad.DensityGap(shad.gapSm),
-                    widget.isSelected
-                        ? shad.PrimaryBadge(
-                            child: Text(
-                              widget.badgeCount.toString(),
-                              style: theme.typography.xSmall.copyWith(
-                                fontSize: 10 * theme.scaling,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          )
-                        : shad.SecondaryBadge(
-                            child: Text(
-                              widget.badgeCount.toString(),
-                              style: theme.typography.xSmall.copyWith(
-                                fontSize: 10 * theme.scaling,
-                                fontWeight: FontWeight.w600,
-                                color: colors.mutedForeground,
-                              ),
-                            ),
-                          ),
-                  ],
-                  if (widget.trailingIcon != null) ...[
-                    if (widget.label.isNotEmpty || widget.leadingIcon != null || widget.badgeCount != null)
-                      const shad.DensityGap(shad.gapSm),
-                    Icon(
-                      widget.trailingIcon,
-                      size: 16 * theme.scaling,
-                      color: colors.mutedForeground,
-                    ),
-                  ],
-                ],
-              ),
-            ),
+            child: childWidget,
           )
         : shad.Button.outline(
             focusNode: _effectiveFocusNode,
             style: buttonStyle,
             onPressed: widget.onPressed,
-            child: Focus(
-              canRequestFocus: false,
-              skipTraversal: true,
-              descendantsAreFocusable: false,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (widget.leadingIcon != null) ...[
-                    Icon(
-                      widget.leadingIcon,
-                      size: 16 * theme.scaling,
-                      color: widget.isSelected ? colors.primary : colors.mutedForeground,
-                    ),
-                    if (widget.label.isNotEmpty) const shad.DensityGap(shad.gapSm),
-                  ],
-                  if (widget.label.isNotEmpty) ...[
-                    Flexible(
-                      child: Text(
-                        widget.label,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.typography.textSmall.copyWith(
-                          fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.normal,
-                          color: colors.foreground,
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (widget.badgeCount != null) ...[
-                    if (widget.label.isNotEmpty || widget.leadingIcon != null)
-                      const shad.DensityGap(shad.gapSm),
-                    widget.isSelected
-                        ? shad.PrimaryBadge(
-                            child: Text(
-                              widget.badgeCount.toString(),
-                              style: theme.typography.xSmall.copyWith(
-                                fontSize: 10 * theme.scaling,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          )
-                        : shad.SecondaryBadge(
-                            child: Text(
-                              widget.badgeCount.toString(),
-                              style: theme.typography.xSmall.copyWith(
-                                fontSize: 10 * theme.scaling,
-                                fontWeight: FontWeight.w600,
-                                color: colors.mutedForeground,
-                              ),
-                            ),
-                          ),
-                  ],
-                  if (widget.trailingIcon != null) ...[
-                    if (widget.label.isNotEmpty || widget.leadingIcon != null || widget.badgeCount != null)
-                      const shad.DensityGap(shad.gapSm),
-                    Icon(
-                      widget.trailingIcon,
-                      size: 16 * theme.scaling,
-                      color: colors.mutedForeground,
-                    ),
-                  ],
-                ],
-              ),
-            ),
+            child: childWidget,
           );
   }
 }

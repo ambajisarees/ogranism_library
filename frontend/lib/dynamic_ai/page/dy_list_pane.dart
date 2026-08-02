@@ -11,6 +11,7 @@ LLM CONTEXT & QUERY SPACE — DYNAMIC LIST PANE (dy_list_pane.dart)
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 import '../micro/cards/dy_list_item.dart';
+import '../specs/dy_color_system.dart';
 
 /// Alias type for architectural consistency across dynamic AI pane components.
 typedef DyListPane = DynamicList;
@@ -143,7 +144,9 @@ class _DynamicListState extends State<DynamicList> {
                             padding: EdgeInsets.all(theme.density.baseContainerPadding * shad.padSm),
                             child: Text(
                               'No items found',
-                              style: theme.typography.textMuted.copyWith(color: theme.colorScheme.mutedForeground),
+                              style: theme.typography.textSmall.copyWith(
+                                color: colors.mutedForeground,
+                              ),
                             ),
                           ),
                         )
@@ -169,9 +172,7 @@ class _DynamicListState extends State<DynamicList> {
                 horizontal: 16 * theme.scaling,
                 vertical: 10 * theme.scaling,
               ),
-              color: theme.colorScheme.brightness == Brightness.dark
-                  ? const Color(0xFF141210)
-                  : const Color(0xFFFCFDFE),
+              color: DyColorSystem.resolveSurfaceCanvas(colors.brightness == Brightness.dark),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -186,20 +187,30 @@ class _DynamicListState extends State<DynamicList> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  shad.IconButton.ghost(
-                    size: shad.ButtonSize.small,
-                    icon: const Icon(shad.LucideIcons.chevronLeft, size: 16),
-                    onPressed: _currentPage > 1
-                        ? () => setState(() => _currentPage--)
-                        : null,
+                  SizedBox(
+                    width: 28 * theme.scaling,
+                    height: 28 * theme.scaling,
+                    child: shad.IconButton.ghost(
+                      size: shad.ButtonSize.small,
+                      density: shad.ButtonDensity.compact,
+                      icon: Icon(shad.LucideIcons.chevronLeft, size: 16 * theme.scaling),
+                      onPressed: _currentPage > 1
+                          ? () => setState(() => _currentPage--)
+                          : null,
+                    ),
                   ),
                   const SizedBox(width: 4),
-                  shad.IconButton.ghost(
-                    size: shad.ButtonSize.small,
-                    icon: const Icon(shad.LucideIcons.chevronRight, size: 16),
-                    onPressed: _currentPage < totalPages
-                        ? () => setState(() => _currentPage++)
-                        : null,
+                  SizedBox(
+                    width: 28 * theme.scaling,
+                    height: 28 * theme.scaling,
+                    child: shad.IconButton.ghost(
+                      size: shad.ButtonSize.small,
+                      density: shad.ButtonDensity.compact,
+                      icon: Icon(shad.LucideIcons.chevronRight, size: 16 * theme.scaling),
+                      onPressed: _currentPage < totalPages
+                          ? () => setState(() => _currentPage++)
+                          : null,
+                    ),
                   ),
                 ],
               ),

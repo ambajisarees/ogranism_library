@@ -8,6 +8,9 @@ import '../dynamic_ai/page/dy_table_pane.dart';
 import '../dynamic_ai/micro/cards/dy_grid_card.dart';
 import '../dynamic_ai/micro/cards/dy_list_item.dart';
 import '../dynamic_ai/shells/dy_shl_details.dart';
+import '../dynamic_ai/shells/dy_shl_dash.dart';
+import '../dynamic_ai/shells/dy_shl_reports.dart';
+import '../dynamic_ai/shells/dy_shl_tasks.dart';
 import '../dynamic_ai/micro/dy_micro_button.dart';
 import '../dynamic_ai/micro/table/dy_table_models.dart';
 import '../dynamic_ai/root/dy_module_tabs.dart';
@@ -289,6 +292,7 @@ class _DemoScreenState extends State<DemoScreen> {
   // VIEW 1: BASE LANDING PAGE (Cutting Cards Landing View with + New Button)
   // =========================================================================
   Widget _buildLandingView(BuildContext context) {
+    final theme = shad.Theme.of(context);
     // Generate standardized 25 sample dataset items shared across all 3 view modes
     final List<DyGridItem> gridItems = List.generate(25, (index) {
       final vno = 1041 + index;
@@ -339,107 +343,147 @@ class _DemoScreenState extends State<DemoScreen> {
       );
     }).toList();
 
-    return DyShlDetails(
-      title: 'Cutting Cards',
-      headerMode: PageHeaderMode.standard,
-      pageTabs: PageTabs(
-        selectedIndex: _contextTabIndex,
-        onTabChanged: (int value) {
-          _triggerPageLoading();
-          setState(() => _contextTabIndex = value);
-        },
-      ),
-      headerActions: [
-        shad.PrimaryButton(
-          onPressed: () => setState(() => _isCreating = true),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              Icon(shad.LucideIcons.plus, size: 16),
-              SizedBox(width: 6),
-              Text('New Cutting Card'),
-            ],
+    Widget activeShell;
+    switch (_contextTabIndex) {
+      case 0:
+        activeShell = const DyShlDash(title: 'Cutting Cards Dashboard');
+        break;
+      case 1:
+        activeShell = DyShlDetails(
+          title: 'Cutting Cards',
+          entityName: 'Cutting Cards',
+          selectedViewMode: _selectedViewMode,
+          onViewModeChanged: (val) => setState(() => _selectedViewMode = val),
+          submoduleWidget: Builder(
+            builder: (btnContext) {
+              return MicroButton(
+                leadingIcon: _selectedCategory.icon,
+                label: _selectedCategory.label,
+                badgeCount: _categoryCounts[_selectedCategory] ?? 0,
+                trailingIcon: shad.LucideIcons.chevronDown,
+                isSelected: true,
+                onPressed: () {
+                  shad.showOverlay(
+                    btnContext,
+                    shad.PopoverConfiguration(
+                      anchorAlignment: Alignment.bottomLeft,
+                      alignment: Alignment.topLeft,
+                      offset: const Offset(0, 4),
+                      builder: (context) => DabSubmodulePopover<PoSubmoduleCategory>(
+                        title: 'Submodule',
+                        selectedId: _selectedCategory,
+                        items: PoSubmoduleCategory.values.map((cat) {
+                          return DabSubmoduleItem<PoSubmoduleCategory>(
+                            id: cat,
+                            label: cat.label,
+                            icon: cat.icon,
+                            count: _categoryCounts[cat] ?? 0,
+                          );
+                        }).toList(),
+                        onSelected: (cat) => setState(() => _selectedCategory = cat),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+          searchQuery: _searchQuery,
+          onSearchChanged: (val) => setState(() => _searchQuery = val),
+          selectedMills: _selectedSupplier != 'All' ? {_selectedSupplier} : {},
+          millOptions: _supplierOptions,
+          onMillChanged: (set) => setState(
+              () => _selectedSupplier = set.isNotEmpty ? set.first : 'All'),
+          selectedQualities: _selectedQuality != 'All' ? {_selectedQuality} : {},
+          qualityOptions: _qualityOptions,
+          onQualityChanged: (set) => setState(
+              () => _selectedQuality = set.isNotEmpty ? set.first : 'All'),
+          selectedStatuses: _selectedStatuses,
+          onStatusChanged: (statuses) => setState(() => _selectedStatuses = statuses),
+          selectedDateRange: _selectedDateRange,
+          selectedDateLabel: _selectedDateLabel,
+          onDateRangeSelected: (range) {
+            setState(() {
+              _selectedDateRange = range;
+              _selectedDateLabel = range != null ? 'Selected Date Range' : null;
+            });
+          },
+          hasActiveFilters: _selectedSupplier != 'All' ||
+              _selectedQuality != 'All' ||
+              _selectedStatuses.isNotEmpty ||
+              _selectedDateRange != null,
+          onClearAllFilters: _onResetFilters,
+          tableColumns: const [
+            DyTableColumnSpec(key: 'vno', label: 'Voucher No', width: 110),
+            DyTableColumnSpec(key: 'partyName', label: 'Party / Weaver', width: 220),
+            DyTableColumnSpec(key: 'designPattern', label: 'Design & Quality', width: 200),
+            DyTableColumnSpec(key: 'quantity', label: 'Quantity', width: 130),
+            DyTableColumnSpec(key: 'amount', label: 'Amount', width: 140),
+            DyTableColumnSpec(key: 'status', label: 'Status', width: 120, isSortable: false),
+          ],
+          tableRows: _allUncutRolls,
+          gridItems: gridItems,
+          listItems: listItems,
+          selectedGridItem: _selectedCardItem,
+          onGridItemSelected: (item) => setState(() => _selectedCardItem = item),
+          selectedListItem: _selectedListItem,
+          onListItemSelected: (item) => setState(() => _selectedListItem = item),
+          totalRecords: 250,
+        );
+        break;
+      case 2:
+        activeShell = const DyShlReports(title: 'Cutting Cards Reports');
+        break;
+      case 3:
+        activeShell = const DyShlTasks();
+        break;
+      default:
+        activeShell = const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // 1. TOP PAGE HEADER (Rendered directly at top of page, outside shells)
+        PageHeader(
+          title: 'Cutting Cards',
+          mode: PageHeaderMode.standard,
+          subpages: PageSubpages(
+            selectedIndex: _contextTabIndex,
+            onSubpageChanged: (int value) {
+              _triggerPageLoading();
+              setState(() => _contextTabIndex = value);
+            },
+          ),
+          actions: [
+            shad.PrimaryButton(
+              onPressed: () => setState(() => _isCreating = true),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(shad.LucideIcons.plus, size: 16 * theme.scaling),
+                  const shad.DensityGap(shad.gapSm),
+                  const Text('New Cutting Card'),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const shad.DensityGap(shad.gapLg),
+
+        // 2. ACTIVE PAGE SHELL LAYOUT (Dash, Details, Reports, or Tasks)
+        Expanded(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 150),
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            child: KeyedSubtree(
+              key: ValueKey<int>(_contextTabIndex),
+              child: activeShell,
+            ),
           ),
         ),
       ],
-      entityName: 'Cutting Cards',
-      selectedViewMode: _selectedViewMode,
-      onViewModeChanged: (val) => setState(() => _selectedViewMode = val),
-      submoduleWidget: Builder(
-        builder: (btnContext) {
-          return MicroButton(
-            leadingIcon: _selectedCategory.icon,
-            label: _selectedCategory.label,
-            badgeCount: _categoryCounts[_selectedCategory] ?? 0,
-            trailingIcon: shad.LucideIcons.chevronDown,
-            isSelected: true,
-            onPressed: () {
-              shad.showOverlay(
-                btnContext,
-                shad.PopoverConfiguration(
-                  anchorAlignment: Alignment.bottomLeft,
-                  alignment: Alignment.topLeft,
-                  offset: const Offset(0, 4),
-                  builder: (context) => DabSubmodulePopover<PoSubmoduleCategory>(
-                    title: 'Submodule',
-                    selectedId: _selectedCategory,
-                    items: PoSubmoduleCategory.values.map((cat) {
-                      return DabSubmoduleItem<PoSubmoduleCategory>(
-                        id: cat,
-                        label: cat.label,
-                        icon: cat.icon,
-                        count: _categoryCounts[cat] ?? 0,
-                      );
-                    }).toList(),
-                    onSelected: (cat) => setState(() => _selectedCategory = cat),
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
-      searchQuery: _searchQuery,
-      onSearchChanged: (val) => setState(() => _searchQuery = val),
-      selectedMills: _selectedSupplier != 'All' ? {_selectedSupplier} : {},
-      millOptions: _supplierOptions,
-      onMillChanged: (set) => setState(
-          () => _selectedSupplier = set.isNotEmpty ? set.first : 'All'),
-      selectedQualities: _selectedQuality != 'All' ? {_selectedQuality} : {},
-      qualityOptions: _qualityOptions,
-      onQualityChanged: (set) => setState(
-          () => _selectedQuality = set.isNotEmpty ? set.first : 'All'),
-      selectedStatuses: _selectedStatuses,
-      onStatusChanged: (statuses) => setState(() => _selectedStatuses = statuses),
-      selectedDateRange: _selectedDateRange,
-      selectedDateLabel: _selectedDateLabel,
-      onDateRangeSelected: (range) {
-        setState(() {
-          _selectedDateRange = range;
-          _selectedDateLabel = range != null ? 'Selected Date Range' : null;
-        });
-      },
-      hasActiveFilters: _selectedSupplier != 'All' ||
-          _selectedQuality != 'All' ||
-          _selectedStatuses.isNotEmpty ||
-          _selectedDateRange != null,
-      onClearAllFilters: _onResetFilters,
-      tableColumns: const [
-        DyTableColumnSpec(key: 'vno', label: 'Voucher No', width: 110),
-        DyTableColumnSpec(key: 'partyName', label: 'Party / Weaver', width: 220),
-        DyTableColumnSpec(key: 'designPattern', label: 'Design & Quality', width: 200),
-        DyTableColumnSpec(key: 'quantity', label: 'Quantity', width: 130),
-        DyTableColumnSpec(key: 'amount', label: 'Amount', width: 140),
-        DyTableColumnSpec(key: 'status', label: 'Status', width: 120, isSortable: false),
-      ],
-      tableRows: _allUncutRolls,
-      gridItems: gridItems,
-      listItems: listItems,
-      selectedGridItem: _selectedCardItem,
-      onGridItemSelected: (item) => setState(() => _selectedCardItem = item),
-      selectedListItem: _selectedListItem,
-      onListItemSelected: (item) => setState(() => _selectedListItem = item),
-      totalRecords: 250,
     );
   }
 

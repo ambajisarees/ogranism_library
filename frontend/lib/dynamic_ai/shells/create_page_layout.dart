@@ -184,10 +184,10 @@ class _CreatePageLayoutState extends State<CreatePageLayout> {
                                 onPressed: _addItemRow,
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
-                                  children: const [
-                                    Icon(shad.LucideIcons.plus, size: 14),
-                                    SizedBox(width: 4),
-                                    Text('Add Row'),
+                                  children: [
+                                    Icon(shad.LucideIcons.plus, size: 16 * theme.scaling),
+                                    const SizedBox(width: 4),
+                                    const Text('Add Row'),
                                   ],
                                 ),
                               ),
@@ -239,10 +239,15 @@ class _CreatePageLayoutState extends State<CreatePageLayout> {
                                             ),
                                           ),
                                           const SizedBox(width: 8),
-                                          shad.IconButton.ghost(
-                                            size: shad.ButtonSize.small,
-                                            icon: Icon(shad.LucideIcons.trash2, size: 16, color: colors.destructive),
-                                            onPressed: () => _removeItemRow(idx),
+                                          SizedBox(
+                                            width: 28 * theme.scaling,
+                                            height: 28 * theme.scaling,
+                                            child: shad.IconButton.ghost(
+                                              size: shad.ButtonSize.small,
+                                              density: shad.ButtonDensity.compact,
+                                              icon: Icon(shad.LucideIcons.trash2, size: 16 * theme.scaling, color: colors.destructive),
+                                              onPressed: () => _removeItemRow(idx),
+                                            ),
                                           ),
                                         ],
                                       ),

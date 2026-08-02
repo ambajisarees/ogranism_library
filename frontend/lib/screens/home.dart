@@ -629,7 +629,6 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
         FocusManager.instance.primaryFocus?.unfocus();
       },
       child: DynamicWorkspaceShell(
-        backgroundColor: colors.background,
         sidebar: Focus(
           skipTraversal: true,
           descendantsAreFocusable: false,

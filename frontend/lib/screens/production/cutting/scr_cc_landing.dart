@@ -173,10 +173,10 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(shad.LucideIcons.printer),
-                  shad.DensityGap(shad.gapSm),
-                  Text('Print'),
+                children: [
+                  Icon(shad.LucideIcons.printer, size: 16 * theme.scaling),
+                  const shad.DensityGap(shad.gapSm),
+                  const Text('Print'),
                 ],
               ),
             ),
@@ -194,10 +194,10 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(shad.LucideIcons.download),
-                  shad.DensityGap(shad.gapSm),
-                  Text('Export'),
+                children: [
+                  Icon(shad.LucideIcons.download, size: 16 * theme.scaling),
+                  const shad.DensityGap(shad.gapSm),
+                  const Text('Export'),
                 ],
               ),
             ),
@@ -205,10 +205,10 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
               onPressed: () => ScrCcFormDialog.show(context),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(shad.LucideIcons.plus),
-                  shad.DensityGap(shad.gapSm),
-                  Text('Add'),
+                children: [
+                  Icon(shad.LucideIcons.plus, size: 16 * theme.scaling),
+                  const shad.DensityGap(shad.gapSm),
+                  const Text('Add'),
                 ],
               ),
             ),

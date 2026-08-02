@@ -186,69 +186,14 @@ class DynamicActionBar extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
             // ==========================================
-            // SLOT 1: View Mode Button Group
-            // ==========================================
-            shad.ButtonGroup(
-              children: [
-                if (supportedViewModes.contains('table'))
-                  _buildViewButton(
-                    context: context,
-                    theme: theme,
-                    colors: colors,
-                    viewMode: 'table',
-                    icon: shad.LucideIcons.table,
-                    tooltipText: 'Table View',
-                    anchorAlignment: Alignment.bottomLeft,
-                    popoverAlignment: Alignment.topLeft,
-                  ),
-                if (supportedViewModes.contains('list'))
-                  _buildViewButton(
-                    context: context,
-                    theme: theme,
-                    colors: colors,
-                    viewMode: 'list',
-                    icon: shad.LucideIcons.list,
-                    tooltipText: 'List View',
-                    anchorAlignment: Alignment.bottomCenter,
-                    popoverAlignment: Alignment.topCenter,
-                  ),
-                if (supportedViewModes.contains('cards'))
-                  _buildViewButton(
-                    context: context,
-                    theme: theme,
-                    colors: colors,
-                    viewMode: 'cards',
-                    icon: shad.LucideIcons.layoutGrid,
-                    tooltipText: 'Cards View',
-                    anchorAlignment: Alignment.bottomCenter,
-                    popoverAlignment: Alignment.topCenter,
-                  ),
-                if (supportedViewModes.contains('board'))
-                  _buildViewButton(
-                    context: context,
-                    theme: theme,
-                    colors: colors,
-                    viewMode: 'board',
-                    icon: shad.LucideIcons.kanban,
-                    tooltipText: 'Board View',
-                    anchorAlignment: Alignment.bottomRight,
-                    popoverAlignment: Alignment.topRight,
-                  ),
-              ],
-            ),
-            const shad.DensityGap(shad.gapSm),
-
-            // ==========================================
-            // SLOT 2: OPTIONAL SUBMODULE SELECTOR
+            // SLOT 1: OPTIONAL SUBMODULE SELECTOR / MODULE MB
             // ==========================================
             if (submoduleWidget != null) ...[
               submoduleWidget!,
               const shad.DensityGap(shad.gapSm),
             ],
 
-            // ==========================================
             // OPTIONAL AUTOCOMPLETES (Mill & Fabric)
-            // ==========================================
             if (millAutoComplete != null) ...[
               millAutoComplete!,
               const shad.DensityGap(shad.gapSm),
@@ -535,6 +480,59 @@ class DynamicActionBar extends StatelessWidget {
             ),
 
             // ==========================================
+            // VIEW MODE SWITCHER BUTTON GROUP (Pinned Right before 3-Dots)
+            // ==========================================
+            const shad.DensityGap(shad.gapSm),
+            shad.ButtonGroup(
+              children: [
+                if (supportedViewModes.contains('table'))
+                  _buildViewButton(
+                    context: context,
+                    theme: theme,
+                    colors: colors,
+                    viewMode: 'table',
+                    icon: shad.LucideIcons.table,
+                    tooltipText: 'Table View',
+                    anchorAlignment: Alignment.bottomLeft,
+                    popoverAlignment: Alignment.topLeft,
+                  ),
+                if (supportedViewModes.contains('list'))
+                  _buildViewButton(
+                    context: context,
+                    theme: theme,
+                    colors: colors,
+                    viewMode: 'list',
+                    icon: shad.LucideIcons.list,
+                    tooltipText: 'List View',
+                    anchorAlignment: Alignment.bottomCenter,
+                    popoverAlignment: Alignment.topCenter,
+                  ),
+                if (supportedViewModes.contains('cards'))
+                  _buildViewButton(
+                    context: context,
+                    theme: theme,
+                    colors: colors,
+                    viewMode: 'cards',
+                    icon: shad.LucideIcons.layoutGrid,
+                    tooltipText: 'Cards View',
+                    anchorAlignment: Alignment.bottomCenter,
+                    popoverAlignment: Alignment.topCenter,
+                  ),
+                if (supportedViewModes.contains('board'))
+                  _buildViewButton(
+                    context: context,
+                    theme: theme,
+                    colors: colors,
+                    viewMode: 'board',
+                    icon: shad.LucideIcons.kanban,
+                    tooltipText: 'Board View',
+                    anchorAlignment: Alignment.bottomRight,
+                    popoverAlignment: Alignment.topRight,
+                  ),
+              ],
+            ),
+
+            // ==========================================
             // SLOT 8: TRAILING THREE-DOTS OVERFLOW BUTTON (Pinned Right)
             // ==========================================
             const shad.DensityGap(shad.gapSm),
@@ -585,13 +583,11 @@ class DynamicActionBar extends StatelessWidget {
       tooltip: (context) => shad.TooltipContainer(
         child: Text(tooltipText),
       ),
-      child: shad.IconButton.outline(
-        density: shad.ButtonDensity.normal,
-        icon: Icon(
-          icon,
-          size: 16 * theme.scaling,
-          color: isSelected ? colors.primary : colors.mutedForeground,
-        ),
+      child: MicroButton(
+        label: '',
+        leadingIcon: icon,
+        isSelected: isSelected,
+        padding: EdgeInsets.all(10 * theme.scaling),
         onPressed: () => onViewChanged?.call(viewMode),
       ),
     );

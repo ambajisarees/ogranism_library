@@ -63,10 +63,12 @@ class DynamicPagination extends StatelessWidget {
         ? '${recordNoun[0].toUpperCase()}${recordNoun.substring(1)}'
         : 'Records';
 
-    // Resolve Status Text
-    final String rangeText = 'Showing $startStr - $endStr of $totalStr $nounStr';
+    // Resolve Status Text: "Selected 5 - 1 - 50 of 176 Records" vs "Showing 1 - 50 of 176 Records"
+    final String rangeText = '$startStr - $endStr of $totalStr $nounStr';
     final String statusLabel = customStatusText ??
-        (selectedCount > 0 ? 'Selected $selectedCount • $rangeText' : rangeText);
+        (selectedCount > 0
+            ? 'Selected $selectedCount of $totalStr $nounStr'
+            : 'Showing $rangeText');
 
     return Padding(
       padding: EdgeInsets.zero,

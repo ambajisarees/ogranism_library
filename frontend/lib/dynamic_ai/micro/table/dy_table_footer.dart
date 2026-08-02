@@ -11,6 +11,7 @@ import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
 import 'dy_table_models.dart';
+import '../../specs/dy_color_system.dart';
 
 class DyTableFooter extends StatelessWidget {
   final List<DyTableColumnSpec> columns;
@@ -26,40 +27,33 @@ class DyTableFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = colors.brightness == Brightness.dark;
 
     return Container(
-      height: 36 * theme.scaling,
+      height: 54 * theme.scaling,
       decoration: BoxDecoration(
-        color: colors.card, // Crisp white header token
+        color: DyColorSystem.resolveSurfaceCanvas(isDark),
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(theme.radiusMd)),
         border: Border(
-          top: BorderSide(color: colors.border, width: 1.5),
+          top: BorderSide(color: colors.border, width: 1.0),
         ),
       ),
       padding: EdgeInsets.symmetric(horizontal: 8 * theme.scaling),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Flex 1 (Col 0): Kept BLANK
           SizedBox(width: 54 * theme.scaling),
           const SizedBox(width: 8),
 
-          // Column Totals
-          ...columns.asMap().entries.map((entry) {
-            final index = entry.key;
-            final col = entry.value;
-
-            // Render label "TOTALS" at Column 2 (Master / Party column index 1 or 2)
-            String val = summaryTotals[col.key] ?? '';
-            if (index == 1 && val.isEmpty) {
-              val = 'TOTALS';
-            }
-
-            final isTotalsLabel = val.toUpperCase() == 'TOTALS';
+          // Column Summary Totals (No leading icons, 6px horizontal cell padding)
+          ...columns.map((col) {
+            final val = summaryTotals[col.key] ?? '';
 
             final textStyle = theme.typography.textSmall.copyWith(
               fontWeight: FontWeight.bold,
               color: colors.foreground,
-              fontFamily: (col.isNumeric && !isTotalsLabel) ? 'monospace' : null,
+              fontFamily: col.isNumeric ? 'monospace' : null,
             );
 
             return Expanded(
@@ -77,8 +71,8 @@ class DyTableFooter extends StatelessWidget {
             );
           }),
 
-          // Flex Last (Col Last): Kept BLANK
-          SizedBox(width: 40 * theme.scaling),
+          // Flex Last (Col Last): Synchronized 72px blank space
+          SizedBox(width: 72 * theme.scaling),
         ],
       ),
     );

@@ -18,6 +18,8 @@ LLM CONTEXT & QUERY SPACE — DYNAMIC DETAILS PANE (dy_details_pane.dart)
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
+import '../specs/dy_color_system.dart';
+
 /// [DyDetailsPane] — Full-height detail inspection pane for split-view layouts.
 class DyDetailsPane extends StatefulWidget {
   final String title;
@@ -59,7 +61,7 @@ class _DyDetailsPaneState extends State<DyDetailsPane> {
     final colors = theme.colorScheme;
 
     final isDark = colors.brightness == Brightness.dark;
-    final defaultHeaderBg = isDark ? const Color(0xFF141210) : const Color(0xFFFCFDFE);
+    final defaultHeaderBg = DyColorSystem.resolveSurfaceCanvas(isDark);
 
     return shad.OutlinedContainer(
       borderColor: colors.border,
@@ -103,8 +105,8 @@ class _DyDetailsPaneState extends State<DyDetailsPane> {
                       SizedBox(height: 2 * theme.scaling),
                       Text(
                         widget.subtitle!,
-                        style: theme.typography.textMuted.copyWith(
-                          fontSize: 12 * theme.scaling,
+                        style: theme.typography.xSmall.copyWith(
+                          color: colors.mutedForeground,
                         ),
                       ),
                     ],
@@ -112,30 +114,54 @@ class _DyDetailsPaneState extends State<DyDetailsPane> {
                 ),
                 const Spacer(),
                 if (widget.onPrint != null) ...[
-                  shad.IconButton.ghost(
-                    icon: const Icon(shad.LucideIcons.printer, size: 16),
-                    onPressed: widget.onPrint,
+                  SizedBox(
+                    width: 28 * theme.scaling,
+                    height: 28 * theme.scaling,
+                    child: shad.IconButton.ghost(
+                      size: shad.ButtonSize.small,
+                      density: shad.ButtonDensity.compact,
+                      icon: Icon(shad.LucideIcons.printer, size: 16 * theme.scaling),
+                      onPressed: widget.onPrint,
+                    ),
                   ),
                   SizedBox(width: 4 * theme.scaling),
                 ],
                 if (widget.onEdit != null) ...[
-                  shad.IconButton.ghost(
-                    icon: const Icon(shad.LucideIcons.pencil, size: 16),
-                    onPressed: widget.onEdit,
+                  SizedBox(
+                    width: 28 * theme.scaling,
+                    height: 28 * theme.scaling,
+                    child: shad.IconButton.ghost(
+                      size: shad.ButtonSize.small,
+                      density: shad.ButtonDensity.compact,
+                      icon: Icon(shad.LucideIcons.pencil, size: 16 * theme.scaling),
+                      onPressed: widget.onEdit,
+                    ),
                   ),
                   SizedBox(width: 4 * theme.scaling),
                 ],
                 if (widget.onDelete != null) ...[
-                  shad.IconButton.ghost(
-                    icon: const Icon(shad.LucideIcons.trash2, size: 16),
-                    onPressed: widget.onDelete,
+                  SizedBox(
+                    width: 28 * theme.scaling,
+                    height: 28 * theme.scaling,
+                    child: shad.IconButton.ghost(
+                      size: shad.ButtonSize.small,
+                      density: shad.ButtonDensity.compact,
+                      icon: Icon(shad.LucideIcons.trash2, size: 16 * theme.scaling),
+                      onPressed: widget.onDelete,
+                    ),
                   ),
                   SizedBox(width: 4 * theme.scaling),
                 ],
                 if (widget.onClose != null) ...[
-                  shad.IconButton.ghost(
-                    icon: const Icon(shad.LucideIcons.x, size: 16),
-                    onPressed: widget.onClose,
+                  SizedBox(
+                    width: 28 * theme.scaling,
+                    height: 28 * theme.scaling,
+                    child: shad.IconButton.ghost(
+                      size: shad.ButtonSize.small,
+                      density: shad.ButtonDensity.compact,
+                      icon: Icon(shad.LucideIcons.x, size: 16 * theme.scaling),
+                      onPressed: widget.onClose,
+                    ),
                   ),
                 ],
               ],
@@ -238,7 +264,9 @@ class _DyDetailsPaneState extends State<DyDetailsPane> {
                     Center(
                       child: Text(
                         'No line items available',
-                        style: theme.typography.textMuted,
+                        style: theme.typography.textSmall.copyWith(
+                          color: colors.mutedForeground,
+                        ),
                       ),
                     ),
 
@@ -247,7 +275,9 @@ class _DyDetailsPaneState extends State<DyDetailsPane> {
                     ? Center(
                         child: Text(
                           'No images available',
-                          style: theme.typography.textMuted,
+                          style: theme.typography.textSmall.copyWith(
+                            color: colors.mutedForeground,
+                          ),
                         ),
                       )
                     : GridView.builder(

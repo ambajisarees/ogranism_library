@@ -13,6 +13,8 @@ library;
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
+import '../specs/dy_color_system.dart';
+
 /// Model representing a navigation item in [DynamicSidebarNav].
 class DynamicSidebarNavItem {
   final IconData? icon;
@@ -53,13 +55,10 @@ class DynamicSidebarNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
     final colors = theme.colorScheme;
-    final isLight = theme.colorScheme.brightness == Brightness.light;
-
-    final level0Background = isLight ? const Color(0xFFF8FAFC) : colors.muted; // Slate 50 (#F8FAFC)!
-
-    // Slate palette surface tokens
-    final slate100Hover = isLight ? const Color(0xFFF1F5F9) : colors.accent;
-    final slate200Selected = isLight ? const Color(0xFFE2E8F0) : colors.secondary;
+    final isDark = colors.brightness == Brightness.dark;
+    final level0Background = DyColorSystem.resolveRootBackground(isDark);
+    final slate100Hover = colors.accent;
+    final slate200Selected = DyColorSystem.resolveSelectItem(isDark, colors);
 
     final List<Widget> children = [];
     for (int i = 0; i < items.length; i++) {

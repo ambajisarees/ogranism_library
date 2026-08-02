@@ -8,6 +8,8 @@ library;
 import 'package:flutter/material.dart' hide Card, Tab, Badge, Scaffold;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
+import '../specs/dy_color_system.dart';
+
 class DynamicWorkspaceShell extends StatelessWidget {
   final Widget sidebar;
   final Widget content;
@@ -25,8 +27,9 @@ class DynamicWorkspaceShell extends StatelessWidget {
     final theme = shad.Theme.of(context);
     final colors = theme.colorScheme;
 
-    final isLight = theme.colorScheme.brightness == Brightness.light;
-    final level0Background = isLight ? const Color(0xFFF8FAFC) : colors.muted;
+    final isDark = colors.brightness == Brightness.dark;
+    final level0Background =
+        backgroundColor ?? DyColorSystem.resolveRootBackground(isDark);
 
     return shad.Scaffold(
       backgroundColor: level0Background,

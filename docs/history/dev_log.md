@@ -3,6 +3,29 @@
 > **Developer**: Smit · www.ambajisaree.com
 > **Convention**: Newest entries at top. Each day is a self-contained section tagged with Machine Agent origin (`[Windows Workstation]` vs `[MacBook Workstation]`).
 
+## 2026-08-02 · [Windows Workstation] · PageHeader & PageSubpages 36px Engine, DAB 8-Slot Reordering, 4-Shell Architecture & ANTIRULES.md
+
+Refactored `PageHeader` layout, engineered `PageSubpages` segmented toggle bar with exact 36px height & 8px horizontal padding, reordered DynamicActionBar (DAB) pipeline, created 4 modular page shell layouts (`dy_shl_dash`, `dy_shl_details`, `dy_shl_reports`, `dy_shl_tasks`), integrated 150ms `AnimatedSwitcher` cross-fade transition, and authored `ANTIRULES.md`.
+
+### PageHeader & PageSubpages Toggle Engine (`lib/dynamic_ai/page/dy_page_header.dart`)
+- **`PageHeader` Refactoring**: Removed legacy `docId` badge and `PageTabs`. Updated back button to `shad.IconButton.outline(size: shad.ButtonSize.normal)`. Enforced exact row sequence: `[ Back Button ] -> [ Title ] -> [ DensityGap(gapXl) ] -> [ Subpages ] -> [ Spacer ] -> [ Trailing Action Buttons ]`.
+- **`PageSubpages` Component**: Built icon + label subpage switcher button group locked to exact `36 * theme.scaling` height. Uses `shad.PrimaryButton(size: shad.ButtonSize.normal)` with primary foreground text/icon color for selected subpage item, and `MicroButton` for unselected items. Enforced `8px` horizontal inner padding token (`EdgeInsets.symmetric(horizontal: 8 * theme.scaling)`).
+
+### DynamicActionBar (DAB) Slot Reordering (`lib/dynamic_ai/page/dy_action_bar.dart`)
+- **8-Slot Pipeline**: Reordered DAB layout slots into Left scrollable pipeline (`Module Selector MB` $\rightarrow$ `Search Component` $\rightarrow$ `Action & Filter MBs`) and Pinned Right area (`View Switcher ButtonGroup` $\rightarrow$ `Trailing 3-Dots MicroButton`).
+
+### 4-Shell Architecture Strategy (`lib/dynamic_ai/shells/`)
+- **Modular Page Shells**: Created `dy_shl_dash.dart` (Dashboard Analytics & KPI cards), `dy_shl_details.dart` (Main table/list/cards view), `dy_shl_reports.dart` (Audit & pendency summary reports), and `dy_shl_tasks.dart` (4-column Kanban board pipeline).
+- **150ms `AnimatedSwitcher` Cross-Fade**: Integrated 150ms `AnimatedSwitcher` cross-fade transition between subpages without lag or layout snapping in `scr_po_landing.dart` and `demo_screen.dart`.
+
+### Master Negative Coding Guidelines (`ANTIRULES.md`)
+- **`ANTIRULES.md`**: Formulated master negative coding directives covering UI container strictness, vertical height capping, native token usage, database read-only constraints, composite join rules, and zero artificial sleep latency requirements.
+
+### Verification & Code Quality
+- **`flutter analyze`**: **0 errors, 0 warnings** across the entire codebase.
+
+---
+
 ## 2026-08-01 · [MacBook Workstation] · Master DyTable 3-Tiered Row Engine, PageHeader Full-Width Fix & Purchase Orders Landing Integration
 
 Rebuilt the master table engine into `DyTable` with a full 3-tiered row system (`group_row`, `def_row`, `child_row`, `footer`), thumbnail lightbox modal (`DyTableGalleryModal`), fixed `PageHeader` full-width layout and `Spacer()` 100% free space allocation, updated trailing button sizing to match Cutting Cards (`shad.OutlineButton`), and integrated Purchase Orders landing screen (`scr_po_landing.dart`) with `PageTabs` content switching (`Details`, `Reports`, `Links`).

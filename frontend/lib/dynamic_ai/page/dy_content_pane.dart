@@ -19,6 +19,8 @@ LLM CONTEXT & QUERY SPACE — DYNAMIC CONTENT PANE (dynamic_content_pane.dart)
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
+import '../specs/dy_color_system.dart';
+
 /// [DynamicContentPane] — Page-level Content Surface Container with DDT-matched Header & Footer.
 class DynamicContentPane extends StatelessWidget {
   final String title;
@@ -56,7 +58,7 @@ class DynamicContentPane extends StatelessWidget {
     final colors = theme.colorScheme;
 
     final isDark = colors.brightness == Brightness.dark;
-    final defaultHeaderFooterBg = isDark ? const Color(0xFF141210) : const Color(0xFFFCFDFE);
+    final defaultHeaderFooterBg = DyColorSystem.resolveSurfaceCanvas(isDark);
     final headerBg = headerBackgroundColor ?? defaultHeaderFooterBg;
 
     return Expanded(

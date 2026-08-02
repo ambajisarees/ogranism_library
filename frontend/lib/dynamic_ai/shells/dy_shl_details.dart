@@ -31,7 +31,7 @@ import '../micro/cards/dy_list_item.dart';
 import '../micro/cards/dy_kanban_item.dart';
 
 /// [DyShlDetails] — Master Details Page Shell framing PH -> 16px -> DAB -> 16px -> View Router.
-class DyShlDetails extends StatelessWidget {
+class DyShlDetails extends StatefulWidget {
   // 1. PageHeader Props
   final String title;
   final PageHeaderMode headerMode;
@@ -72,6 +72,9 @@ class DyShlDetails extends StatelessWidget {
   final ValueChanged<DynamicListItem?>? onListItemSelected;
   final bool isLoading;
   final int? totalRecords;
+  final int pageIndex;
+  final ValueChanged<int>? onPageChanged;
+  final Map<String, String>? summaryTotals;
 
   const DyShlDetails({
     super.key,
@@ -100,8 +103,8 @@ class DyShlDetails extends StatelessWidget {
     this.onDateRangeSelected,
     this.hasActiveFilters = false,
     this.onClearAllFilters,
-    required this.tableColumns,
-    required this.tableRows,
+    this.tableColumns = const [],
+    this.tableRows = const [],
     this.gridItems = const [],
     this.listItems = const [],
     this.selectedGridItem,
@@ -110,7 +113,18 @@ class DyShlDetails extends StatelessWidget {
     this.onListItemSelected,
     this.isLoading = false,
     this.totalRecords,
+    this.pageIndex = 1,
+    this.onPageChanged,
+    this.summaryTotals,
   });
+
+  @override
+  State<DyShlDetails> createState() => _DyShlDetailsState();
+}
+
+class _DyShlDetailsState extends State<DyShlDetails> {
+  DynamicListItem? _internalSelectedListItem;
+  DyGridItem? _internalSelectedGridItem;
 
   @override
   Widget build(BuildContext context) {
@@ -122,25 +136,25 @@ class DyShlDetails extends StatelessWidget {
       children: [
         // 1. DYNAMIC ACTION BAR (DAB: Submodules, Search, Filters, View Switcher)
         DynamicActionBar(
-          entityName: entityName,
-          selectedView: selectedViewMode,
-          onViewChanged: onViewModeChanged,
-          submoduleWidget: submoduleWidget,
-          searchQuery: searchQuery,
-          onSearchChanged: onSearchChanged,
-          selectedMills: selectedMills,
-          millOptions: millOptions,
-          onMillChanged: onMillChanged,
-          selectedQualities: selectedQualities,
-          qualityOptions: qualityOptions,
-          onQualityChanged: onQualityChanged,
-          selectedStatuses: selectedStatuses,
-          onStatusChanged: onStatusChanged,
-          selectedDateRange: selectedDateRange,
-          selectedDateLabel: selectedDateLabel,
-          onDateRangeSelected: onDateRangeSelected,
-          hasActiveFilters: hasActiveFilters,
-          onClearAllFilters: onClearAllFilters,
+          entityName: widget.entityName,
+          selectedView: widget.selectedViewMode,
+          onViewChanged: widget.onViewModeChanged,
+          submoduleWidget: widget.submoduleWidget,
+          searchQuery: widget.searchQuery,
+          onSearchChanged: widget.onSearchChanged,
+          selectedMills: widget.selectedMills,
+          millOptions: widget.millOptions,
+          onMillChanged: widget.onMillChanged,
+          selectedQualities: widget.selectedQualities,
+          qualityOptions: widget.qualityOptions,
+          onQualityChanged: widget.onQualityChanged,
+          selectedStatuses: widget.selectedStatuses,
+          onStatusChanged: widget.onStatusChanged,
+          selectedDateRange: widget.selectedDateRange,
+          selectedDateLabel: widget.selectedDateLabel,
+          onDateRangeSelected: widget.onDateRangeSelected,
+          hasActiveFilters: widget.hasActiveFilters,
+          onClearAllFilters: widget.onClearAllFilters,
         ),
         const shad.DensityGap(shad.gapLg),
 
@@ -151,7 +165,7 @@ class DyShlDetails extends StatelessWidget {
             switchInCurve: Curves.easeInOut,
             switchOutCurve: Curves.easeInOut,
             child: KeyedSubtree(
-              key: ValueKey<String>(selectedViewMode),
+              key: ValueKey<String>(widget.selectedViewMode),
               child: _buildContentView(context, theme, colors),
             ),
           ),
@@ -165,31 +179,40 @@ class DyShlDetails extends StatelessWidget {
     shad.ThemeData theme,
     shad.ColorScheme colors,
   ) {
-    switch (selectedViewMode) {
+    switch (widget.selectedViewMode) {
       case 'table':
         return Align(
           alignment: Alignment.topCenter,
           child: DyTable(
-            columns: tableColumns,
-            rows: tableRows,
-            totalRecords: totalRecords ?? 0,
+            columns: widget.tableColumns,
+            rows: widget.tableRows,
+            totalRecords: widget.totalRecords ?? 0,
+            pageIndex: widget.pageIndex,
+            onPageChanged: widget.onPageChanged,
+            isLoading: widget.isLoading,
+            summaryTotals: widget.summaryTotals,
           ),
         );
 
       case 'list':
-        final activeListItem = selectedListItem ?? (listItems.isNotEmpty ? listItems.first : null);
+        final activeListItem = widget.selectedListItem ??
+            _internalSelectedListItem ??
+            (widget.listItems.isNotEmpty ? widget.listItems.first : null);
         return Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Left Master List (Fixed 360px Width as per DyGridSystem)
             DyListPane(
               width: DyGridSystem.fixedListMasterWidth * theme.scaling,
-              items: listItems,
+              items: widget.listItems,
               selectedItem: activeListItem,
-              onItemSelected: onListItemSelected ?? (_) {},
+              onItemSelected: (item) {
+                widget.onListItemSelected?.call(item);
+                setState(() => _internalSelectedListItem = item);
+              },
               showHeader: false,
-              isLoading: isLoading,
-              totalRecords: totalRecords,
+              isLoading: widget.isLoading,
+              totalRecords: widget.totalRecords,
             ),
             const shad.DensityGap(shad.gapLg),
 
@@ -205,7 +228,9 @@ class DyShlDetails extends StatelessWidget {
         );
 
       case 'cards':
-        final activeGridItem = selectedGridItem ?? (gridItems.isNotEmpty ? gridItems.first : null);
+        final activeGridItem = widget.selectedGridItem ??
+            _internalSelectedGridItem ??
+            (widget.gridItems.isNotEmpty ? widget.gridItems.first : null);
         return Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -213,11 +238,14 @@ class DyShlDetails extends StatelessWidget {
             Expanded(
               flex: DyGridSystem.flexCardsGrid,
               child: DyCardPane(
-                items: gridItems,
+                items: widget.gridItems,
                 selectedItem: activeGridItem,
-                onItemSelected: onGridItemSelected ?? (_) {},
-                isLoading: isLoading,
-                totalRecords: totalRecords,
+                onItemSelected: (item) {
+                  widget.onGridItemSelected?.call(item);
+                  setState(() => _internalSelectedGridItem = item);
+                },
+                isLoading: widget.isLoading,
+                totalRecords: widget.totalRecords,
               ),
             ),
             const shad.DensityGap(shad.gapLg),
@@ -235,7 +263,7 @@ class DyShlDetails extends StatelessWidget {
         );
 
       case 'board':
-        final kanbanItems = gridItems.map((item) {
+        final kanbanItems = widget.gridItems.map((item) {
           final statusStr = (item.statusBadge is shad.OutlineBadge)
               ? ((item.statusBadge as shad.OutlineBadge).child as Text).data ?? 'UNCUT'
               : 'UNCUT';

@@ -16,6 +16,8 @@ LLM CONTEXT & QUERY SPACE — DYNAMIC KANBAN CARD ITEM (dy_kanban_item.dart)
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
+import '../../specs/dy_color_system.dart';
+
 /// Data class representing a Kanban card item.
 class DyKanbanItem {
   final String id;
@@ -67,10 +69,11 @@ class _DyKanbanCardState extends State<DyKanbanCard> {
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = colors.brightness == Brightness.dark;
 
-    final background = widget.isSelected
-        ? colors.accent
-        : (_isHovered ? colors.accent.withAlpha(120) : colors.card);
+    final background = widget.isSelected || _isHovered
+        ? DyColorSystem.resolveRootBackground(isDark)
+        : colors.card;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -78,8 +81,7 @@ class _DyKanbanCardState extends State<DyKanbanCard> {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 100),
+        child: Container(
           padding: EdgeInsets.all(12 * theme.scaling),
           decoration: BoxDecoration(
             color: background,

@@ -3,18 +3,56 @@
 LLM CONTEXT & QUERY SPACE — DYNAMIC COLOR SYSTEM (dy_color_system.dart)
 ================================================================================
 1. DOMAIN & PURPOSE:
-   - Authoritative 6-color scale specification for Ambaji Sarees ERP pipeline 
-     statuses, stage indicators, badges, and charting visualization.
-   - Leverages Tailwind color shades from `shadcn_flutter` (`shad.Colors`).
-   - Theme Primary Context: Teal 500 (Light Primary) / Amber 500 (Dark Primary).
+   - Master ERP color system combining `shadcn_flutter` native ColorScheme tokens,
+     custom protected ERP surface canvas tokens, and a 6-color pipeline scale.
+   - Theme Mode Mapping (Configured in main.dart):
+     * Light Theme: `ColorSchemes.lightSlate` + Teal Accent (`shad.Colors.teal[500]`)
+     * Dark Theme: `ColorSchemes.darkStone` + Amber Accent (`shad.Colors.amber[500]`)
 
-2. COLOR SCALE SPECIFICATION (500 = Solid Accent, 100 = Light Surface Container):
-   - Red:     `red[500]` / `red[100]` (Danger, Rejected, Overdue)
-   - Green:   `emerald[500]` / `emerald[100]` (Success, Paid, Received)
+2. SURFACE HIERARCHY & CANVAS TOKENS:
+   - Light Mode Surface Hierarchy:
+     * Level 0 Root Scaffold Ground: Slate 50 (`#F8FAFC`) — `resolveRootBackground(isDark)`
+     * Level 1 Canvas Header / Tab Surface: Slate 10 (`#FCFDFE`) — `resolveSurfaceCanvas(isDark)`
+     * Level 2 Elevated Cards / Tables: Slate 0 / White (`#FFFFFF`) — `colors.card`
+   - Dark Mode Surface Hierarchy:
+     * Level 0 Root Scaffold Ground: Stone 900 (`#1C1917`) — `resolveRootBackground(isDark)`
+     * Level 1 Canvas Header / Tab Surface: Stone 940 (`#100E0D` micro surface lift) — `resolveSurfaceCanvas(isDark)`
+     * Level 2 Elevated Cards / Tables: Stone 950 (`#0C0A09`) — `colors.card`
+
+3. SHADCN COLOR SCHEME TOKEN MAPPINGS & ACTUAL SHADES:
+   -----------------------------------------------------------------------------
+   TOKEN NAME            | LIGHT SLATE (.teal)       | DARK STONE (.amber)
+   -----------------------------------------------------------------------------
+   colors.background     | #FFFFFF (White)           | #0C0A09 (Stone 950)
+   colors.card           | #FFFFFF (White)           | #0C0A09 (Stone 950)
+   colors.popover        | #FFFFFF (White)           | #0C0A09 (Stone 950)
+   colors.foreground     | #020817 (Slate 950)       | #FAFAF9 (Stone 50)
+   colors.mutedForeground| #64748B (Slate 500)       | #A8A29E (Stone 400)
+   colors.primary        | #14B8A6 (Teal 500)        | #F59E0B (Amber 500)
+   colors.primaryForegnd | #FFFFFF (White)           | #000000 (Black)
+   colors.secondary      | #F1F5F9 (Slate 100)       | #292524 (Stone 800)
+   colors.muted          | #F1F5F9 (Slate 100)       | #292524 (Stone 800)
+   colors.accent         | #F1F5F9 (Slate 100)       | #292524 (Stone 800)
+   colors.border         | #E2E8F0 (Slate 200)       | #292524 (Stone 800)
+   colors.input          | #E2E8F0 (Slate 200)       | #292524 (Stone 800)
+   colors.ring           | #14B8A6 (Teal 500)        | #F59E0B (Amber 500)
+   colors.destructive    | #EF4444 (Red 500)         | #7F1D1D (Red 900)
+   -----------------------------------------------------------------------------
+
+4. COMPONENT STATE STYLING RULES:
+   - Navigation Hover State:  `colors.accent` (Slate 100 in Light, Stone 800 in Dark)
+   - Navigation Selected State: `DyColorSystem.resolveSelectItem(isDark, colors)` (Slate 200 in Light, Accent in Dark)
+   - Primary Active Selection: `colors.primary.withAlpha(20)` fill + `colors.primary` 1.5px border
+   - Dividers/Borders:        `colors.border` (Slate 200 in Light, Stone 800 in Dark)
+   - Secondary Text:          `colors.mutedForeground`
+
+5. THE 6-COLOR ERP PIPELINE SCALE (100 = Light Surface, 500 = Solid Accent):
+   - Red:     `red[500]` / `red[100]` (Danger, Cancelled, Overdue)
+   - Green:   `emerald[500]` / `emerald[100]` (Success, Completed, Paid, Received)
    - Yellow:  `yellow[500]` / `yellow[100]` (Pending Action, Hold)
    - Orange:  `orange[500]` / `orange[100]` (Warning, In Cutting, Partial)
    - Indigo:  `indigo[500]` / `indigo[100]` (Processing, Mill Dispatch, In Transit)
-   - Fuchsia: `fuchsia[500]` / `fuchsia[100]` (Special Stage, Custom Audit, Voucher Margin)
+   - Fuchsia: `fuchsia[500]` / `fuchsia[100]` (Special Stage, Custom Audit, Margin)
 ================================================================================
 */
 
@@ -23,6 +61,40 @@ import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
 /// [DyColorSystem] — Master ERP 6-Color Scale & Semantic Token System.
 abstract class DyColorSystem {
+  // =========================================================================
+  // 0. CUSTOM BRAND SURFACE CANVAS TOKENS & HIERARCHY
+  // =========================================================================
+  /// Slate 10 (#FCFDFE) — Light Theme Header & Surface Canvas (Level 1 tint between Slate 50 & White)
+  static const Color slate10 = Color(0xFFFCFDFE);
+
+  /// Stone 940 (#100E0D) — Dark Theme Header & Surface Canvas (0.8% micro lift above Stone 950 #0C0A09)
+  static const Color stone940 = Color(0xFF100E0D);
+
+  /// Resolves Level 1 ERP Surface Canvas (Slate 10 for Light, Stone 940 for Dark)
+  static Color resolveSurfaceCanvas(bool isDark) => isDark ? stone940 : slate10;
+
+  // =========================================================================
+  // LEVEL 0 ROOT GROUND TOKENS (SHELL & SIDEBAR BACKGROUND)
+  // =========================================================================
+  /// Slate 50 (#F8FAFC) — Light Theme Level 0 Root Scaffold Ground
+  static Color get slate50 => shad.Colors.slate[50];
+
+  /// Stone 900 (#1C1917) — Dark Theme Level 0 Root Scaffold Ground
+  static Color get stone900 => shad.Colors.stone[900];
+
+  /// Resolves Level 0 Root Scaffold & Sidebar Background (Slate 50 for Light, Stone 900 for Dark)
+  static Color resolveRootBackground(bool isDark) => isDark ? stone900 : slate50;
+
+  // =========================================================================
+  // SELECTION & HOVER STATE TOKENS
+  // =========================================================================
+  /// Slate 200 (#E2E8F0) — Light Theme Navigation Item Active Selection Surface
+  static Color get slate200 => shad.Colors.slate[200];
+
+  /// Resolves Navigation / Sidebar Item Active Selection Surface (Slate 200 for Light, Accent/Stone 800 for Dark)
+  static Color resolveSelectItem(bool isDark, shad.ColorScheme colors) =>
+      isDark ? colors.accent : slate200;
+
   // =========================================================================
   // 1. BRAND & THEME PRIMARIES
   // =========================================================================

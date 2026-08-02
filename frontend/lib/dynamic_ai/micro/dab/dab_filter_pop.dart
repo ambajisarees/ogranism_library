@@ -119,8 +119,8 @@ class _DabFilterPopoverState extends State<DabFilterPopover> {
                           },
                           child: Container(
                             color: isChecked
-                                ? colors.accent.withAlpha(100)
-                                : const Color(0x00000000),
+                                ? colors.accent
+                                : shad.Colors.transparent,
                             padding: EdgeInsets.symmetric(
                               horizontal: 8 * theme.scaling,
                               vertical: 6 * theme.scaling,

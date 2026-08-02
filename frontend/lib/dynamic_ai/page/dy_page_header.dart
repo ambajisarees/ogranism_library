@@ -17,6 +17,7 @@ LLM CONTEXT & QUERY SPACE — DYNAMIC PAGE HEADER & CONTEXT TABS (dy_page_header
 
 import 'package:flutter/material.dart' hide Tab;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
+import '../micro/dy_micro_button.dart';
 
 /// Operational mode for [PageHeader]
 enum PageHeaderMode { standard, adding, editing }
@@ -32,7 +33,7 @@ class PageTabs extends StatelessWidget {
     super.key,
     required this.selectedIndex,
     required this.onTabChanged,
-    this.tabs = const ['Details', 'Reports', 'Tasks'],
+    this.tabs = const ['Dash', 'Details', 'Reports', 'Tasks'],
     this.badgeCounts,
   });
 
@@ -89,13 +90,123 @@ class PageTabs extends StatelessWidget {
   }
 }
 
+/// Data specification for a subpage item in [PageSubpages].
+class PageSubpageItem {
+  final String label;
+  final IconData? icon;
+
+  const PageSubpageItem({
+    required this.label,
+    this.icon,
+  });
+}
+
+/// [PageSubpages] — ButtonGroup of Icon + Label subpage switcher buttons matching trailing header button tokens.
+class PageSubpages extends StatelessWidget {
+  final int selectedIndex;
+  final List<PageSubpageItem>? items;
+  final List<String>? labels;
+  final ValueChanged<int> onSubpageChanged;
+
+  const PageSubpages({
+    super.key,
+    required this.selectedIndex,
+    required this.onSubpageChanged,
+    this.items,
+    this.labels,
+  });
+
+  static const List<PageSubpageItem> defaultItems = [
+    PageSubpageItem(label: 'Dash', icon: shad.LucideIcons.layoutDashboard),
+    PageSubpageItem(label: 'Details', icon: shad.LucideIcons.fileText),
+    PageSubpageItem(label: 'Reports', icon: shad.LucideIcons.fileSpreadsheet),
+    PageSubpageItem(label: 'Tasks', icon: shad.LucideIcons.squareCheck),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = shad.Theme.of(context);
+    final colors = theme.colorScheme;
+
+    final effectiveItems = items ??
+        (labels != null
+            ? labels!.map((l) => PageSubpageItem(label: l, icon: _getIconForLabel(l))).toList()
+            : defaultItems);
+
+    return SizedBox(
+      height: 36 * theme.scaling,
+      child: shad.ButtonGroup(
+        children: List.generate(effectiveItems.length, (index) {
+          final item = effectiveItems[index];
+          final isSelected = index == selectedIndex;
+
+          if (isSelected) {
+            final childRow = Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8 * theme.scaling),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (item.icon != null) ...[
+                    Icon(
+                      item.icon,
+                      size: 16 * theme.scaling,
+                      color: colors.primaryForeground,
+                    ),
+                    SizedBox(width: 6 * theme.scaling),
+                  ],
+                  Text(
+                    item.label,
+                    style: theme.typography.textSmall.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: colors.primaryForeground,
+                    ),
+                  ),
+                ],
+              ),
+            );
+
+            return shad.PrimaryButton(
+              size: shad.ButtonSize.normal,
+              onPressed: () => onSubpageChanged(index),
+              child: childRow,
+            );
+          }
+
+          return MicroButton(
+            label: item.label,
+            leadingIcon: item.icon,
+            isSelected: false,
+            padding: EdgeInsets.symmetric(horizontal: 8 * theme.scaling),
+            onPressed: () => onSubpageChanged(index),
+          );
+        }),
+      ),
+    );
+  }
+
+  static IconData? _getIconForLabel(String label) {
+    switch (label.toLowerCase()) {
+      case 'dash':
+      case 'dashboard':
+        return shad.LucideIcons.layoutDashboard;
+      case 'details':
+        return shad.LucideIcons.fileText;
+      case 'reports':
+        return shad.LucideIcons.fileSpreadsheet;
+      case 'tasks':
+        return shad.LucideIcons.squareCheck;
+      default:
+        return null;
+    }
+  }
+}
+
 /// [PageHeader] — Modular top page header with 3 operational modes
 /// (`standard`, `adding`, `editing`), auto-configured action buttons, and back button support.
 class PageHeader extends StatelessWidget {
   final String title;
   final PageHeaderMode mode;
   final String? moduleName;
-  final String? docId;
 
   // Callbacks for adding/editing modes
   final VoidCallback? onBack;
@@ -104,7 +215,7 @@ class PageHeader extends StatelessWidget {
   final VoidCallback? onConfirm;
   final bool isSaving;
 
-  final Widget? pageTabs;
+  final Widget? subpages;
 
   // Optional Trailing Actions (overrides auto-generated buttons if provided)
   final List<Widget> actions;
@@ -114,8 +225,7 @@ class PageHeader extends StatelessWidget {
     required this.title,
     this.mode = PageHeaderMode.standard,
     this.moduleName,
-    this.docId,
-    this.pageTabs,
+    this.subpages,
     this.onBack,
     this.onDiscard,
     this.onSaveDraft,
@@ -132,12 +242,11 @@ class PageHeader extends StatelessWidget {
     String titleText = title;
     if (mode == PageHeaderMode.adding) {
       titleText = moduleName != null ? 'Add $moduleName' : 'Add $title';
-    } else if (mode == PageHeaderMode.editing) {
-      titleText = docId ?? title;
     }
 
-    final bool showBackButton =
-        mode == PageHeaderMode.adding || mode == PageHeaderMode.editing || onBack != null;
+    final bool showBackButton = mode == PageHeaderMode.adding ||
+        mode == PageHeaderMode.editing ||
+        onBack != null;
 
     // Resolve Trailing Action Buttons
     List<Widget> resolvedActions = List.from(actions);
@@ -158,13 +267,13 @@ class PageHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (isSaving)
-                  const SizedBox(
-                    width: 14,
-                    height: 14,
-                    child: shad.CircularProgressIndicator(strokeWidth: 2),
+                  SizedBox(
+                    width: 14 * theme.scaling,
+                    height: 14 * theme.scaling,
+                    child: const shad.CircularProgressIndicator(strokeWidth: 2),
                   )
                 else
-                  const Icon(shad.LucideIcons.check),
+                  Icon(shad.LucideIcons.check, size: 16 * theme.scaling),
                 const shad.DensityGap(shad.gapSm),
                 Text(isSaving ? 'Saving...' : 'Confirm'),
               ],
@@ -183,13 +292,13 @@ class PageHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (isSaving)
-                  const SizedBox(
-                    width: 14,
-                    height: 14,
-                    child: shad.CircularProgressIndicator(strokeWidth: 2),
+                  SizedBox(
+                    width: 14 * theme.scaling,
+                    height: 14 * theme.scaling,
+                    child: const shad.CircularProgressIndicator(strokeWidth: 2),
                   )
                 else
-                  const Icon(shad.LucideIcons.check),
+                  Icon(shad.LucideIcons.check, size: 16 * theme.scaling),
                 const shad.DensityGap(shad.gapSm),
                 Text(isSaving ? 'Saving...' : 'Confirm'),
               ],
@@ -204,66 +313,57 @@ class PageHeader extends StatelessWidget {
       child: FocusTraversalGroup(
         policy: WidgetOrderTraversalPolicy(),
         child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Prepend Back Arrow for Adding / Editing modes or when onBack is provided
-          if (showBackButton) ...[
-            shad.IconButton.ghost(
-              icon: const Icon(shad.LucideIcons.arrowLeft),
-              onPressed: onBack ?? onDiscard,
-            ),
-            const shad.DensityGap(shad.gapSm),
-          ],
-
-          // Title Text
-          Text(
-            titleText,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-            style: theme.typography.h2.copyWith(
-              fontWeight: FontWeight.bold,
-              letterSpacing: -0.5,
-            ),
-          ),
-
-          // Optional Document ID Badge
-          if (docId != null && mode == PageHeaderMode.standard) ...[
-            const shad.DensityGap(shad.gapSm),
-            shad.SecondaryBadge(
-              child: Text(
-                docId!,
-                style: theme.typography.mono.copyWith(
-                  fontSize: 12 * theme.scaling,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // 1. Optional Back Button (IconButton.outline size normal)
+            if (showBackButton) ...[
+              shad.IconButton.outline(
+                size: shad.ButtonSize.normal,
+                icon: Icon(
+                  shad.LucideIcons.arrowLeft,
+                  size: 16 * theme.scaling,
                 ),
+                onPressed: onBack ?? onDiscard,
+              ),
+              const shad.DensityGap(shad.gapSm),
+            ],
+
+            // 2. Title Text
+            Text(
+              titleText,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: theme.typography.h2.copyWith(
+                fontWeight: FontWeight.bold,
+                letterSpacing: -0.5,
               ),
             ),
-          ],
 
-          // Optional Page Tabs (PageTabs) between Title/DocID and Spacer
-          if (pageTabs != null) ...[
-            const shad.DensityGap(shad.gapLg),
-            pageTabs!,
-          ],
+            // 3. Optional Subpages ButtonGroup
+            if (subpages != null) ...[
+              const shad.DensityGap(shad.gapXl),
+              subpages!,
+            ],
 
-          // Spacer (Pushes trailing actions to far right)
-          const Spacer(),
+            // 4. Spacer
+            const Spacer(),
 
-          // Trailing Actions Row
-          if (resolvedActions.isNotEmpty) ...[
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: resolvedActions.map((act) {
-                return Padding(
-                  padding: EdgeInsets.only(left: 8 * theme.scaling),
-                  child: act,
-                );
-              }).toList(),
-            ),
+            // 5. Trailing Actions Row
+            if (resolvedActions.isNotEmpty) ...[
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: resolvedActions.map((act) {
+                  return Padding(
+                    padding: EdgeInsets.only(left: 8 * theme.scaling),
+                    child: act,
+                  );
+                }).toList(),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
-    ),
-  );
+    );
   }
 }

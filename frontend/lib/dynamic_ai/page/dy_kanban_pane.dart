@@ -17,6 +17,7 @@ LLM CONTEXT & QUERY SPACE — DYNAMIC KANBAN PANE (dy_kanban_pane.dart)
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 import '../micro/cards/dy_kanban_item.dart';
+import '../specs/dy_color_system.dart';
 
 /// [DyKanbanPane] — Vertical Kanban Stage Column Pane with Sticky Header and Footer.
 class DyKanbanPane extends StatelessWidget {
@@ -41,6 +42,8 @@ class DyKanbanPane extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = colors.brightness == Brightness.dark;
+    final headerFooterBg = DyColorSystem.resolveSurfaceCanvas(isDark);
 
     return shad.OutlinedContainer(
       borderColor: colors.border,
@@ -58,9 +61,7 @@ class DyKanbanPane extends StatelessWidget {
               vertical: 10 * theme.scaling,
             ),
             decoration: BoxDecoration(
-              color: theme.colorScheme.brightness == Brightness.dark
-                  ? const Color(0xFF141210)
-                  : const Color(0xFFFCFDFE),
+              color: headerFooterBg,
               border: Border(
                 bottom: BorderSide(color: colors.border, width: 1.0),
               ),
@@ -143,9 +144,7 @@ class DyKanbanPane extends StatelessWidget {
               vertical: 8 * theme.scaling,
             ),
             decoration: BoxDecoration(
-              color: theme.colorScheme.brightness == Brightness.dark
-                  ? const Color(0xFF141210)
-                  : const Color(0xFFFCFDFE),
+              color: headerFooterBg,
               border: Border(
                 top: BorderSide(color: colors.border, width: 1.0),
               ),
@@ -156,7 +155,7 @@ class DyKanbanPane extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(shad.LucideIcons.plus, size: 14),
+                  Icon(shad.LucideIcons.plus, size: 16 * theme.scaling),
                   const SizedBox(width: 6),
                   Text(
                     'Add Card',

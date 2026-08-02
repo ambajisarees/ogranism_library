@@ -9,6 +9,8 @@ library;
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
+import '../../specs/dy_color_system.dart';
+
 class DynamicListItem {
   final String id;
   final String title; // Middle mandatory
@@ -59,10 +61,11 @@ class _DynamicListCardState extends State<DynamicListCard> {
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
     final colors = theme.colorScheme;
-    
-    final background = widget.isSelected
-        ? colors.accent
-        : (_isHovered ? colors.accent.withValues(alpha: 0.5) : Colors.transparent);
+    final isDark = colors.brightness == Brightness.dark;
+
+    final background = widget.isSelected || _isHovered
+        ? DyColorSystem.resolveRootBackground(isDark)
+        : shad.Colors.transparent;
 
     final hasTopRow = widget.item.topLeading != null || widget.item.topTrailing != null;
     final hasBottomRow = widget.item.subtitle != null || widget.item.indexNumber != null;
@@ -73,8 +76,7 @@ class _DynamicListCardState extends State<DynamicListCard> {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 100),
+        child: Container(
           margin: EdgeInsets.zero,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
@@ -85,7 +87,7 @@ class _DynamicListCardState extends State<DynamicListCard> {
                 width: 1.0,
               ),
               left: BorderSide(
-                color: widget.isSelected ? colors.primary : Colors.transparent,
+                color: widget.isSelected ? colors.primary : shad.Colors.transparent,
                 width: 3.5,
               ),
             ),

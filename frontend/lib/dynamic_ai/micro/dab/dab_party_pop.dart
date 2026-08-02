@@ -162,7 +162,7 @@ class _DabPartyPopoverState extends State<DabPartyPopover> {
                           },
                           child: Container(
                             decoration: BoxDecoration(
-                              color: isChecked ? colors.accent.withAlpha(100) : const Color(0x00000000),
+                              color: isChecked ? colors.accent : shad.Colors.transparent,
                               borderRadius: BorderRadius.circular(theme.radiusSm),
                             ),
                             padding: EdgeInsets.symmetric(

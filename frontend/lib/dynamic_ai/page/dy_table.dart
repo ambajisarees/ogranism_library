@@ -29,6 +29,7 @@ class DyTable extends StatefulWidget {
   final int totalRecords;
   final ValueChanged<int>? onPageChanged;
   final String? groupByKey;
+  final bool isLoading;
 
   const DyTable({
     super.key,
@@ -42,6 +43,7 @@ class DyTable extends StatefulWidget {
     this.totalRecords = 0,
     this.onPageChanged,
     this.groupByKey,
+    this.isLoading = false,
   });
 
   @override
@@ -50,6 +52,7 @@ class DyTable extends StatefulWidget {
 
 class _DyTableState extends State<DyTable> {
   final Set<String> _expandedRowIds = {};
+  final Set<String> _internalSelectedRowIds = {};
   String? _sortKey;
   DySortDirection? _sortDirection;
 
@@ -60,6 +63,44 @@ class _DyTableState extends State<DyTable> {
     if (widget.rows.isNotEmpty) {
       _expandedRowIds.add(widget.rows.first.id);
     }
+  }
+
+  void _toggleSelectAll(bool? selectAll, List<DyTableRowData> sortedRows) {
+    setState(() {
+      if (selectAll == true) {
+        _internalSelectedRowIds.clear();
+        for (final r in sortedRows) {
+          _internalSelectedRowIds.add(r.id);
+        }
+      } else {
+        _internalSelectedRowIds.clear();
+      }
+    });
+
+    final newSet = selectAll == true
+        ? sortedRows.map((r) => r.id).toSet()
+        : <String>{};
+    widget.onSelectionChanged?.call(newSet);
+  }
+
+  void _toggleRowSelection(String rowId, bool? isSelected) {
+    setState(() {
+      if (isSelected == true) {
+        _internalSelectedRowIds.add(rowId);
+      } else {
+        _internalSelectedRowIds.remove(rowId);
+      }
+    });
+
+    final activeSet = widget.selectedRowIds.isNotEmpty
+        ? Set<String>.from(widget.selectedRowIds)
+        : Set<String>.from(_internalSelectedRowIds);
+    if (isSelected == true) {
+      activeSet.add(rowId);
+    } else {
+      activeSet.remove(rowId);
+    }
+    widget.onSelectionChanged?.call(activeSet);
   }
 
   void _toggleRowExpansion(String rowId) {
@@ -82,11 +123,35 @@ class _DyTableState extends State<DyTable> {
     });
   }
 
-  /// Sorts columns to ensure text columns are at start and numerical columns at end
+  List<DyTableRowData> _getSortedRows() {
+    if (_sortKey == null || _sortDirection == null) {
+      return widget.rows;
+    }
+    final sorted = List<DyTableRowData>.from(widget.rows);
+    sorted.sort((a, b) {
+      final valA = a.data[_sortKey] ?? '';
+      final valB = b.data[_sortKey] ?? '';
+      int cmp = 0;
+      if (valA is num && valB is num) {
+        cmp = valA.compareTo(valB);
+      } else {
+        final strA = valA.toString();
+        final strB = valB.toString();
+        final numA = double.tryParse(strA.replaceAll(RegExp(r'[^0-9.]'), ''));
+        final numB = double.tryParse(strB.replaceAll(RegExp(r'[^0-9.]'), ''));
+        if (numA != null && numB != null) {
+          cmp = numA.compareTo(numB);
+        } else {
+          cmp = strA.compareTo(strB);
+        }
+      }
+      return _sortDirection == DySortDirection.ascending ? cmp : -cmp;
+    });
+    return sorted;
+  }
+
   List<DyTableColumnSpec> _getOrderedColumns() {
-    final textCols = widget.columns.where((c) => !c.isNumeric).toList();
-    final numCols = widget.columns.where((c) => c.isNumeric).toList();
-    return [...textCols, ...numCols];
+    return widget.columns;
   }
 
   @override
@@ -94,10 +159,22 @@ class _DyTableState extends State<DyTable> {
     final theme = shad.Theme.of(context);
     final colors = theme.colorScheme;
     final orderedColumns = _getOrderedColumns();
-    final isAllSelected = widget.rows.isNotEmpty &&
-        widget.rows.every((r) => widget.selectedRowIds.contains(r.id));
-    final isAllExpanded = widget.rows.isNotEmpty &&
-        _expandedRowIds.length == widget.rows.length;
+    final sortedRows = _getSortedRows();
+    final selectedCount = widget.selectedRowIds.isNotEmpty
+        ? widget.selectedRowIds.length
+        : _internalSelectedRowIds.length;
+
+    final shad.CheckboxState headerSelectionState;
+    if (sortedRows.isNotEmpty && selectedCount == sortedRows.length) {
+      headerSelectionState = shad.CheckboxState.checked;
+    } else if (selectedCount > 0) {
+      headerSelectionState = shad.CheckboxState.indeterminate;
+    } else {
+      headerSelectionState = shad.CheckboxState.unchecked;
+    }
+
+    final isAllExpanded = sortedRows.isNotEmpty &&
+        _expandedRowIds.length == sortedRows.length;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -118,7 +195,7 @@ class _DyTableState extends State<DyTable> {
                 // 1. Sticky Column Header Row
                 DyTableHeader(
                   columns: orderedColumns,
-                  isAllSelected: isAllSelected,
+                  selectionState: headerSelectionState,
                   isAllExpanded: isAllExpanded,
                   onToggleExpandAll: _toggleExpandAll,
                   activeSortKey: _sortKey,
@@ -129,37 +206,44 @@ class _DyTableState extends State<DyTable> {
                       _sortDirection = direction;
                     });
                   },
-                  onSelectAll: (val) {
-                    if (widget.onSelectionChanged != null) {
-                      final newSet = <String>{};
-                      if (val == true) {
-                        for (final r in widget.rows) {
-                          newSet.add(r.id);
-                        }
-                      }
-                      widget.onSelectionChanged!(newSet);
+                  onSelectAll: () {
+                    if (selectedCount > 0) {
+                      _toggleSelectAll(false, sortedRows);
+                    } else {
+                      _toggleSelectAll(true, sortedRows);
                     }
                   },
                 ),
 
-                // 2. Dynamic Scrollable Rows List (Shrinks for few rows, scrolls for many)
+                // 2. Dynamic Scrollable Rows List or 12 Shimmer Skeletons
                 Flexible(
                   fit: FlexFit.loose,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    padding: EdgeInsets.zero,
-                    itemCount: widget.rows.length,
-                    itemBuilder: (context, index) {
-                      final row = widget.rows[index];
-                      final isExpanded = _expandedRowIds.contains(row.id);
+                  child: widget.isLoading
+                      ? ListView.builder(
+                          shrinkWrap: true,
+                          padding: EdgeInsets.zero,
+                          itemCount: 12,
+                          itemBuilder: (context, index) {
+                            return _buildSkeletonRow(
+                                context, theme, colors, orderedColumns);
+                          },
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          padding: EdgeInsets.zero,
+                          itemCount: sortedRows.length,
+                          itemBuilder: (context, index) {
+                            final row = sortedRows[index];
+                            final isExpanded =
+                                _expandedRowIds.contains(row.id);
 
-                      return _buildRowTree(
-                        row: row,
-                        columns: orderedColumns,
-                        isExpanded: isExpanded,
-                      );
-                    },
-                  ),
+                            return _buildRowTree(
+                              row: row,
+                              columns: orderedColumns,
+                              isExpanded: isExpanded,
+                            );
+                          },
+                        ),
                 ),
 
                 // 3. Sticky Summary Totals Footer Row (if provided)
@@ -178,10 +262,70 @@ class _DyTableState extends State<DyTable> {
         // Standalone 44px Pagination Footer Row
         DyPaginationRow(
           currentPage: widget.pageIndex,
-          totalRecords: widget.totalRecords > 0 ? widget.totalRecords : widget.rows.length,
+          totalRecords: widget.totalRecords > 0
+              ? widget.totalRecords
+              : sortedRows.length,
+          selectedCount: widget.selectedRowIds.isNotEmpty
+              ? widget.selectedRowIds.length
+              : _internalSelectedRowIds.length,
           onPageChanged: widget.onPageChanged,
         ),
       ],
+    );
+  }
+
+  Widget _buildSkeletonRow(
+    BuildContext context,
+    shad.ThemeData theme,
+    shad.ColorScheme colors,
+    List<DyTableColumnSpec> columns,
+  ) {
+    return Container(
+      height: 36 * theme.scaling,
+      padding: EdgeInsets.symmetric(horizontal: 8 * theme.scaling),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: colors.border, width: 1.0),
+        ),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 54 * theme.scaling,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(width: 24 * theme.scaling),
+                Container(
+                  width: 16 * theme.scaling,
+                  height: 16 * theme.scaling,
+                  decoration: BoxDecoration(
+                    color: colors.muted.withAlpha(120),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          ...columns.map((col) {
+            return Expanded(
+              flex: col.flex,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 6 * theme.scaling),
+                child: Container(
+                  height: 14 * theme.scaling,
+                  decoration: BoxDecoration(
+                    color: colors.muted.withAlpha(120),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+            );
+          }),
+          SizedBox(width: 72 * theme.scaling),
+        ],
+      ),
     );
   }
 
@@ -190,68 +334,48 @@ class _DyTableState extends State<DyTable> {
     required List<DyTableColumnSpec> columns,
     required bool isExpanded,
   }) {
+    final isSelected = widget.selectedRowIds.contains(row.id) || _internalSelectedRowIds.contains(row.id);
+    final effectiveRow = row.copyWith(isSelected: isSelected);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         // Master Row Renderer by RowType
         if (row.rowType == DyTableRowType.group)
           DyTableGroupRow(
-            rowData: row,
+            rowData: effectiveRow,
             columns: columns,
             isExpanded: isExpanded,
             onToggleExpand: () => _toggleRowExpansion(row.id),
           )
         else if (row.rowType == DyTableRowType.def)
           DyTableDefRow(
-            rowData: row,
+            rowData: effectiveRow,
             columns: columns,
             isExpanded: isExpanded,
-            onSelect: (val) {
-              if (widget.onSelectionChanged != null) {
-                final newSet = Set<String>.from(widget.selectedRowIds);
-                if (val == true) {
-                  newSet.add(row.id);
-                } else {
-                  newSet.remove(row.id);
-                }
-                widget.onSelectionChanged!(newSet);
-              }
-            },
+            onSelect: (val) => _toggleRowSelection(row.id, val),
             onToggleExpand: () => _toggleRowExpansion(row.id),
           )
         else
           DyTableChildRow(
-            rowData: row,
+            rowData: effectiveRow,
             columns: columns,
-            onSelect: (val) {
-              if (widget.onSelectionChanged != null) {
-                final newSet = Set<String>.from(widget.selectedRowIds);
-                if (val == true) {
-                  newSet.add(row.id);
-                } else {
-                  newSet.remove(row.id);
-                }
-                widget.onSelectionChanged!(newSet);
-              }
-            },
+            onSelect: (val) => _toggleRowSelection(row.id, val),
           ),
 
         // Render Expanded Children (if expanded and has children)
         if (isExpanded && row.hasChildren)
-          for (final child in row.children)
-            DyTableChildRow(
-              rowData: child,
-              columns: columns,
-              onSelect: (val) {
-                if (widget.onSelectionChanged != null) {
-                  final newSet = Set<String>.from(widget.selectedRowIds);
-                  if (val == true) {
-                    newSet.add(child.id);
-                  } else {
-                    newSet.remove(child.id);
-                  }
-                  widget.onSelectionChanged!(newSet);
-                }
+          for (int i = 0; i < row.children.length; i++)
+            Builder(
+              builder: (context) {
+                final childRow = row.children[i];
+                final childSelected = widget.selectedRowIds.contains(childRow.id) || _internalSelectedRowIds.contains(childRow.id);
+                return DyTableChildRow(
+                  rowData: childRow.copyWith(isSelected: childSelected),
+                  columns: columns,
+                  isLastChild: i == row.children.length - 1,
+                  onSelect: (val) => _toggleRowSelection(childRow.id, val),
+                );
               },
             ),
       ],
