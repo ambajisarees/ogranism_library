@@ -347,15 +347,13 @@ class PageHeader extends StatelessWidget {
             ],
 
             // 2. Title Text
-            Flexible(
-              child: Text(
-                titleText,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: theme.typography.h2.copyWith(
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: -0.5,
-                ),
+            Text(
+              titleText,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: theme.typography.h2.copyWith(
+                fontWeight: FontWeight.bold,
+                letterSpacing: -0.5,
               ),
             ),
 

@@ -29,6 +29,7 @@ import '../../../dynamic_ai/shells/dy_shl_tasks.dart';
 import '../../../dynamic_ai/shells/dy_page_canvas.dart';
 import '../../../models/production/mdl_cc.dart';
 import '../../../services/production/srv_cc.dart';
+import 'scr_cc_form.dart';
 
 /// [ScrCcLanding] — Main Landing Container Screen for Multi-Cutting Cards.
 class ScrCcLanding extends StatefulWidget {
@@ -42,6 +43,7 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
   final SrvCc _ccService = SrvCc();
   final TextEditingController _searchController = TextEditingController();
 
+  bool _isCreating = false;
   CcCategory _selectedCategory = CcCategory.standardCutting;
   Map<CcCategory, int> _categoryCounts = {};
   String _viewMode = 'table';
@@ -169,6 +171,22 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isCreating) {
+      return ScrCcForm(
+        onBack: () {
+          setState(() {
+            _isCreating = false;
+          });
+        },
+        onSave: () {
+          setState(() {
+            _isCreating = false;
+          });
+          _fetchCards(resetOffset: true);
+        },
+      );
+    }
+
     return DyPageCanvas(
       layoutMode: DyPageLayoutMode.landing,
       header: PageHeader(
@@ -218,15 +236,9 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
           ),
           shad.PrimaryButton(
             onPressed: () {
-              shad.showToast(
-                context: context,
-                builder: (context, show) => shad.Card(
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('Log New Cutting Card modal opened.'),
-                  ),
-                ),
-              );
+              setState(() {
+                _isCreating = true;
+              });
             },
             child: Row(
               mainAxisSize: MainAxisSize.min,

@@ -13,6 +13,8 @@
 
 ### ❌ NEVER Squeeze Unselected Buttons in Segmented Toggle Bars
 - **ANTI-PATTERN**: Leaving `ButtonGroup` items unpadded or using `GhostButton` without background cards, causing icons and labels to collide tightly without clear interactive boundaries.
+- **Row Flex Spacing Rule**: Never wrap `Text` labels or titles inside a `Row` that contains a `Spacer()` or `Expanded` with `Flexible` unless explicitly intended. `Flexible` defaults to `flex: 1` and competes 50/50 with `Spacer()`, stealing half of the unallocated horizontal flex space and stopping trailing action buttons prematurely.
+- **Git Diff Diagnostic First**: When debugging unexplained UI alignment shifts or element truncation, ALWAYS inspect `git log -p` / `git show` for recent modifications on the target component BEFORE attempting structural refactors of parent containers.
 - **CORRECT WAY**: Use `MicroButton` for unselected items (with `colors.card` background fill and `colors.border` outline) and `shad.PrimaryButton` for the selected item, with an explicit `8px` horizontal inner padding token (`EdgeInsets.symmetric(horizontal: 8 * theme.scaling)`).
 
 ### ❌ NEVER Allow Unbounded Vertical Stretching in Headers

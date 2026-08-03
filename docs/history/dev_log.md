@@ -3,6 +3,29 @@
 > **Developer**: Smit · www.ambajisaree.com
 > **Convention**: Newest entries at top. Each day is a self-contained section tagged with Machine Agent origin (`[Windows Workstation]` vs `[MacBook Workstation]`).
 
+## 2026-08-04 · [Windows Workstation] · PageHeader Title Flexible Fix, DyPageCanvas Auto Progress Loading & DyShlAdd / ScrCcForm Creation
+
+Fixed `PageHeader` title `Flexible` flex competing bug, refactored `DyPageCanvas` with automatic top 2px `PageLoadingNotification` progress loading, refactored `DyShlAdd` to a clean body workspace shell below `PageHeader`, and created `ScrCcForm` for Cutting Cards add workflow.
+
+### PageHeader Title Flex Fix (`lib/dynamic_ai/page/dy_page_header.dart`)
+- **Spacer Flex Restored**: Removed `Flexible` wrapper around `Text(titleText)` in `PageHeader`. In a Flutter `Row`, `Flexible(flex: 1)` competed 50/50 with `Spacer()` (`Expanded(flex: 1)`), stealing half of the unallocated horizontal flex space. Removing `Flexible` allows `Spacer()` to claim 100% flex space and align trailing action buttons flush to the far right margin.
+
+### Universal Page & Shell Loading Engine (`lib/dynamic_ai/shells/dy_page_canvas.dart`)
+- **Stateful DyPageCanvas & Progress Dispatcher**: Converted `DyPageCanvas` to a `StatefulWidget` equipped with `initState()` and `didUpdateWidget()` listeners. Automatically dispatches `PageLoadingNotification(true)` to `DynamicHeaderTabs` on initial page mount, subpage index switches (`Dash` $\leftrightarrow$ `Details` $\leftrightarrow$ `Reports` $\leftrightarrow$ `Tasks`), layout mode changes (`landing` $\leftrightarrow$ `form`), or `isLoading` updates.
+- **Top 2px Teal Progress Bar**: Guarantees zero-boilerplate top 2px progress bar animation across all module page loads, subpage tab switches, and Add/Edit form entries.
+
+### Body Workspace Shell & Form Screen (`lib/dynamic_ai/shells/dy_shl_add.dart` & `lib/screens/production/cutting/scr_cc_form.dart`)
+- **`DyShlAdd` Body Shell**: Refactored `DyShlAdd` to be a pure body workspace container shell sitting below `PageHeader` in `DyPageCanvas` (matching `DyShlDetails` and `DyShlDash`).
+- **`ScrCcForm` Form Container Screen**: Created `ScrCcForm` rendering `DyPageCanvas(layoutMode: DyPageLayoutMode.form, header: PageHeader(mode: PageHeaderMode.adding, ...), content: const DyShlAdd())`. Wired `ScrCcLanding`'s `+ Add` button to launch `ScrCcForm` with 2px progress loading animation.
+
+### Master Negative Coding Guidelines (`ANTIRULES.md`)
+- Added **Row Flex Spacing Rule** and **Git Diff Diagnostic First** guidelines to `ANTIRULES.md`.
+
+### Verification & Code Quality
+- **`flutter analyze`**: **0 errors, 0 warnings** across the entire codebase.
+
+---
+
 ## 2026-08-03 · [MacBook Workstation] · Cutting Cards (`cc`) Model Enhancement, Native Subpage Canvas Engine & 4-Shell Landing Refactor
 
 Refactored `MdlCcHeader` and `MdlCcLineItem` in `mdl_cc.dart`, added native subpage content switching and 150ms `AnimatedSwitcher` cross-fade transition inside `DyPageCanvas`, refactored `ScrCcLanding` to full 4-Shell Architecture (`Dash`, `Details`, `Reports`, `Tasks`), and deleted legacy `scr_cc_dashboard_pane.dart` & `scr_cc_form_dialog.dart`.
