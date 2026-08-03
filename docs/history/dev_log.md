@@ -3,6 +3,27 @@
 > **Developer**: Smit · www.ambajisaree.com
 > **Convention**: Newest entries at top. Each day is a self-contained section tagged with Machine Agent origin (`[Windows Workstation]` vs `[MacBook Workstation]`).
 
+## 2026-08-03 · [MacBook Workstation] · Cutting Cards (`cc`) Model Enhancement, Native Subpage Canvas Engine & 4-Shell Landing Refactor
+
+Refactored `MdlCcHeader` and `MdlCcLineItem` in `mdl_cc.dart`, added native subpage content switching and 150ms `AnimatedSwitcher` cross-fade transition inside `DyPageCanvas`, refactored `ScrCcLanding` to full 4-Shell Architecture (`Dash`, `Details`, `Reports`, `Tasks`), and deleted legacy `scr_cc_dashboard_pane.dart` & `scr_cc_form_dialog.dart`.
+
+### Cutting Cards Domain Model Overhaul (`lib/models/production/mdl_cc.dart`)
+- **`MdlCcHeader` Domain Model**: Added un-wrapped getters for fabric metrics (`totalWmts`, `totalReceivedMeters`, `totalDmts`, `totalReceivedPcs`, `totalFreshPcs`, `totalSecondPcs`, `totalFentMts`, `totalFentWt`), yield ratios (`freshYieldPct`, `secondPct`, `fentPct`, `shortagePct`), landed financials (`greyRate`, `jobRate`, `costPerPc`, `totalInvestment`), process specifications (`jobType`, `valueType`, `cutCardNos`, `reccardNos`), and attachment checks (`cardPicPath`, `hasCardPic`, `freshYieldStatus`).
+- **3-Tiered DyTable Row Mapping**: Implemented `toDyDefRowData()` and `toDyChildRowData()` transforming `MdlCcHeader` and `MdlCcLineItem` into 3-tiered table rows (`DyTableRowType.def` and `DyTableRowType.child`) for `DyTable`.
+
+### Native Subpage Switcher Engine (`lib/dynamic_ai/shells/dy_page_canvas.dart`)
+- **Native `DyPageCanvas` Subpage Engine**: Updated `DyPageCanvas` to natively support `subpageContents: List<Widget>?` and `subpageIndex: int?` with built-in 150ms `AnimatedSwitcher` + `KeyedSubtree` cross-fade transition, eliminating boilerplate across module landing screens.
+
+### Cutting Cards 4-Shell Landing Screen (`lib/screens/production/cutting/scr_cc_landing.dart`)
+- **4-Shell Architecture Integration**: Migrated `ScrCcLanding` to `DyPageCanvas` with 4 subpages: `Dash` (`DyShlDash`), `Details` (`DyShlDetails`), `Reports` (`DyShlReports`), and `Tasks` (`DyShlTasks` 4-column Kanban board).
+- **DAB Context Filters & Pagination**: Integrated `CcCategory` submodule selector, search, Mill filter, Quality filter, Status filter, Date Range filter, `DyTable` 3-tiered table mapping, and `ScrCcDetailCanvas`.
+- **Legacy Cleanup**: Deleted obsolete `scr_cc_dashboard_pane.dart` and `scr_cc_form_dialog.dart`.
+
+### Verification & Code Quality
+- **`flutter analyze`**: **0 errors, 0 warnings** across the entire codebase.
+
+---
+
 ## 2026-08-02 · [Windows Workstation] · PageHeader & PageSubpages 36px Engine, DAB 8-Slot Reordering, 4-Shell Architecture & ANTIRULES.md
 
 Refactored `PageHeader` layout, engineered `PageSubpages` segmented toggle bar with exact 36px height & 8px horizontal padding, reordered DynamicActionBar (DAB) pipeline, created 4 modular page shell layouts (`dy_shl_dash`, `dy_shl_details`, `dy_shl_reports`, `dy_shl_tasks`), integrated 150ms `AnimatedSwitcher` cross-fade transition, and authored `ANTIRULES.md`.
