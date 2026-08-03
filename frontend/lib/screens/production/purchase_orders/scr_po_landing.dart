@@ -29,6 +29,8 @@ import '../../../dynamic_ai/shells/dy_shl_dash.dart';
 import '../../../dynamic_ai/shells/dy_shl_details.dart';
 import '../../../dynamic_ai/shells/dy_shl_reports.dart';
 import '../../../dynamic_ai/shells/dy_shl_tasks.dart';
+import '../../../dynamic_ai/shells/dy_page_canvas.dart';
+import '../../../dynamic_ai/root/dy_module_tabs.dart';
 import '../../../models/production/mdl_po.dart';
 import '../../../services/production/srv_po.dart';
 
@@ -61,7 +63,7 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
   // Filter States
   Set<String> _selectedParties = {};
   List<String> _partyOptions = [];
-  Set<String> _selectedStatuses = {};
+  final Set<String> _selectedStatuses = {};
   shad.CalendarValue? _selectedDateRange;
   String? _selectedDateLabel;
 
@@ -168,44 +170,46 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
     _fetchHeaders(resetOffset: true);
   }
 
+  void _triggerPageLoading() {
+    if (mounted) {
+      PageLoadingNotification(true).dispatch(context);
+    }
+    Future.delayed(const Duration(milliseconds: 700), () {
+      if (mounted) {
+        PageLoadingNotification(false).dispatch(context);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // 1. PAGE HEADER (Title: Purchase Orders, Tabs: Details/Reports/Links, Secondary Actions: Print/Export)
-        PageHeader(
-          title: 'Purchase Orders',
-          mode: PageHeaderMode.standard,
-          subpages: PageSubpages(
-            selectedIndex: _contextTabIndex,
-            labels: const ['Dash', 'Details', 'Reports', 'Tasks'],
-            onSubpageChanged: (idx) {
-              setState(() {
-                _contextTabIndex = idx;
-              });
-            },
-          ),
+    return DyPageCanvas(
+      layoutMode: DyPageLayoutMode.landing,
+      header: PageHeader(
+        title: 'Purchase Orders',
+        mode: PageHeaderMode.standard,
+        subpages: PageSubpages(
+          selectedIndex: _contextTabIndex,
+          labels: const ['Dash', 'Details', 'Reports', 'Tasks'],
+          onSubpageChanged: (idx) {
+            _triggerPageLoading();
+            setState(() {
+              _contextTabIndex = idx;
+            });
+          },
         ),
-
-        // 24px Vertical Gap Token between PageHeader and DAB
-        const shad.DensityGap(shad.gapLg),
-
-        // 2. MAIN CONTENT AREA (Tab 0: Details Shell, Tab 1: Reports, Tab 2: Links)
-        Expanded(
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 150),
-            switchInCurve: Curves.easeOut,
-            switchOutCurve: Curves.easeIn,
-            child: KeyedSubtree(
-              key: ValueKey<int>(_contextTabIndex),
-              child: _buildTabContent(theme),
-            ),
-          ),
+      ),
+      content: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 150),
+        switchInCurve: Curves.easeOut,
+        switchOutCurve: Curves.easeIn,
+        child: KeyedSubtree(
+          key: ValueKey<int>(_contextTabIndex),
+          child: _buildTabContent(theme),
         ),
-      ],
+      ),
     );
   }
 
@@ -281,18 +285,11 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
         _searchQuery = val?.trim();
         _fetchHeaders(resetOffset: true);
       },
-      selectedMills: _selectedParties,
-      millOptions: _partyOptions,
-      onMillChanged: (set) {
+      selectedParties: _selectedParties,
+      partyOptions: _partyOptions,
+      onPartyChanged: (set) {
         setState(() {
           _selectedParties = set;
-        });
-        _fetchHeaders(resetOffset: true);
-      },
-      selectedStatuses: _selectedStatuses,
-      onStatusChanged: (statuses) {
-        setState(() {
-          _selectedStatuses = statuses;
         });
         _fetchHeaders(resetOffset: true);
       },
@@ -309,12 +306,15 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
       onClearAllFilters: _onClearAllFilters,
       tableColumns: const [
         DyTableColumnSpec(key: 'vno', label: 'Voucher No', flex: 1),
+        DyTableColumnSpec(key: 'jobLink', label: 'Job Link', flex: 1),
         DyTableColumnSpec(key: 'date', label: 'Date', flex: 1),
         DyTableColumnSpec(key: 'status', label: 'Status', flex: 1, isSortable: false),
-        DyTableColumnSpec(key: 'partyName', label: 'Party / Weaver', flex: 2),
-        DyTableColumnSpec(key: 'designPattern', label: 'Design & Quality', flex: 2),
-        DyTableColumnSpec(key: '_empty', label: '', flex: 3, isSortable: false),
+        DyTableColumnSpec(key: 'partyName', label: 'Party', flex: 2),
+        DyTableColumnSpec(key: 'designPattern', label: 'Design', flex: 1),
+        DyTableColumnSpec(key: 'pcs', label: 'Pcs', flex: 1, isNumeric: true),
         DyTableColumnSpec(key: 'quantity', label: 'Quantity', flex: 1, isNumeric: true),
+        DyTableColumnSpec(key: 'unit', label: 'Unit', flex: 1),
+        DyTableColumnSpec(key: 'rate', label: 'Rate', flex: 1, isNumeric: true),
         DyTableColumnSpec(key: 'amount', label: 'Amount', flex: 1, isNumeric: true),
       ],
       tableRows: _buildMappedTableRows(),
@@ -334,13 +334,16 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
   }
 
   Map<String, String> _buildSummaryTotals() {
+    int totalPcs = 0;
     double totalMts = 0;
     double totalAmt = 0;
     for (final o in _orders) {
+      totalPcs += o.totalPieces;
       totalMts += o.totalMeters;
       totalAmt += o.finalAmount > 0 ? o.finalAmount : o.billAmount;
     }
     return {
+      'pcs': '$totalPcs Pcs',
       'quantity': '${totalMts.toStringAsFixed(1)} Mts',
       'amount': '₹${totalAmt.toStringAsFixed(2)}',
     };
@@ -391,6 +394,7 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
 
       final result = <DyTableRowData>[];
       grouped.forEach((party, partyOrders) {
+        final totalPcs = partyOrders.fold<int>(0, (sum, o) => sum + o.totalPieces);
         final totalMts = partyOrders.fold<double>(0, (sum, o) => sum + o.totalMeters);
         final totalAmt = partyOrders.fold<double>(0, (sum, o) => sum + (o.finalAmount > 0 ? o.finalAmount : o.billAmount));
 
@@ -402,12 +406,15 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
             partyName: party,
             data: {
               'vno': 'GROUP: ${party.toUpperCase()}',
+              'jobLink': '-',
               'date': '-',
               'status': 'ACTIVE',
               'partyName': party,
               'designPattern': '${partyOrders.length} Orders Summary',
-              '_empty': '',
+              'pcs': '$totalPcs Pcs',
               'quantity': '${totalMts.toStringAsFixed(1)} Mts',
+              'unit': 'MTR',
+              'rate': '-',
               'amount': '₹${totalAmt.toStringAsFixed(2)}',
             },
             children: partyOrders.map((o) => _mapOrderToDefRow(o)).toList(),
@@ -427,14 +434,30 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
       rowType: DyTableRowType.def,
       voucherNo: o.displayOrderNo,
       partyName: o.partyName.isNotEmpty ? o.partyName : 'Unknown Supplier',
+      childColumns: const [
+        DyTableColumnSpec(key: '_pad1', label: '', flex: 1, isSortable: false),
+        DyTableColumnSpec(key: '_pad2', label: '', flex: 1, isSortable: false),
+        DyTableColumnSpec(key: '_pad3', label: '', flex: 1, isSortable: false),
+        DyTableColumnSpec(key: '_pad4', label: '', flex: 1, isSortable: false),
+        DyTableColumnSpec(key: '_pad5', label: '', flex: 2, isSortable: false),
+        DyTableColumnSpec(key: 'designPattern', label: 'Design', flex: 1),
+        DyTableColumnSpec(key: 'pcs', label: 'Pcs', flex: 1, isNumeric: true),
+        DyTableColumnSpec(key: 'quantity', label: 'Quantity', flex: 1, isNumeric: true),
+        DyTableColumnSpec(key: 'unit', label: 'Unit', flex: 1),
+        DyTableColumnSpec(key: 'rate', label: 'Rate', flex: 1, isNumeric: true),
+        DyTableColumnSpec(key: 'amount', label: 'Amount', flex: 1, isNumeric: true),
+      ],
       data: {
         'vno': o.displayOrderNo,
+        'jobLink': o.jobLink,
         'date': _formatShortDate(o.date),
         'status': o.isPending ? 'PENDING' : 'COMPLETED',
         'partyName': o.partyName.isNotEmpty ? o.partyName : 'Unknown Supplier',
         'designPattern': o.primaryFabric,
-        '_empty': '',
-        'quantity': o.totalMeters > 0 ? '${o.totalMeters.toStringAsFixed(1)} Mts' : '-',
+        'pcs': o.totalPcsDisplay,
+        'quantity': o.totalQtyDisplay,
+        'unit': o.primaryUnit,
+        'rate': o.formattedRate(),
         'amount': o.formattedFinalAmount(),
       },
       children: o.lineItems.map((item) {
@@ -444,13 +467,16 @@ class _ScrPoLandingState extends State<ScrPoLanding> {
           voucherNo: '${o.displayOrderNo}-${item.srNo}',
           partyName: item.quality,
           data: {
-            'vno': '${o.displayOrderNo}-${item.srNo}',
-            'date': '-',
-            'status': 'UNCUT',
-            'partyName': item.quality,
-            'designPattern': 'Lot #${item.srNo} • ${item.pieces.toInt()} Pcs',
-            '_empty': '',
-            'quantity': item.meters > 0 ? '${item.meters.toStringAsFixed(1)} Mts' : '-',
+            '_pad1': '',
+            '_pad2': '',
+            '_pad3': '',
+            '_pad4': '',
+            '_pad5': '',
+            'designPattern': item.quality.isNotEmpty ? item.quality : 'Lot #${item.srNo}',
+            'pcs': item.pieces > 0 ? '${item.pieces.toInt()}' : '-',
+            'quantity': item.meters > 0 ? item.meters.toStringAsFixed(1) : '-',
+            'unit': item.unit.isNotEmpty ? item.unit : 'MTR',
+            'rate': item.rate > 0 ? '₹${item.rate.toStringAsFixed(2)}' : '-',
             'amount': item.formattedAmount(),
           },
         );

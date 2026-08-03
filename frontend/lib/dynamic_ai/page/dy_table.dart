@@ -13,6 +13,7 @@ import '../micro/table/dy_table_def_row.dart';
 import '../micro/table/dy_table_footer.dart';
 import '../micro/table/dy_table_group_row.dart';
 import '../micro/table/dy_table_header.dart';
+import '../micro/table/dy_table_subheader_row.dart';
 import '../micro/table/dy_table_models.dart';
 
 // Re-export models for backward compatibility across all screens
@@ -257,7 +258,7 @@ class _DyTableState extends State<DyTable> {
           ),
         ),
 
-        const shad.DensityGap(shad.gapSm),
+        const shad.DensityGap(shad.gapMd),
 
         // Standalone 44px Pagination Footer Row
         DyPaginationRow(
@@ -360,24 +361,25 @@ class _DyTableState extends State<DyTable> {
           DyTableChildRow(
             rowData: effectiveRow,
             columns: columns,
-            onSelect: (val) => _toggleRowSelection(row.id, val),
           ),
 
         // Render Expanded Children (if expanded and has children)
-        if (isExpanded && row.hasChildren)
+        if (isExpanded && row.hasChildren) ...[
+          DyTableSubheaderRow(
+            columns: row.childColumns ?? columns,
+          ),
           for (int i = 0; i < row.children.length; i++)
             Builder(
               builder: (context) {
                 final childRow = row.children[i];
-                final childSelected = widget.selectedRowIds.contains(childRow.id) || _internalSelectedRowIds.contains(childRow.id);
                 return DyTableChildRow(
-                  rowData: childRow.copyWith(isSelected: childSelected),
-                  columns: columns,
+                  rowData: childRow,
+                  columns: row.childColumns ?? columns,
                   isLastChild: i == row.children.length - 1,
-                  onSelect: (val) => _toggleRowSelection(childRow.id, val),
                 );
               },
             ),
+        ],
       ],
     );
   }

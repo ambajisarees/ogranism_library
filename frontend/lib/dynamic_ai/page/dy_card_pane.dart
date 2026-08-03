@@ -101,7 +101,7 @@ class _DyViewCardState extends State<DyViewCard> {
                       },
                     )),
         ),
-        const shad.DensityGap(shad.gapSm),
+        const shad.DensityGap(shad.gapMd),
 
         DyPaginationRow(
           totalRecords: widget.totalRecords ?? widget.items.length,

@@ -3,57 +3,56 @@
 LLM CONTEXT & QUERY SPACE — DYNAMIC ADD FORM SHELL (dy_shl_add.dart)
 ================================================================================
 1. DOMAIN & PURPOSE:
-   - Dedicated Add/Edit creation workflow page shell layout framing PageFormCanvas.
-   - Handles top PageHeader in adding mode alongside 2-pane form surface canvas.
+   - Dedicated Add/Edit creation workflow page shell layout framing DyPageCanvas.
+   - Handles top PageHeader in adding/editing mode alongside custom form content.
 
 2. BUSINESS LOGIC & DATA CONTRACTS:
-   - Wraps PageFormCanvas (1400px centered max-width, 340px side pane).
-   - Manages back button navigation and confirm/discard form actions.
+   - Enforces DyPageCanvas(layoutMode: DyPageLayoutMode.form) for Flex 10 centered layout.
+   - Manages back button navigation, title, moduleName, and confirm/discard form actions.
 ================================================================================
 */
 
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
-import 'page_form_canvas.dart';
+import 'dy_page_canvas.dart';
 import '../page/dy_page_header.dart';
 
-/// [DyShlAdd] — Dedicated Page Shell Layout framing PageFormCanvas for Add/Edit flows.
+/// [DyShlAdd] — Dedicated Page Shell Layout framing DyPageCanvas for Add/Edit flows.
 class DyShlAdd extends StatelessWidget {
   final String title;
-  final String moduleName;
+  final String? moduleName;
+  final PageHeaderMode mode;
   final VoidCallback onBack;
+  final VoidCallback? onDiscard;
+  final VoidCallback? onSaveDraft;
   final VoidCallback onConfirm;
-  final Widget mainPane;
-  final Widget sidePane;
-  final double maxWidth;
-  final double sidePaneWidth;
+  final Widget content;
 
   const DyShlAdd({
     super.key,
     required this.title,
-    required this.moduleName,
+    this.moduleName,
+    this.mode = PageHeaderMode.adding,
     required this.onBack,
+    this.onDiscard,
+    this.onSaveDraft,
     required this.onConfirm,
-    required this.mainPane,
-    required this.sidePane,
-    this.maxWidth = 1400.0,
-    this.sidePaneWidth = 340.0,
+    this.content = const SizedBox.shrink(),
   });
 
   @override
   Widget build(BuildContext context) {
-    return PageFormCanvas(
-      maxWidth: maxWidth,
-      sidePaneWidth: sidePaneWidth,
+    return DyPageCanvas(
+      layoutMode: DyPageLayoutMode.form,
       header: PageHeader(
         title: title,
         moduleName: moduleName,
-        mode: PageHeaderMode.adding,
+        mode: mode,
         onBack: onBack,
-        onDiscard: onBack,
+        onDiscard: onDiscard ?? onBack,
+        onSaveDraft: onSaveDraft,
         onConfirm: onConfirm,
       ),
-      mainPane: mainPane,
-      sidePane: sidePane,
+      content: content,
     );
   }
 }

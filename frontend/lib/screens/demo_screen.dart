@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Card, Tab, Badge, Scaffold;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
-import '../dynamic_ai/shells/page_form_canvas.dart';
+import '../dynamic_ai/shells/dy_page_canvas.dart';
 import '../dynamic_ai/page/dy_page_header.dart';
 import '../dynamic_ai/page/dy_action_bar.dart';
 import '../dynamic_ai/micro/dab/dab_submodule_pop.dart';
@@ -457,7 +457,10 @@ class _DemoScreenState extends State<DemoScreen> {
           ),
           actions: [
             shad.PrimaryButton(
-              onPressed: () => setState(() => _isCreating = true),
+              onPressed: () {
+                _triggerPageLoading();
+                setState(() => _isCreating = true);
+              },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -488,7 +491,7 @@ class _DemoScreenState extends State<DemoScreen> {
   }
 
   // =========================================================================
-  // VIEW 2: ADD CUTTING CARD WORKFLOW (MAXWIDTH: 1200px CENTERED)
+  // VIEW 2: ADD CUTTING CARD WORKFLOW (STRICT FLEX 10 FORM CANVAS)
   // =========================================================================
   Widget _buildAddCuttingCardView(BuildContext context) {
     final theme = shad.Theme.of(context);
@@ -509,19 +512,36 @@ class _DemoScreenState extends State<DemoScreen> {
       return true;
     }).toList();
 
-    return PageFormCanvas(
-      maxWidth: 1400.0,
-      sidePaneWidth: 340.0,
+    return DyPageCanvas(
+      layoutMode: DyPageLayoutMode.form,
       header: PageHeader(
         title: 'Cutting Card',
         mode: PageHeaderMode.adding,
-        onBack: () => setState(() => _isCreating = false),
-        onDiscard: () => setState(() => _isCreating = false),
+        onBack: () {
+          _triggerPageLoading();
+          setState(() => _isCreating = false);
+        },
+        onDiscard: () {
+          _triggerPageLoading();
+          setState(() => _isCreating = false);
+        },
+        onSaveDraft: () {
+          shad.showToast(
+            context: context,
+            builder: (context, overlay) => const shad.SurfaceCard(
+              child: Text('Draft saved successfully!'),
+            ),
+          );
+        },
         onConfirm: _handleSaveBatch,
       ),
-      mainPane: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      content: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
           // DYNAMIC ACTION BAR FOR ADD FLOW (Top of Pane 1)
           DynamicActionBar(
             entityName: 'Uncut Rolls',
@@ -654,7 +674,11 @@ class _DemoScreenState extends State<DemoScreen> {
           ),
         ],
       ),
-      sidePane: Column(
+    ),
+    SizedBox(width: 16 * theme.scaling),
+    SizedBox(
+      width: 340 * theme.scaling,
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // BATCH SPECS FORM CARD
@@ -895,8 +919,11 @@ class _DemoScreenState extends State<DemoScreen> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  ],
+),
+);
+}
 
   Widget _buildRecoveryProgressBar(
     shad.ThemeData theme,

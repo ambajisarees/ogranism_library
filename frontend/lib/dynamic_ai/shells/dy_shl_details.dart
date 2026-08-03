@@ -29,6 +29,7 @@ import '../page/dy_details_pane.dart';
 import '../micro/cards/dy_grid_card.dart';
 import '../micro/cards/dy_list_item.dart';
 import '../micro/cards/dy_kanban_item.dart';
+import '../specs/dy_color_system.dart';
 
 /// [DyShlDetails] — Master Details Page Shell framing PH -> 16px -> DAB -> 16px -> View Router.
 class DyShlDetails extends StatefulWidget {
@@ -47,6 +48,9 @@ class DyShlDetails extends StatefulWidget {
   final Widget? submoduleWidget;
   final String? searchQuery;
   final ValueChanged<String?>? onSearchChanged;
+  final Set<String> selectedParties;
+  final List<String> partyOptions;
+  final ValueChanged<Set<String>>? onPartyChanged;
   final Set<String> selectedMills;
   final List<String> millOptions;
   final ValueChanged<Set<String>>? onMillChanged;
@@ -55,6 +59,7 @@ class DyShlDetails extends StatefulWidget {
   final ValueChanged<Set<String>>? onQualityChanged;
   final Set<String> selectedStatuses;
   final ValueChanged<Set<String>>? onStatusChanged;
+  final bool showRangeFilter;
   final shad.CalendarValue? selectedDateRange;
   final String? selectedDateLabel;
   final ValueChanged<shad.CalendarValue?>? onDateRangeSelected;
@@ -90,6 +95,9 @@ class DyShlDetails extends StatefulWidget {
     this.submoduleWidget,
     this.searchQuery,
     this.onSearchChanged,
+    this.selectedParties = const {},
+    this.partyOptions = const [],
+    this.onPartyChanged,
     this.selectedMills = const {},
     this.millOptions = const [],
     this.onMillChanged,
@@ -98,6 +106,7 @@ class DyShlDetails extends StatefulWidget {
     this.onQualityChanged,
     this.selectedStatuses = const {},
     this.onStatusChanged,
+    this.showRangeFilter = false,
     this.selectedDateRange,
     this.selectedDateLabel,
     this.onDateRangeSelected,
@@ -142,6 +151,9 @@ class _DyShlDetailsState extends State<DyShlDetails> {
           submoduleWidget: widget.submoduleWidget,
           searchQuery: widget.searchQuery,
           onSearchChanged: widget.onSearchChanged,
+          selectedParties: widget.selectedParties,
+          partyOptions: widget.partyOptions,
+          onPartyChanged: widget.onPartyChanged,
           selectedMills: widget.selectedMills,
           millOptions: widget.millOptions,
           onMillChanged: widget.onMillChanged,
@@ -150,13 +162,14 @@ class _DyShlDetailsState extends State<DyShlDetails> {
           onQualityChanged: widget.onQualityChanged,
           selectedStatuses: widget.selectedStatuses,
           onStatusChanged: widget.onStatusChanged,
+          showRangeFilter: widget.showRangeFilter,
           selectedDateRange: widget.selectedDateRange,
           selectedDateLabel: widget.selectedDateLabel,
           onDateRangeSelected: widget.onDateRangeSelected,
           hasActiveFilters: widget.hasActiveFilters,
           onClearAllFilters: widget.onClearAllFilters,
         ),
-        const shad.DensityGap(shad.gapLg),
+        const shad.DensityGap(shad.gapMd),
 
         // 3. DYNAMIC CONTENT AREA VIEW ROUTER (150ms AnimatedSwitcher Fade Transition)
         Expanded(
@@ -282,10 +295,10 @@ class _DyShlDetailsState extends State<DyShlDetails> {
         }).toList();
 
         final stages = [
-          {'title': 'UNCUT', 'color': const Color(0xFF3B82F6)},
-          {'title': 'IN CUTTING', 'color': const Color(0xFFF59E0B)},
-          {'title': 'MILL DISPATCH', 'color': const Color(0xFF8B5CF6)},
-          {'title': 'COMPLETED', 'color': const Color(0xFF10B981)},
+          {'title': 'UNCUT', 'color': DyColorSystem.indigo500},
+          {'title': 'IN CUTTING', 'color': DyColorSystem.orange500},
+          {'title': 'MILL DISPATCH', 'color': DyColorSystem.fuchsia500},
+          {'title': 'COMPLETED', 'color': DyColorSystem.green500},
         ];
 
         return Row(

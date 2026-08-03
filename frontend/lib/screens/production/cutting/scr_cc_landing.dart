@@ -3,19 +3,15 @@
 LLM CONTEXT & QUERY SPACE — CUTTING CARDS LANDING SCREEN (scr_cc_landing.dart)
 ================================================================================
 1. DOMAIN & PURPOSE:
-   - Primary landing container screen for Multi-Cutting Cards (`cc`).
-   - Standard 1-to-1 alignment with `ScrPoLanding` and legacy Cutting Cards DAB implementation.
-   - Supports dual view modes: Full Dense Table View (`table`) and Master-Detail Split View (`split`).
+   - Primary landing container screen for Multi-Cutting Cards (`cc` / Stage 2 of Production Pipeline).
+   - Utilizes native DyPageCanvas 4-Shell Architecture with built-in subpage switcher.
+   - Embeds DyShlDetails (Details shell), DyShlDash (Dashboard), DyShlReports (Reports), and DyShlTasks (4-Column Kanban).
 
 2. BUSINESS LOGIC & DATA CONTRACTS:
-   - Consumes module-level service `SrvCc` and module model `MdlCcHeader`.
-   - Core models `SbCutdetSummaryModel` and `SbCutdetModel` remain 100% untouched and immutable.
-   - Standard `PageHeader` + `DynamicActionBar` (DAB) architecture with `submoduleWidget` popover overlay.
-   - Context-specific DAB filters: Mill Filter (`selectedMills`), Fabric Quality Filter (`selectedQualities`),
-     Status Filter (`selectedStatuses`), and Date Range Filter (`selectedDateRange`).
-
-3. DATA AUDIT / NULL RATES / GOTCHAS:
-   - All 311 summary records loaded live from Supabase `IMMBE2627.sb_cutdet_summary`.
+   - Category Submodules: Standard Cutting, Job Work Cutting, Special Lot.
+   - Context Filters: Mill, Grey Quality, Status (Completed/Pending), Date Range, and Search Query.
+   - 3-Tiered DyTable Engine: Renders 3-tiered table rows via `c.toDyDefRowData()`.
+   - Native Token Strictness: Uses `shad.Theme.of(context)`, zero container wrappers, 36px DAB tokens.
 ================================================================================
 */
 
@@ -23,14 +19,16 @@ import 'package:flutter/material.dart' hide Card;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
 import '../../../dynamic_ai/page/dy_page_header.dart';
-import '../../../dynamic_ai/page/dy_action_bar.dart';
-import '../../../dynamic_ai/page/dy_table_pane.dart';
-import '../../../dynamic_ai/page/dy_list_pane.dart';
-import '../../../dynamic_ai/micro/cards/dy_list_item.dart';
+import '../../../dynamic_ai/micro/dab/dab_submodule_pop.dart';
+import '../../../dynamic_ai/micro/dy_micro_button.dart';
+import '../../../dynamic_ai/micro/table/dy_table_models.dart';
+import '../../../dynamic_ai/shells/dy_shl_dash.dart';
+import '../../../dynamic_ai/shells/dy_shl_details.dart';
+import '../../../dynamic_ai/shells/dy_shl_reports.dart';
+import '../../../dynamic_ai/shells/dy_shl_tasks.dart';
+import '../../../dynamic_ai/shells/dy_page_canvas.dart';
 import '../../../models/production/mdl_cc.dart';
 import '../../../services/production/srv_cc.dart';
-import 'scr_cc_detail_canvas.dart';
-import 'scr_cc_form_dialog.dart';
 
 /// [ScrCcLanding] — Main Landing Container Screen for Multi-Cutting Cards.
 class ScrCcLanding extends StatefulWidget {
@@ -44,15 +42,19 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
   final SrvCc _ccService = SrvCc();
   final TextEditingController _searchController = TextEditingController();
 
-  String _viewMode = 'table'; // 'table' or 'split'
+  CcCategory _selectedCategory = CcCategory.standardCutting;
+  Map<CcCategory, int> _categoryCounts = {};
+  String _viewMode = 'table';
+  int _contextTabIndex = 1; // Default to 'Details' shell (Index 1)
+  final String _groupingMode = 'none'; // 'none', 'mill', 'quality'
   String? _searchQuery;
 
-  // Filter States (Cutting Card Context Specific Filters)
-  Set<String> _selectedMills = {};
+  // Filter States
+  final Set<String> _selectedMills = {};
   List<String> _millOptions = [];
-  Set<String> _selectedQualities = {};
+  final Set<String> _selectedQualities = {};
   List<String> _qualityOptions = [];
-  Set<String> _selectedStatuses = {};
+  final Set<String> _selectedStatuses = {};
   shad.CalendarValue? _selectedDateRange;
   String? _selectedDateLabel;
 
@@ -76,8 +78,17 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
   }
 
   Future<void> _loadInitialData() async {
+    _loadCategoryCounts();
     _loadFilterOptions();
     _fetchCards(resetOffset: true);
+  }
+
+  Future<void> _loadCategoryCounts() async {
+    final counts = await _ccService.getCategoryCounts();
+    if (!mounted) return;
+    setState(() {
+      _categoryCounts = counts;
+    });
   }
 
   Future<void> _loadFilterOptions() async {
@@ -129,6 +140,20 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
     });
   }
 
+  void _onCategoryChanged(CcCategory category) {
+    if (_selectedCategory == category) return;
+    setState(() {
+      _selectedCategory = category;
+      _selectedMills.clear();
+      _selectedQualities.clear();
+      _selectedStatuses.clear();
+      _selectedDateRange = null;
+      _selectedDateLabel = null;
+      _selectedCard = null;
+    });
+    _fetchCards(resetOffset: true);
+  }
+
   void _onClearAllFilters() {
     _searchController.clear();
     setState(() {
@@ -144,280 +169,252 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = shad.Theme.of(context);
-    final colors = theme.colorScheme;
+    return DyPageCanvas(
+      layoutMode: DyPageLayoutMode.landing,
+      header: PageHeader(
+        title: 'Cutting Cards',
+        actions: [
+          shad.OutlineButton(
+            onPressed: () {
+              shad.showToast(
+                context: context,
+                builder: (context, show) => shad.Card(
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Print Cutting Report triggered.'),
+                  ),
+                ),
+              );
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(shad.LucideIcons.printer, size: 16),
+                shad.DensityGap(shad.gapSm),
+                Text('Print'),
+              ],
+            ),
+          ),
+          shad.OutlineButton(
+            onPressed: () {
+              shad.showToast(
+                context: context,
+                builder: (context, show) => shad.Card(
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Export Cutting Data triggered.'),
+                  ),
+                ),
+              );
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(shad.LucideIcons.download, size: 16),
+                shad.DensityGap(shad.gapSm),
+                Text('Export'),
+              ],
+            ),
+          ),
+          shad.PrimaryButton(
+            onPressed: () {
+              shad.showToast(
+                context: context,
+                builder: (context, show) => shad.Card(
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Log New Cutting Card modal opened.'),
+                  ),
+                ),
+              );
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(shad.LucideIcons.plus, size: 16),
+                shad.DensityGap(shad.gapSm),
+                Text('Add'),
+              ],
+            ),
+          ),
+        ],
+        subpages: PageSubpages(
+          selectedIndex: _contextTabIndex,
+          labels: const ['Dash', 'Details', 'Reports', 'Tasks'],
+          onSubpageChanged: (idx) {
+            setState(() {
+              _contextTabIndex = idx;
+            });
+          },
+        ),
+      ),
+      subpageIndex: _contextTabIndex,
+      subpageContents: [
+        const DyShlDash(title: 'Cutting Cards'),
+        _buildDetailsShell(),
+        const DyShlReports(title: 'Cutting Cards'),
+        const DyShlTasks(),
+      ],
+    );
+  }
 
+  Widget _buildDetailsShell() {
+    final activeCount = _categoryCounts[_selectedCategory] ?? _totalCount;
     final hasFilters = _selectedMills.isNotEmpty ||
         _selectedQualities.isNotEmpty ||
         _selectedStatuses.isNotEmpty ||
         _selectedDateRange != null;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 1. Page Header with Title and Action Buttons
-        PageHeader(
-          title: 'Cutting Cards',
-          actions: [
-            shad.OutlineButton(
-              onPressed: () {
-                shad.showToast(
-                  context: context,
-                  builder: (context, show) => shad.Card(
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('Print Cutting Report triggered.'),
-                    ),
+    return DyShlDetails(
+      title: 'Cutting Cards',
+      entityName: 'Cards',
+      moduleName: 'cutting_cards',
+      selectedViewMode: _viewMode,
+      onViewModeChanged: (mode) {
+        setState(() {
+          _viewMode = mode;
+        });
+      },
+      submoduleWidget: Builder(
+        builder: (btnContext) {
+          return MicroButton(
+            leadingIcon: shad.LucideIcons.scissors,
+            label: _selectedCategory.displayName,
+            badgeCount: activeCount,
+            trailingIcon: shad.LucideIcons.chevronDown,
+            isSelected: true,
+            onPressed: () {
+              shad.showOverlay(
+                btnContext,
+                shad.PopoverConfiguration(
+                  anchorAlignment: Alignment.bottomLeft,
+                  alignment: Alignment.topLeft,
+                  offset: const Offset(0, 4),
+                  builder: (popContext) => DabSubmodulePopover<CcCategory>(
+                    title: 'Submodule',
+                    selectedId: _selectedCategory,
+                    items: CcCategory.values
+                        .map(
+                          (c) => DabSubmoduleItem<CcCategory>(
+                            id: c,
+                            label: c.displayName,
+                            icon: shad.LucideIcons.scissors,
+                            count: _categoryCounts[c] ?? 0,
+                          ),
+                        )
+                        .toList(),
+                    onSelected: _onCategoryChanged,
                   ),
-                );
-              },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(shad.LucideIcons.printer, size: 16 * theme.scaling),
-                  const shad.DensityGap(shad.gapSm),
-                  const Text('Print'),
-                ],
-              ),
-            ),
-            shad.OutlineButton(
-              onPressed: () {
-                shad.showToast(
-                  context: context,
-                  builder: (context, show) => shad.Card(
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('Export Cutting Data triggered.'),
-                    ),
-                  ),
-                );
-              },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(shad.LucideIcons.download, size: 16 * theme.scaling),
-                  const shad.DensityGap(shad.gapSm),
-                  const Text('Export'),
-                ],
-              ),
-            ),
-            shad.PrimaryButton(
-              onPressed: () => ScrCcFormDialog.show(context),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(shad.LucideIcons.plus, size: 16 * theme.scaling),
-                  const shad.DensityGap(shad.gapSm),
-                  const Text('Add'),
-                ],
-              ),
-            ),
-          ],
-        ),
-
-        const shad.DensityGap(shad.gapSm),
-
-        // 2. Dynamic Action Bar (DAB) with Context Filters
-        DynamicActionBar(
-          entityName: 'Cards',
-          selectedView: _viewMode,
-          onViewChanged: (mode) {
-            setState(() {
-              _viewMode = mode;
-            });
-          },
-          searchQuery: _searchQuery,
-          onSearchChanged: (val) {
-            _searchQuery = val.trim();
-            _fetchCards(resetOffset: true);
-          },
-          // Context Specific DAB Filters for Cutting Cards (Mill, Quality, Status, Date)
-          selectedMills: _selectedMills,
-          millOptions: _millOptions,
-          onMillChanged: (mills) {
-            setState(() {
-              _selectedMills = mills;
-            });
-            _fetchCards(resetOffset: true);
-          },
-          selectedQualities: _selectedQualities,
-          qualityOptions: _qualityOptions,
-          onQualityChanged: (qualities) {
-            setState(() {
-              _selectedQualities = qualities;
-            });
-            _fetchCards(resetOffset: true);
-          },
-          selectedStatuses: _selectedStatuses,
-          onStatusChanged: (statuses) {
-            setState(() {
-              _selectedStatuses = statuses;
-            });
-            _fetchCards(resetOffset: true);
-          },
-          selectedDateRange: _selectedDateRange,
-          selectedDateLabel: _selectedDateLabel,
-          onDateRangeSelected: (range) {
-            setState(() {
-              _selectedDateRange = range;
-              _selectedDateLabel = range != null ? 'Selected Date Range' : null;
-            });
-            _fetchCards(resetOffset: true);
-          },
-          hasActiveFilters: hasFilters,
-          onClearAllFilters: _onClearAllFilters,
-        ),
-
-        const SizedBox(height: 12),
-
-        // 3. Main Content Area (Tabular vs Split View)
-        Expanded(
-          child: _isLoading
-              ? const Center(child: shad.CircularProgressIndicator())
-              : _cards.isEmpty
-                  ? Center(
-                      child: Text(
-                        'No cutting card records found',
-                        style: theme.typography.textSmall.copyWith(color: colors.mutedForeground),
-                      ),
-                    )
-                  : _viewMode == 'table'
-                      ? _buildTabularView()
-                      : _buildSplitView(),
-        ),
-      ],
-    );
-  }
-
-  static const List<DynamicTableColumnSpec> _ccTableColumns = [
-    DynamicTableColumnSpec(label: 'CC CODE', key: 'vno', width: 110),
-    DynamicTableColumnSpec(label: 'DATE', key: 'date', width: 95),
-    DynamicTableColumnSpec(label: 'MILL / PROCESSOR', key: 'party', flex: 2),
-    DynamicTableColumnSpec(label: 'GREY FABRIC QUALITY', key: 'fabric', flex: 2),
-    DynamicTableColumnSpec(label: 'CUT LENGTH', key: 'cutLength', alignment: Alignment.centerRight, flex: 1),
-    DynamicTableColumnSpec(label: 'FRESH PCS', key: 'totalPcs', alignment: Alignment.centerRight, flex: 1),
-    DynamicTableColumnSpec(label: 'FRESH %', key: 'freshPct', alignment: Alignment.centerRight, flex: 1),
-    DynamicTableColumnSpec(label: 'COST / PC', key: 'rate', alignment: Alignment.centerRight, flex: 1),
-    DynamicTableColumnSpec(label: 'INVESTMENT', key: 'amount', alignment: Alignment.centerRight, flex: 1),
-    DynamicTableColumnSpec(label: '', key: 'actions', width: 72, alignment: Alignment.center),
-  ];
-
-  List<DynamicTableRowData> _mapCardsToRows() {
-    return _cards.map((c) {
-      return DynamicTableRowData(
-        id: c.id,
-        voucherNo: c.displayCcCode,
-        partyName: c.millName,
-        designPattern: c.greyQuality,
-        quantity: c.formattedCutLength,
-        amount: c.formattedTotalInvestment,
-        amountValue: c.totalInvestment,
-        status: c.isPending ? 'PENDING' : 'COMPLETED',
-        childRows: c.lineItems.map((item) {
-          return DynamicTableRowData(
-            id: item.vno.toString(),
-            voucherNo: item.vno.toString(),
-            partyName: '',
-            designPattern: item.quality.isNotEmpty ? item.quality : 'N/A',
-            quantity: item.meters > 0 ? '${item.meters.toStringAsFixed(1)} Mtr' : '-',
-            amount: item.formattedAmount(),
-            amountValue: item.amount,
-            status: '',
-            rawData: {
-              'pcs': item.pieces > 0 ? '${item.pieces.toInt()}' : '-',
-              'rate': item.rate > 0 ? '₹${item.rate.toStringAsFixed(2)}' : '-',
+                ),
+              );
             },
           );
-        }).toList(),
-        rawData: {
-          'date': c.formattedCutDate,
-          'totalPcs': c.totalFreshPcs > 0 ? '${c.totalFreshPcs} Pcs' : '-',
-          'freshPct': c.formattedFreshYield,
-          'rate': c.formattedCostPerPc,
         },
-      );
-    }).toList();
-  }
-
-  /// Full-Page Dense Data Table Grid
-  Widget _buildTabularView() {
-    return DynamicDenseTable(
-      rows: _mapCardsToRows(),
-      columns: _ccTableColumns,
-      enableExpansion: true,
+      ),
+      searchQuery: _searchQuery,
+      onSearchChanged: (val) {
+        _searchQuery = val?.trim();
+        _fetchCards(resetOffset: true);
+      },
+      selectedMills: _selectedMills,
+      millOptions: _millOptions,
+      onMillChanged: (mills) {
+        setState(() {
+          _selectedMills.clear();
+          _selectedMills.addAll(mills);
+        });
+        _fetchCards(resetOffset: true);
+      },
+      selectedQualities: _selectedQualities,
+      qualityOptions: _qualityOptions,
+      onQualityChanged: (qualities) {
+        setState(() {
+          _selectedQualities.clear();
+          _selectedQualities.addAll(qualities);
+        });
+        _fetchCards(resetOffset: true);
+      },
+      selectedStatuses: _selectedStatuses,
+      onStatusChanged: (statuses) {
+        setState(() {
+          _selectedStatuses.clear();
+          _selectedStatuses.addAll(statuses);
+        });
+        _fetchCards(resetOffset: true);
+      },
+      selectedDateRange: _selectedDateRange,
+      selectedDateLabel: _selectedDateLabel,
+      onDateRangeSelected: (range) {
+        setState(() {
+          _selectedDateRange = range;
+          _selectedDateLabel = range != null ? 'Selected Date Range' : null;
+        });
+        _fetchCards(resetOffset: true);
+      },
+      hasActiveFilters: hasFilters,
+      onClearAllFilters: _onClearAllFilters,
+      isLoading: _isLoading,
+      tableColumns: _ccTableColumns,
+      tableRows: _buildMappedTableRows(),
       totalRecords: _totalCount,
-      currentPage: (_offset ~/ _limit) + 1,
+      pageIndex: (_offset ~/ _limit) + 1,
       onPageChanged: (page) {
         setState(() {
           _offset = (page - 1) * _limit;
         });
         _fetchCards(resetOffset: false);
       },
-      onRowTap: (row) {
-        final card = _cards.firstWhere((c) => c.id == row.id, orElse: () => _cards.first);
-        setState(() {
-          _selectedCard = card;
-          _viewMode = 'split';
-        });
-      },
     );
   }
 
-  /// Master-Detail Split Pane View matching PO Module standard
-  Widget _buildSplitView() {
-    final listItems = _cards
-        .map(
-          (c) => DynamicListItem(
-            id: c.id,
-            title: c.millName.isNotEmpty ? c.millName : 'Unknown Mill',
-            subtitle: '${c.displayCcCode} • ${c.greyQuality}',
-            topLeading: c.isPending
-                ? const shad.OutlineBadge(child: Text('Pending'))
-                : const shad.PrimaryBadge(child: Text('Completed')),
-            topTrailing: c.formattedCutDate,
-            amount: c.formattedCostPerPc,
-            indexNumber: c.displayCcCode,
-            rawData: c.core.toJson(),
-          ),
-        )
-        .toList();
+  static const List<DyTableColumnSpec> _ccTableColumns = [
+    DyTableColumnSpec(key: 'vno', label: 'CC CODE', width: 110, isPinnedLeft: true),
+    DyTableColumnSpec(key: 'date', label: 'DATE', width: 105),
+    DyTableColumnSpec(key: 'partyName', label: 'MILL / PROCESSOR', flex: 2),
+    DyTableColumnSpec(key: 'designPattern', label: 'GREY FABRIC QUALITY', flex: 2),
+    DyTableColumnSpec(key: 'cutLength', label: 'CUT LENGTH', textAlignment: Alignment.centerRight),
+    DyTableColumnSpec(key: 'totalPcs', label: 'FRESH PCS', isNumeric: true, textAlignment: Alignment.centerRight),
+    DyTableColumnSpec(key: 'freshPct', label: 'FRESH %', isNumeric: true, textAlignment: Alignment.centerRight),
+    DyTableColumnSpec(key: 'rate', label: 'COST / PC', isNumeric: true, textAlignment: Alignment.centerRight),
+    DyTableColumnSpec(key: 'amount', label: 'INVESTMENT', isNumeric: true, textAlignment: Alignment.centerRight),
+  ];
 
-    final selectedListItem = _selectedCard != null
-        ? listItems.firstWhere((item) => item.id == _selectedCard!.id, orElse: () => listItems.first)
-        : null;
+  List<DyTableRowData> _buildMappedTableRows() {
+    if (_groupingMode == 'none') {
+      return _cards.map((c) => c.toDyDefRowData()).toList();
+    }
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Left Master List
-        DynamicList(
-          items: listItems,
-          selectedItem: selectedListItem,
-          onItemSelected: (item) {
-            if (item == null) return;
-            final card = _cards.firstWhere((c) => c.id == item.id, orElse: () => _cards.first);
-            setState(() {
-              _selectedCard = card;
-            });
+    final Map<String, List<MdlCcHeader>> groupedMap = {};
+    for (final card in _cards) {
+      final groupKey = _groupingMode == 'mill'
+          ? (card.millName.isNotEmpty ? card.millName : 'Unknown Mill')
+          : (card.greyQuality.isNotEmpty ? card.greyQuality : 'N/A');
+      groupedMap.putIfAbsent(groupKey, () => []).add(card);
+    }
+
+    final result = <DyTableRowData>[];
+    groupedMap.forEach((groupName, groupCards) {
+      final childDefRows = groupCards.map((c) => c.toDyDefRowData()).toList();
+      final totalFreshPcs = groupCards.fold<int>(0, (sum, c) => sum + c.totalFreshPcs);
+      final totalInvestment = groupCards.fold<double>(0, (sum, c) => sum + c.totalInvestment);
+
+      result.add(
+        DyTableRowData(
+          id: 'group_$groupName',
+          rowType: DyTableRowType.group,
+          partyName: groupName,
+          title: '$groupName (${groupCards.length} Cards)',
+          data: {
+            'vno': '$groupName (${groupCards.length} Cards)',
+            'partyName': groupName,
+            'totalPcs': '$totalFreshPcs Pcs',
+            'amount': '₹${totalInvestment.toStringAsFixed(2)}',
           },
+          children: childDefRows,
         ),
+      );
+    });
 
-        const SizedBox(width: 16),
-
-        // Right Detail Canvas
-        Expanded(
-          child: _selectedCard != null
-              ? ScrCcDetailCanvas(
-                  card: _selectedCard!,
-                  onClose: () {
-                    setState(() {
-                      _viewMode = 'table';
-                    });
-                  },
-                )
-              : const SizedBox.shrink(),
-        ),
-      ],
-    );
+    return result;
   }
 }

@@ -141,28 +141,25 @@ class PageSubpages extends StatelessWidget {
           final isSelected = index == selectedIndex;
 
           if (isSelected) {
-            final childRow = Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8 * theme.scaling),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (item.icon != null) ...[
-                    Icon(
-                      item.icon,
-                      size: 16 * theme.scaling,
-                      color: colors.primaryForeground,
-                    ),
-                    SizedBox(width: 6 * theme.scaling),
-                  ],
-                  Text(
-                    item.label,
-                    style: theme.typography.textSmall.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: colors.primaryForeground,
-                    ),
+            final childRow = Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (item.icon != null) ...[
+                  Icon(
+                    item.icon,
+                    size: 16 * theme.scaling,
+                    color: colors.primaryForeground,
                   ),
+                  SizedBox(width: 6 * theme.scaling),
                 ],
-              ),
+                Text(
+                  item.label,
+                  style: theme.typography.textSmall.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: colors.primaryForeground,
+                  ),
+                ),
+              ],
             );
 
             return shad.PrimaryButton(
@@ -176,7 +173,7 @@ class PageSubpages extends StatelessWidget {
             label: item.label,
             leadingIcon: item.icon,
             isSelected: false,
-            padding: EdgeInsets.symmetric(horizontal: 8 * theme.scaling),
+            padding: EdgeInsets.symmetric(horizontal: 16 * theme.scaling),
             onPressed: () => onSubpageChanged(index),
           );
         }),
@@ -253,13 +250,27 @@ class PageHeader extends StatelessWidget {
     if (resolvedActions.isEmpty) {
       if (mode == PageHeaderMode.adding) {
         resolvedActions = [
-          shad.OutlineButton(
+          shad.DestructiveButton(
             onPressed: onDiscard ?? onBack,
-            child: const Text('Discard'),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(shad.LucideIcons.x, size: 16 * theme.scaling),
+                const shad.DensityGap(shad.gapSm),
+                const Text('Discard'),
+              ],
+            ),
           ),
           shad.OutlineButton(
             onPressed: onSaveDraft,
-            child: const Text('Save Draft'),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(shad.LucideIcons.fileText, size: 16 * theme.scaling),
+                const shad.DensityGap(shad.gapSm),
+                const Text('Draft'),
+              ],
+            ),
           ),
           shad.PrimaryButton(
             onPressed: isSaving ? null : onConfirm,
@@ -282,9 +293,16 @@ class PageHeader extends StatelessWidget {
         ];
       } else if (mode == PageHeaderMode.editing) {
         resolvedActions = [
-          shad.OutlineButton(
+          shad.DestructiveButton(
             onPressed: onDiscard ?? onBack,
-            child: const Text('Discard'),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(shad.LucideIcons.x, size: 16 * theme.scaling),
+                const shad.DensityGap(shad.gapSm),
+                const Text('Discard'),
+              ],
+            ),
           ),
           shad.PrimaryButton(
             onPressed: isSaving ? null : onConfirm,
@@ -300,7 +318,7 @@ class PageHeader extends StatelessWidget {
                 else
                   Icon(shad.LucideIcons.check, size: 16 * theme.scaling),
                 const shad.DensityGap(shad.gapSm),
-                Text(isSaving ? 'Saving...' : 'Confirm'),
+                Text(isSaving ? 'Saving...' : 'Update'),
               ],
             ),
           ),
@@ -325,17 +343,19 @@ class PageHeader extends StatelessWidget {
                 ),
                 onPressed: onBack ?? onDiscard,
               ),
-              const shad.DensityGap(shad.gapSm),
+              const shad.DensityGap(shad.gapLg),
             ],
 
             // 2. Title Text
-            Text(
-              titleText,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-              style: theme.typography.h2.copyWith(
-                fontWeight: FontWeight.bold,
-                letterSpacing: -0.5,
+            Flexible(
+              child: Text(
+                titleText,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: theme.typography.h2.copyWith(
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.5,
+                ),
               ),
             ),
 

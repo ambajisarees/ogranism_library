@@ -136,6 +136,38 @@ class MdlPoHeader {
     return f.format(finalAmount > 0 ? finalAmount : billAmount);
   }
 
+  /// Linked Job / Order number from RRNO (or fallback)
+  String get jobLink => core.lrNo.trim().isNotEmpty ? core.lrNo.trim() : '-';
+
+  /// Total Pieces display string
+  String get totalPcsDisplay {
+    if (totalPieces > 0) return '$totalPieces';
+    if (lineItems.isNotEmpty) {
+      final pcs = lineItems.fold<double>(0, (sum, i) => sum + i.pieces);
+      if (pcs > 0) return '${pcs.toInt()}';
+    }
+    return '-';
+  }
+
+  /// Total Quantity display string
+  String get totalQtyDisplay {
+    if (totalMeters > 0) return totalMeters.toStringAsFixed(1);
+    if (lineItems.isNotEmpty) {
+      final mts = lineItems.fold<double>(0, (sum, i) => sum + i.meters);
+      if (mts > 0) return mts.toStringAsFixed(1);
+    }
+    return '-';
+  }
+
+  /// Primary Unit display string
+  String get primaryUnit {
+    if (lineItems.isNotEmpty) {
+      final u = lineItems.first.unit.trim();
+      if (u.isNotEmpty) return u;
+    }
+    return totalPieces > 0 && totalMeters == 0 ? 'PCS' : 'MTR';
+  }
+
   /// Copy with updated line items list
   MdlPoHeader copyWith({List<MdlPoLineItem>? lineItems}) {
     return MdlPoHeader(

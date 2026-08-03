@@ -100,6 +100,7 @@ class DynamicActionBar extends StatelessWidget {
 
   // Slot 5: Date Button Card & Popover
   final bool showDateFilter;
+  final bool showRangeFilter;
   final shad.CalendarValue? selectedDateRange;
   final String? selectedDateLabel;
   final ValueChanged<shad.CalendarValue?>? onDateRangeSelected;
@@ -152,6 +153,7 @@ class DynamicActionBar extends StatelessWidget {
     this.onOverflowFilterPressed,
     // Slot 5
     this.showDateFilter = true,
+    this.showRangeFilter = false,
     this.selectedDateRange,
     this.selectedDateLabel,
     this.onDateRangeSelected,
@@ -383,36 +385,38 @@ class DynamicActionBar extends StatelessWidget {
                 const shad.DensityGap(shad.gapSm),
               ],
               // 5. Range Slider MicroButton
-              Builder(
-                builder: (btnContext) {
-                  return MicroButton(
-                    leadingIcon: shad.LucideIcons.slidersHorizontal,
-                    label: 'Range',
-                    badgeCount: 0,
-                    trailingIcon: shad.LucideIcons.chevronDown,
-                    isSelected: false,
-                    onPressed: () {
-                      shad.showOverlay(
-                        btnContext,
-                        shad.PopoverConfiguration(
-                          anchorAlignment: Alignment.bottomLeft,
-                          alignment: Alignment.topLeft,
-                          offset: const Offset(0, 4),
-                          builder: (context) => DabSliderPopover(
-                            title: 'Meters Range',
-                            min: 0,
-                            max: 1000,
-                            startValue: 100,
-                            endValue: 500,
-                            onChanged: (start, end) {},
+              if (showRangeFilter) ...[
+                Builder(
+                  builder: (btnContext) {
+                    return MicroButton(
+                      leadingIcon: shad.LucideIcons.slidersHorizontal,
+                      label: 'Range',
+                      badgeCount: 0,
+                      trailingIcon: shad.LucideIcons.chevronDown,
+                      isSelected: false,
+                      onPressed: () {
+                        shad.showOverlay(
+                          btnContext,
+                          shad.PopoverConfiguration(
+                            anchorAlignment: Alignment.bottomLeft,
+                            alignment: Alignment.topLeft,
+                            offset: const Offset(0, 4),
+                            builder: (context) => DabSliderPopover(
+                              title: 'Meters Range',
+                              min: 0,
+                              max: 1000,
+                              startValue: 100,
+                              endValue: 500,
+                              onChanged: (start, end) {},
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-              const shad.DensityGap(shad.gapSm),
+                        );
+                      },
+                    );
+                  },
+                ),
+                const shad.DensityGap(shad.gapSm),
+              ],
             ],
 
             // ==========================================
@@ -541,6 +545,7 @@ class DynamicActionBar extends StatelessWidget {
                 return MicroButton(
                   label: '',
                   leadingIcon: shad.LucideIcons.ellipsisVertical,
+                  padding: EdgeInsets.all(10 * theme.scaling),
                   onPressed: () {
                     if (onOverflowFilterPressed != null) {
                       onOverflowFilterPressed!();

@@ -1,9 +1,9 @@
-/// LLM NOTE: DyTableChildRow
+/// LLM NOTE: DyTableSubheaderRow
 /// - Level: Core Table Row Component
 /// - Specs:
-///   - Col 0 width: exact 54px (* theme.scaling) matching parent header & default row Col 0 slot, guaranteeing 100% pixel-perfect start alignment for data cells!
-///   - Data cells: 6px horizontal padding matching header, muted foreground text
-///   - Dynamic Divider: 70px left offset (8px pad + 54px slot + 8px gap) spanning 100% to far right edge
+///   - Col 0 width: exact 54px (* theme.scaling) matching parent table header & default row Col 0 slot
+///   - Label typography: uppercase, mutedForeground, xSmall font size matching DyTableHeader
+///   - Divider: 70px left offset (8px pad + 54px slot + 8px gap) spanning 100% to far right edge
 
 library;
 
@@ -11,47 +11,46 @@ import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
 import 'dy_table_models.dart';
+import '../../specs/dy_color_system.dart';
 
-class DyTableChildRow extends StatelessWidget {
-  final DyTableRowData rowData;
+class DyTableSubheaderRow extends StatelessWidget {
   final List<DyTableColumnSpec> columns;
-  final bool isLastChild;
 
-  const DyTableChildRow({
+  const DyTableSubheaderRow({
     super.key,
-    required this.rowData,
     required this.columns,
-    this.isLastChild = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = colors.brightness == Brightness.dark;
+
+    final headerBg = DyColorSystem.resolveSurfaceCanvas(isDark);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // Subheader Data Bar
         Container(
           height: 36 * theme.scaling,
-          color: colors.card,
+          color: headerBg,
           padding: EdgeInsets.symmetric(horizontal: 8 * theme.scaling),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Col 0: Synchronized 54px Col 0 slot matching DyTableHeader & DyTableDefRow
+              // Col 0: Synchronized 54px width slot matching DyTableHeader & DyTableDefRow
               SizedBox(width: 54 * theme.scaling),
 
               const SizedBox(width: 8),
 
-              // Data Columns (Muted foreground text with 6px horizontal cell padding)
+              // Data Column Labels (Fullcaps xSmall mutedForeground matching DyTableHeader)
               ...columns.map((col) {
-                final val = rowData.data[col.key] ?? '';
-                final isMono = col.isNumeric || col.key == 'vno';
-
-                final textStyle = theme.typography.textSmall.copyWith(
+                final textStyle = theme.typography.xSmall.copyWith(
+                  fontWeight: FontWeight.w600,
                   color: colors.mutedForeground,
-                  fontFamily: isMono ? 'monospace' : null,
+                  letterSpacing: 0.5,
                 );
 
                 return Expanded(
@@ -60,7 +59,7 @@ class DyTableChildRow extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 6 * theme.scaling),
                     alignment: col.isNumeric ? Alignment.centerRight : Alignment.centerLeft,
                     child: Text(
-                      '$val',
+                      col.label.toUpperCase(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: textStyle,
@@ -78,24 +77,18 @@ class DyTableChildRow extends StatelessWidget {
           ),
         ),
 
-        // Dynamic Divider: Full-Width if last child in group, 70px Indented otherwise (spanning 100% to far right edge)
-        if (isLastChild)
-          Container(
-            height: 1.0,
-            color: colors.border,
-          )
-        else
-          Row(
-            children: [
-              SizedBox(width: 70 * theme.scaling), // 8px outer pad + 54px slot + 8px gap
-              Expanded(
-                child: Container(
-                  height: 1.0,
-                  color: colors.border,
-                ),
+        // Bottom 1px Divider (70px left offset = 8px pad + 54px slot + 8px gap, spanning 100% to far right edge)
+        Row(
+          children: [
+            SizedBox(width: 70 * theme.scaling),
+            Expanded(
+              child: Container(
+                height: 1.0,
+                color: colors.border,
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
       ],
     );
   }

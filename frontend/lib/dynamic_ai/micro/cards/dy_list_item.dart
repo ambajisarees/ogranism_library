@@ -78,7 +78,10 @@ class _DynamicListCardState extends State<DynamicListCard> {
         onTap: widget.onTap,
         child: Container(
           margin: EdgeInsets.zero,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          padding: EdgeInsets.symmetric(
+            horizontal: 14 * theme.scaling,
+            vertical: 10 * theme.scaling,
+          ),
           decoration: BoxDecoration(
             color: background,
             border: Border(

@@ -52,6 +52,7 @@ class DyTableRowData {
   final String? title;
   final Map<String, dynamic> data;
   final List<DyTableRowData> children;
+  final List<DyTableColumnSpec>? childColumns;
   final bool isExpanded;
   final bool isSelected;
   final Map<String, dynamic>? rawData;
@@ -73,6 +74,7 @@ class DyTableRowData {
     Map<String, dynamic>? data,
     List<DyTableRowData>? children,
     List<DyTableRowData>? childRows,
+    this.childColumns,
     this.isExpanded = false,
     this.isSelected = false,
     Map<String, dynamic>? rawData,
@@ -115,6 +117,7 @@ class DyTableRowData {
       title: title,
       data: data,
       children: children,
+      childColumns: childColumns,
       isExpanded: isExpanded ?? this.isExpanded,
       isSelected: isSelected ?? this.isSelected,
       rawData: rawData,
