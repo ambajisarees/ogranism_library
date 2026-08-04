@@ -531,6 +531,13 @@ class SrvCc {
       summaryMap.remove('cc_code'); // Generated ALWAYS by Postgres 17
       summaryMap['sb_status'] = 'COMPLETED';
 
+      final currentUserId = _db.client.auth.currentUser?.id;
+      final validUserUuid = (currentUserId != null && currentUserId.isNotEmpty)
+          ? currentUserId
+          : '01113a5f-48f5-41a5-b905-17ce79e46b86';
+
+      summaryMap['sb_created_by'] = validUserUuid;
+
       final summaryRes = await _db.client
           .schema('IMMBE2627')
           .from('sb_cutdet_summary')
@@ -545,6 +552,8 @@ class SrvCc {
         final m = d.toJson();
         m.remove('id');
         m['sb_status'] = 'COMPLETED';
+        m['sb_created_by'] = validUserUuid;
+        m['sb_updated_by'] = validUserUuid;
         return m;
       }).toList();
 

@@ -208,13 +208,13 @@ class _ScrCcFormState extends State<ScrCcForm> {
       );
 
       final details = input.buildDetailRows(
-        author: '00000000-0000-0000-0000-000000000000',
+        author: '01113a5f-48f5-41a5-b905-17ce79e46b86',
         startCutCardNo: startCutCardNo,
       );
 
       final summary = input.buildSummaryRow(
         details,
-        author: '00000000-0000-0000-0000-000000000000',
+        author: '01113a5f-48f5-41a5-b905-17ce79e46b86',
       );
 
       final success = await _ccService.commitCuttingBatch(
