@@ -298,7 +298,6 @@ class SbCutdetSummaryModel {
     'sb_status': status,
     'sb_cardpic': jsonEncode(cardPics),
     'sb_created_by': author,
-    'sb_updated_by': updater,
     'sb_created_at': createdOn?.toIso8601String(),
     'sb_updated_at': lastEdited?.toIso8601String(),
   };
