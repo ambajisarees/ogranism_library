@@ -33838,7 +33838,7 @@ _.id=a8
 _.k1=a9},
 ayF:function ayF(){},
 ayG:function ayG(){},
-bi_(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,b0,b1,b2,b3,b4,b5,b6,b7,b8,b9){return new A.ayH(n,s,d,r,a0,h,i,b,b3,b4,b7,a8,m,o,b2,e,b1,b6,b5,a3,a9,b0,k,a5,a4,j,p,b9,l,a7,g,a2,a6,c,a,b8,f,q)},
+bi_(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,b0,b1,b2,b3,b4,b5,b6,b7,b8,b9){return new A.ayH(n,s,d,r,a0,h,i,b,b3,b4,b7,a8,m,o,b2,e,b1,b6,b5,a3,a9,b0,k,a5,a4,j,p,b9,l,a7,g,a2,a6,c,a,f,q)},
 bw3(c0){var s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,b0,b1,b2,b3,b4,b5=null,b6=new A.ayL(),b7=new A.ayJ(),b8=A.aw(c0.h(0,"MULTI_VNO")),b9=b8==null?b5:B.f.aQ(b8)
 if(b9==null)b9=0
 b8=A.aw(c0.h(0,"TOTAL_WMTS"))
@@ -33934,7 +33934,7 @@ b4=A.aB(c0.h(0,"sb_updated_by"))
 b4=b4==null?b5:B.d.ag(b4)
 if(b4==null)b4=""
 return A.bi_(b3,c,b2,h,j,b6.$1(c0.h(0,"sb_created_at")),b0,e,d,a5,a2,a8,q,b8,p,a6,b6.$1(c0.h(0,"sb_updated_at")),g,b9,f,c0,b7,i,a4,a3,b1,a9,a,a0,a1,o,k,r,b,m,n,s,b4,a7)},
-ayH:function ayH(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,b0,b1,b2,b3,b4,b5,b6,b7,b8){var _=this
+ayH:function ayH(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,b0,b1,b2,b3,b4,b5,b6,b7){var _=this
 _.a=a
 _.b=b
 _.c=c
@@ -33970,9 +33970,8 @@ _.k4=b2
 _.ok=b3
 _.p1=b4
 _.p2=b5
-_.p3=b6
-_.p4=b7
-_.R8=b8},
+_.p4=b6
+_.R8=b7},
 ayI:function ayI(){},
 ayL:function ayL(){},
 ayJ:function ayJ(){},
@@ -111985,7 +111984,7 @@ s=q.id
 s=s==null?null:s.c5()
 r=q.k1
 r=r==null?null:r.c5()
-return A.a7(["CUTCARDNO",q.a,"MULTI_VNO",q.b,"CARDNO",q.c,"reccardno",q.d,"DESPNO",q.e,"MILL",q.f,"WEAVER",q.r,"GREYQUAL",q.w,"lot",q.x,"WMTS",q.y,"WPCS",q.z,"RMTS",q.Q,"RPCS",q.as,"RATE",q.at,"JOBRATE",q.ax,"CCUT",q.ay,"CMTS",q.ch,"CPCS",q.CW,"SECONDS",q.cx,"FENT",q.cy,"FENT_WT",q.db,"AVG_WT",q.dx,"CUTDATE",p,"DDATE",o,"sb_status",q.fx,"sb_created_by",q.fy,"sb_updated_by",q.go,"sb_created_at",s,"sb_updated_at",r],t.N,t.z)}}
+return A.a7(["CUTCARDNO",q.a,"MULTI_VNO",q.b,"CARDNO",q.c,"reccardno",q.d,"DESPNO",q.e,"MILL",q.f,"WEAVER",q.r,"GREYQUAL",q.w,"lot",q.x,"WMTS",q.y,"WPCS",q.z,"RMTS",q.Q,"RPCS",q.as,"RATE",q.at,"JOBRATE",q.ax,"CCUT",q.ay,"CMTS",q.ch,"CPCS",q.CW,"SECONDS",q.cx,"FENT",q.cy,"FENT_WT",q.db,"AVG_WT",q.dx,"CUTDATE",p,"DDATE",o,"CNO",4,"TYPE","J1","MULTI_CNO",4,"MULTI_TYPE","03","closed","Y","sb_status",q.fx,"sb_created_by",q.fy,"sb_updated_by",q.go,"sb_created_at",s,"sb_updated_at",r],t.N,t.z)}}
 A.ayF.prototype={
 $1(a){var s
 if(a==null)return new A.b4(Date.now(),0,!1)
@@ -112036,7 +112035,6 @@ r.m(0,"RECCARDNOS",s.k4)
 r.m(0,"sb_status",s.ok)
 r.m(0,"sb_cardpic",B.al.u4(s.p1,null))
 r.m(0,"sb_created_by",s.p2)
-r.m(0,"sb_updated_by",s.p3)
 q=s.p4
 r.m(0,"sb_created_at",q==null?null:q.c5())
 q=s.R8
