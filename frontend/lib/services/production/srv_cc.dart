@@ -528,6 +528,7 @@ class SrvCc {
       // 1. Insert Summary Row into sb_cutdet_summary
       final summaryMap = summary.toJson();
       summaryMap.remove('id'); // Allow Postgres to generate UUID
+      summaryMap.remove('cc_code'); // Generated ALWAYS by Postgres 17
       summaryMap['sb_status'] = 'COMPLETED';
 
       final summaryRes = await _db.client
