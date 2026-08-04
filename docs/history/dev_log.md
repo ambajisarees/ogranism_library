@@ -3,6 +3,29 @@
 > **Developer**: Smit · www.ambajisaree.com
 > **Convention**: Newest entries at top. Each day is a self-contained section tagged with Machine Agent origin (`[Windows Workstation]` vs `[MacBook Workstation]`).
 
+## 2026-08-04 · [MacBook Workstation] · Add Cutting Card End-to-End Batch Creation Engine, Supabase Historical Data Backfill & Database Formula Audit
+
+Implemented the complete end-to-end **Add Cutting Card** batch creation flow in `MdlCcBatchInput`, `srv_cc.dart`, `sb_cutdet.dart`, `sb_cutdet_summary.dart`, and `scr_cc_form.dart`, joined `sq_PINVTRN` by `DESPNO` for grey rates, and executed a complete database backfill across 3,409 detail rows and 311 summary rows in Supabase (`IMMBE2627` schema).
+
+### Add Cutting Card End-to-End Batch Creation (`mdl_cc.dart`, `srv_cc.dart`, `scr_cc_form.dart`)
+- **`MdlCcBatchInput` Engine (`lib/models/production/mdl_cc.dart`)**: Engineered `MdlCcBatchInput` class for pro-rating and calculating batch summary rows (`SbCutdetSummaryModel`) and detail piece rows (`SbCutdetModel`) from selected uncut source cards and user form inputs (`cutLength`, `freshPcs`, `secondPcs`, `avgWtGrams`, `fentWtGrams`). Formula: $\text{TOTAL\_SECOND\_MTS} = \text{TOTAL\_RMTS} - (\text{TOTAL\_FRESH\_PCS} \times \text{CUT\_LENGTH}) - \text{TOTAL\_FENT\_MTS}$, and $\text{SECOND\_CUT} = \frac{\text{TOTAL\_SECOND\_MTS}}{\text{TOTAL\_SECOND\_PCS}}$.
+- **Supabase Canonical Models (`sb_cutdet.dart` & `sb_cutdet_summary.dart`)**: Dropped obsolete `sb_cardpic` from detail model; added `secondCut`, `totalSecondMts`, `greyPurchaseDate`, and `stockReceivedDate` to summary model with 2-decimal rounded financial formulas.
+- **Service Layer & `sq_PINVTRN` Join (`lib/services/production/srv_cc.dart`)**: Implemented `getNextMultiVno()` and `getNextCutCardNo()` sequence generators; implemented `getUncutCardMapsByMill(...)` joining `sq_MILLREC` with `sq_PINVTRN` by `DESPNO` (type `P1`) for weaver, dispatch date, and grey purchase rate (`RATE`); implemented `commitCuttingBatch(...)` writing 1 summary row and N detail rows into Supabase while enforcing strict read-only protection on `sq_MILLREC`.
+- **Form UI Workstation (`lib/screens/production/cutting/scr_cc_form.dart`)**: Connected form inputs, live `DySummaryBar` metric tiles, and batch save button to `commitCuttingBatch(...)`.
+
+### Supabase Postgres 17 Database Backfill (`IMMBE2627` Schema)
+- Executed SQL updates across all **3,409 detail rows in `sb_cutdet`** and **311 summary rows in `sb_cutdet_summary`**:
+  1. Re-calculated `TOTAL_SECOND_MTS = GREATEST(0, ROUND(TOTAL_RMTS - (TOTAL_FRESH_PCS * CUT_LENGTH) - TOTAL_FENT_MTS, 2))` for 311 summary rows.
+  2. Derived `SECOND_CUT = ROUND(TOTAL_SECOND_MTS / TOTAL_SECOND_PCS, 2)` for 311 summary rows.
+  3. Converted `AVG_WT` (Saree Weight) from Kg to **Grams** ($\times 1000$) across 3,409 detail rows and 311 summary rows (Range: 160g – 540g).
+  4. Converted `FENT_WT` / `TOTAL_FENT_WT` from Kg to **Grams** ($\times 1000$) across 3,394 detail rows and 308 summary rows (Range: 0g – 5011g).
+  5. Re-calculated `total_investment = ROUND((TOTAL_WMTS * GREY_RATE) + (TOTAL_RMTS * JOB_RATE), 2)` and `cost_per_pc` across 311 summary rows.
+
+### Verification & Code Quality
+- **`flutter analyze`**: **0 errors, 0 warnings** across the entire codebase.
+
+---
+
 ## 2026-08-04 · [Windows Workstation] · PageHeader Title Flexible Fix, DyPageCanvas Auto Progress Loading & DyShlAdd / ScrCcForm Creation
 
 Fixed `PageHeader` title `Flexible` flex competing bug, refactored `DyPageCanvas` with automatic top 2px `PageLoadingNotification` progress loading, refactored `DyShlAdd` to a clean body workspace shell below `PageHeader`, and created `ScrCcForm` for Cutting Cards add workflow.

@@ -206,6 +206,34 @@ class SrvPb {
     }
   }
 
+  /// Alias for getPurchaseBills
+  Future<PaginatedResult<MdlPbHeader>> getBillsByCategory({
+    int limit = 50,
+    int offset = 0,
+    PbCategory category = PbCategory.grey,
+    String? searchQuery,
+    Set<String> selectedParties = const {},
+    Set<String> selectedQualities = const {},
+    String statusFilter = 'All',
+    DateTime? startDate,
+    DateTime? endDate,
+  }) =>
+      getPurchaseBills(
+        limit: limit,
+        offset: offset,
+        category: category,
+        searchQuery: searchQuery,
+        selectedParties: selectedParties,
+        selectedQualities: selectedQualities,
+        statusFilter: statusFilter,
+        startDate: startDate,
+        endDate: endDate,
+      );
+
+  /// Alias for getPartyOptions
+  Future<List<String>> getSupplierOptions({PbCategory category = PbCategory.grey}) =>
+      getPartyOptions(category: category);
+
   /// Fetches unique Party / Supplier names for popover filter.
   Future<List<String>> getPartyOptions({PbCategory category = PbCategory.grey}) async {
     try {

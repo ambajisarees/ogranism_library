@@ -20,6 +20,7 @@ class DyTableDefRow extends StatefulWidget {
   final bool isExpanded;
   final VoidCallback onToggleExpand;
   final bool showCheckbox;
+  final bool showTrailingActions;
   final ValueChanged<bool?>? onSelect;
   final VoidCallback? onEdit;
   final VoidCallback? onMoreActions;
@@ -31,6 +32,7 @@ class DyTableDefRow extends StatefulWidget {
     this.isExpanded = false,
     required this.onToggleExpand,
     this.showCheckbox = true,
+    this.showTrailingActions = true,
     this.onSelect,
     this.onEdit,
     this.onMoreActions,
@@ -193,9 +195,10 @@ class _DyTableDefRowState extends State<DyTableDefRow> {
                   ),
                 ),
 
-                // 2. Col Last: Fixed 72px End-Aligned Trailing Stack (Always active with fallback handlers)
-                SizedBox(
-                  width: 72 * theme.scaling,
+                // 2. Col Last: Fixed 72px End-Aligned Trailing Stack (Optional)
+                if (widget.showTrailingActions)
+                  SizedBox(
+                    width: 72 * theme.scaling,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.center,

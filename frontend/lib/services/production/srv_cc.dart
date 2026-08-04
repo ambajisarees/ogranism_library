@@ -31,6 +31,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../models/production/mdl_cc.dart';
 import '../../models/core/sb/sb_cutdet_summary.dart';
 import '../../models/core/sb/sb_cutdet.dart';
+import '../../models/core/sq/sq_millrec.dart';
 import '../core/sb/sb_cutdet_summary_service.dart';
 import '../core/service_supabase.dart';
 
@@ -191,6 +192,128 @@ class SrvCc {
     }
   }
 
+  /// Fetches distinct processing Mill names from `sq_MILLREC`.
+  Future<List<String>> getDistinctMillsFromMillrec() async {
+    try {
+      final response = await _db.client
+          .schema('IMMBE2627')
+          .from('sq_MILLREC')
+          .select('MILL_CODE')
+          .lt('VNO', 100000)
+          .not('MILL_CODE', 'is', null)
+          .limit(200);
+
+      final mills = (response as List)
+          .map((r) => (r['MILL_CODE'] as String?)?.trim())
+          .where((m) => m != null && m.isNotEmpty)
+          .cast<String>()
+          .toSet()
+          .toList();
+
+      mills.sort();
+      return mills;
+    } catch (e) {
+      debugPrint('Error fetching mills from sq_MILLREC in SrvCc: $e');
+      return [];
+    }
+  }
+
+  /// Fetches uncut receipt cards from `sq_MILLREC` for a selected Mill (FIFO ordered).
+  Future<List<SqMillrecModel>> getUncutCardsByMill({
+    required String millCode,
+    Set<String> selectedFabrics = const {},
+    DateTime? startDate,
+    DateTime? endDate,
+    String? searchQuery,
+  }) async {
+    if (millCode.trim().isEmpty) return [];
+
+    try {
+      // 1. Fetch already cut reccardno IDs from sb_cutdet
+      final cutRes = await _db.client
+          .schema('IMMBE2627')
+          .from('sb_cutdet')
+          .select('reccardno')
+          .not('reccardno', 'is', null);
+
+      final Set<int> cutRecCardNos = (cutRes as List)
+          .map((r) => (r['reccardno'] as num?)?.toInt())
+          .where((id) => id != null)
+          .cast<int>()
+          .toSet();
+
+      // 2. Query sq_MILLREC for selected mill (Current fiscal year VNO < 100000)
+      dynamic query = _db.client
+          .schema('IMMBE2627')
+          .from('sq_MILLREC')
+          .select('*')
+          .eq('MILL_CODE', millCode)
+          .lt('VNO', 100000);
+
+      if (selectedFabrics.isNotEmpty) {
+        query = query.inFilter('GREYQUAL', selectedFabrics.toList());
+      }
+
+      if (startDate != null) {
+        query = query.gte('CUTDATE', startDate.toIso8601String());
+      }
+      if (endDate != null) {
+        query = query.lte('CUTDATE', endDate.toIso8601String());
+      }
+
+      // Order by FIFO (CUTDATE ascending)
+      final response = await query.order('CUTDATE', ascending: true).limit(300);
+
+      final List<SqMillrecModel> cards = [];
+      for (final row in response as List) {
+        final item = SqMillrecModel.fromJson(row as Map<String, dynamic>);
+        // Filter out cards that are already cut
+        if (!cutRecCardNos.contains(item.recCardNo)) {
+          if (searchQuery != null && searchQuery.isNotEmpty) {
+            final queryLower = searchQuery.toLowerCase();
+            final matches = item.recCardNo.toString().contains(queryLower) ||
+                item.quality.toLowerCase().contains(queryLower) ||
+                item.lotNo.toLowerCase().contains(queryLower);
+            if (!matches) continue;
+          }
+          cards.add(item);
+        }
+      }
+
+      return cards;
+    } catch (e) {
+      debugPrint('Error fetching uncut cards for mill $millCode in SrvCc: $e');
+      return [];
+    }
+  }
+
+  /// Fetches distinct fabric qualities available for a specific Mill in `sq_MILLREC`.
+  Future<List<String>> getFabricOptionsForMill(String millCode) async {
+    if (millCode.trim().isEmpty) return [];
+
+    try {
+      final response = await _db.client
+          .schema('IMMBE2627')
+          .from('sq_MILLREC')
+          .select('GREYQUAL')
+          .eq('MILL_CODE', millCode)
+          .not('GREYQUAL', 'is', null);
+
+      final qualities = (response as List)
+          .map((r) => (r['GREYQUAL'] as String?)?.trim())
+          .where((q) => q != null && q.isNotEmpty)
+          .cast<String>()
+          .toSet()
+          .toList();
+
+      qualities.sort();
+      return qualities;
+    } catch (e) {
+      debugPrint('Error fetching fabric options for mill $millCode in SrvCc: $e');
+      return [];
+    }
+  }
+
   /// Fetches distinct Mill names from `sb_cutdet_summary` for popover filter.
   Future<List<String>> getMillOptions() async {
     try {
@@ -236,6 +359,206 @@ class SrvCc {
     } catch (e) {
       debugPrint('Error fetching quality options in SrvCc: $e');
       return [];
+    }
+  }
+
+  /// Fetches the next available MULTI_VNO sequence number.
+  Future<int> getNextMultiVno() async {
+    try {
+      final response = await _db.client
+          .schema('IMMBE2627')
+          .from('sb_cutdet_summary')
+          .select('MULTI_VNO')
+          .order('MULTI_VNO', ascending: false)
+          .limit(1);
+
+      final List<dynamic> list = response as List<dynamic>;
+      if (list.isNotEmpty) {
+        final lastVno = (list.first['MULTI_VNO'] as num?)?.toInt() ?? 0;
+        return lastVno + 1;
+      }
+      return 1;
+    } catch (e) {
+      debugPrint('Error getting next MULTI_VNO in SrvCc: $e');
+      return 332;
+    }
+  }
+
+  /// Fetches the next available CUTCARDNO sequence number.
+  Future<int> getNextCutCardNo() async {
+    try {
+      final response = await _db.client
+          .schema('IMMBE2627')
+          .from('sb_cutdet')
+          .select('CUTCARDNO')
+          .order('CUTCARDNO', ascending: false)
+          .limit(1);
+
+      final List<dynamic> list = response as List<dynamic>;
+      if (list.isNotEmpty) {
+        final lastCutNo = (list.first['CUTCARDNO'] as num?)?.toInt() ?? 0;
+        return lastCutNo + 1;
+      }
+      return 3429;
+    } catch (e) {
+      debugPrint('Error getting next CUTCARDNO in SrvCc: $e');
+      return 3429;
+    }
+  }
+
+  /// Fetches uncut cards for a Mill, enriched with sq_PINVTRN grey rate and weaver details.
+  Future<List<Map<String, dynamic>>> getUncutCardMapsByMill({
+    required String millCode,
+    Set<String> selectedFabrics = const {},
+    DateTime? startDate,
+    DateTime? endDate,
+    String? searchQuery,
+  }) async {
+    if (millCode.trim().isEmpty) return [];
+
+    try {
+      // 1. Fetch already cut reccardno IDs from sb_cutdet
+      final cutRes = await _db.client
+          .schema('IMMBE2627')
+          .from('sb_cutdet')
+          .select('reccardno')
+          .not('reccardno', 'is', null);
+
+      final Set<int> cutRecCardNos = (cutRes as List)
+          .map((r) => (r['reccardno'] as num?)?.toInt())
+          .where((id) => id != null)
+          .cast<int>()
+          .toSet();
+
+      // 2. Query sq_MILLREC for selected mill (VNO < 100000)
+      dynamic query = _db.client
+          .schema('IMMBE2627')
+          .from('sq_MILLREC')
+          .select('*')
+          .eq('MILL_CODE', millCode)
+          .lt('VNO', 100000);
+
+      if (selectedFabrics.isNotEmpty) {
+        query = query.inFilter('GREYQUAL', selectedFabrics.toList());
+      }
+
+      if (startDate != null) {
+        query = query.gte('CUTDATE', startDate.toIso8601String());
+      }
+      if (endDate != null) {
+        query = query.lte('CUTDATE', endDate.toIso8601String());
+      }
+
+      final response = await query.order('CUTDATE', ascending: true).limit(300);
+
+      final List<Map<String, dynamic>> rawList = (response as List).cast<Map<String, dynamic>>();
+      final List<Map<String, dynamic>> uncutList = [];
+
+      final List<int> despNos = [];
+      for (final card in rawList) {
+        final recNo = (card['RECCARDNO'] as num?)?.toInt();
+        if (recNo != null && !cutRecCardNos.contains(recNo)) {
+          if (searchQuery != null && searchQuery.isNotEmpty) {
+            final queryLower = searchQuery.toLowerCase();
+            final recStr = recNo.toString();
+            final qualStr = (card['GREYQUAL'] as String? ?? '').toLowerCase();
+            final lotStr = (card['lot'] as String? ?? '').toLowerCase();
+            if (!recStr.contains(queryLower) && !qualStr.contains(queryLower) && !lotStr.contains(queryLower)) {
+              continue;
+            }
+          }
+          uncutList.add(Map<String, dynamic>.from(card));
+          final despNo = (card['DESPNO'] as num?)?.toInt();
+          if (despNo != null && despNo > 0) {
+            despNos.add(despNo);
+          }
+        }
+      }
+
+      // 3. Join with sq_PINVTRN by DESPNO to retrieve WEAVER, DDATE, WCHAL, RATE
+      if (despNos.isNotEmpty) {
+        try {
+          final pinvRes = await _db.client
+              .schema('IMMBE2627')
+              .from('sq_PINVTRN')
+              .select('DESPNO, CNO, WEAVER, DDATE, WCHAL, RATE')
+              .eq('TYPE', 'P1')
+              .inFilter('DESPNO', despNos);
+
+          final Map<int, Map<String, dynamic>> pinvByDespNo = {};
+          for (final row in pinvRes as List) {
+            final dNo = (row['DESPNO'] as num?)?.toInt();
+            if (dNo != null) {
+              pinvByDespNo[dNo] = row as Map<String, dynamic>;
+            }
+          }
+
+          // Merge sq_PINVTRN fields into uncutList
+          for (final card in uncutList) {
+            final dNo = (card['DESPNO'] as num?)?.toInt();
+            if (dNo != null && pinvByDespNo.containsKey(dNo)) {
+              final pRow = pinvByDespNo[dNo]!;
+              card['WEAVER'] = (pRow['WEAVER'] as String?)?.trim() ?? card['WEAVER'] ?? '';
+              card['DDATE'] = pRow['DDATE'] ?? card['DDATE'];
+              card['WCHAL'] = (pRow['WCHAL'] as String?)?.trim() ?? card['WCHAL'] ?? '';
+              final pinvRate = (pRow['RATE'] as num?)?.toDouble();
+              if (pinvRate != null && pinvRate > 0) {
+                card['RATE'] = pinvRate;
+              }
+            }
+          }
+        } catch (e) {
+          debugPrint('Warning: Could not fetch sq_PINVTRN details: $e');
+        }
+      }
+
+      return uncutList;
+    } catch (e) {
+      debugPrint('Error fetching uncut card maps in SrvCc: $e');
+      return [];
+    }
+  }
+
+  /// Commits a new Cutting Card Batch: Writes 1 row to `sb_cutdet_summary` and N rows to `sb_cutdet`.
+  Future<bool> commitCuttingBatch({
+    required SbCutdetSummaryModel summary,
+    required List<SbCutdetModel> details,
+  }) async {
+    try {
+      // 1. Insert Summary Row into sb_cutdet_summary
+      final summaryMap = summary.toJson();
+      summaryMap.remove('id'); // Allow Postgres to generate UUID
+      summaryMap['sb_status'] = 'COMPLETED';
+
+      final summaryRes = await _db.client
+          .schema('IMMBE2627')
+          .from('sb_cutdet_summary')
+          .insert(summaryMap)
+          .select('id')
+          .single();
+
+      debugPrint('Inserted sb_cutdet_summary row: ${summaryRes['id']}');
+
+      // 2. Insert Detail Rows into sb_cutdet
+      final List<Map<String, dynamic>> detailMaps = details.map((d) {
+        final m = d.toJson();
+        m.remove('id');
+        m['sb_status'] = 'COMPLETED';
+        return m;
+      }).toList();
+
+      await _db.client
+          .schema('IMMBE2627')
+          .from('sb_cutdet')
+          .insert(detailMaps);
+
+      debugPrint('Successfully inserted ${detailMaps.length} rows into sb_cutdet');
+
+      // NOTE: sq_MILLREC is strictly read-only, so no update to sq_MILLREC is performed.
+      return true;
+    } catch (e) {
+      debugPrint('Error committing cutting batch in SrvCc: $e');
+      return false;
     }
   }
 

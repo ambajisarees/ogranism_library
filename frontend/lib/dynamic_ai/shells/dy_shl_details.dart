@@ -27,6 +27,8 @@ import '../page/dy_card_pane.dart';
 import '../page/dy_kanban_pane.dart';
 import '../page/dy_details_pane.dart';
 import '../micro/cards/dy_grid_card.dart';
+import '../micro/dab/dab_group_switcher.dart';
+export '../micro/dab/dab_group_switcher.dart';
 import '../micro/cards/dy_list_item.dart';
 import '../micro/cards/dy_kanban_item.dart';
 import '../specs/dy_color_system.dart';
@@ -65,6 +67,10 @@ class DyShlDetails extends StatefulWidget {
   final ValueChanged<shad.CalendarValue?>? onDateRangeSelected;
   final bool hasActiveFilters;
   final VoidCallback? onClearAllFilters;
+  final String selectedGroup;
+  final ValueChanged<String>? onGroupChanged;
+  final List<DabGroupOption> groupOptions;
+  final Widget? autoCompleteWidget;
 
   // 3. View Data & Content Props
   final List<DyTableColumnSpec> tableColumns;
@@ -93,6 +99,7 @@ class DyShlDetails extends StatefulWidget {
     required this.selectedViewMode,
     required this.onViewModeChanged,
     this.submoduleWidget,
+    this.autoCompleteWidget,
     this.searchQuery,
     this.onSearchChanged,
     this.selectedParties = const {},
@@ -112,6 +119,9 @@ class DyShlDetails extends StatefulWidget {
     this.onDateRangeSelected,
     this.hasActiveFilters = false,
     this.onClearAllFilters,
+    this.selectedGroup = 'none',
+    this.onGroupChanged,
+    this.groupOptions = kDefaultGroupOptions,
     this.tableColumns = const [],
     this.tableRows = const [],
     this.gridItems = const [],
@@ -134,6 +144,8 @@ class DyShlDetails extends StatefulWidget {
 class _DyShlDetailsState extends State<DyShlDetails> {
   DynamicListItem? _internalSelectedListItem;
   DyGridItem? _internalSelectedGridItem;
+  String _selectedSortField = 'date';
+  bool _isSortAscending = false;
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +155,7 @@ class _DyShlDetailsState extends State<DyShlDetails> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // 1. DYNAMIC ACTION BAR (DAB: Submodules, Search, Filters, View Switcher)
+        // 1. DYNAMIC ACTION BAR (DAB: Submodules, Search, Filters, View Switcher & Non-Table Sorting)
         DynamicActionBar(
           entityName: widget.entityName,
           selectedView: widget.selectedViewMode,
@@ -168,6 +180,23 @@ class _DyShlDetailsState extends State<DyShlDetails> {
           onDateRangeSelected: widget.onDateRangeSelected,
           hasActiveFilters: widget.hasActiveFilters,
           onClearAllFilters: widget.onClearAllFilters,
+          selectedGroup: widget.selectedGroup,
+          onGroupChanged: widget.onGroupChanged,
+          groupOptions: widget.groupOptions,
+          autoCompleteWidget: widget.autoCompleteWidget,
+          // Non-Table Sorting
+          selectedSortField: _selectedSortField,
+          isSortAscending: _isSortAscending,
+          onSortFieldChanged: (field) {
+            setState(() {
+              _selectedSortField = field;
+            });
+          },
+          onToggleSortDirection: () {
+            setState(() {
+              _isSortAscending = !_isSortAscending;
+            });
+          },
         ),
         const shad.DensityGap(shad.gapMd),
 
@@ -208,16 +237,17 @@ class _DyShlDetailsState extends State<DyShlDetails> {
         );
 
       case 'list':
+        final sortedListItems = _getSortedListItems();
         final activeListItem = widget.selectedListItem ??
             _internalSelectedListItem ??
-            (widget.listItems.isNotEmpty ? widget.listItems.first : null);
+            (sortedListItems.isNotEmpty ? sortedListItems.first : null);
         return Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Left Master List (Fixed 360px Width as per DyGridSystem)
             DyListPane(
               width: DyGridSystem.fixedListMasterWidth * theme.scaling,
-              items: widget.listItems,
+              items: sortedListItems,
               selectedItem: activeListItem,
               onItemSelected: (item) {
                 widget.onListItemSelected?.call(item);
@@ -241,9 +271,10 @@ class _DyShlDetailsState extends State<DyShlDetails> {
         );
 
       case 'cards':
+        final sortedGridItems = _getSortedGridItems();
         final activeGridItem = widget.selectedGridItem ??
             _internalSelectedGridItem ??
-            (widget.gridItems.isNotEmpty ? widget.gridItems.first : null);
+            (sortedGridItems.isNotEmpty ? sortedGridItems.first : null);
         return Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -251,7 +282,7 @@ class _DyShlDetailsState extends State<DyShlDetails> {
             Expanded(
               flex: DyGridSystem.flexCardsGrid,
               child: DyCardPane(
-                items: widget.gridItems,
+                items: sortedGridItems,
                 selectedItem: activeGridItem,
                 onItemSelected: (item) {
                   widget.onGridItemSelected?.call(item);
@@ -276,7 +307,8 @@ class _DyShlDetailsState extends State<DyShlDetails> {
         );
 
       case 'board':
-        final kanbanItems = widget.gridItems.map((item) {
+        final sortedGridItems = _getSortedGridItems();
+        final kanbanItems = sortedGridItems.map((item) {
           final statusStr = (item.statusBadge is shad.OutlineBadge)
               ? ((item.statusBadge as shad.OutlineBadge).child as Text).data ?? 'UNCUT'
               : 'UNCUT';
@@ -364,5 +396,53 @@ class _DyShlDetailsState extends State<DyShlDetails> {
       onEdit: () {},
       onDelete: () {},
     );
+  }
+
+  List<DynamicListItem> _getSortedListItems() {
+    final list = List<DynamicListItem>.from(widget.listItems);
+    list.sort((a, b) {
+      int comp = 0;
+      switch (_selectedSortField) {
+        case 'vno':
+          comp = (a.indexNumber ?? '').compareTo(b.indexNumber ?? '');
+          break;
+        case 'party':
+          comp = a.title.compareTo(b.title);
+          break;
+        case 'amount':
+          comp = (a.amount ?? '').compareTo(b.amount ?? '');
+          break;
+        case 'date':
+        default:
+          comp = (a.topTrailing ?? '').compareTo(b.topTrailing ?? '');
+          break;
+      }
+      return _isSortAscending ? comp : -comp;
+    });
+    return list;
+  }
+
+  List<DyGridItem> _getSortedGridItems() {
+    final list = List<DyGridItem>.from(widget.gridItems);
+    list.sort((a, b) {
+      int comp = 0;
+      switch (_selectedSortField) {
+        case 'vno':
+          comp = a.voucherNo.compareTo(b.voucherNo);
+          break;
+        case 'party':
+          comp = a.partyName.compareTo(b.partyName);
+          break;
+        case 'amount':
+          comp = a.amount.compareTo(b.amount);
+          break;
+        case 'date':
+        default:
+          comp = a.title.compareTo(b.title);
+          break;
+      }
+      return _isSortAscending ? comp : -comp;
+    });
+    return list;
   }
 }

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import '../../../dynamic_ai/page/dy_table_pane.dart';
@@ -93,12 +92,11 @@ class SbCutdetModel {
   final int freshPcs;
   final int secondsPcs;
   final double fentMts;
-  final double fentWt;
-  final double avgWt;
+  final double fentWt; // Weight in Grams
+  final double avgWt; // Saree Weight in Grams
   final DateTime cutDate;
   final DateTime? dispatchDate;
   final String status;
-  final List<String> cardPics;
   final String author;
   final String updater;
   final DateTime? createdOn;
@@ -131,7 +129,6 @@ class SbCutdetModel {
     required this.cutDate,
     this.dispatchDate,
     required this.status,
-    required this.cardPics,
     required this.author,
     required this.updater,
     this.createdOn,
@@ -151,21 +148,6 @@ class SbCutdetModel {
       if (val == null) return null;
       if (val is String && val.isNotEmpty) return DateTime.tryParse(val);
       return null;
-    }
-
-    List<String> parsePics(dynamic val) {
-      if (val == null) return [];
-      if (val is List) return val.map((e) => e.toString()).toList();
-      if (val is String && val.isNotEmpty) {
-        if (val.startsWith('[')) {
-          try {
-            final decoded = jsonDecode(val);
-            if (decoded is List) return decoded.map((e) => e.toString()).toList();
-          } catch (_) {}
-        }
-        return [val];
-      }
-      return [];
     }
 
     return SbCutdetModel(
@@ -194,7 +176,6 @@ class SbCutdetModel {
       cutDate: parseDate(json['CUTDATE']),
       dispatchDate: parseOptDate(json['DDATE']),
       status: (json['sb_status'] as String?)?.trim() ?? 'PENDING',
-      cardPics: parsePics(json['sb_cardpic']),
       author: (json['sb_created_by'] as String?)?.trim() ?? '',
       updater: (json['sb_updated_by'] as String?)?.trim() ?? '',
       createdOn: parseOptDate(json['sb_created_at']),
@@ -229,7 +210,6 @@ class SbCutdetModel {
     'CUTDATE': cutDate.toIso8601String(),
     'DDATE': dispatchDate?.toIso8601String(),
     'sb_status': status,
-    'sb_cardpic': jsonEncode(cardPics),
     'sb_created_by': author,
     'sb_updated_by': updater,
     'sb_created_at': createdOn?.toIso8601String(),

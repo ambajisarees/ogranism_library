@@ -33,6 +33,7 @@ import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
 import '../../models/core/sq/sq_bills.dart';
+import '../../dynamic_ai/micro/table/dy_table_models.dart';
 
 /// The 10 Purchase Bill categories supported in the Ambaji ERP system.
 enum PbCategory {
@@ -162,6 +163,9 @@ class MdlPbHeader {
     this.lineItems = const [],
   });
 
+  /// Unique record identifier (CNO_VNO_TYPE)
+  String get id => '${core.cno}_${core.vno}_${core.type}';
+
   /// Voucher Primary Key (VNO)
   int get vno => core.vno;
 
@@ -173,12 +177,14 @@ class MdlPbHeader {
 
   /// Formatted Voucher / Bill Number (e.g., `#1828`)
   String get displayBillNo => '#${core.vno}';
+  String get displayVno => displayBillNo;
 
   /// Supplier / Party Ledger Name
   String get partyName => core.partyName.isNotEmpty ? core.partyName : 'Unknown Party';
 
   /// Primary Fabric Quality
   String get primaryQuality => core.quality.isNotEmpty ? core.quality : 'N/A';
+  String get primaryFabric => primaryQuality;
 
   /// Bill Date
   DateTime get date => core.date ?? DateTime.now();
@@ -189,9 +195,11 @@ class MdlPbHeader {
     final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return '${dt.day.toString().padLeft(2, '0')} ${months[dt.month - 1]} ${dt.year}';
   }
+  String get formattedCutDate => formattedDate;
 
   /// Total Net Bill Amount (₹)
   double get finalAmount => core.finalAmount;
+  double get billAmount => finalAmount;
 
   /// Formatted Final Amount String (e.g. `₹73,393`)
   String get formattedFinalAmount {
@@ -208,6 +216,7 @@ class MdlPbHeader {
   /// Total Quantity (Pcs & Meters)
   double get totalMeters => core.totalMeters;
   int get totalPcs => core.totalPieces;
+  int get totalPieces => totalPcs;
 
   /// Formatted Combined Quantity String (e.g., `31 Pcs / 3683.0 Mtr`)
   String get formattedQuantity {
@@ -229,6 +238,25 @@ class MdlPbHeader {
 
   /// Supplier Invoice Number
   String get weaverBillNo => core.billNo;
+
+  /// Convert header to DyTableRowData for DyTable rendering
+  DyTableRowData toDyDefRowData() {
+    return DyTableRowData(
+      id: id,
+      voucherNo: displayBillNo,
+      partyName: partyName,
+      data: {
+        'vno': displayBillNo,
+        'date': formattedDate,
+        'partyName': partyName,
+        'designPattern': primaryQuality,
+        'quantity': '${totalMeters.toStringAsFixed(1)} Mts',
+        'totalPcs': '$totalPcs Pcs',
+        'rate': '₹0.00',
+        'amount': formattedFinalAmount,
+      },
+    );
+  }
 
   /// Copy with new line items or properties
   MdlPbHeader copyWith({

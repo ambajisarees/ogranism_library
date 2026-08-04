@@ -8,7 +8,7 @@ LLM CONTEXT & QUERY SPACE — CUTTING CARDS LANDING SCREEN (scr_cc_landing.dart)
    - Embeds DyShlDetails (Details shell), DyShlDash (Dashboard), DyShlReports (Reports), and DyShlTasks (4-Column Kanban).
 
 2. BUSINESS LOGIC & DATA CONTRACTS:
-   - Category Submodules: Standard Cutting, Job Work Cutting, Special Lot.
+   - DynamicActionBar (DAB) begins directly with Search Cards ("Search Cards...") without submodule switcher.
    - Context Filters: Mill, Grey Quality, Status (Completed/Pending), Date Range, and Search Query.
    - 3-Tiered DyTable Engine: Renders 3-tiered table rows via `c.toDyDefRowData()`.
    - Native Token Strictness: Uses `shad.Theme.of(context)`, zero container wrappers, 36px DAB tokens.
@@ -19,8 +19,8 @@ import 'package:flutter/material.dart' hide Card;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
 import '../../../dynamic_ai/page/dy_page_header.dart';
-import '../../../dynamic_ai/micro/dab/dab_submodule_pop.dart';
-import '../../../dynamic_ai/micro/dy_micro_button.dart';
+import '../../../dynamic_ai/micro/cards/dy_grid_card.dart';
+import '../../../dynamic_ai/micro/cards/dy_list_item.dart';
 import '../../../dynamic_ai/micro/table/dy_table_models.dart';
 import '../../../dynamic_ai/shells/dy_shl_dash.dart';
 import '../../../dynamic_ai/shells/dy_shl_details.dart';
@@ -44,11 +44,9 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
   final TextEditingController _searchController = TextEditingController();
 
   bool _isCreating = false;
-  CcCategory _selectedCategory = CcCategory.standardCutting;
-  Map<CcCategory, int> _categoryCounts = {};
   String _viewMode = 'table';
   int _contextTabIndex = 1; // Default to 'Details' shell (Index 1)
-  final String _groupingMode = 'none'; // 'none', 'mill', 'quality'
+  String _groupingMode = 'none'; // 'none', 'mill', 'quality'
   String? _searchQuery;
 
   // Filter States
@@ -80,17 +78,8 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
   }
 
   Future<void> _loadInitialData() async {
-    _loadCategoryCounts();
     _loadFilterOptions();
     _fetchCards(resetOffset: true);
-  }
-
-  Future<void> _loadCategoryCounts() async {
-    final counts = await _ccService.getCategoryCounts();
-    if (!mounted) return;
-    setState(() {
-      _categoryCounts = counts;
-    });
   }
 
   Future<void> _loadFilterOptions() async {
@@ -140,20 +129,6 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
         _selectedCard = _cards.first;
       }
     });
-  }
-
-  void _onCategoryChanged(CcCategory category) {
-    if (_selectedCategory == category) return;
-    setState(() {
-      _selectedCategory = category;
-      _selectedMills.clear();
-      _selectedQualities.clear();
-      _selectedStatuses.clear();
-      _selectedDateRange = null;
-      _selectedDateLabel = null;
-      _selectedCard = null;
-    });
-    _fetchCards(resetOffset: true);
   }
 
   void _onClearAllFilters() {
@@ -271,7 +246,6 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
   }
 
   Widget _buildDetailsShell() {
-    final activeCount = _categoryCounts[_selectedCategory] ?? _totalCount;
     final hasFilters = _selectedMills.isNotEmpty ||
         _selectedQualities.isNotEmpty ||
         _selectedStatuses.isNotEmpty ||
@@ -287,42 +261,6 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
           _viewMode = mode;
         });
       },
-      submoduleWidget: Builder(
-        builder: (btnContext) {
-          return MicroButton(
-            leadingIcon: shad.LucideIcons.scissors,
-            label: _selectedCategory.displayName,
-            badgeCount: activeCount,
-            trailingIcon: shad.LucideIcons.chevronDown,
-            isSelected: true,
-            onPressed: () {
-              shad.showOverlay(
-                btnContext,
-                shad.PopoverConfiguration(
-                  anchorAlignment: Alignment.bottomLeft,
-                  alignment: Alignment.topLeft,
-                  offset: const Offset(0, 4),
-                  builder: (popContext) => DabSubmodulePopover<CcCategory>(
-                    title: 'Submodule',
-                    selectedId: _selectedCategory,
-                    items: CcCategory.values
-                        .map(
-                          (c) => DabSubmoduleItem<CcCategory>(
-                            id: c,
-                            label: c.displayName,
-                            icon: shad.LucideIcons.scissors,
-                            count: _categoryCounts[c] ?? 0,
-                          ),
-                        )
-                        .toList(),
-                    onSelected: _onCategoryChanged,
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
       searchQuery: _searchQuery,
       onSearchChanged: (val) {
         _searchQuery = val?.trim();
@@ -365,9 +303,46 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
       },
       hasActiveFilters: hasFilters,
       onClearAllFilters: _onClearAllFilters,
+      selectedGroup: _groupingMode,
+      onGroupChanged: (g) {
+        setState(() {
+          _groupingMode = g;
+        });
+      },
+      groupOptions: const [
+        DabGroupOption(id: 'none', label: 'None', icon: shad.LucideIcons.layoutList),
+        DabGroupOption(id: 'mill', label: 'Mill', icon: shad.LucideIcons.warehouse),
+        DabGroupOption(id: 'quality', label: 'Fabric', icon: shad.LucideIcons.shirt),
+        DabGroupOption(id: 'cut', label: 'Cut', icon: shad.LucideIcons.scissors),
+      ],
       isLoading: _isLoading,
       tableColumns: _ccTableColumns,
       tableRows: _buildMappedTableRows(),
+      gridItems: _buildMappedGridItems(),
+      listItems: _buildMappedListItems(),
+      selectedListItem: _selectedCard != null ? _mapCardToListItem(_selectedCard!) : null,
+      selectedGridItem: _selectedCard != null ? _mapCardToGridItem(_selectedCard!) : null,
+      onListItemSelected: (item) {
+        if (item == null) return;
+        final card = _cards.firstWhere(
+          (c) => c.id == item.id || c.multiVno.toString() == item.id,
+          orElse: () => _cards.first,
+        );
+        setState(() {
+          _selectedCard = card;
+        });
+      },
+      onGridItemSelected: (item) {
+        if (item == null) return;
+        final card = _cards.firstWhere(
+          (c) => c.id == item.id || c.multiVno.toString() == item.id,
+          orElse: () => _cards.first,
+        );
+        setState(() {
+          _selectedCard = card;
+        });
+      },
+      summaryTotals: _buildSummaryTotals(),
       totalRecords: _totalCount,
       pageIndex: (_offset ~/ _limit) + 1,
       onPageChanged: (page) {
@@ -390,6 +365,61 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
     DyTableColumnSpec(key: 'rate', label: 'COST / PC', isNumeric: true, textAlignment: Alignment.centerRight),
     DyTableColumnSpec(key: 'amount', label: 'INVESTMENT', isNumeric: true, textAlignment: Alignment.centerRight),
   ];
+
+  List<DynamicListItem> _buildMappedListItems() {
+    return _cards.map((c) => _mapCardToListItem(c)).toList();
+  }
+
+  DynamicListItem _mapCardToListItem(MdlCcHeader c) {
+    return DynamicListItem(
+      id: c.id.isNotEmpty ? c.id : c.multiVno.toString(),
+      title: c.millName.isNotEmpty ? c.millName : 'Unknown Mill',
+      subtitle: c.greyQuality,
+      indexNumber: c.displayCcCode,
+      amount: c.formattedCostPerPc,
+      topTrailing: c.formattedCutDate,
+      topLeading: c.isPending
+          ? const shad.OutlineBadge(child: Text('Pending'))
+          : const shad.PrimaryBadge(child: Text('Completed')),
+    );
+  }
+
+  List<DyGridItem> _buildMappedGridItems() {
+    return _cards.map((c) => _mapCardToGridItem(c)).toList();
+  }
+
+  DyGridItem _mapCardToGridItem(MdlCcHeader c) {
+    return DyGridItem(
+      id: c.id.isNotEmpty ? c.id : c.multiVno.toString(),
+      title: c.millName.isNotEmpty ? c.millName : 'Unknown Mill',
+      voucherNo: c.displayCcCode,
+      partyName: c.millName.isNotEmpty ? c.millName : 'Unknown Mill',
+      designPattern: c.greyQuality,
+      quantity: c.totalFreshPcs > 0 ? '${c.totalFreshPcs} Pcs (${c.formattedReceivedMeters})' : '-',
+      amount: c.formattedTotalInvestment,
+      thumbnailUrl: c.cardPicPath,
+      statusBadge: c.isPending
+          ? const shad.OutlineBadge(child: Text('PENDING'))
+          : const shad.PrimaryBadge(child: Text('COMPLETED')),
+    );
+  }
+
+  Map<String, String> _buildSummaryTotals() {
+    int totalFreshPcs = 0;
+    double totalMts = 0;
+    double totalInvestment = 0;
+    for (final c in _cards) {
+      totalFreshPcs += c.totalFreshPcs;
+      totalMts += c.totalReceivedMeters;
+      totalInvestment += c.totalInvestment;
+    }
+    return {
+      'freshPct': 'TOTALS',
+      'totalPcs': '$totalFreshPcs Pcs',
+      'cutLength': '${totalMts.toStringAsFixed(1)} Mtr',
+      'amount': '₹${totalInvestment.toStringAsFixed(2)}',
+    };
+  }
 
   List<DyTableRowData> _buildMappedTableRows() {
     if (_groupingMode == 'none') {

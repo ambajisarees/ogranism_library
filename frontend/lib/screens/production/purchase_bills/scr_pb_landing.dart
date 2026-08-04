@@ -3,25 +3,18 @@
 LLM CONTEXT & QUERY SPACE — PURCHASE BILLS LANDING SCREEN (scr_pb_landing.dart)
 ================================================================================
 1. DOMAIN & PURPOSE:
-   - Primary landing workstation container for Purchase Bills (`pb`).
-   - Manages all 10 Purchase Bill submodules (`P1` to `P10`): Grey, Finish, Lace,
+   - Primary landing workstation container for Purchase Bills (`pb` / Stage 3 of Production Pipeline).
+   - Conforms 100% to DyPageCanvas 4-Shell Architecture (`Dash`, `Details`, `Reports`, `Tasks`).
+   - Manages 10 Purchase Bill submodules (`P1` to `P10`): Grey, Finish, Lace,
      Mill / Job Work, Stitching / Value Add, Packing, General, Yarn, Store, Capital.
-   - Dual View Modes: Full Dense Table View (`table`) & Master-Detail Split View (`split`).
 
 2. BUSINESS LOGIC & DATA CONTRACTS:
-   - 2-Row Top Scaffolding:
-     * Row 1: `PageHeader` (`Purchase Bills`, `+ New Bill` primary button).
-     * Row 2: Native `shad.Tabs` Context Tabs (`Dashboard`, `Details`, `Tasks`).
-   - Details Tab (Index 1): `DynamicActionBar` (DAB) with `submoduleWidget` popover overlay
-     for 10 categories, Search input, Supplier/Party filter, Quality filter, Status filter,
-     Date Range filter, and Clear All.
+   - Details Shell (`DyShlDetails`): Uses DabMode.details with 10 Submodules popover,
+     View Switcher, Party Filter, Quality Filter, Date Filter, Spacer, Search, 3-Dots.
    - Line Item Source Routing:
      * Grey Purchase (`P1`): `sq_PINVTRN`
      * Mill Purchase (`P4`): `sq_MILLREC`
      * All other submodules (`P2`, `P3`, `P5`–`P10`): `sq_BILLDET`
-
-3. DATA AUDIT / NULL RATES / GOTCHAS:
-   - Read-only Airbyte mirror tables (`sq_BILLS`, `sq_BILLDET`, `sq_PINVTRN`, `sq_MILLREC`).
 ================================================================================
 */
 
@@ -29,15 +22,18 @@ import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
 import '../../../dynamic_ai/page/dy_page_header.dart';
-import '../../../dynamic_ai/page/dy_action_bar.dart';
 import '../../../dynamic_ai/micro/dab/dab_submodule_pop.dart';
 import '../../../dynamic_ai/micro/dy_micro_button.dart';
-import '../../../dynamic_ai/page/dy_table_pane.dart';
-import '../../../dynamic_ai/page/dy_list_pane.dart';
+import '../../../dynamic_ai/micro/cards/dy_grid_card.dart';
 import '../../../dynamic_ai/micro/cards/dy_list_item.dart';
+import '../../../dynamic_ai/micro/table/dy_table_models.dart';
+import '../../../dynamic_ai/shells/dy_shl_dash.dart';
+import '../../../dynamic_ai/shells/dy_shl_details.dart';
+import '../../../dynamic_ai/shells/dy_shl_reports.dart';
+import '../../../dynamic_ai/shells/dy_shl_tasks.dart';
+import '../../../dynamic_ai/shells/dy_page_canvas.dart';
 import '../../../models/production/mdl_pb.dart';
 import '../../../services/production/srv_pb.dart';
-import 'scr_pb_detail_canvas.dart';
 import 'scr_pb_form_dialog.dart';
 
 /// [ScrPbLanding] — Main Landing Container Screen for Purchase Bills.
@@ -56,15 +52,15 @@ class _ScrPbLandingState extends State<ScrPbLanding> {
   int _contextTabIndex = 1; // Default selected: Details (1)
   PbCategory _selectedCategory = PbCategory.grey;
   Map<PbCategory, int> _categoryCounts = {};
-  String _viewMode = 'table'; // 'table' or 'split'
+  String _viewMode = 'table';
   String? _searchQuery;
 
   // Filter States
-  Set<String> _selectedParties = {};
+  final Set<String> _selectedParties = {};
   List<String> _partyOptions = [];
-  Set<String> _selectedQualities = {};
+  final Set<String> _selectedQualities = {};
   List<String> _qualityOptions = [];
-  Set<String> _selectedStatuses = {};
+  final Set<String> _selectedStatuses = {};
   shad.CalendarValue? _selectedDateRange;
   String? _selectedDateLabel;
 
@@ -102,8 +98,8 @@ class _ScrPbLandingState extends State<ScrPbLanding> {
   }
 
   Future<void> _loadFilterOptions() async {
-    final parties = await _pbService.getPartyOptions(category: _selectedCategory);
-    final qualities = await _pbService.getQualityOptions(category: _selectedCategory);
+    final parties = await _pbService.getSupplierOptions();
+    final qualities = await _pbService.getQualityOptions();
     if (!mounted) return;
     setState(() {
       _partyOptions = parties;
@@ -122,15 +118,15 @@ class _ScrPbLandingState extends State<ScrPbLanding> {
       _isLoading = true;
     });
 
-    final dateRange = _selectedDateRange?.toRange();
     final statusFilter = _selectedStatuses.contains('Completed')
         ? 'Completed'
         : (_selectedStatuses.contains('Pending') ? 'Pending' : 'All');
 
-    final result = await _pbService.getPurchaseBills(
+    final dateRange = _selectedDateRange?.toRange();
+    final result = await _pbService.getBillsByCategory(
+      category: _selectedCategory,
       limit: _limit,
       offset: _offset,
-      category: _selectedCategory,
       searchQuery: _searchQuery,
       selectedParties: _selectedParties,
       selectedQualities: _selectedQualities,
@@ -145,14 +141,13 @@ class _ScrPbLandingState extends State<ScrPbLanding> {
       _bills = result.data;
       _totalCount = result.totalCount;
       _isLoading = false;
-      if (_bills.isNotEmpty && (_selectedBill == null || !_bills.any((b) => b.vno == _selectedBill!.vno))) {
+      if (_bills.isNotEmpty && (_selectedBill == null || !_bills.any((b) => b.id == _selectedBill!.id))) {
         _selectedBill = _bills.first;
       }
     });
   }
 
   void _onCategoryChanged(PbCategory category) {
-    if (_selectedCategory == category) return;
     setState(() {
       _selectedCategory = category;
       _selectedParties.clear();
@@ -162,7 +157,6 @@ class _ScrPbLandingState extends State<ScrPbLanding> {
       _selectedDateLabel = null;
       _selectedBill = null;
     });
-    _loadFilterOptions();
     _fetchBills(resetOffset: true);
   }
 
@@ -181,334 +175,260 @@ class _ScrPbLandingState extends State<ScrPbLanding> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = shad.Theme.of(context);
-    final colors = theme.colorScheme;
+    return DyPageCanvas(
+      layoutMode: DyPageLayoutMode.landing,
+      header: PageHeader(
+        title: 'Purchase Bills',
+        actions: [
+          shad.OutlineButton(
+            onPressed: () {
+              shad.showToast(
+                context: context,
+                builder: (context, show) => shad.Card(
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Print Bills Summary triggered.'),
+                  ),
+                ),
+              );
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(shad.LucideIcons.printer, size: 16),
+                shad.DensityGap(shad.gapSm),
+                Text('Print'),
+              ],
+            ),
+          ),
+          shad.PrimaryButton(
+            onPressed: () => ScrPbFormDialog.show(context),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(shad.LucideIcons.plus, size: 16),
+                shad.DensityGap(shad.gapSm),
+                Text('New Bill'),
+              ],
+            ),
+          ),
+        ],
+        subpages: PageSubpages(
+          selectedIndex: _contextTabIndex,
+          labels: const ['Dash', 'Details', 'Reports', 'Tasks'],
+          onSubpageChanged: (idx) {
+            setState(() {
+              _contextTabIndex = idx;
+            });
+          },
+        ),
+      ),
+      subpageIndex: _contextTabIndex,
+      subpageContents: [
+        const DyShlDash(title: 'Purchase Bills'),
+        _buildDetailsShell(),
+        const DyShlReports(title: 'Purchase Bills'),
+        const DyShlTasks(),
+      ],
+    );
+  }
 
+  Widget _buildDetailsShell() {
     final activeCount = _categoryCounts[_selectedCategory] ?? _totalCount;
     final hasFilters = _selectedParties.isNotEmpty ||
         _selectedQualities.isNotEmpty ||
         _selectedStatuses.isNotEmpty ||
         _selectedDateRange != null;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 1. PAGE HEADER (First Row: Title & Primary Action Button)
-        PageHeader(
-          title: 'Purchase Bills',
-          actions: [
-            shad.PrimaryButton(
-              onPressed: () => ScrPbFormDialog.show(context),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(shad.LucideIcons.plus),
-                  shad.DensityGap(shad.gapSm),
-                  Text('New Bill'),
-                ],
-              ),
-            ),
-          ],
-        ),
-
-        const shad.DensityGap(shad.gapSm),
-
-        // 2. CONTEXT TABS (Second Row: Dashboard, Details, Tasks)
-        Row(
-          children: [
-            shad.Tabs(
-              index: _contextTabIndex,
-              onChanged: (int value) {
-                setState(() => _contextTabIndex = value);
-              },
-              children: [
-                const shad.TabItem(child: Text('Dashboard')),
-                const shad.TabItem(child: Text('Details')),
-                shad.TabItem(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text('Tasks'),
-                      const shad.DensityGap(shad.gapXs),
-                      Container(
-                        width: 6 * theme.scaling,
-                        height: 6 * theme.scaling,
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.destructive,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ],
+    return DyShlDetails(
+      title: 'Purchase Bills',
+      entityName: 'Bills',
+      moduleName: 'purchase_bills',
+      selectedViewMode: _viewMode,
+      onViewModeChanged: (mode) {
+        setState(() {
+          _viewMode = mode;
+        });
+      },
+      submoduleWidget: Builder(
+        builder: (btnContext) {
+          return MicroButton(
+            leadingIcon: shad.LucideIcons.fileText,
+            label: _selectedCategory.displayName,
+            badgeCount: activeCount,
+            trailingIcon: shad.LucideIcons.chevronDown,
+            isSelected: true,
+            onPressed: () {
+              shad.showOverlay(
+                btnContext,
+                shad.PopoverConfiguration(
+                  anchorAlignment: Alignment.bottomLeft,
+                  alignment: Alignment.topLeft,
+                  offset: const Offset(0, 4),
+                  builder: (popContext) => DabSubmodulePopover<PbCategory>(
+                    title: 'Submodule',
+                    selectedId: _selectedCategory,
+                    items: PbCategory.values
+                        .map(
+                          (c) => DabSubmoduleItem<PbCategory>(
+                            id: c,
+                            label: c.displayName,
+                            icon: shad.LucideIcons.fileText,
+                            count: _categoryCounts[c] ?? 0,
+                          ),
+                        )
+                        .toList(),
+                    onSelected: _onCategoryChanged,
                   ),
                 ),
-              ],
-            ),
-            const Spacer(),
-          ],
-        ),
-
-        const shad.DensityGap(shad.gapSm),
-
-        // 3. TAB CONTENT
-        Expanded(
-          child: () {
-            switch (_contextTabIndex) {
-              case 0:
-                // Dashboard Tab (Placeholder)
-                return Center(
-                  child: Text(
-                    'Purchase Bills Dashboard Analytics',
-                    style: theme.typography.h4.copyWith(color: colors.mutedForeground),
-                  ),
-                );
-              case 1:
-                // Details Tab (DAB + Dense Table Grid or Master-Detail Split View)
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DynamicActionBar(
-                      entityName: 'Bills',
-                      selectedView: _viewMode,
-                      onViewChanged: (mode) {
-                        setState(() {
-                          _viewMode = mode;
-                        });
-                      },
-                      submoduleWidget: Builder(
-                        builder: (btnContext) {
-                          return MicroButton(
-                            leadingIcon: _selectedCategory.icon,
-                            label: _selectedCategory.displayName,
-                            badgeCount: activeCount,
-                            trailingIcon: shad.LucideIcons.chevronDown,
-                            isSelected: true,
-                            onPressed: () {
-                              shad.showOverlay(
-                                btnContext,
-                                shad.PopoverConfiguration(
-                                  anchorAlignment: Alignment.bottomLeft,
-                                  alignment: Alignment.topLeft,
-                                  offset: const Offset(0, 4),
-                                  builder: (popContext) => DabSubmodulePopover<PbCategory>(
-                                    title: 'Submodule',
-                                    selectedId: _selectedCategory,
-                                    items: PbCategory.values
-                                        .map(
-                                          (c) => DabSubmoduleItem<PbCategory>(
-                                            id: c,
-                                            label: c.displayName,
-                                            icon: c.icon,
-                                            count: _categoryCounts[c] ?? 0,
-                                          ),
-                                        )
-                                        .toList(),
-                                    onSelected: _onCategoryChanged,
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                      searchQuery: _searchQuery,
-                      onSearchChanged: (val) {
-                        _searchQuery = val.trim();
-                        _fetchBills(resetOffset: true);
-                      },
-                      // Filter Slots
-                      selectedParties: _selectedParties,
-                      partyOptions: _partyOptions,
-                      onPartyChanged: (set) {
-                        setState(() {
-                          _selectedParties = set;
-                        });
-                        _fetchBills(resetOffset: true);
-                      },
-                      selectedQualities: _selectedQualities,
-                      qualityOptions: _qualityOptions,
-                      onQualityChanged: (set) {
-                        setState(() {
-                          _selectedQualities = set;
-                        });
-                        _fetchBills(resetOffset: true);
-                      },
-                      selectedStatuses: _selectedStatuses,
-                      onStatusChanged: (statuses) {
-                        setState(() {
-                          _selectedStatuses = statuses;
-                        });
-                        _fetchBills(resetOffset: true);
-                      },
-                      selectedDateRange: _selectedDateRange,
-                      selectedDateLabel: _selectedDateLabel,
-                      onDateRangeSelected: (range) {
-                        setState(() {
-                          _selectedDateRange = range;
-                          _selectedDateLabel = range != null ? 'Selected Date Range' : null;
-                        });
-                        _fetchBills(resetOffset: true);
-                      },
-                      hasActiveFilters: hasFilters,
-                      onClearAllFilters: _onClearAllFilters,
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Main Content Area
-                    Expanded(
-                      child: _isLoading
-                          ? const Center(child: shad.CircularProgressIndicator())
-                          : _bills.isEmpty
-                              ? Center(
-                                  child: Text(
-                                    'No Purchase Bills found for ${_selectedCategory.displayName}',
-                                    style: theme.typography.textSmall.copyWith(color: colors.mutedForeground),
-                                  ),
-                                )
-                              : _viewMode == 'table'
-                                  ? _buildTabularView()
-                                  : _buildSplitView(),
-                    ),
-                  ],
-                );
-              case 2:
-                // Tasks Tab (Placeholder)
-                return Center(
-                  child: Text(
-                    'Purchase Bills Tasks & Alerts (0 Active Tasks)',
-                    style: theme.typography.h4.copyWith(color: colors.mutedForeground),
-                  ),
-                );
-              default:
-                return const SizedBox.shrink();
-            }
-          }(),
-        ),
-      ],
-    );
-  }
-
-  static const List<DynamicTableColumnSpec> _pbTableColumns = [
-    DynamicTableColumnSpec(label: 'VOUCHER...', key: 'vno', width: 110),
-    DynamicTableColumnSpec(label: 'PARTY', key: 'party', flex: 2),
-    DynamicTableColumnSpec(label: 'QUALITY', key: 'fabric', flex: 2),
-    DynamicTableColumnSpec(label: 'QUANTITY', key: 'totalPcs', alignment: Alignment.centerRight, flex: 1),
-    DynamicTableColumnSpec(label: 'AMOUNT', key: 'amount', alignment: Alignment.centerRight, flex: 1),
-    DynamicTableColumnSpec(label: 'STATUS', key: 'status', width: 90, alignment: Alignment.center),
-    DynamicTableColumnSpec(label: '', key: 'actions', width: 72, alignment: Alignment.center),
-  ];
-
-  List<DynamicTableRowData> _mapBillsToRows() {
-    return _bills.map((b) {
-      return DynamicTableRowData(
-        id: b.vno.toString(),
-        voucherNo: b.vno.toString(),
-        partyName: b.partyName,
-        designPattern: b.primaryQuality,
-        quantity: b.formattedQuantity,
-        amount: b.formattedFinalAmount,
-        amountValue: b.finalAmount,
-        status: b.status.toUpperCase(),
-        childRows: b.lineItems.map((item) {
-          return DynamicTableRowData(
-            id: '${b.vno}_${item.srNo}',
-            voucherNo: item.srNo.toString(),
-            partyName: '',
-            designPattern: item.quality.isNotEmpty ? item.quality : 'N/A',
-            quantity: item.meters > 0 ? '${item.meters.toStringAsFixed(1)} Mtr' : '-',
-            amount: item.formattedAmount(),
-            amountValue: item.amount,
-            status: '',
-            rawData: {
-              'pcs': item.pcs > 0 ? item.pcs.toString() : '-',
-              'rate': item.rate > 0 ? '₹${item.rate.toStringAsFixed(2)}' : '-',
+              );
             },
           );
-        }).toList(),
-        rawData: b.core.toJson(),
-      );
-    }).toList();
-  }
-
-  /// Full-Page Dense Data Table Grid
-  Widget _buildTabularView() {
-    return DynamicDenseTable(
-      rows: _mapBillsToRows(),
-      columns: _pbTableColumns,
-      enableExpansion: true,
+        },
+      ),
+      searchQuery: _searchQuery,
+      onSearchChanged: (val) {
+        _searchQuery = val?.trim();
+        _fetchBills(resetOffset: true);
+      },
+      selectedParties: _selectedParties,
+      partyOptions: _partyOptions,
+      onPartyChanged: (parties) {
+        setState(() {
+          _selectedParties.clear();
+          _selectedParties.addAll(parties);
+        });
+        _fetchBills(resetOffset: true);
+      },
+      selectedQualities: _selectedQualities,
+      qualityOptions: _qualityOptions,
+      onQualityChanged: (qualities) {
+        setState(() {
+          _selectedQualities.clear();
+          _selectedQualities.addAll(qualities);
+        });
+        _fetchBills(resetOffset: true);
+      },
+      selectedStatuses: _selectedStatuses,
+      onStatusChanged: (statuses) {
+        setState(() {
+          _selectedStatuses.clear();
+          _selectedStatuses.addAll(statuses);
+        });
+        _fetchBills(resetOffset: true);
+      },
+      selectedDateRange: _selectedDateRange,
+      selectedDateLabel: _selectedDateLabel,
+      onDateRangeSelected: (range) {
+        setState(() {
+          _selectedDateRange = range;
+          _selectedDateLabel = range != null ? 'Selected Date Range' : null;
+        });
+        _fetchBills(resetOffset: true);
+      },
+      hasActiveFilters: hasFilters,
+      onClearAllFilters: _onClearAllFilters,
+      isLoading: _isLoading,
+      tableColumns: _pbTableColumns,
+      tableRows: _bills.map((b) => b.toDyDefRowData()).toList(),
+      gridItems: _buildMappedGridItems(),
+      listItems: _buildMappedListItems(),
+      selectedListItem: _selectedBill != null ? _mapBillToListItem(_selectedBill!) : null,
+      selectedGridItem: _selectedBill != null ? _mapBillToGridItem(_selectedBill!) : null,
+      onListItemSelected: (item) {
+        if (item == null) return;
+        final bill = _bills.firstWhere(
+          (b) => b.id == item.id || b.displayVno == item.id,
+          orElse: () => _bills.first,
+        );
+        setState(() {
+          _selectedBill = bill;
+        });
+      },
+      onGridItemSelected: (item) {
+        if (item == null) return;
+        final bill = _bills.firstWhere(
+          (b) => b.id == item.id || b.displayVno == item.id,
+          orElse: () => _bills.first,
+        );
+        setState(() {
+          _selectedBill = bill;
+        });
+      },
+      summaryTotals: _buildSummaryTotals(),
       totalRecords: _totalCount,
-      currentPage: (_offset ~/ _limit) + 1,
+      pageIndex: (_offset ~/ _limit) + 1,
       onPageChanged: (page) {
         setState(() {
           _offset = (page - 1) * _limit;
         });
         _fetchBills(resetOffset: false);
       },
-      onRowTap: (row) {
-        final bill = _bills.firstWhere((b) => b.vno.toString() == row.id, orElse: () => _bills.first);
-        setState(() {
-          _selectedBill = bill;
-          _viewMode = 'split';
-        });
-      },
     );
   }
 
-  /// Master-Detail Split Pane View
-  Widget _buildSplitView() {
-    final listItems = _bills
-        .map(
-          (b) => DynamicListItem(
-            id: b.vno.toString(),
-            title: b.partyName,
-            subtitle: '${b.displayBillNo} • ${b.primaryQuality}',
-            topLeading: b.isPending
-                ? const shad.OutlineBadge(child: Text('Pending'))
-                : const shad.PrimaryBadge(child: Text('Completed')),
-            topTrailing: b.formattedDate,
-            amount: b.formattedFinalAmount,
-            indexNumber: b.displayBillNo,
-            rawData: b.core.toJson(),
-          ),
-        )
-        .toList();
+  static const List<DyTableColumnSpec> _pbTableColumns = [
+    DyTableColumnSpec(key: 'vno', label: 'BILL NO', width: 110, isPinnedLeft: true),
+    DyTableColumnSpec(key: 'date', label: 'DATE', width: 105),
+    DyTableColumnSpec(key: 'partyName', label: 'SUPPLIER / PARTY NAME', flex: 2),
+    DyTableColumnSpec(key: 'designPattern', label: 'FABRIC QUALITY', flex: 2),
+    DyTableColumnSpec(key: 'quantity', label: 'METERS', isNumeric: true, textAlignment: Alignment.centerRight),
+    DyTableColumnSpec(key: 'totalPcs', label: 'PCS', isNumeric: true, textAlignment: Alignment.centerRight),
+    DyTableColumnSpec(key: 'rate', label: 'RATE', isNumeric: true, textAlignment: Alignment.centerRight),
+    DyTableColumnSpec(key: 'amount', label: 'BILL AMOUNT', isNumeric: true, textAlignment: Alignment.centerRight),
+  ];
 
-    final selectedListItem = _selectedBill != null
-        ? listItems.firstWhere((item) => item.id == _selectedBill!.vno.toString(), orElse: () => listItems.first)
-        : null;
+  List<DynamicListItem> _buildMappedListItems() {
+    return _bills.map((b) => _mapBillToListItem(b)).toList();
+  }
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Left Master List
-        DynamicList(
-          items: listItems,
-          selectedItem: selectedListItem,
-          onItemSelected: (item) {
-            if (item == null) return;
-            final bill = _bills.firstWhere((b) => b.vno.toString() == item.id, orElse: () => _bills.first);
-            setState(() {
-              _selectedBill = bill;
-            });
-          },
-        ),
-
-        const SizedBox(width: 16),
-
-        // Right Detail Canvas
-        Expanded(
-          child: _selectedBill != null
-              ? ScrPbDetailCanvas(
-                  header: _selectedBill!,
-                  onClose: () {
-                    setState(() {
-                      _viewMode = 'table';
-                    });
-                  },
-                )
-              : const SizedBox.shrink(),
-        ),
-      ],
+  DynamicListItem _mapBillToListItem(MdlPbHeader b) {
+    return DynamicListItem(
+      id: b.id.isNotEmpty ? b.id : b.displayVno,
+      title: b.partyName.isNotEmpty ? b.partyName : 'Unknown Supplier',
+      subtitle: b.primaryFabric,
+      indexNumber: b.displayVno,
+      amount: b.formattedFinalAmount,
+      topTrailing: b.formattedCutDate,
+      topLeading: b.isPending
+          ? const shad.OutlineBadge(child: Text('Pending'))
+          : const shad.PrimaryBadge(child: Text('Completed')),
     );
+  }
+
+  List<DyGridItem> _buildMappedGridItems() {
+    return _bills.map((b) => _mapBillToGridItem(b)).toList();
+  }
+
+  DyGridItem _mapBillToGridItem(MdlPbHeader b) {
+    return DyGridItem(
+      id: b.id.isNotEmpty ? b.id : b.displayVno,
+      title: b.partyName.isNotEmpty ? b.partyName : 'Unknown Supplier',
+      voucherNo: b.displayVno,
+      partyName: b.partyName.isNotEmpty ? b.partyName : 'Unknown Supplier',
+      designPattern: b.primaryFabric,
+      quantity: '${b.totalMeters.toStringAsFixed(1)} Mts',
+      amount: b.formattedFinalAmount,
+      statusBadge: b.isPending
+          ? const shad.OutlineBadge(child: Text('PENDING'))
+          : const shad.PrimaryBadge(child: Text('COMPLETED')),
+    );
+  }
+
+  Map<String, String> _buildSummaryTotals() {
+    int totalPcs = 0;
+    double totalMts = 0;
+    double totalAmt = 0;
+    for (final b in _bills) {
+      totalPcs += b.totalPieces;
+      totalMts += b.totalMeters;
+      totalAmt += b.finalAmount > 0 ? b.finalAmount : b.billAmount;
+    }
+    return {
+      'designPattern': 'TOTALS',
+      'quantity': '${totalMts.toStringAsFixed(1)} Mtr',
+      'totalPcs': '$totalPcs Pcs',
+      'amount': '₹${totalAmt.toStringAsFixed(2)}',
+    };
   }
 }

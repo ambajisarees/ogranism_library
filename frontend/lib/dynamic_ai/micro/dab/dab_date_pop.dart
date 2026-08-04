@@ -63,23 +63,24 @@ class _DabDatePopoverState extends State<DabDatePopover> {
       case 'Today':
         start = now;
         break;
-      case 'This Week':
-        start = now.subtract(Duration(days: now.weekday - 1));
+      case 'T-7 Days':
+        start = now.subtract(const Duration(days: 6));
         break;
-      case 'This Month':
-        start = DateTime(now.year, now.month, 1);
+      case 'T-15 Days':
+        start = now.subtract(const Duration(days: 14));
         break;
-      case 'Last 30 Days':
+      case 'T-30 Days':
         start = now.subtract(const Duration(days: 29));
         break;
-      case 'Last 60 Days':
+      case 'T-60 Days':
         start = now.subtract(const Duration(days: 59));
         break;
-      case 'Last 90 Days':
+      case 'T-90 Days':
         start = now.subtract(const Duration(days: 89));
         break;
       case 'This Year':
-        start = DateTime(now.year, 1, 1);
+        final fiscalYear = now.month >= 4 ? now.year : now.year - 1;
+        start = DateTime(fiscalYear, 4, 1);
         break;
       default:
         start = now.subtract(const Duration(days: 29));
@@ -99,11 +100,11 @@ class _DabDatePopoverState extends State<DabDatePopover> {
 
     final presets = [
       'Today',
-      'This Week',
-      'This Month',
-      'Last 30 Days',
-      'Last 60 Days',
-      'Last 90 Days',
+      'T-7 Days',
+      'T-15 Days',
+      'T-30 Days',
+      'T-60 Days',
+      'T-90 Days',
       'This Year',
     ];
 

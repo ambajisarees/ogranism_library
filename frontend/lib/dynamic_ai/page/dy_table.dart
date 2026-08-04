@@ -31,6 +31,7 @@ class DyTable extends StatefulWidget {
   final ValueChanged<int>? onPageChanged;
   final String? groupByKey;
   final bool isLoading;
+  final bool showTrailingActions;
 
   const DyTable({
     super.key,
@@ -45,6 +46,7 @@ class DyTable extends StatefulWidget {
     this.onPageChanged,
     this.groupByKey,
     this.isLoading = false,
+    this.showTrailingActions = true,
   });
 
   @override
@@ -229,22 +231,52 @@ class _DyTableState extends State<DyTable> {
                                 context, theme, colors, orderedColumns);
                           },
                         )
-                      : ListView.builder(
-                          shrinkWrap: true,
-                          padding: EdgeInsets.zero,
-                          itemCount: sortedRows.length,
-                          itemBuilder: (context, index) {
-                            final row = sortedRows[index];
-                            final isExpanded =
-                                _expandedRowIds.contains(row.id);
+                      : sortedRows.isEmpty
+                          ? Container(
+                              padding: EdgeInsets.all(32 * theme.scaling),
+                              alignment: Alignment.center,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    shad.LucideIcons.inbox,
+                                    size: 32 * theme.scaling,
+                                    color: colors.mutedForeground,
+                                  ),
+                                  const shad.DensityGap(shad.gapMd),
+                                  Text(
+                                    'No records found',
+                                    style: theme.typography.p.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: colors.foreground,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'No items match the current search or filters.',
+                                    style: theme.typography.small.copyWith(
+                                      color: colors.mutedForeground,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : ListView.builder(
+                              shrinkWrap: true,
+                              padding: EdgeInsets.zero,
+                              itemCount: sortedRows.length,
+                              itemBuilder: (context, index) {
+                                final row = sortedRows[index];
+                                final isExpanded =
+                                    _expandedRowIds.contains(row.id);
 
-                            return _buildRowTree(
-                              row: row,
-                              columns: orderedColumns,
-                              isExpanded: isExpanded,
-                            );
-                          },
-                        ),
+                                return _buildRowTree(
+                                  row: row,
+                                  columns: orderedColumns,
+                                  isExpanded: isExpanded,
+                                );
+                              },
+                            ),
                 ),
 
                 // 3. Sticky Summary Totals Footer Row (if provided)
@@ -354,6 +386,7 @@ class _DyTableState extends State<DyTable> {
             rowData: effectiveRow,
             columns: columns,
             isExpanded: isExpanded,
+            showTrailingActions: widget.showTrailingActions,
             onSelect: (val) => _toggleRowSelection(row.id, val),
             onToggleExpand: () => _toggleRowExpansion(row.id),
           )
@@ -365,20 +398,24 @@ class _DyTableState extends State<DyTable> {
 
         // Render Expanded Children (if expanded and has children)
         if (isExpanded && row.hasChildren) ...[
-          DyTableSubheaderRow(
-            columns: row.childColumns ?? columns,
-          ),
-          for (int i = 0; i < row.children.length; i++)
-            Builder(
-              builder: (context) {
-                final childRow = row.children[i];
-                return DyTableChildRow(
-                  rowData: childRow,
-                  columns: row.childColumns ?? columns,
-                  isLastChild: i == row.children.length - 1,
-                );
-              },
+          if (row.children.every((c) => c.rowType == DyTableRowType.child)) ...[
+            DyTableSubheaderRow(
+              columns: row.childColumns ?? columns,
             ),
+            for (int i = 0; i < row.children.length; i++)
+              DyTableChildRow(
+                rowData: row.children[i],
+                columns: row.childColumns ?? columns,
+                isLastChild: i == row.children.length - 1,
+              ),
+          ] else ...[
+            for (final childRow in row.children)
+              _buildRowTree(
+                row: childRow,
+                columns: row.childColumns ?? columns,
+                isExpanded: _expandedRowIds.contains(childRow.id),
+              ),
+          ],
         ],
       ],
     );

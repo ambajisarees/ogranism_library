@@ -95,6 +95,8 @@ class SbCutdetSummaryModel {
   final double costPerPc;
   final int totalFreshPcs;
   final int totalSecondPcs;
+  final double totalSecondMts;
+  final double secondCut;
   final double totalFentMts;
   final double totalFentWt;
   final double freshPct;
@@ -103,6 +105,8 @@ class SbCutdetSummaryModel {
   final double fentPct;
   final String jobType;
   final String valueType;
+  final DateTime? greyPurchaseDate;
+  final DateTime? stockReceivedDate;
   final List<int> cutCardNos;
   final List<int> reccardNos;
   final String status;
@@ -132,6 +136,8 @@ class SbCutdetSummaryModel {
     required this.costPerPc,
     required this.totalFreshPcs,
     required this.totalSecondPcs,
+    required this.totalSecondMts,
+    required this.secondCut,
     required this.totalFentMts,
     required this.totalFentWt,
     required this.freshPct,
@@ -140,6 +146,8 @@ class SbCutdetSummaryModel {
     required this.fentPct,
     required this.jobType,
     required this.valueType,
+    this.greyPurchaseDate,
+    this.stockReceivedDate,
     required this.cutCardNos,
     required this.reccardNos,
     required this.status,
@@ -195,13 +203,21 @@ class SbCutdetSummaryModel {
     final gRate = (json['GREY_RATE'] as num?)?.toDouble() ?? 0.0;
     final jRate = (json['JOB_RATE'] as num?)?.toDouble() ?? 0.0;
     final freshPcs = (json['TOTAL_FRESH_PCS'] as num?)?.toInt() ?? 0;
+    final secPcs = (json['TOTAL_SECOND_PCS'] as num?)?.toInt() ?? 0;
+    final secMts = (json['TOTAL_SECOND_MTS'] as num?)?.toDouble() ?? 0.0;
 
     // Landed Investment Calculation: (WMTS * Grey Rate) + (RMTS * Job Rate)
     final calculatedInvestment = (wmts * gRate) + (rmts * jRate);
     final investment = calculatedInvestment > 0 
-        ? calculatedInvestment 
+        ? double.parse(calculatedInvestment.toStringAsFixed(2))
         : ((json['total_investment'] as num?)?.toDouble() ?? 0.0);
-    final computedCostPerPc = freshPcs > 0 ? investment / freshPcs : 0.0;
+    final computedCostPerPc = freshPcs > 0 
+        ? double.parse((investment / freshPcs).toStringAsFixed(2))
+        : 0.0;
+
+    final computedSecondCut = (secPcs > 0 && secMts > 0)
+        ? double.parse((secMts / secPcs).toStringAsFixed(2))
+        : ((json['SECOND_CUT'] as num?)?.toDouble() ?? 0.0);
 
     return SbCutdetSummaryModel(
       id: (json['id'] as String?)?.trim() ?? '',
@@ -221,15 +237,19 @@ class SbCutdetSummaryModel {
       totalInvestment: investment,
       costPerPc: computedCostPerPc,
       totalFreshPcs: freshPcs,
-      totalSecondPcs: (json['TOTAL_SECOND_PCS'] as num?)?.toInt() ?? 0,
+      totalSecondPcs: secPcs,
+      totalSecondMts: secMts,
+      secondCut: computedSecondCut,
       totalFentMts: (json['TOTAL_FENT_MTS'] as num?)?.toDouble() ?? 0.0,
       totalFentWt: (json['TOTAL_FENT_WT'] as num?)?.toDouble() ?? 0.0,
       freshPct: (json['FRESH_PCT'] as num?)?.toDouble() ?? 0.0,
       shortagePct: (json['SHORTAGE_PCT'] as num?)?.toDouble() ?? 0.0,
       secondPct: (json['SECOND_PCT'] as num?)?.toDouble() ?? 0.0,
       fentPct: (json['FENT_PCT'] as num?)?.toDouble() ?? 0.0,
-      jobType: (json['JOB_TYPE'] as String?)?.trim() ?? '',
-      valueType: (json['VALUE_ADDITION'] as String?)?.trim() ?? '',
+      jobType: (json['JOB_TYPE'] as String?)?.trim() ?? 'CUTTING',
+      valueType: (json['VALUE_ADDITION'] as String?)?.trim() ?? 'NONE',
+      greyPurchaseDate: parseOptDate(json['grey_purchase_date']),
+      stockReceivedDate: parseOptDate(json['stock_received_date']),
       cutCardNos: parseIntList(json['CUTCARDNOS']),
       reccardNos: parseIntList(json['RECCARDNOS']),
       status: (json['sb_status'] as String?)?.trim() ?? 'COMPLETED',
@@ -261,6 +281,8 @@ class SbCutdetSummaryModel {
     'cost_per_pc': costPerPc,
     'TOTAL_FRESH_PCS': totalFreshPcs,
     'TOTAL_SECOND_PCS': totalSecondPcs,
+    'TOTAL_SECOND_MTS': totalSecondMts,
+    'SECOND_CUT': secondCut,
     'TOTAL_FENT_MTS': totalFentMts,
     'TOTAL_FENT_WT': totalFentWt,
     'FRESH_PCT': freshPct,
@@ -269,6 +291,8 @@ class SbCutdetSummaryModel {
     'FENT_PCT': fentPct,
     'JOB_TYPE': jobType,
     'VALUE_ADDITION': valueType,
+    if (greyPurchaseDate != null) 'grey_purchase_date': greyPurchaseDate!.toIso8601String(),
+    if (stockReceivedDate != null) 'stock_received_date': stockReceivedDate!.toIso8601String(),
     'CUTCARDNOS': cutCardNos,
     'RECCARDNOS': reccardNos,
     'sb_status': status,

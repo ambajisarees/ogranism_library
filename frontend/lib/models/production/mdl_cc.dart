@@ -316,3 +316,236 @@ class MdlCcLineItem {
     );
   }
 }
+
+/// [MdlCcBatchInput] — Input Data Holder & Calculation Engine for Creating Cutting Batches
+class MdlCcBatchInput {
+  final int multiVno;
+  final String millName;
+  final DateTime cutDate;
+  final double cutLength;
+  final int totalFreshPcs;
+  final int totalSecondPcs;
+  final double avgWtGrams; // Saree Weight in Grams
+  final double totalFentWtGrams; // Fent Weight in Grams
+  final List<Map<String, dynamic>> selectedCards;
+
+  MdlCcBatchInput({
+    required this.multiVno,
+    required this.millName,
+    required this.cutDate,
+    required this.cutLength,
+    required this.totalFreshPcs,
+    required this.totalSecondPcs,
+    required this.avgWtGrams,
+    required this.totalFentWtGrams,
+    required this.selectedCards,
+  });
+
+  /// Calculate pro-rated detail rows for [SbCutdetModel]
+  List<SbCutdetModel> buildDetailRows({required String author, int startCutCardNo = 1}) {
+    if (selectedCards.isEmpty) return [];
+
+    final totalRmts = selectedCards.fold<double>(
+      0.0,
+      (sum, c) => sum + ((c['RMTS'] as num?)?.toDouble() ?? 0.0),
+    );
+
+    if (totalRmts <= 0) return [];
+
+    List<SbCutdetModel> details = [];
+    int freshPcsDistributed = 0;
+    int secondsPcsDistributed = 0;
+
+    for (int i = 0; i < selectedCards.length; i++) {
+      final card = selectedCards[i];
+      final isLast = i == selectedCards.length - 1;
+      final cardRmts = (card['RMTS'] as num?)?.toDouble() ?? 0.0;
+      final ratio = cardRmts / totalRmts;
+
+      // Pro-rate fresh pcs
+      int freshPcs = isLast
+          ? (totalFreshPcs - freshPcsDistributed)
+          : (totalFreshPcs * ratio).round();
+      freshPcsDistributed += freshPcs;
+
+      // Pro-rate second pcs
+      int secondsPcs = isLast
+          ? (totalSecondPcs - secondsPcsDistributed)
+          : (totalSecondPcs * ratio).round();
+      secondsPcsDistributed += secondsPcs;
+
+      // Pro-rate fent weight in grams
+      double fentWtGrams = double.parse((totalFentWtGrams * ratio).toStringAsFixed(2));
+
+      // Calculate Fent Meters (2 decimals): FENT = (FENT_WT_Grams * CCUT) / AVG_WT_Grams
+      double fentMts = avgWtGrams > 0
+          ? double.parse(((fentWtGrams * cutLength) / avgWtGrams).toStringAsFixed(2))
+          : 0.0;
+
+      // Cut Meters = freshPcs * cutLength
+      double cutMts = double.parse((freshPcs * cutLength).toStringAsFixed(2));
+
+      final recCardNo = (card['RECCARDNO'] as num?)?.toInt() ?? 0;
+      final cardNo = (card['CARDNO'] as num?)?.toInt() ?? 0;
+      final despNo = (card['DESPNO'] as num?)?.toInt() ?? 0;
+
+      final cutCardNo = startCutCardNo + i;
+
+      DateTime? parseOptDate(dynamic v) => v != null && v.toString().isNotEmpty ? DateTime.tryParse(v.toString()) : null;
+
+      details.add(
+        SbCutdetModel(
+          cutCardNo: cutCardNo,
+          multiVno: multiVno,
+          cardNo: cardNo,
+          recCardNo: recCardNo,
+          despNo: despNo,
+          mill: millName,
+          weaver: (card['WEAVER'] as String?)?.trim() ?? '',
+          quality: (card['GREYQUAL'] as String?)?.trim() ?? '',
+          lotNo: (card['lot'] as String?)?.trim() ?? '',
+          greyMtrs: (card['WMTS'] as num?)?.toDouble() ?? 0.0,
+          greyPcs: (card['WPCS'] as num?)?.toInt() ?? 0,
+          recMtrs: cardRmts,
+          recPcs: (card['RPCS'] as num?)?.toInt() ?? 0,
+          greyRate: (card['RATE'] as num?)?.toDouble() ?? 0.0,
+          jobRate: (card['JOBRATE'] as num?)?.toDouble() ?? 0.0,
+          cutLength: cutLength,
+          cutMtrs: cutMts,
+          freshPcs: freshPcs,
+          secondsPcs: secondsPcs,
+          fentMts: fentMts,
+          fentWt: fentWtGrams,
+          avgWt: avgWtGrams,
+          cutDate: cutDate,
+          dispatchDate: parseOptDate(card['DDATE']),
+          status: 'COMPLETED',
+          author: author,
+          updater: author,
+          createdOn: DateTime.now(),
+          lastEdited: DateTime.now(),
+          rawJson: {},
+        ),
+      );
+    }
+
+    return details;
+  }
+
+  /// Calculate summary row for [SbCutdetSummaryModel]
+  SbCutdetSummaryModel buildSummaryRow(List<SbCutdetModel> details, {required String author}) {
+    double totalWmts = 0.0;
+    double totalRmts = 0.0;
+    int totalRpcs = 0;
+    int freshPcsSum = 0;
+    int secondsPcsSum = 0;
+    double fentWtSumGrams = 0.0;
+    double fentMtsSum = 0.0;
+    double totalWeightedGreyCost = 0.0;
+    double totalJobRateSum = 0.0;
+    Set<String> qualities = {};
+    List<int> recCardNosList = [];
+    List<int> cutCardNosList = [];
+    DateTime? earliestGreyPurchaseDate;
+    DateTime? earliestStockReceivedDate;
+
+    for (final d in details) {
+      totalWmts += d.greyMtrs;
+      totalRmts += d.recMtrs;
+      totalRpcs += d.recPcs;
+      freshPcsSum += d.freshPcs;
+      secondsPcsSum += d.secondsPcs;
+      fentWtSumGrams += d.fentWt;
+      fentMtsSum += d.fentMts;
+      totalWeightedGreyCost += (d.greyMtrs * d.greyRate);
+      totalJobRateSum += d.jobRate;
+
+      if (d.quality.isNotEmpty) qualities.add(d.quality);
+      recCardNosList.add(d.recCardNo);
+      cutCardNosList.add(d.cutCardNo);
+
+      if (d.dispatchDate != null) {
+        if (earliestGreyPurchaseDate == null || d.dispatchDate!.isBefore(earliestGreyPurchaseDate)) {
+          earliestGreyPurchaseDate = d.dispatchDate;
+        }
+      }
+      if (d.cutDate.isBefore(earliestStockReceivedDate ?? DateTime.now())) {
+        earliestStockReceivedDate = d.cutDate;
+      }
+    }
+
+    // 2-decimal rounded rates
+    final greyRate = totalWmts > 0
+        ? double.parse((totalWeightedGreyCost / totalWmts).toStringAsFixed(2))
+        : 0.0;
+    final jobRate = details.isNotEmpty
+        ? double.parse((totalJobRateSum / details.length).toStringAsFixed(2))
+        : 0.0;
+
+    // Total Cut Meters (Fresh)
+    final totalCmts = freshPcsSum * cutLength;
+
+    // Second Meters = TOTAL_RMTS - TOTAL_CMTS - TOTAL_FENT_MTS
+    final totalSecondMts = double.parse((totalRmts - totalCmts - fentMtsSum).toStringAsFixed(2));
+
+    // Second Cut = TOTAL_SECOND_MTS / TOTAL_SECOND_PCS
+    final secondCut = (secondsPcsSum > 0 && totalSecondMts > 0)
+        ? double.parse((totalSecondMts / secondsPcsSum).toStringAsFixed(2))
+        : 0.0;
+
+    // Percentages (2 decimals)
+    final freshPct = totalRmts > 0 ? double.parse(((totalCmts / totalRmts) * 100).toStringAsFixed(2)) : 0.0;
+    final secondPct = totalRmts > 0 ? double.parse(((totalSecondMts / totalRmts) * 100).toStringAsFixed(2)) : 0.0;
+    final fentPct = totalRmts > 0 ? double.parse(((fentMtsSum / totalRmts) * 100).toStringAsFixed(2)) : 0.0;
+    final shortagePct = totalWmts > 0 ? double.parse((((totalWmts - totalRmts) / totalWmts) * 100).toStringAsFixed(2)) : 0.0;
+
+    // Financials (2 decimals)
+    final totalInvestment = double.parse(((totalWmts * greyRate) + (totalRmts * jobRate)).toStringAsFixed(2));
+    final costPerPc = freshPcsSum > 0 ? double.parse((totalInvestment / freshPcsSum).toStringAsFixed(2)) : 0.0;
+
+    final qualityStr = qualities.join(', ');
+
+    return SbCutdetSummaryModel(
+      id: '',
+      multiVno: multiVno,
+      ccCode: 'CC-${multiVno.toString().padLeft(4, '0')}',
+      mill: millName,
+      quality: qualityStr,
+      cutDate: cutDate,
+      cutLength: cutLength,
+      avgWt: avgWtGrams,
+      totalRmts: totalRmts,
+      totalRpcs: totalRpcs,
+      totalWmts: totalWmts,
+      totalDmts: totalWmts,
+      greyRate: greyRate,
+      jobRate: jobRate,
+      totalInvestment: totalInvestment,
+      costPerPc: costPerPc,
+      totalFreshPcs: freshPcsSum,
+      totalSecondPcs: secondsPcsSum,
+      totalSecondMts: totalSecondMts,
+      secondCut: secondCut,
+      totalFentMts: fentMtsSum,
+      totalFentWt: fentWtSumGrams,
+      freshPct: freshPct,
+      shortagePct: shortagePct,
+      secondPct: secondPct,
+      fentPct: fentPct,
+      jobType: 'CUTTING',
+      valueType: 'NONE',
+      greyPurchaseDate: earliestGreyPurchaseDate,
+      stockReceivedDate: earliestStockReceivedDate,
+      cutCardNos: cutCardNosList,
+      reccardNos: recCardNosList,
+      status: 'COMPLETED',
+      cardPics: [],
+      author: author,
+      updater: author,
+      createdOn: DateTime.now(),
+      lastEdited: DateTime.now(),
+      rawJson: {},
+    );
+  }
+}
+
