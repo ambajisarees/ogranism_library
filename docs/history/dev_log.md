@@ -3,6 +3,28 @@
 > **Developer**: Smit · www.ambajisaree.com
 > **Convention**: Newest entries at top. Each day is a self-contained section tagged with Machine Agent origin (`[Windows Workstation]` vs `[MacBook Workstation]`).
 
+## 2026-08-05 · [MacBook Workstation] · Full-Sweep Rate Remediation, DESPNOS & Notes Column Addition & Physical CSV Audit
+
+Executed a full 100% database sweep across 3,491 child cut cards and 341 summary batches matching `sq_MILLREC` $\rightarrow$ `sq_PINVTRN` $\rightarrow$ `sq_BILLS`, added `DESPNOS` (`jsonb`) and `notes` (`text`) columns to `sb_cutdet_summary`, updated Batch 229 with recalculated landed cost (`₹328.70`), and updated form/model layers.
+
+### Full-Sweep Database Remediation & Rate Synchronization (`IMMBE2627` Schema)
+- **100% Rate Sweep & Audit**: Executed a full data lineage audit across 3,491 child detail rows (`sb_cutdet`) and 341 summary rows (`sb_cutdet_summary`). Identified 21 summary header batches and 121 child cards with stale unfinalized rates.
+- **Automated Rate Synchronization**: Updated `sb_cutdet.RATE` and `sb_cutdet_summary` (`GREY_RATE`, `total_investment`, `cost_per_pc`) for all 20 discrepancy batches (excluding Batch 229) with true finalized bill rates from `sq_BILLS`.
+- **`DESPNOS` & `notes` Column Migration**: Added `DESPNOS` (`jsonb`) and `notes` (`text`) columns to `sb_cutdet_summary`. Unnested `RECCARDNOS` across all 341 batches and backfilled `DESPNOS` from `sq_MILLREC.DESPNO`.
+- **Batch 229 Recalculation & Note**: Recalculated Batch 229 landed investment (`₹276,433.50`) and cost per piece (`₹328.70`) at Grey Rate `31.00`, and updated its `notes` column to `'grey rate instead of 1 is 31, cost per pc is 328.70'`.
+
+### Physical CSV Comparison & Data Lineage Analysis
+- **CSV Audit (Cut No. 93 to 342)**: Parsed 247 physical tracking records against Supabase DB records. Proved 168 exact 100% matches and categorized 73 variances into sub-ticket grouping (e.g. Cards 274, 302, 322) and formula sign fixes on paper logs.
+
+### Application Form & Model Layer (`mdl_cc.dart`, `sb_cutdet_summary.dart`, `scr_cc_form.dart`)
+- **Model Enhancements**: Added `despNos` and `notes` to `SbCutdetSummaryModel` and `MdlCcHeader`, and updated `buildSummaryRow` to automatically extract distinct `DESPNO`s from selected cards.
+- **Form Workstation**: Added `Notes / Remarks` text input field to `DyFormPanel` in `ScrCcForm`.
+
+### Verification & Code Quality
+- **`flutter analyze`**: **0 errors, 0 warnings** across the entire codebase.
+
+---
+
 ## 2026-08-04 · [MacBook Workstation] · Add Cutting Card End-to-End Batch Creation Engine, Supabase Historical Data Backfill & Database Formula Audit
 
 Implemented the complete end-to-end **Add Cutting Card** batch creation flow in `MdlCcBatchInput`, `srv_cc.dart`, `sb_cutdet.dart`, `sb_cutdet_summary.dart`, and `scr_cc_form.dart`, joined `sq_PINVTRN` by `DESPNO` for grey rates, and executed a complete database backfill across 3,409 detail rows and 311 summary rows in Supabase (`IMMBE2627` schema).
