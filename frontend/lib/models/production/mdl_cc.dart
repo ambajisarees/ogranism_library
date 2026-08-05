@@ -181,9 +181,11 @@ class MdlCcHeader {
   String get jobType => core.jobType;
   String get valueType => core.valueType;
 
-  /// Array of Child Card Numbers
+  /// Array of Child Card Numbers & Dispatch Numbers
   List<int> get cutCardNos => core.cutCardNos;
   List<int> get reccardNos => core.reccardNos;
+  List<String> get despNos => core.despNos;
+  String get notes => core.notes;
 
   /// Scanned Physical Card Picture Storage URI
   String? get cardPicPath => core.cardPics.isNotEmpty ? core.cardPics.first : null;
@@ -327,6 +329,7 @@ class MdlCcBatchInput {
   final int totalSecondPcs;
   final double avgWtGrams; // Saree Weight in Grams
   final double totalFentWtGrams; // Fent Weight in Grams
+  final String notes;
   final List<Map<String, dynamic>> selectedCards;
 
   MdlCcBatchInput({
@@ -338,6 +341,7 @@ class MdlCcBatchInput {
     required this.totalSecondPcs,
     required this.avgWtGrams,
     required this.totalFentWtGrams,
+    this.notes = '',
     required this.selectedCards,
   });
 
@@ -505,6 +509,13 @@ class MdlCcBatchInput {
 
     final qualityStr = qualities.join(', ');
 
+    final List<String> despNosList = selectedCards
+        .map((c) => c['DESPNO']?.toString().trim())
+        .where((d) => d != null && d.isNotEmpty)
+        .cast<String>()
+        .toSet()
+        .toList();
+
     return SbCutdetSummaryModel(
       id: '',
       multiVno: multiVno,
@@ -538,6 +549,8 @@ class MdlCcBatchInput {
       stockReceivedDate: earliestStockReceivedDate,
       cutCardNos: cutCardNosList,
       reccardNos: recCardNosList,
+      despNos: despNosList,
+      notes: notes,
       status: 'COMPLETED',
       cardPics: [],
       author: author,
@@ -548,4 +561,3 @@ class MdlCcBatchInput {
     );
   }
 }
-

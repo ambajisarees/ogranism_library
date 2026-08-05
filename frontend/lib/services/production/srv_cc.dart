@@ -413,21 +413,28 @@ class SrvCc {
     DateTime? startDate,
     DateTime? endDate,
     String? searchQuery,
+    List<int> currentBatchRecCardNos = const [],
   }) async {
     if (millCode.trim().isEmpty) return [];
 
     try {
-      // 1. Fetch already cut reccardno IDs from sb_cutdet
+      // 1. Fetch already cut reccardno IDs for this mill from sb_cutdet (normalized as String set)
       final cutRes = await _db.client
           .schema('IMMBE2627')
           .from('sb_cutdet')
           .select('reccardno')
-          .not('reccardno', 'is', null);
+          .eq('MILL', millCode)
+          .not('reccardno', 'is', null)
+          .range(0, 50000);
 
-      final Set<int> cutRecCardNos = (cutRes as List)
-          .map((r) => (r['reccardno'] as num?)?.toInt())
-          .where((id) => id != null)
-          .cast<int>()
+      final Set<String> cutRecCardNos = (cutRes as List)
+          .map((r) => r['reccardno']?.toString().trim())
+          .where((id) => id != null && id.isNotEmpty)
+          .cast<String>()
+          .toSet();
+
+      final Set<String> currentBatchSet = currentBatchRecCardNos
+          .map((id) => id.toString().trim())
           .toSet();
 
       // 2. Query sq_MILLREC for selected mill (VNO < 100000)
@@ -449,15 +456,22 @@ class SrvCc {
         query = query.lte('CUTDATE', endDate.toIso8601String());
       }
 
-      final response = await query.order('CUTDATE', ascending: true).limit(300);
+      final response = await query.order('CUTDATE', ascending: true).range(0, 10000);
 
       final List<Map<String, dynamic>> rawList = (response as List).cast<Map<String, dynamic>>();
       final List<Map<String, dynamic>> uncutList = [];
 
       final List<int> despNos = [];
       for (final card in rawList) {
-        final recNo = (card['RECCARDNO'] as num?)?.toInt();
-        if (recNo != null && !cutRecCardNos.contains(recNo)) {
+        final rawRec = card['RECCARDNO'];
+        if (rawRec == null) continue;
+        final recNoStr = rawRec.toString().trim();
+        final recNo = int.tryParse(recNoStr);
+
+        final isAlreadyCut = cutRecCardNos.contains(recNoStr);
+        final isCurrentBatchCard = currentBatchSet.contains(recNoStr);
+
+        if (!isAlreadyCut || isCurrentBatchCard) {
           if (searchQuery != null && searchQuery.isNotEmpty) {
             final queryLower = searchQuery.toLowerCase();
             final recStr = recNo.toString();
@@ -481,19 +495,48 @@ class SrvCc {
           final pinvRes = await _db.client
               .schema('IMMBE2627')
               .from('sq_PINVTRN')
-              .select('DESPNO, CNO, WEAVER, DDATE, WCHAL, RATE')
+              .select('DESPNO, VNO, CNO, WEAVER, DDATE, WCHAL, RATE')
               .eq('TYPE', 'P1')
               .inFilter('DESPNO', despNos);
 
           final Map<int, Map<String, dynamic>> pinvByDespNo = {};
+          final Set<int> pbillVnosToFetch = {};
           for (final row in pinvRes as List) {
             final dNo = (row['DESPNO'] as num?)?.toInt();
             if (dNo != null) {
-              pinvByDespNo[dNo] = row as Map<String, dynamic>;
+              final r = row as Map<String, dynamic>;
+              pinvByDespNo[dNo] = r;
+              final rate = (r['RATE'] as num?)?.toDouble() ?? 0.0;
+              final vno = (r['VNO'] as num?)?.toInt();
+              if (rate <= 1.0 && vno != null && vno > 0) {
+                pbillVnosToFetch.add(vno);
+              }
             }
           }
 
-          // Merge sq_PINVTRN fields into uncutList
+          // Fallback to sq_BILLS.RATE if sq_PINVTRN.RATE <= 1.0 (Empire subheader un-updated rate bug)
+          final Map<int, double> billsRateByVno = {};
+          if (pbillVnosToFetch.isNotEmpty) {
+            try {
+              final billsRes = await _db.client
+                  .schema('IMMBE2627')
+                  .from('sq_BILLS')
+                  .select('VNO, RATE')
+                  .eq('TYPE', 'P1')
+                  .inFilter('VNO', pbillVnosToFetch.toList());
+              for (final b in billsRes as List) {
+                final v = (b['VNO'] as num?)?.toInt();
+                final r = (b['RATE'] as num?)?.toDouble();
+                if (v != null && r != null && r > 1.0) {
+                  billsRateByVno[v] = r;
+                }
+              }
+            } catch (err) {
+              debugPrint('Warning: Could not fetch sq_BILLS fallback rates: $err');
+            }
+          }
+
+          // Merge sq_PINVTRN & sq_BILLS fields into uncutList
           for (final card in uncutList) {
             final dNo = (card['DESPNO'] as num?)?.toInt();
             if (dNo != null && pinvByDespNo.containsKey(dNo)) {
@@ -501,9 +544,13 @@ class SrvCc {
               card['WEAVER'] = (pRow['WEAVER'] as String?)?.trim() ?? card['WEAVER'] ?? '';
               card['DDATE'] = pRow['DDATE'] ?? card['DDATE'];
               card['WCHAL'] = (pRow['WCHAL'] as String?)?.trim() ?? card['WCHAL'] ?? '';
-              final pinvRate = (pRow['RATE'] as num?)?.toDouble();
-              if (pinvRate != null && pinvRate > 0) {
-                card['RATE'] = pinvRate;
+              double effectiveRate = (pRow['RATE'] as num?)?.toDouble() ?? 0.0;
+              final pVno = (pRow['VNO'] as num?)?.toInt();
+              if (effectiveRate <= 1.0 && pVno != null && billsRateByVno.containsKey(pVno)) {
+                effectiveRate = billsRateByVno[pVno]!;
+              }
+              if (effectiveRate > 0) {
+                card['RATE'] = effectiveRate;
               }
             }
           }
@@ -568,6 +615,64 @@ class SrvCc {
       return true;
     } catch (e) {
       debugPrint('Error committing cutting batch in SrvCc: $e');
+      return false;
+    }
+  }
+
+  /// Updates an existing Cutting Card Batch: Updates `sb_cutdet_summary` row by ID and syncs `sb_cutdet` child detail rows.
+  Future<bool> updateCuttingBatch({
+    required String summaryId,
+    required SbCutdetSummaryModel summary,
+    required List<SbCutdetModel> details,
+    required int previousMultiVno,
+  }) async {
+    try {
+      // 1. Update Summary Row in sb_cutdet_summary
+      final summaryMap = summary.toJson();
+      summaryMap.remove('id');
+      summaryMap.remove('cc_code'); // Generated ALWAYS by Postgres 17
+
+      final currentUserId = _db.client.auth.currentUser?.id;
+      final validUserUuid = (currentUserId != null && currentUserId.isNotEmpty)
+          ? currentUserId
+          : '01113a5f-48f5-41a5-b905-17ce79e46b86';
+
+      summaryMap['sb_updated_at'] = DateTime.now().toIso8601String();
+
+      await _db.client
+          .schema('IMMBE2627')
+          .from('sb_cutdet_summary')
+          .update(summaryMap)
+          .eq('id', summaryId);
+
+      debugPrint('Updated sb_cutdet_summary row ID: $summaryId');
+
+      // 2. Remove previous detail rows from sb_cutdet for this batch
+      await _db.client
+          .schema('IMMBE2627')
+          .from('sb_cutdet')
+          .delete()
+          .eq('MULTI_VNO', previousMultiVno);
+
+      // 3. Insert updated Detail Rows into sb_cutdet
+      final List<Map<String, dynamic>> detailMaps = details.map((d) {
+        final m = d.toJson();
+        m.remove('id');
+        m['sb_status'] = 'COMPLETED';
+        m['sb_created_by'] = validUserUuid;
+        m['sb_updated_by'] = validUserUuid;
+        return m;
+      }).toList();
+
+      await _db.client
+          .schema('IMMBE2627')
+          .from('sb_cutdet')
+          .insert(detailMaps);
+
+      debugPrint('Successfully re-inserted ${detailMaps.length} rows into sb_cutdet for batch multiVno: ${summary.multiVno}');
+      return true;
+    } catch (e) {
+      debugPrint('Error updating cutting batch in SrvCc: $e');
       return false;
     }
   }

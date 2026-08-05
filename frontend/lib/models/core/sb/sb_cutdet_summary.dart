@@ -109,6 +109,8 @@ class SbCutdetSummaryModel {
   final DateTime? stockReceivedDate;
   final List<int> cutCardNos;
   final List<int> reccardNos;
+  final List<String> despNos;
+  final String notes;
   final String status;
   final List<String> cardPics;
   final String author;
@@ -150,6 +152,8 @@ class SbCutdetSummaryModel {
     this.stockReceivedDate,
     required this.cutCardNos,
     required this.reccardNos,
+    this.despNos = const [],
+    this.notes = '',
     required this.status,
     required this.cardPics,
     required this.author,
@@ -252,6 +256,8 @@ class SbCutdetSummaryModel {
       stockReceivedDate: parseOptDate(json['stock_received_date']),
       cutCardNos: parseIntList(json['CUTCARDNOS']),
       reccardNos: parseIntList(json['RECCARDNOS']),
+      despNos: parsePics(json['DESPNOS']),
+      notes: (json['notes'] as String?)?.trim() ?? '',
       status: (json['sb_status'] as String?)?.trim() ?? 'COMPLETED',
       cardPics: parsePics(json['sb_cardpic']),
       author: (json['sb_created_by'] as String?)?.trim() ?? '',
@@ -295,6 +301,8 @@ class SbCutdetSummaryModel {
     if (stockReceivedDate != null) 'stock_received_date': stockReceivedDate!.toIso8601String(),
     'CUTCARDNOS': cutCardNos,
     'RECCARDNOS': reccardNos,
+    'DESPNOS': despNos,
+    'notes': notes,
     'sb_status': status,
     'sb_cardpic': jsonEncode(cardPics),
     'sb_created_by': author,

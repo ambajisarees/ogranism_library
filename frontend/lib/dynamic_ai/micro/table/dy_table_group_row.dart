@@ -19,6 +19,7 @@ class DyTableGroupRow extends StatelessWidget {
   final bool isExpanded;
   final VoidCallback onToggleExpand;
   final bool showCheckbox;
+  final bool showTrailingActions;
   final ValueChanged<bool?>? onSelect;
   final VoidCallback? onEdit;
   final VoidCallback? onMoreActions;
@@ -30,6 +31,7 @@ class DyTableGroupRow extends StatelessWidget {
     required this.isExpanded,
     required this.onToggleExpand,
     this.showCheckbox = true,
+    this.showTrailingActions = true,
     this.onSelect,
     this.onEdit,
     this.onMoreActions,
@@ -90,14 +92,18 @@ class DyTableGroupRow extends StatelessWidget {
 
               const SizedBox(width: 8),
 
-              // Data Columns (Semibold text with 6px horizontal padding)
+              // Data Columns (Group Column value highlighted in Primary Color when Selected)
               ...columns.map((col) {
                 final val = rowData.data[col.key] ?? (col.key == 'partyName' ? rowData.title : '');
+                final valStr = '$val'.trim();
                 final isMono = col.isNumeric || col.key == 'vno';
+                final isGroupValCell = valStr.isNotEmpty && !col.isNumeric;
 
                 final textStyle = theme.typography.textSmall.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: colors.foreground,
+                  color: (rowData.isSelected && isGroupValCell)
+                      ? colors.primary
+                      : colors.foreground,
                   fontFamily: isMono ? 'monospace' : null,
                 );
 
@@ -107,7 +113,7 @@ class DyTableGroupRow extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 6 * theme.scaling),
                     alignment: col.isNumeric ? Alignment.centerRight : Alignment.centerLeft,
                     child: Text(
-                      '$val',
+                      valStr,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: textStyle,
@@ -116,45 +122,46 @@ class DyTableGroupRow extends StatelessWidget {
                 );
               }),
 
-              // Col Last: Fixed 72px End-Aligned Trailing Stack (Edit Pencil + Horizontal 3 Dots)
-              SizedBox(
-                width: 72 * theme.scaling,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 28 * theme.scaling,
-                      height: 28 * theme.scaling,
-                      child: shad.IconButton.ghost(
-                        size: shad.ButtonSize.small,
-                        density: shad.ButtonDensity.compact,
-                        icon: Icon(
-                          shad.LucideIcons.pencil,
-                          size: 16 * theme.scaling,
-                          color: colors.mutedForeground,
+              // Col Last: Fixed 72px End-Aligned Trailing Stack (Optional)
+              if (showTrailingActions)
+                SizedBox(
+                  width: 72 * theme.scaling,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 28 * theme.scaling,
+                        height: 28 * theme.scaling,
+                        child: shad.IconButton.ghost(
+                          size: shad.ButtonSize.small,
+                          density: shad.ButtonDensity.compact,
+                          icon: Icon(
+                            shad.LucideIcons.pencil,
+                            size: 16 * theme.scaling,
+                            color: colors.mutedForeground,
+                          ),
+                          onPressed: onEdit,
                         ),
-                        onPressed: onEdit,
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    SizedBox(
-                      width: 28 * theme.scaling,
-                      height: 28 * theme.scaling,
-                      child: shad.IconButton.ghost(
-                        size: shad.ButtonSize.small,
-                        density: shad.ButtonDensity.compact,
-                        icon: Icon(
-                          shad.LucideIcons.ellipsis,
-                          size: 16 * theme.scaling,
-                          color: colors.mutedForeground,
+                      const SizedBox(width: 4),
+                      SizedBox(
+                        width: 28 * theme.scaling,
+                        height: 28 * theme.scaling,
+                        child: shad.IconButton.ghost(
+                          size: shad.ButtonSize.small,
+                          density: shad.ButtonDensity.compact,
+                          icon: Icon(
+                            shad.LucideIcons.ellipsis,
+                            size: 16 * theme.scaling,
+                            color: colors.mutedForeground,
+                          ),
+                          onPressed: onMoreActions,
                         ),
-                        onPressed: onMoreActions,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
         ),

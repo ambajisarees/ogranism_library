@@ -44,6 +44,7 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
   final TextEditingController _searchController = TextEditingController();
 
   bool _isCreating = false;
+  MdlCcHeader? _editingHeader;
   String _viewMode = 'table';
   int _contextTabIndex = 1; // Default to 'Details' shell (Index 1)
   String _groupingMode = 'none'; // 'none', 'mill', 'quality'
@@ -146,16 +147,19 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isCreating) {
+    if (_isCreating || _editingHeader != null) {
       return ScrCcForm(
+        editingHeader: _editingHeader,
         onBack: () {
           setState(() {
             _isCreating = false;
+            _editingHeader = null;
           });
         },
         onSave: () {
           setState(() {
             _isCreating = false;
+            _editingHeader = null;
           });
           _fetchCards(resetOffset: true);
         },
@@ -167,6 +171,22 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
       header: PageHeader(
         title: 'Cutting Cards',
         actions: [
+          if (_selectedCard != null)
+            shad.OutlineButton(
+              onPressed: () {
+                setState(() {
+                  _editingHeader = _selectedCard;
+                });
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(shad.LucideIcons.pencil, size: 16),
+                  shad.DensityGap(shad.gapSm),
+                  Text('Edit Card'),
+                ],
+              ),
+            ),
           shad.OutlineButton(
             onPressed: () {
               shad.showToast(
@@ -212,6 +232,7 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
           shad.PrimaryButton(
             onPressed: () {
               setState(() {
+                _editingHeader = null;
                 _isCreating = true;
               });
             },
@@ -350,6 +371,15 @@ class _ScrCcLandingState extends State<ScrCcLanding> {
           _offset = (page - 1) * _limit;
         });
         _fetchCards(resetOffset: false);
+      },
+      onEditRow: (row) {
+        final card = _cards.firstWhere(
+          (c) => c.id == row.id || c.multiVno.toString() == row.id || c.displayCcCode == row.voucherNo,
+          orElse: () => _cards.first,
+        );
+        setState(() {
+          _editingHeader = card;
+        });
       },
     );
   }

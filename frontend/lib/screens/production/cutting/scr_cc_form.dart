@@ -40,11 +40,13 @@ import '../../../services/production/srv_cc.dart';
 class ScrCcForm extends StatefulWidget {
   final VoidCallback onBack;
   final VoidCallback onSave;
+  final MdlCcHeader? editingHeader;
 
   const ScrCcForm({
     super.key,
     required this.onBack,
     required this.onSave,
+    this.editingHeader,
   });
 
   @override
@@ -70,8 +72,8 @@ class _ScrCcFormState extends State<ScrCcForm> {
   // Optional Date Range (Null initially)
   shad.CalendarValue? _selectedDateRange;
 
-  // Form Section State & Controllers
-  final TextEditingController _cardNoController = TextEditingController(text: 'CC-0332');
+  // Form Section State & Controllers (Pure Numeric Card No input e.g. 332)
+  final TextEditingController _cardNoController = TextEditingController(text: '332');
   final TextEditingController _millSearchController = TextEditingController();
   DateTime _executionDate = DateTime.now();
   String _selectedCutSpec = '5.20';
@@ -79,9 +81,11 @@ class _ScrCcFormState extends State<ScrCcForm> {
   final TextEditingController _secondPcsController = TextEditingController(text: '0');
   final TextEditingController _sareeWeightController = TextEditingController(text: '350');
   final TextEditingController _fentWeightController = TextEditingController(text: '2500');
+  final TextEditingController _notesController = TextEditingController();
   String _selectedProgram = 'OP';
 
   bool _isSaving = false;
+  int _pageIndex = 1;
 
   final List<String> _cutSpecOptions = const ['5.20', '5.30', '6.00', '6.20'];
   final List<String> _programOptions = const ['OP', 'Padding', 'Print', 'Dyeing'];
@@ -90,7 +94,23 @@ class _ScrCcFormState extends State<ScrCcForm> {
   void initState() {
     super.initState();
     _loadMillOptions();
-    _fetchNextVno();
+    if (widget.editingHeader != null) {
+      final h = widget.editingHeader!;
+      _selectedMill = h.millName;
+      _millSearchController.text = h.millName;
+      _cardNoController.text = h.multiVno.toString();
+      _executionDate = h.cutDate;
+      _selectedCutSpec = h.cutLength.toStringAsFixed(2);
+      _freshPcsController.text = h.totalFreshPcs.toString();
+      _secondPcsController.text = h.totalSecondPcs.toString();
+      _sareeWeightController.text = h.avgWeight.toStringAsFixed(0);
+      _fentWeightController.text = h.totalFentWt.toStringAsFixed(0);
+      _notesController.text = h.notes;
+      _selectedRowIds.addAll(h.reccardNos.map((e) => e.toString()));
+      _loadUncutCards();
+    } else {
+      _fetchNextVno();
+    }
   }
 
   @override
@@ -101,19 +121,21 @@ class _ScrCcFormState extends State<ScrCcForm> {
     _secondPcsController.dispose();
     _sareeWeightController.dispose();
     _fentWeightController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
   Future<void> _fetchNextVno() async {
+    if (widget.editingHeader != null) return;
     final vno = await _ccService.getNextMultiVno();
     if (!mounted) return;
     setState(() {
-      _cardNoController.text = 'CC-${vno.toString().padLeft(4, '0')}';
+      _cardNoController.text = vno.toString();
     });
   }
 
   Future<void> _loadMillOptions() async {
-    final mills = await _ccService.getDistinctMillsFromMillrec();
+    final mills = await _ccService.getMillOptions();
     if (!mounted) return;
     setState(() {
       _millOptions = mills;
@@ -141,6 +163,7 @@ class _ScrCcFormState extends State<ScrCcForm> {
       startDate: dateRange?.start,
       endDate: dateRange?.end,
       searchQuery: _searchQuery,
+      currentBatchRecCardNos: widget.editingHeader?.reccardNos ?? [],
     );
 
     final fabrics = await _ccService.getFabricOptionsForMill(_selectedMill!);
@@ -160,6 +183,7 @@ class _ScrCcFormState extends State<ScrCcForm> {
       _millSearchController.text = mill;
       _selectedFabrics.clear();
       _selectedRowIds.clear();
+      _pageIndex = 1;
     });
     _loadUncutCards();
   }
@@ -192,11 +216,15 @@ class _ScrCcFormState extends State<ScrCcForm> {
     setState(() => _isSaving = true);
 
     try {
-      final nextVno = await _ccService.getNextMultiVno();
-      final startCutCardNo = await _ccService.getNextCutCardNo();
+      final parsedVno = int.tryParse(_cardNoController.text.replaceAll(RegExp(r'[^0-9]'), ''));
+      final targetVno = parsedVno ?? (widget.editingHeader?.multiVno ?? await _ccService.getNextMultiVno());
+
+      final startCutCardNo = (widget.editingHeader != null && widget.editingHeader!.cutCardNos.isNotEmpty)
+          ? widget.editingHeader!.cutCardNos.first
+          : await _ccService.getNextCutCardNo();
 
       final input = MdlCcBatchInput(
-        multiVno: nextVno,
+        multiVno: targetVno,
         millName: _selectedMill!,
         cutDate: _executionDate,
         cutLength: double.tryParse(_selectedCutSpec) ?? 5.20,
@@ -204,6 +232,7 @@ class _ScrCcFormState extends State<ScrCcForm> {
         totalSecondPcs: int.tryParse(_secondPcsController.text) ?? 0,
         avgWtGrams: double.tryParse(_sareeWeightController.text) ?? 350.0,
         totalFentWtGrams: double.tryParse(_fentWeightController.text) ?? 0.0,
+        notes: _notesController.text.trim(),
         selectedCards: targetCards,
       );
 
@@ -217,19 +246,30 @@ class _ScrCcFormState extends State<ScrCcForm> {
         author: '01113a5f-48f5-41a5-b905-17ce79e46b86',
       );
 
-      final success = await _ccService.commitCuttingBatch(
-        summary: summary,
-        details: details,
-      );
+      final bool success;
+      if (widget.editingHeader != null) {
+        success = await _ccService.updateCuttingBatch(
+          summaryId: widget.editingHeader!.id,
+          summary: summary,
+          details: details,
+          previousMultiVno: widget.editingHeader!.multiVno,
+        );
+      } else {
+        success = await _ccService.commitCuttingBatch(
+          summary: summary,
+          details: details,
+        );
+      }
 
       if (!mounted) return;
       setState(() => _isSaving = false);
 
       if (success) {
+        final actionText = widget.editingHeader != null ? 'updated' : 'created';
         shad.showToast(
           context: context,
           builder: (context, overlay) => shad.SurfaceCard(
-            child: Text('Cutting Card ${summary.ccCode} created with ${details.length} cards!'),
+            child: Text('Cutting Card CC-${targetVno.toString().padLeft(4, '0')} $actionText with ${details.length} cards!'),
           ),
         );
         widget.onSave();
@@ -255,7 +295,7 @@ class _ScrCcFormState extends State<ScrCcForm> {
 
   String _formatDate(DateTime dt) {
     final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return '${dt.day.toString().padLeft(2, '0')} ${months[dt.month - 1]} ${dt.year}';
+    return '${dt.day.toString().padLeft(2, '0')} ${months[dt.month - 1]}';
   }
 
   @override
@@ -299,9 +339,11 @@ class _ScrCcFormState extends State<ScrCcForm> {
     return DyPageCanvas(
       layoutMode: DyPageLayoutMode.form,
       header: PageHeader(
-        title: 'New Cutting Card',
+        title: widget.editingHeader != null
+            ? 'Edit Cutting Card CC-${_cardNoController.text.padLeft(4, '0')}'
+            : 'New Cutting Card',
         moduleName: 'Cutting Cards',
-        mode: PageHeaderMode.adding,
+        mode: widget.editingHeader != null ? PageHeaderMode.editing : PageHeaderMode.adding,
         onBack: widget.onBack,
         onDiscard: widget.onBack,
         onSaveDraft: () {
@@ -316,6 +358,8 @@ class _ScrCcFormState extends State<ScrCcForm> {
         isSaving: _isSaving,
       ),
       content: DyShlAdd(
+        leftFlex: 8,
+        rightFlex: 2,
         // ROW 1 TOP LEFT DAB
         actionBar: DynamicActionBar(
           mode: DabMode.form,
@@ -427,7 +471,13 @@ class _ScrCcFormState extends State<ScrCcForm> {
             });
           },
           totalRecords: _uncutCardMaps.length,
-          pageIndex: 1,
+          pageIndex: _pageIndex,
+          pageSize: 50,
+          onPageChanged: (p) {
+            setState(() {
+              _pageIndex = p;
+            });
+          },
         ),
 
         // ROW 1 FLEX 3 SINGLE FORM WORKSPACE ("Details" Pane)
@@ -448,7 +498,8 @@ class _ScrCcFormState extends State<ScrCcForm> {
                       const SizedBox(height: 4),
                       shad.TextField(
                         controller: _cardNoController,
-                        readOnly: true,
+                        placeholder: const Text('332'),
+                        onChanged: (_) => setState(() {}),
                       ),
                     ],
                   ),
@@ -605,6 +656,24 @@ class _ScrCcFormState extends State<ScrCcForm> {
                     ],
                   ),
                 ),
+
+                // 7. Notes & Remarks
+                DyFormField(
+                  colSpan: 12,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Notes / Remarks', style: theme.typography.xSmall),
+                      const SizedBox(height: 4),
+                      shad.TextField(
+                        controller: _notesController,
+                        placeholder: const Text('Add batch remarks or rate notes...'),
+                        maxLines: 2,
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ],
@@ -656,14 +725,14 @@ class _ScrCcFormState extends State<ScrCcForm> {
   // DYNAMIC COLUMN SHIFTING ENGINE
   List<DyTableColumnSpec> _buildDynamicTableColumns() {
     final Map<String, DyTableColumnSpec> masterColumns = {
-      'date': const DyTableColumnSpec(key: 'date', label: 'DATE', width: 105),
-      'reccardno': const DyTableColumnSpec(key: 'reccardno', label: 'RECCARDNO', width: 110, isPinnedLeft: true),
-      'mill': const DyTableColumnSpec(key: 'mill', label: 'MILL', flex: 2),
+      'date': const DyTableColumnSpec(key: 'date', label: 'DATE', flex: 1),
+      'reccardno': const DyTableColumnSpec(key: 'reccardno', label: 'RECCARDNO', flex: 1, isPinnedLeft: true),
       'quality': const DyTableColumnSpec(key: 'fabric', label: 'FABRIC', flex: 2),
-      'lotNo': const DyTableColumnSpec(key: 'lotno', label: 'LOTNO', width: 95),
-      'recMtrs': const DyTableColumnSpec(key: 'recMtrs', label: 'REC MTRS', isNumeric: true, textAlignment: Alignment.centerRight),
-      'rate': const DyTableColumnSpec(key: 'rate', label: 'RATE', isNumeric: true, textAlignment: Alignment.centerRight),
-      'despNo': const DyTableColumnSpec(key: 'despno', label: 'DESPNO', width: 95),
+      'lotNo': const DyTableColumnSpec(key: 'lotno', label: 'LOTNO', flex: 1),
+      'sentMtrs': const DyTableColumnSpec(key: 'sentMtrs', label: 'SENT MTRS', flex: 1, isNumeric: true, textAlignment: Alignment.centerRight),
+      'recMtrs': const DyTableColumnSpec(key: 'recMtrs', label: 'REC MTRS', flex: 1, isNumeric: true, textAlignment: Alignment.centerRight),
+      'rate': const DyTableColumnSpec(key: 'rate', label: 'RATE', flex: 1, isNumeric: true, textAlignment: Alignment.centerRight),
+      'despNo': const DyTableColumnSpec(key: 'despno', label: 'DESPNO', flex: 1),
     };
 
     final List<DyTableColumnSpec> orderedCols = [];
@@ -674,7 +743,7 @@ class _ScrCcFormState extends State<ScrCcForm> {
       }
     }
 
-    final defaultOrder = ['date', 'reccardno', 'mill', 'quality', 'lotNo', 'recMtrs', 'rate'];
+    final defaultOrder = ['date', 'reccardno', 'quality', 'lotNo', 'sentMtrs', 'recMtrs', 'rate'];
     for (final colKey in defaultOrder) {
       if (!_groupLevels.contains(colKey) && masterColumns.containsKey(colKey)) {
         orderedCols.add(masterColumns[colKey]!);
@@ -715,27 +784,30 @@ class _ScrCcFormState extends State<ScrCcForm> {
     final List<DyTableRowData> groupRows = [];
 
     groupedMap.forEach((groupVal, groupItems) {
-      double grpMtrs = 0.0;
-      double grpAmt = 0.0;
+      double grpSentMtrs = 0.0;
+      double grpRecMtrs = 0.0;
+      double grpJobAmt = 0.0;
       for (final it in groupItems) {
+        final wmts = (it['WMTS'] as num?)?.toDouble() ?? 0.0;
         final rmts = (it['RMTS'] as num?)?.toDouble() ?? 0.0;
-        final gRate = (it['RATE'] as num?)?.toDouble() ?? 0.0;
         final jRate = (it['JOBRATE'] as num?)?.toDouble() ?? 0.0;
-        grpMtrs += rmts;
-        grpAmt += rmts * (gRate + jRate);
+        grpSentMtrs += wmts;
+        grpRecMtrs += rmts;
+        grpJobAmt += rmts * jRate;
       }
+      final double avgGrpJobRate = grpRecMtrs > 0 ? (grpJobAmt / grpRecMtrs) : 0.0;
 
       final subChildren = _buildGroupLevelMap(groupItems, levelIndex + 1);
 
       final Map<String, dynamic> rowDataMap = {
         'date': targetColKey == 'date' ? groupVal : '',
         'reccardno': targetColKey == 'reccardno' ? groupVal : '',
-        'mill': targetColKey == 'mill' ? groupVal : '',
         'fabric': targetColKey == 'fabric' ? groupVal : '',
         'lotno': targetColKey == 'lotno' ? groupVal : '',
         'despno': targetColKey == 'despno' ? groupVal : '',
-        'recMtrs': '${grpMtrs.toStringAsFixed(1)} Mtr',
-        'rate': '₹${grpAmt.toStringAsFixed(2)}',
+        'sentMtrs': '${grpSentMtrs.toStringAsFixed(1)} Mtr',
+        'recMtrs': '${grpRecMtrs.toStringAsFixed(1)} Mtr',
+        'rate': '₹${avgGrpJobRate.toStringAsFixed(2)}',
       };
 
       groupRows.add(
@@ -764,15 +836,14 @@ class _ScrCcFormState extends State<ScrCcForm> {
         final dt = DateTime.tryParse(dStr);
         return dt != null ? _formatDate(dt) : 'N/A';
       case 'rate':
-        final gRate = (c['RATE'] as num?)?.toDouble() ?? 0.0;
         final jRate = (c['JOBRATE'] as num?)?.toDouble() ?? 0.0;
-        return '₹${(gRate + jRate).toStringAsFixed(2)}';
+        return '₹${jRate.toStringAsFixed(2)}';
       case 'lotNo':
         final lot = (c['lot'] as String?)?.trim() ?? '';
         return lot.isNotEmpty ? lot : 'No Lot';
       case 'despNo':
         final d = c['DESPNO'];
-        return 'Desp #$d';
+        return 'Desp $d';
       default:
         return 'Other';
     }
@@ -783,8 +854,8 @@ class _ScrCcFormState extends State<ScrCcForm> {
     final mill = (c['MILL_CODE'] as String?)?.trim() ?? '';
     final qual = (c['GREYQUAL'] as String?)?.trim() ?? '';
     final lot = (c['lot'] as String?)?.trim() ?? '';
+    final wmts = (c['WMTS'] as num?)?.toDouble() ?? 0.0;
     final rmts = (c['RMTS'] as num?)?.toDouble() ?? 0.0;
-    final gRate = (c['RATE'] as num?)?.toDouble() ?? 0.0;
     final jRate = (c['JOBRATE'] as num?)?.toDouble() ?? 0.0;
     final dtStr = c['CUTDATE']?.toString() ?? '';
     final dt = DateTime.tryParse(dtStr);
@@ -792,16 +863,16 @@ class _ScrCcFormState extends State<ScrCcForm> {
     return DyTableRowData(
       id: recNo.toString(),
       rowType: DyTableRowType.def,
-      voucherNo: '#$recNo',
+      voucherNo: '$recNo',
       partyName: mill,
       data: {
         'date': dt != null ? _formatDate(dt) : '-',
-        'reccardno': '#$recNo',
-        'mill': mill,
+        'reccardno': '$recNo',
         'fabric': qual,
         'lotno': lot.isNotEmpty ? lot : '-',
+        'sentMtrs': '${wmts.toStringAsFixed(1)} Mtr',
         'recMtrs': '${rmts.toStringAsFixed(1)} Mtr',
-        'rate': '₹${(gRate + jRate).toStringAsFixed(2)}',
+        'rate': '₹${jRate.toStringAsFixed(2)}',
       },
     );
   }

@@ -85,6 +85,7 @@ class DyShlDetails extends StatefulWidget {
   final int? totalRecords;
   final int pageIndex;
   final ValueChanged<int>? onPageChanged;
+  final ValueChanged<DyTableRowData>? onEditRow;
   final Map<String, String>? summaryTotals;
 
   const DyShlDetails({
@@ -134,6 +135,7 @@ class DyShlDetails extends StatefulWidget {
     this.totalRecords,
     this.pageIndex = 1,
     this.onPageChanged,
+    this.onEditRow,
     this.summaryTotals,
   });
 
@@ -231,6 +233,7 @@ class _DyShlDetailsState extends State<DyShlDetails> {
             totalRecords: widget.totalRecords ?? 0,
             pageIndex: widget.pageIndex,
             onPageChanged: widget.onPageChanged,
+            onEditRow: widget.onEditRow,
             isLoading: widget.isLoading,
             summaryTotals: widget.summaryTotals,
           ),

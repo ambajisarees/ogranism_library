@@ -4,6 +4,7 @@
 
 library;
 
+import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
@@ -28,7 +29,9 @@ class DyTable extends StatefulWidget {
   final int pageIndex;
   final int totalPages;
   final int totalRecords;
+  final int pageSize;
   final ValueChanged<int>? onPageChanged;
+  final ValueChanged<DyTableRowData>? onEditRow;
   final String? groupByKey;
   final bool isLoading;
   final bool showTrailingActions;
@@ -43,7 +46,9 @@ class DyTable extends StatefulWidget {
     this.pageIndex = 1,
     this.totalPages = 1,
     this.totalRecords = 0,
+    this.pageSize = 50,
     this.onPageChanged,
+    this.onEditRow,
     this.groupByKey,
     this.isLoading = false,
     this.showTrailingActions = true,
@@ -103,6 +108,48 @@ class _DyTableState extends State<DyTable> {
     } else {
       activeSet.remove(rowId);
     }
+    widget.onSelectionChanged?.call(activeSet);
+  }
+
+  void _collectChildRowIds(DyTableRowData row, Set<String> targetSet) {
+    if (row.rowType == DyTableRowType.def) {
+      targetSet.add(row.id);
+    }
+    if (row.hasChildren) {
+      for (final child in row.children) {
+        _collectChildRowIds(child, targetSet);
+      }
+    }
+  }
+
+  bool _areAllChildRowsSelected(DyTableRowData row) {
+    final ids = <String>{};
+    _collectChildRowIds(row, ids);
+    if (ids.isEmpty) return false;
+    final activeSet = widget.selectedRowIds.isNotEmpty
+        ? widget.selectedRowIds
+        : _internalSelectedRowIds;
+    return ids.every((id) => activeSet.contains(id));
+  }
+
+  void _toggleGroupSelection(DyTableRowData groupRow, bool isSelected) {
+    final ids = <String>{};
+    _collectChildRowIds(groupRow, ids);
+
+    final activeSet = widget.selectedRowIds.isNotEmpty
+        ? Set<String>.from(widget.selectedRowIds)
+        : Set<String>.from(_internalSelectedRowIds);
+
+    setState(() {
+      if (isSelected) {
+        _internalSelectedRowIds.addAll(ids);
+        activeSet.addAll(ids);
+      } else {
+        _internalSelectedRowIds.removeAll(ids);
+        activeSet.removeAll(ids);
+      }
+    });
+
     widget.onSelectionChanged?.call(activeSet);
   }
 
@@ -166,6 +213,19 @@ class _DyTableState extends State<DyTable> {
     final selectedCount = widget.selectedRowIds.isNotEmpty
         ? widget.selectedRowIds.length
         : _internalSelectedRowIds.length;
+
+    // Client-side Page Slicing
+    final int pageSize = widget.pageSize;
+    final int startIndex = (widget.pageIndex - 1) * pageSize;
+    final List<DyTableRowData> displayRows;
+    if (startIndex < sortedRows.length) {
+      final int endIndex = math.min(startIndex + pageSize, sortedRows.length);
+      displayRows = sortedRows.sublist(startIndex, endIndex);
+    } else if (sortedRows.isNotEmpty) {
+      displayRows = sortedRows.sublist(0, math.min(pageSize, sortedRows.length));
+    } else {
+      displayRows = [];
+    }
 
     final shad.CheckboxState headerSelectionState;
     if (sortedRows.isNotEmpty && selectedCount == sortedRows.length) {
@@ -264,9 +324,9 @@ class _DyTableState extends State<DyTable> {
                           : ListView.builder(
                               shrinkWrap: true,
                               padding: EdgeInsets.zero,
-                              itemCount: sortedRows.length,
+                              itemCount: displayRows.length,
                               itemBuilder: (context, index) {
-                                final row = sortedRows[index];
+                                final row = displayRows[index];
                                 final isExpanded =
                                     _expandedRowIds.contains(row.id);
 
@@ -295,6 +355,7 @@ class _DyTableState extends State<DyTable> {
         // Standalone 44px Pagination Footer Row
         DyPaginationRow(
           currentPage: widget.pageIndex,
+          pageSize: widget.pageSize,
           totalRecords: widget.totalRecords > 0
               ? widget.totalRecords
               : sortedRows.length,
@@ -367,7 +428,10 @@ class _DyTableState extends State<DyTable> {
     required List<DyTableColumnSpec> columns,
     required bool isExpanded,
   }) {
-    final isSelected = widget.selectedRowIds.contains(row.id) || _internalSelectedRowIds.contains(row.id);
+    final isGroup = row.rowType == DyTableRowType.group;
+    final isSelected = isGroup
+        ? _areAllChildRowsSelected(row)
+        : (widget.selectedRowIds.contains(row.id) || _internalSelectedRowIds.contains(row.id));
     final effectiveRow = row.copyWith(isSelected: isSelected);
 
     return Column(
@@ -379,6 +443,8 @@ class _DyTableState extends State<DyTable> {
             rowData: effectiveRow,
             columns: columns,
             isExpanded: isExpanded,
+            showTrailingActions: widget.showTrailingActions,
+            onSelect: (val) => _toggleGroupSelection(row, val ?? false),
             onToggleExpand: () => _toggleRowExpansion(row.id),
           )
         else if (row.rowType == DyTableRowType.def)
@@ -389,6 +455,7 @@ class _DyTableState extends State<DyTable> {
             showTrailingActions: widget.showTrailingActions,
             onSelect: (val) => _toggleRowSelection(row.id, val),
             onToggleExpand: () => _toggleRowExpansion(row.id),
+            onEdit: widget.onEditRow != null ? () => widget.onEditRow!(row) : null,
           )
         else
           DyTableChildRow(
