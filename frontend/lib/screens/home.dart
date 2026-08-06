@@ -9,6 +9,9 @@ import '../main.dart';
 import '../services/core/service_supabase.dart';
 import 'demo_screen.dart';
 import 'production/cutting/scr_cc_landing.dart';
+import 'production/items/scr_itm_landing.dart';
+import 'production/job_work/scr_jw_landing.dart';
+import 'production/orgs/scr_org_landing.dart';
 import 'production/purchase_bills/scr_pb_landing.dart';
 import 'production/purchase_orders/scr_po_landing.dart';
 import 'crm/screen_crm_workspace.dart';
@@ -544,10 +547,16 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
       case 0:
       case 11:
         return const DemoScreen();
+      case 1:
+        return const ScrOrgLanding();
+      case 2:
+        return const ScrItmLanding();
       case 5:
         return const ScrPoLanding();
       case 6:
         return const ScrCcLanding();
+      case 7:
+        return const ScrJwLanding();
       case 103:
       case 104:
         return const DemoScreen();

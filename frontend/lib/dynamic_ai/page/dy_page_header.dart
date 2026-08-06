@@ -130,7 +130,10 @@ class PageSubpages extends StatelessWidget {
 
     final effectiveItems = items ??
         (labels != null
-            ? labels!.map((l) => PageSubpageItem(label: l, icon: _getIconForLabel(l))).toList()
+            ? labels!
+                .map(
+                    (l) => PageSubpageItem(label: l, icon: _getIconForLabel(l)))
+                .toList()
             : defaultItems);
 
     return SizedBox(

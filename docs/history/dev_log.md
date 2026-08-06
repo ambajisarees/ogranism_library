@@ -3,6 +3,72 @@
 > **Developer**: Smit · www.ambajisaree.com
 > **Convention**: Newest entries at top. Each day is a self-contained section tagged with Machine Agent origin (`[Windows Workstation]` vs `[MacBook Workstation]`).
 
+## 2026-08-05 · [MacBook Workstation] · Organizations Master (`org` / `sq_MASTER`) 6-Barrel ATYPE Submodule Landing Engine & Sidenav Integration
+
+Built the primary **Organizations Master** (`org`) domain module under `lib/screens/production/orgs/` connected to Supabase table `IMMBE2627.sq_MASTER` (5,502 party ledger records across 31 `ATYPE` structural silos), implemented the native `DyPageCanvas` 4-Shell architecture (`DyShlDash`, `DyShlDetails`, `DyShlReports`, `DyShlTasks`), and connected Sidenav `Orgs` (`index 1`) under `MASTERS` directly to `ScrOrgLanding()`.
+
+### Organizations Core & Module Architecture (`lib/models/core/sq/sq_master.dart`, `lib/models/production/orgs/mdl_org.dart`, `lib/services/production/orgs/srv_org.dart`)
+- **Canonical Model & Service (`sq_master.dart` & `sq_master_service.dart`)**: 1-to-1 canonical data model for `IMMBE2627.sq_MASTER` (79 columns) with defensive `fromJson` parser and core service singleton.
+- **`OrgCategory` Enum & ATYPE Submodule Barrels**: Partitioned party registry into 6 functional submodules:
+  - `All Orgs` (`all`, 5,502 records)
+  - `Customers / Debtors` (`debtors`, 2,703 records: `ATYPE = 1`)
+  - `Grey Suppliers` (`greySuppliers`, 772 records: `ATYPE = 2`)
+  - `Job Workers & Mills` (`jobWorkers`, 343 records: `ATYPE IN (14, 119)`)
+  - `Brokers & Agents` (`brokers`, 496 records: `ATYPE = 12`)
+  - `Others & Expenses` (`others`, 488 records)
+- **`MdlOrgHeader` & `SrvOrg` Service**: Domain data model with `toDyDefRowData()` Tier 2 table converter and module service wrapping search queries (`code`, `NAME`, `CITY1`, `STATION`, `GSTIN`, `MOBILE`), city filters, broker filters, and pagination.
+
+### Organizations 4-Shell Landing Screen & Sidenav Integration (`lib/screens/production/orgs/scr_org_landing.dart` & `lib/screens/home.dart`)
+- **`DyPageCanvas` 4-Shell Integration**: Built `ScrOrgLanding` with `PageHeader` (Title `'Organizations'`, mode `standard`, zero trailing buttons), `PageSubpages` (`Dash`, `Details`, `Reports`, `Tasks`), and `DyShlDetails`.
+- **DAB Submodule Selector & Context Filters**: Integrated 6-submodule switcher popover, search query, city multi-select filter, broker multi-select filter, group switcher (`none`, `atype`, `city`, `broker`), and view switcher (`table`, `list`, `cards`, `board`).
+- **Sidenav Route Connection**: Connected `Orgs` (`index 1`) under `MASTERS` in `lib/screens/home.dart` directly to `ScrOrgLanding()`.
+
+### Verification & Code Quality
+- **`flutter analyze`**: **0 errors, 0 warnings** across the entire codebase.
+
+---
+
+## 2026-08-05 · [MacBook Workstation] · Items Master (`itm` / `sq_QUAL`) 4-Barrel Submodule Landing Engine & Sidenav Integration
+
+Built the primary **Items Master** (`itm`) domain module under `lib/screens/production/items/` connected to Supabase table `IMMBE2627.sq_QUAL` (1,016 item records), implemented the native `DyPageCanvas` 4-Shell architecture (`DyShlDash`, `DyShlDetails`, `DyShlReports`, `DyShlTasks`), and connected Sidenav `Items` (`index 2`) under `MASTERS` directly to `ScrItmLanding()`.
+
+### Items Core & Module Architecture (`lib/models/core/sq/sq_qual.dart`, `lib/models/production/items/mdl_itm.dart`, `lib/services/production/items/srv_itm.dart`)
+- **Canonical Model & Service (`sq_qual.dart` & `sq_qual_service.dart`)**: 1-to-1 canonical data model for `IMMBE2627.sq_QUAL` (37 columns) with defensive `fromJson` parser and core service singleton.
+- **`ItmCategory` Enum & Submodule Barrels**: Partitioned item registry into 4 functional submodules:
+  - `All Items` (`all`, 1,016 items)
+  - `Finished Sarees` (`saree`, 926 items: `ISBASEQUAL = 'N'` & `CLOTHTYPE` IN ('SAREE', 'FINAL', 'DRESS'))
+  - `Grey Fabrics` (`grey`, 146 items: `ISBASEQUAL` IN ('Y', 'G'))
+  - `Others & Misc` (`others`, 90 items)
+- **`MdlItmHeader` & `SrvItm` Service**: Domain data model with `toDyDefRowData()` Tier 2 table converter and module service wrapping search queries (`qcode`, `NAME`, `category`, `HSN_CODE`), cloth type filters, category filters, unit filters, and pagination.
+
+### Items 4-Shell Landing Screen & Sidenav Integration (`lib/screens/production/items/scr_itm_landing.dart` & `lib/screens/home.dart`)
+- **`DyPageCanvas` 4-Shell Integration**: Built `ScrItmLanding` with `PageHeader` (Title `'Items'`, mode `standard`, zero trailing buttons for now), `PageSubpages` (`Dash`, `Details`, `Reports`, `Tasks`), and `DyShlDetails`.
+- **DAB Submodule Selector & Context Filters**: Integrated 4-submodule switcher popover, search query, cloth type multi-select filter, collection category multi-select filter, unit filter, group switcher (`none`, `clothtype`, `category`, `unit`), and view switcher (`table`, `list`, `cards`, `board`).
+- **Sidenav Route Connection**: Connected `Items` (`index 2`) under `MASTERS` in `lib/screens/home.dart` directly to `ScrItmLanding()`.
+
+### Verification & Code Quality
+- **`flutter analyze`**: **0 errors, 0 warnings** across the entire codebase.
+
+---
+
+## 2026-08-05 · [MacBook Workstation] · Job Work (`jw`) 8-Submodule Landing Engine & DyPageCanvas 4-Shell Implementation
+
+Built the primary **Job Work** (`jw`) domain module under `lib/screens/production/job_work/` using the native `DyPageCanvas` 4-Shell architecture (`DyShlDash`, `DyShlDetails`, `DyShlReports`, `DyShlTasks`), connected to `sq_BILLS` and `sq_BILLDET` for 8 production series (`O5` through `O12`).
+
+### Job Work Module Architecture (`lib/models/production/mdl_jw.dart` & `lib/services/production/srv_jw.dart`)
+- **`JwCategory` Enum & Data Models**: Created `JwCategory` enum mapping 8 submodules (`Stitch Desp O5`, `Stitch Recd O6`, `Diamond Desp O7`, `Diamond Recd O8`, `Embroidery Desp O9`, `Embroidery Recd O10`, `Charak Desp O11`, `Charak Recd O12`).
+- **`MdlJwHeader` & `MdlJwLineItem`**: Engineered domain data models adapting `SqBillsModel` and `SqBilldetModel` with `toDyDefRowData()` and `toDyChildRowData()` for 3-tiered `DyTable` mapping.
+- **`SrvJw` Service Layer**: Built singleton service wrapping `sq_BILLS` and `sq_BILLDET` with explicit `schema('IMMBE2627')` scoping, FY 26-27 queries (`VNO < 100000`), and automatic fallback to historical records (`VNO >= 100000`) for series with 0 active FY records (`O9`..`O12`).
+
+### Job Work 4-Shell Landing Screen (`lib/screens/production/job_work/scr_jw_landing.dart`)
+- **`DyPageCanvas` 4-Shell Integration**: Built `ScrJwLanding` with `PageHeader` (Title `'Job Work'`, mode `standard`, zero trailing buttons), `PageSubpages` (`Dash`, `Details`, `Reports`, `Tasks`), and `DyShlDetails`.
+- **DAB Submodule Selector & Context Filters**: Integrated 8-submodule switcher popover, search query, party filter (`code`), quality filter (`QUAL`), status filter, date range filter, group switcher, and 3-tiered table mapping.
+
+### Verification & Code Quality
+- **`flutter analyze`**: **0 errors, 0 warnings** across the entire codebase.
+
+---
+
 ## 2026-08-05 · [MacBook Workstation] · Full-Sweep Rate Remediation, DESPNOS & Notes Column Addition & Physical CSV Audit
 
 Executed a full 100% database sweep across 3,491 child cut cards and 341 summary batches matching `sq_MILLREC` $\rightarrow$ `sq_PINVTRN` $\rightarrow$ `sq_BILLS`, added `DESPNOS` (`jsonb`) and `notes` (`text`) columns to `sb_cutdet_summary`, updated Batch 229 with recalculated landed cost (`₹328.70`), and updated form/model layers.
