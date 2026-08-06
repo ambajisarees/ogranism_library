@@ -3,6 +3,31 @@
 > **Developer**: Smit · www.ambajisaree.com
 > **Convention**: Newest entries at top. Each day is a self-contained section tagged with Machine Agent origin (`[Windows Workstation]` vs `[MacBook Workstation]`).
 
+## 2026-08-06 · [MacBook Workstation] · Master Architecture Plan, Items & Designs Specifications, Media Engine & Database Cleanup
+
+Formulated the end-to-end master ERP architecture plan, performed full database row audits across 1,016 item records in `sq_QUAL`, designed the future-proof Items & Designs relationship model anchored on `itemsrno`, created 3 architectural specifications in `docs/architecture/`, and dropped obsolete prototype tables/views.
+
+### Master Architectural Framework & 1-Week Roadmap (`docs/architecture/master_architecture_roadmap.md`)
+- **50% / 25% / 25% Data Strategy**: Defined the 3-tier split across 50% read-only Airbyte mirrors (`sq_`), 25% hybrid enriched modules (`sq_` + `sb_`), and 25% pure native Flutter modules (`sb_`).
+- **Replica & Auto-Reconciliation Engine**: Engineered sequence generation, daily incoming verification inbox, and 3-tier auto-reconciliation engine (`100% PK Match`, `Suggested AI Link`, `Unlinked Exception Queue`).
+- **End-to-End Pipeline Contracts**: Mapped full production pipeline (`Grey Deals` $\rightarrow$ `Grey Rec` $\rightarrow$ `Mill Program` $\rightarrow$ `Cutting Cards` $\rightarrow$ `Job Cards [1 Job Card ≈ 1 Design]` $\rightarrow$ `Stages 06–14` $\rightarrow$ `PO & Bill Matching`) and sales pipeline (`Items` $\rightarrow$ `Designs` $\rightarrow$ `Packing Queue` $\rightarrow$ `Sales Orders & Dispatches` $\rightarrow$ `Invoice Matching`).
+
+### Items, Designs, Universal Media & Audit Specifications (`docs/architecture/`)
+- **`sq_QUAL` Full Column Audit (`docs/architecture/sq_qual_schema_analysis.md`)**: Audited all 47 columns across 1,016 rows in `sq_QUAL`. Verified `vwsq_qual` view containing 14 production columns (`qcode`, `NAME`, `itemsrno`, `category`, `CLOTHTYPE`, `SELL1`, `GSTRATE`, `HSN_CODE`, `CUT`, `UNIT`, `PACKING`, `ISBASEQUAL`, `BASEQUAL`, `MAINSCREEN`).
+- **`itemsrno` Invariant Anchor & Ghost Row Filtering**: Confirmed `itemsrno` (5-digit serial) as the invariant primary key anchor to protect `sb_item_ext` and `sb_designs` from Airbyte `qcode` rename mutations.
+- **Master vs Multi-Design Strategy (`docs/architecture/items_and_designs_architecture.md`)**: Engineered 1-to-many Item-to-Design relation where every item has a default Master Design (`is_master = true`, `design_no = 'Main'`), and catalog items support child design SKUs (`design_no = '101'`).
+- **Universal Media Engine (`sb_media_urls`)**: Standardized single `jsonb` array column across 4 application pillars (Paperwork Scans, Production Strike-offs, Receiving QC Photos, and Sales 9x12/12x18 Print Assets with client-side Flutter text overlay).
+- **Price Change & Rename Audit Log (`sb_item_audit`)**: Designed immutable audit table tracking `SELL1`, `NAME`, and landed cost shifts with `old_value`, `new_value`, `value_delta`, `cost_per_pc_at_event`, and user change reasons.
+
+### Database Cleanup & Deprecated Tables Archival (`docs/legacy/deprecated_tables_registry.md`)
+- **Deprecated Table Archival**: Documented schemas for 7 unused prototype tables/views (`sb_google_auth`, `sb_google_contacts`, `sb_order_packings`, `sb_sales_orders`, `sb_sales_order_lines`, `sb_vw_order_lines_summary`, `sb_vw_pur_ord_summary`) and executed `DROP CASCADE` in Supabase.
+- **Custom View Audit**: Audited 4 production custom views (`vwsq_milldispatch_pend`, `vwsq_millreceive_thisFY`, `vwsq_MASTER`, `vwsq_qual`) and dropped `vwsq_master_groups`. Dropped legacy prototype `sb_designs` (39 test rows).
+
+### Verification & Code Quality
+- **`flutter analyze`**: **0 errors, 0 warnings** across the entire codebase.
+
+---
+
 ## 2026-08-05 · [MacBook Workstation] · Organizations Master (`org` / `sq_MASTER`) 6-Barrel ATYPE Submodule Landing Engine & Sidenav Integration
 
 Built the primary **Organizations Master** (`org`) domain module under `lib/screens/production/orgs/` connected to Supabase table `IMMBE2627.sq_MASTER` (5,502 party ledger records across 31 `ATYPE` structural silos), implemented the native `DyPageCanvas` 4-Shell architecture (`DyShlDash`, `DyShlDetails`, `DyShlReports`, `DyShlTasks`), and connected Sidenav `Orgs` (`index 1`) under `MASTERS` directly to `ScrOrgLanding()`.
