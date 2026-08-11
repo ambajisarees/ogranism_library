@@ -6,7 +6,8 @@ import '../dynamic_ai/root/sidebar_nav.dart';
 import '../dynamic_ai/root/dy_module_tabs.dart';
 import '../core/keyboard_manager_widget.dart';
 import '../main.dart';
-import '../services/core/service_supabase.dart';
+import '../services/auth/srv_auth.dart';
+import '../models/auth/mdl_auth.dart';
 import 'demo_screen.dart';
 import 'production/cutting/scr_cc_landing.dart';
 import 'production/items/scr_itm_landing.dart';
@@ -579,29 +580,55 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
 
   Widget _buildProfilePopoverContent(
       BuildContext context, shad.ThemeData theme, shad.ColorScheme colors) {
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text('smitt@ambaji.com',
-              style: theme.typography.textSmall
-                  .copyWith(fontWeight: FontWeight.bold)),
-          Text('Admin Session Manager',
-              style: theme.typography.textMuted.copyWith(fontSize: 11)),
-          const SizedBox(height: 8),
-          const shad.Divider(),
-          const SizedBox(height: 8),
-          shad.OutlineButton(
-            size: shad.ButtonSize.small,
-            onPressed: () async {
-              await SupabaseService().client.auth.signOut();
-            },
-            child: const Text('Sign Out'),
+    return ValueListenableBuilder<AppProfileModel?>(
+      valueListenable: AuthService().activeProfileNotifier,
+      builder: (context, profile, child) {
+        final email = AuthService().currentUser?.email ?? 'user@ambaji.com';
+        final name = profile?.fullName ?? 'ERP User';
+        final role = profile?.roleName ?? 'STAFF';
+
+        return Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                name,
+                style: theme.typography.textSmall
+                    .copyWith(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                email,
+                style: theme.typography.xSmall
+                    .copyWith(color: colors.mutedForeground),
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  shad.PrimaryBadge(
+                    child: Text(
+                      role,
+                      style: const TextStyle(fontSize: 10),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const shad.Divider(),
+              const SizedBox(height: 8),
+              shad.OutlineButton(
+                size: shad.ButtonSize.small,
+                onPressed: () async {
+                  shad.closeOverlay(context);
+                  await AuthService().signOut();
+                },
+                child: const Text('Sign Out'),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -787,9 +814,16 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
                         ),
                       );
                     },
-                    child: const shad.Avatar(
-                      initials: 'SM',
-                      size: 24,
+                    child: ValueListenableBuilder<AppProfileModel?>(
+                      valueListenable: AuthService().activeProfileNotifier,
+                      builder: (context, profile, child) {
+                        final name = profile?.fullName ?? 'ERP User';
+                        final initials = name.split(' ').map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase();
+                        return shad.Avatar(
+                          initials: initials.isNotEmpty ? initials : 'SM',
+                          size: 24,
+                        );
+                      },
                     ),
                   );
                 }),

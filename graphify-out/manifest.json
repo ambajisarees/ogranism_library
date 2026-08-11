@@ -1675,7 +1675,7 @@
     "semantic_hash": ""
   },
   "frontend/macos/Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage/Package.swift": {
-    "mtime": 1785958319.358305,
+    "mtime": 1786075157.2017791,
     "ast_hash": "61d013e6c93b3d917c4f6178b9f6c9cb",
     "semantic_hash": ""
   },
@@ -1770,13 +1770,13 @@
     "semantic_hash": ""
   },
   "docs/history/dev_log.md": {
-    "mtime": 1785958329.292405,
-    "ast_hash": "29f619c5fd2851f11127b9f39875cbfa",
+    "mtime": 1786076334.2852218,
+    "ast_hash": "d5833fb039eb6130c9f3ccc4bfcfc3af",
     "semantic_hash": ""
   },
   "docs/history/git_entry.md": {
-    "mtime": 1785935000.753695,
-    "ast_hash": "b13e0808405bd630304e918d4093c3be",
+    "mtime": 1786041175.3426304,
+    "ast_hash": "8f948ec96ce3da62e58d1f8ec5f68f20",
     "semantic_hash": ""
   },
   "docs/history/legacy_modules_guide.md": {
@@ -1972,6 +1972,51 @@
   "frontend/lib/services/production/orgs/srv_org.dart": {
     "mtime": 1785958293.545251,
     "ast_hash": "217dd7180951b358f30754fa91c0e1b6",
+    "semantic_hash": ""
+  },
+  "docs/architecture/items_and_designs_architecture.md": {
+    "mtime": 1786074703.614954,
+    "ast_hash": "230659eb0cf85d03ce9b7861f9145655",
+    "semantic_hash": ""
+  },
+  "docs/architecture/master_architecture_roadmap.md": {
+    "mtime": 1786041175.3364327,
+    "ast_hash": "f547983422b0c6e725da6b3f8b383c7f",
+    "semantic_hash": ""
+  },
+  "docs/architecture/sq_qual_schema_analysis.md": {
+    "mtime": 1786041175.3389995,
+    "ast_hash": "fa51191c8ef5630b7c3baf6ce0a6498f",
+    "semantic_hash": ""
+  },
+  "docs/legacy/deprecated_tables_registry.md": {
+    "mtime": 1786041175.3445354,
+    "ast_hash": "293d5932d3775a7e41fa7d72133bf486",
+    "semantic_hash": ""
+  },
+  "frontend/lib/models/production/mdl_stock_ledger.dart": {
+    "mtime": 1786073008.5986414,
+    "ast_hash": "040a86a3086d11278216ab6e9b015bb0",
+    "semantic_hash": ""
+  },
+  "frontend/lib/services/production/srv_stock_ledger.dart": {
+    "mtime": 1786075133.0389328,
+    "ast_hash": "9797b46df86696b496af02e14896c442",
+    "semantic_hash": ""
+  },
+  "docs/architecture/stock_ledger_architecture.md": {
+    "mtime": 1786047531.4658155,
+    "ast_hash": "026d2e89364ef1e0f3502d71819005a1",
+    "semantic_hash": ""
+  },
+  "frontend/lib/models/production/mdl_design.dart": {
+    "mtime": 1786075140.3000264,
+    "ast_hash": "56d1f517b47e721284f0df414ac1c499",
+    "semantic_hash": ""
+  },
+  "frontend/lib/services/production/srv_design.dart": {
+    "mtime": 1786075146.4499831,
+    "ast_hash": "19b67cab5af38732ba1f92811d388d87",
     "semantic_hash": ""
   }
 }

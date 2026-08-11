@@ -9,7 +9,7 @@ import 'dart:io';
 import 'package:google_fonts/google_fonts.dart';
 
 // NEW ORGANISM DESIGN IMPORT
-import 'screens/home.dart';
+import 'screens/admin/auth/scr_auth_gate.dart';
 import 'config/supabase_config.dart';
 
 final ValueNotifier<shad.ThemeMode> themeModeNotifier =
@@ -80,7 +80,7 @@ class TextileERPMain extends StatelessWidget {
           ),
           themeMode: themeMode,
           debugShowCheckedModeBanner: false,
-          home: const HomeScreen(),
+          home: const ScrAuthGate(),
         );
       },
     );

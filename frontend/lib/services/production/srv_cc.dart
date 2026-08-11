@@ -314,26 +314,47 @@ class SrvCc {
     }
   }
 
-  /// Fetches distinct Mill names from `sb_cutdet_summary` for popover filter.
+  /// Fetches distinct Mill names strictly from uncut receipt entries in `sq_MILLREC`.
   Future<List<String>> getMillOptions() async {
     try {
+      // 1. Fetch all cut reccardno IDs from sb_cutdet
+      final cutRes = await _db.client
+          .schema('IMMBE2627')
+          .from('sb_cutdet')
+          .select('reccardno')
+          .not('reccardno', 'is', null)
+          .range(0, 50000);
+
+      final Set<String> cutRecCardNos = (cutRes as List)
+          .map((r) => r['reccardno']?.toString().trim())
+          .where((id) => id != null && id.isNotEmpty)
+          .cast<String>()
+          .toSet();
+
+      // 2. Query sq_MILLREC for distinct MILL_CODE entries that have un-cut cards
       final response = await _db.client
           .schema('IMMBE2627')
-          .from('sb_cutdet_summary')
-          .select('MILL')
-          .not('MILL', 'is', null);
+          .from('sq_MILLREC')
+          .select('MILL_CODE, RECCARDNO')
+          .not('MILL_CODE', 'is', null)
+          .range(0, 20000);
 
-      final mills = (response as List)
-          .map((r) => (r['MILL'] as String?)?.trim())
-          .where((m) => m != null && m.isNotEmpty)
-          .cast<String>()
-          .toSet()
-          .toList();
+      final Set<String> uncutMills = {};
+      for (final r in response as List) {
+        final mill = (r['MILL_CODE'] as String?)?.trim();
+        final recNo = r['RECCARDNO']?.toString().trim();
+        if (mill != null && mill.isNotEmpty) {
+          if (recNo == null || !cutRecCardNos.contains(recNo)) {
+            uncutMills.add(mill);
+          }
+        }
+      }
 
+      final mills = uncutMills.toList();
       mills.sort();
       return mills;
     } catch (e) {
-      debugPrint('Error fetching mill options in SrvCc: $e');
+      debugPrint('Error fetching mill options from sq_MILLREC in SrvCc: $e');
       return [];
     }
   }

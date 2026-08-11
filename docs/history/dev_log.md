@@ -3,6 +3,61 @@
 > **Developer**: Smit · www.ambajisaree.com
 > **Convention**: Newest entries at top. Each day is a self-contained section tagged with Machine Agent origin (`[Windows Workstation]` vs `[MacBook Workstation]`).
 
+## 2026-08-11 · [Windows Workstation] · Internal Team App Login/Logout System, AuthGate Router & RBAC Security
+
+Architected and deployed the **Internal Team App Authentication System**, featuring an ultra-premium dual-pane Admin Auth Login screen under `lib/screens/admin/auth/scr_admin_auth_login.dart`, top-level `ScrAuthGate` router, 60-minute inactivity auto-logout tracker, RBAC models, singleton `AuthService`, and header profile popover integration.
+
+### Admin Auth UI & Router Layer (`lib/screens/admin/auth/`)
+- **`ScrAdminAuthLogin`**: Built dual-pane landing screen under `lib/screens/admin/auth/scr_admin_auth_login.dart` with ambient brand showcase banner, live telemetry pills, account shortcuts (`sub.ambaji@gmail.com`, `jatin.mitfam@gmail.com`), native `shad.TextField` fields with password visibility toggle, "Remember email" checkbox, primary sign-in button, Google SSO launcher button, and light/dark theme mode toggle.
+- **`ScrAuthGate`**: Reactive router under `lib/screens/admin/auth/scr_auth_gate.dart` listening to Supabase `onAuthStateChange` streams, dynamically routing between `ScrAdminAuthLogin` (unauthenticated) and `HomeScreen` (authenticated).
+
+### Auth Service, Models & Inactivity Tracker
+- **`mdl_auth.dart`**: Domain models `AppProfileModel` and `UserRoleModel` with role resolution (`OWNER`, `ADMIN`, `MANAGER`, `STAFF`) and permission helpers.
+- **`srv_auth.dart`**: Singleton authentication service wrapping `Supabase.instance.client.auth`, profile queries (`IMMBE2627.sb_APP_PROFILES`), and sign-out logic.
+- **`srv_inactivity_tracker.dart`**: 60-minute inactivity tracker engine (`InactivityWrapper`) resetting on mouse/keyboard interaction and triggering auto-logout on idle timeout.
+
+### App Shell & Header Integration
+- **`main.dart`**: Routed `TextileERPMain` home widget to `ScrAuthGate()`.
+- **`home.dart`**: Connected header profile popover to active user profile notifier, displaying dynamic user name, email, role badge, dynamic avatar initials, and single-click Sign Out action.
+- **LLM Header Notes**: Embedded mandatory 4-section LLM Notes header blocks across all newly created Dart files.
+
+---
+
+## 2026-08-07 · [MacBook Workstation] · Designs Master Engine (`sb_designs`), Origin Attributes, Matching Recipes & Stock View Ingestion
+
+Architected and deployed the **Designs Master Engine** in Supabase Postgres 17 schema `IMMBE2627` (`sb_designs` table and `sbvw_stock_summary` view), implemented processing origin tracking (`source_type`, `source_vendor`, `source_desno`, `source_jobtype`), color matching recipes (`options_matching`, `final_matching`), 6 lifecycle stages (`MILL_STAGE`, `IN_PRODUCTION`, `IN_STOCK`, `LOW_STOCK`, `REPEAT_REQ`, `ARCHIVED`), and built core Flutter models & singleton services.
+
+### Database Table & Stock Summary View (`IMMBE2627.sb_designs` & `IMMBE2627.sbvw_stock_summary`)
+- **`sb_designs` Table**: Master Design SKU table anchored on composite primary key `design_code` (`itemqcode-design_no`, e.g. `VIDHI-MAIN`, `VIDHI-101`), `itemsrno`, `is_master` flag, origin specs (`source_type`, `source_vendor`, `source_desno`, `source_jobtype`), set packaging specs (`final_saree_wt`, `pcs_per_set`, `final_bundle_wt`), 8-matching mill options (`options_matching`), 5/6 approved set matchings (`final_matching`), media/pdf arrays, and audit timestamps.
+- **`sbvw_stock_summary` View**: Renamed and updated stock summary view grouping by `design_code` and `itemsrno` to join live stock metrics (`current_stock`, `so_orderable`, `fl_orderable`) seamlessly into Design SKU queries.
+
+### Flutter Data Models & Singleton Service Layer (`mdl_design.dart` & `srv_design.dart`)
+- **`mdl_design.dart`**: Created `MdlDesign` domain model and `DesignStage` enum with defensive `fromJson` parsers and joined `StockSummaryModel` getters.
+- **`srv_design.dart`**: Built `SrvDesign` singleton service handling `getDesignsByItemSrNo`, `getDesignByCode`, `createOrUpdateDesign`, `ensureMasterDesign`, and `updateMatchingRecipes`.
+- **Architectural Specs**: Updated in `docs/architecture/items_and_designs_architecture.md`.
+
+---
+
+## 2026-08-07 · [MacBook Workstation] · Finished Saree Stock Ledger Engine, 2-Tier Commercial Orderability & SQL View Implementation
+
+Architected and deployed the **Finished Saree Stock Ledger Engine** in Supabase Postgres 17 schema `IMMBE2627` (`sb_stock_ledger` table and `vw_stock_summary` view), implemented the 2-Tier Commercial Orderability Horizon model (`immediate_orderable_qty` vs `funnel_orderable_qty`), built core Flutter data models/services, and created the `DyStockStatusBadge` micro UI component.
+
+### Database Table & Calculated Summary View (`IMMBE2627.sb_stock_ledger` & `IMMBE2627.vw_stock_summary`)
+- **`sb_stock_ledger` Table**: Created central immutable event audit table with idempotency hash (`md5(...)`), tracking `qty_in`, `qty_out` (physical shelf outflows), `qty_ordered` (firm sales orders), `qty_delivered` (customer order dispatches), `qty_funnel` (advance pre-orders), `qty_converted` (funnel promotions), `qty_at_mill`, `qty_at_job`, and `event_date`.
+- **`vw_stock_summary` SQL View**: Created real-time aggregated view computing:
+  - `current_stock = stock_in - stock_out`
+  - `so_pending = so_booked - so_delivered` (Stock transfers maintain distinct `qty_out` without corrupting customer order pendency)
+  - `fl_pending = fl_booked - fl_converted`
+  - `so_orderable = max(0, current_stock + stock_at_job - so_pending)` (Firm Sales Order capacity for 10-14 day max delivery)
+  - `fl_orderable = max(0, so_orderable + stock_at_mill - fl_pending)` (Sales Funnel capacity for 30-40 day advance pre-orders)
+
+### Flutter Data Models, Services & Micro UI Widgets
+- **`mdl_stock_ledger.dart` & `srv_stock_ledger.dart`**: Data models for `StockLedgerEvent` and `StockSummary` with defensive `fromJson` parsers and singleton service wrapper for stock queries, posting events, and funnel conversions.
+- **`dy_stock_status_badge.dart`**: Multi-pill micro UI widget displaying real-time physical shelf stock, firm order capacity, and funnel pre-order capacity using native `shadcn_flutter` color scheme tokens.
+- **Architectural Specs**: Documented in `docs/architecture/stock_ledger_architecture.md`.
+
+---
+
 ## 2026-08-06 · [MacBook Workstation] · Master Architecture Plan, Items & Designs Specifications, Media Engine & Database Cleanup
 
 Formulated the end-to-end master ERP architecture plan, performed full database row audits across 1,016 item records in `sq_QUAL`, designed the future-proof Items & Designs relationship model anchored on `itemsrno`, created 3 architectural specifications in `docs/architecture/`, and dropped obsolete prototype tables/views.
