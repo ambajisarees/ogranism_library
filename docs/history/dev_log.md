@@ -3,6 +3,73 @@
 > **Developer**: Smit · www.ambajisaree.com
 > **Convention**: Newest entries at top. Each day is a self-contained section tagged with Machine Agent origin (`[Windows Workstation]` vs `[MacBook Workstation]`).
 
+## 2026-09-14 · [Windows Workstation] · Airbyte sync-snapshot Audit, Work Gap Summary & Mac Handoff
+
+Audited the Airbyte snapshot reconciliation Edge Function under `backend/supabase/functions/sync-snapshot/index.ts`, committed the `SrvCc` uncut millrec database view fix, authored the comprehensive `work_gap_summary_august_26.md` cross-machine handover document, and prepared the repository for MacBook transition.
+
+### sync-snapshot Edge Function Audit (`backend/supabase/functions/sync-snapshot/index.ts`)
+- **BigInt Serialization Crash**: Identified `sql.json(...)` failure on BigInt columns (`_airbyte_generation_id`, `FROMPUR`, `jvno`).
+- **Fuzzy Match False Positives**: Identified flaw in `isFuzzyMatch` first-word equality (`na.split(' ')[0] === nb.split(' ')[0]`) creating false matches on generic prefixes (`SHREE`, `PVT`, `M/S`).
+- **SQL Parameterization**: Flagged `sql.unsafe` usage needing replacement with `sql(tableName)` identifier bindings.
+- **Connection Teardown**: Flagged connection leak in `sql.end()` needing `finally { await sql.end() }` wrapper.
+
+### Documentation & Git Handoff
+- **Work Gap Summary**: Authored `docs/history/work_gap_summary_august_26.md` bridging work from August 6 to September 14.
+- **Git Commit**: Committed `frontend/lib/services/production/srv_cc.dart` (`c156a8f`).
+- **Verification**: Ran `flutter analyze` — verified 0 errors, 0 warnings.
+
+---
+
+## 2026-09-03 · [Windows Workstation] · JOB_TYPE Historical Discrepancy & Query Truncation Audit
+
+Performed an exhaustive historical audit of `JOB_TYPE` values across 473 reports in `IMMBE2627.sb_cutdet_summary` and child line items in `sb_cutdet`.
+
+### Key Findings & Recommendations
+- **Historical Cohort Split**:
+  - `Standard Cutting` (307 reports): Saved by earlier app versions from April 1 to July 24 (`MULTI_VNO` 1 to 329).
+  - `CUTTING` (166 reports): Saved by newer app versions from July 25 to August 27 (`MULTI_VNO` 335 to 493).
+- **Query Truncation Hazard**: Documented that strict equality queries (`.eq('JOB_TYPE', 'CUTTING')` or `.eq('JOB_TYPE', 'Standard Cutting')`) miss either the entire early FY or the late FY cohort.
+- **Resolution**: Advised using case-insensitive `.inFilter('JOB_TYPE', ['Standard Cutting', 'CUTTING'])` in all Dart queries and standardizing historical records via database update.
+
+---
+
+## 2026-09-02 · [Windows Workstation] · Monthly Production & Scrap Metric Audit
+
+Audited production volumes, second pcs, and fent metrics from April through August 2026 in `IMMBE2627.sb_cutdet_summary`.
+
+### Metric Findings & Unit Standardization
+- **Grand Totals**: 473 reports, 26,209 second pcs, 7,290.21 kg fent scrap, 105,129.64 meters.
+- **Unit Convention**: Verified that `TOTAL_FENT_WT` is stored in **grams** in the database (`AVG_WT` $\times$ `FENT_MTS`); divided by 1,000 for **Kilograms (KG)**.
+
+---
+
+## 2026-09-01 · [Windows Workstation] · Cutting Cards 1000-Row Truncation Bug Fix (`sbvw_uncut_millrec`) & Dispatch Audit
+
+Diagnosed and resolved the missing uncut cards bug in Add Cutting Cards, created the `sbvw_uncut_millrec` SQL View, refactored `SrvCc`, and audited Stitching Job Work Dispatch series in `sq_BILLS`.
+
+### Uncut Cards 1000-Row Truncation Fix
+- **Root Cause**: Supabase PostgREST default 1,000-row API response limit truncated older FY records when fetching raw table dumps from `sq_MILLREC` (5,437 rows), hiding May 4th cards for Jay Tex Silk Mills (`VNO` 212–219) and Aaiswarya (`VNO` 222–223).
+- **Database View (`IMMBE2627.sbvw_uncut_millrec`)**: Deployed database-side `LEFT JOIN` between `sq_MILLREC` and `sb_cutdet` (`WHERE sb_cutdet.reccardno IS NULL AND VNO < 100000`), returning only active uncut cards with 0 truncation.
+- **Service Refactoring (`srv_cc.dart`)**: Updated `getMillOptions()`, `getUncutCardMapsByMill()`, and `getUncutCardsByMill()` to query `sbvw_uncut_millrec` in FIFO order (`CUTDATE ASC`, `RECCARDNO ASC`), with exact `CARDNO` foreign key joining to `sq_PINVTRN` grey rates.
+
+### Database Audits
+- **`sb_cutdet_summary` Serial Numbers**: Identified 24 missing `MULTI_VNO` numbers between 1 and 493.
+- **Stitching Job Work Dispatch (`sq_BILLS`)**: Identified 13 missing VNOs in `TYPE = 'O5'` (`84, 85, 86, 87, 88, 135, 238, 321, 325, 329, 332, 371, 508`), confirmed `TYPE = 'O4'` has 0 missing (1–94).
+
+---
+
+## 2026-08-14 · [Windows Workstation] · Process Recipes, Dedicated Mill Matrix & Instant PO Architecture
+
+Architected the master plan and database schemas for **Process Recipes & Vendor Cost Masters** across 11 vendor silos, documented in `docs/architecture/process_recipes_and_cost_masters_architecture.md` and `implementation_plan.md`.
+
+### Core Architectural Directives
+- **Dedicated Processing Mill Matrix (`sb_mill_recipes` + `sb_mill_rate_slabs`)**: 2D relational matrix for `job_type` $\times$ `value_type`, multi-quality fabric bindings (`sq_QUAL.qcode`), and volume tiered slab rates (`min_recmtrs`).
+- **Composite Stitching & Diamond Work Engine (`sb_stitching_diamond_recipes`)**: Combined formula for Base Stitching + Stone Count / 1,000 + Lace Attachment length.
+- **Default Item Recipes (`sb_item_default_recipes`)**: Binds default recipe stacks to Items (`sq_QUAL` / `ext_sb_qual`).
+- **Instant PO Generation**: One-click PO generation (`sb_purchase_orders`) from Job Work Cards (`sb_job_ext`).
+
+---
+
 ## 2026-08-11 · [Windows Workstation] · Internal Team App Login/Logout System, AuthGate Router & RBAC Security
 
 Architected and deployed the **Internal Team App Authentication System**, featuring an ultra-premium dual-pane Admin Auth Login screen under `lib/screens/admin/auth/scr_admin_auth_login.dart`, top-level `ScrAuthGate` router, 60-minute inactivity auto-logout tracker, RBAC models, singleton `AuthService`, and header profile popover integration.
