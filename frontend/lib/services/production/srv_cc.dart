@@ -192,33 +192,12 @@ class SrvCc {
     }
   }
 
-  /// Fetches distinct processing Mill names from `sq_MILLREC`.
+  /// Fetches distinct processing Mill names strictly from active uncut entries in `sbvw_uncut_millrec`.
   Future<List<String>> getDistinctMillsFromMillrec() async {
-    try {
-      final response = await _db.client
-          .schema('IMMBE2627')
-          .from('sq_MILLREC')
-          .select('MILL_CODE')
-          .lt('VNO', 100000)
-          .not('MILL_CODE', 'is', null)
-          .limit(200);
-
-      final mills = (response as List)
-          .map((r) => (r['MILL_CODE'] as String?)?.trim())
-          .where((m) => m != null && m.isNotEmpty)
-          .cast<String>()
-          .toSet()
-          .toList();
-
-      mills.sort();
-      return mills;
-    } catch (e) {
-      debugPrint('Error fetching mills from sq_MILLREC in SrvCc: $e');
-      return [];
-    }
+    return getMillOptions();
   }
 
-  /// Fetches uncut receipt cards from `sq_MILLREC` for a selected Mill (FIFO ordered).
+  /// Fetches uncut receipt cards from `sbvw_uncut_millrec` for a selected Mill (FIFO ordered).
   Future<List<SqMillrecModel>> getUncutCardsByMill({
     required String millCode,
     Set<String> selectedFabrics = const {},
@@ -229,26 +208,11 @@ class SrvCc {
     if (millCode.trim().isEmpty) return [];
 
     try {
-      // 1. Fetch already cut reccardno IDs from sb_cutdet
-      final cutRes = await _db.client
-          .schema('IMMBE2627')
-          .from('sb_cutdet')
-          .select('reccardno')
-          .not('reccardno', 'is', null);
-
-      final Set<int> cutRecCardNos = (cutRes as List)
-          .map((r) => (r['reccardno'] as num?)?.toInt())
-          .where((id) => id != null)
-          .cast<int>()
-          .toSet();
-
-      // 2. Query sq_MILLREC for selected mill (Current fiscal year VNO < 100000)
       dynamic query = _db.client
           .schema('IMMBE2627')
-          .from('sq_MILLREC')
+          .from('sbvw_uncut_millrec')
           .select('*')
-          .eq('MILL_CODE', millCode)
-          .lt('VNO', 100000);
+          .eq('MILL_CODE', millCode);
 
       if (selectedFabrics.isNotEmpty) {
         query = query.inFilter('GREYQUAL', selectedFabrics.toList());
@@ -261,23 +225,19 @@ class SrvCc {
         query = query.lte('CUTDATE', endDate.toIso8601String());
       }
 
-      // Order by FIFO (CUTDATE ascending)
-      final response = await query.order('CUTDATE', ascending: true).limit(300);
+      final response = await query.order('CUTDATE', ascending: true).order('RECCARDNO', ascending: true).limit(5000);
 
       final List<SqMillrecModel> cards = [];
       for (final row in response as List) {
         final item = SqMillrecModel.fromJson(row as Map<String, dynamic>);
-        // Filter out cards that are already cut
-        if (!cutRecCardNos.contains(item.recCardNo)) {
-          if (searchQuery != null && searchQuery.isNotEmpty) {
-            final queryLower = searchQuery.toLowerCase();
-            final matches = item.recCardNo.toString().contains(queryLower) ||
-                item.quality.toLowerCase().contains(queryLower) ||
-                item.lotNo.toLowerCase().contains(queryLower);
-            if (!matches) continue;
-          }
-          cards.add(item);
+        if (searchQuery != null && searchQuery.isNotEmpty) {
+          final queryLower = searchQuery.toLowerCase();
+          final matches = item.recCardNo.toString().contains(queryLower) ||
+              item.quality.toLowerCase().contains(queryLower) ||
+              item.lotNo.toLowerCase().contains(queryLower);
+          if (!matches) continue;
         }
+        cards.add(item);
       }
 
       return cards;
@@ -287,17 +247,18 @@ class SrvCc {
     }
   }
 
-  /// Fetches distinct fabric qualities available for a specific Mill in `sq_MILLREC`.
+  /// Fetches distinct fabric qualities available for a specific Mill in `sbvw_uncut_millrec`.
   Future<List<String>> getFabricOptionsForMill(String millCode) async {
     if (millCode.trim().isEmpty) return [];
 
     try {
       final response = await _db.client
           .schema('IMMBE2627')
-          .from('sq_MILLREC')
+          .from('sbvw_uncut_millrec')
           .select('GREYQUAL')
           .eq('MILL_CODE', millCode)
-          .not('GREYQUAL', 'is', null);
+          .not('GREYQUAL', 'is', null)
+          .limit(2000);
 
       final qualities = (response as List)
           .map((r) => (r['GREYQUAL'] as String?)?.trim())
@@ -314,47 +275,27 @@ class SrvCc {
     }
   }
 
-  /// Fetches distinct Mill names strictly from uncut receipt entries in `sq_MILLREC`.
+  /// Fetches distinct Mill names strictly from uncut receipt entries in `sbvw_uncut_millrec`.
   Future<List<String>> getMillOptions() async {
     try {
-      // 1. Fetch all cut reccardno IDs from sb_cutdet
-      final cutRes = await _db.client
-          .schema('IMMBE2627')
-          .from('sb_cutdet')
-          .select('reccardno')
-          .not('reccardno', 'is', null)
-          .range(0, 50000);
-
-      final Set<String> cutRecCardNos = (cutRes as List)
-          .map((r) => r['reccardno']?.toString().trim())
-          .where((id) => id != null && id.isNotEmpty)
-          .cast<String>()
-          .toSet();
-
-      // 2. Query sq_MILLREC for distinct MILL_CODE entries that have un-cut cards
       final response = await _db.client
           .schema('IMMBE2627')
-          .from('sq_MILLREC')
-          .select('MILL_CODE, RECCARDNO')
+          .from('sbvw_uncut_millrec')
+          .select('MILL_CODE')
           .not('MILL_CODE', 'is', null)
-          .range(0, 20000);
+          .limit(5000);
 
-      final Set<String> uncutMills = {};
-      for (final r in response as List) {
-        final mill = (r['MILL_CODE'] as String?)?.trim();
-        final recNo = r['RECCARDNO']?.toString().trim();
-        if (mill != null && mill.isNotEmpty) {
-          if (recNo == null || !cutRecCardNos.contains(recNo)) {
-            uncutMills.add(mill);
-          }
-        }
-      }
+      final mills = (response as List)
+          .map((r) => (r['MILL_CODE'] as String?)?.trim())
+          .where((m) => m != null && m.isNotEmpty)
+          .cast<String>()
+          .toSet()
+          .toList();
 
-      final mills = uncutMills.toList();
       mills.sort();
       return mills;
     } catch (e) {
-      debugPrint('Error fetching mill options from sq_MILLREC in SrvCc: $e');
+      debugPrint('Error fetching mill options from sbvw_uncut_millrec in SrvCc: $e');
       return [];
     }
   }
@@ -439,32 +380,12 @@ class SrvCc {
     if (millCode.trim().isEmpty) return [];
 
     try {
-      // 1. Fetch already cut reccardno IDs for this mill from sb_cutdet (normalized as String set)
-      final cutRes = await _db.client
-          .schema('IMMBE2627')
-          .from('sb_cutdet')
-          .select('reccardno')
-          .eq('MILL', millCode)
-          .not('reccardno', 'is', null)
-          .range(0, 50000);
-
-      final Set<String> cutRecCardNos = (cutRes as List)
-          .map((r) => r['reccardno']?.toString().trim())
-          .where((id) => id != null && id.isNotEmpty)
-          .cast<String>()
-          .toSet();
-
-      final Set<String> currentBatchSet = currentBatchRecCardNos
-          .map((id) => id.toString().trim())
-          .toSet();
-
-      // 2. Query sq_MILLREC for selected mill (VNO < 100000)
+      // 1. Query sbvw_uncut_millrec for selected mill
       dynamic query = _db.client
           .schema('IMMBE2627')
-          .from('sq_MILLREC')
+          .from('sbvw_uncut_millrec')
           .select('*')
-          .eq('MILL_CODE', millCode)
-          .lt('VNO', 100000);
+          .eq('MILL_CODE', millCode);
 
       if (selectedFabrics.isNotEmpty) {
         query = query.inFilter('GREYQUAL', selectedFabrics.toList());
@@ -477,60 +398,97 @@ class SrvCc {
         query = query.lte('CUTDATE', endDate.toIso8601String());
       }
 
-      final response = await query.order('CUTDATE', ascending: true).range(0, 10000);
+      final response = await query
+          .order('CUTDATE', ascending: true)
+          .order('RECCARDNO', ascending: true)
+          .limit(5000);
 
       final List<Map<String, dynamic>> rawList = (response as List).cast<Map<String, dynamic>>();
-      final List<Map<String, dynamic>> uncutList = [];
 
-      final List<int> despNos = [];
-      for (final card in rawList) {
-        final rawRec = card['RECCARDNO'];
-        if (rawRec == null) continue;
-        final recNoStr = rawRec.toString().trim();
-        final recNo = int.tryParse(recNoStr);
-
-        final isAlreadyCut = cutRecCardNos.contains(recNoStr);
-        final isCurrentBatchCard = currentBatchSet.contains(recNoStr);
-
-        if (!isAlreadyCut || isCurrentBatchCard) {
-          if (searchQuery != null && searchQuery.isNotEmpty) {
-            final queryLower = searchQuery.toLowerCase();
-            final recStr = recNo.toString();
-            final qualStr = (card['GREYQUAL'] as String? ?? '').toLowerCase();
-            final lotStr = (card['lot'] as String? ?? '').toLowerCase();
-            if (!recStr.contains(queryLower) && !qualStr.contains(queryLower) && !lotStr.contains(queryLower)) {
-              continue;
-            }
-          }
-          uncutList.add(Map<String, dynamic>.from(card));
-          final despNo = (card['DESPNO'] as num?)?.toInt();
-          if (despNo != null && despNo > 0) {
-            despNos.add(despNo);
+      // 2. If editing an existing batch, also fetch currently selected cards from sq_MILLREC if missing
+      if (currentBatchRecCardNos.isNotEmpty) {
+        final existingRecs = rawList.map((c) => (c['RECCARDNO'] as num?)?.toInt()).whereType<int>().toSet();
+        final missingBatchRecs = currentBatchRecCardNos.where((id) => !existingRecs.contains(id)).toList();
+        if (missingBatchRecs.isNotEmpty) {
+          try {
+            final extraRes = await _db.client
+                .schema('IMMBE2627')
+                .from('sq_MILLREC')
+                .select('*')
+                .eq('MILL_CODE', millCode)
+                .inFilter('RECCARDNO', missingBatchRecs);
+            rawList.addAll((extraRes as List).cast<Map<String, dynamic>>());
+          } catch (e) {
+            debugPrint('Warning: Could not fetch current batch extra cards: $e');
           }
         }
       }
 
-      // 3. Join with sq_PINVTRN by DESPNO to retrieve WEAVER, DDATE, WCHAL, RATE
-      if (despNos.isNotEmpty) {
-        try {
-          final pinvRes = await _db.client
-              .schema('IMMBE2627')
-              .from('sq_PINVTRN')
-              .select('DESPNO, VNO, CNO, WEAVER, DDATE, WCHAL, RATE')
-              .eq('TYPE', 'P1')
-              .inFilter('DESPNO', despNos);
+      final List<Map<String, dynamic>> uncutList = [];
+      final List<int> cardNos = [];
+      for (final card in rawList) {
+        final rawRec = card['RECCARDNO'];
+        if (rawRec == null) continue;
+        final recNo = (rawRec as num).toInt();
 
-          final Map<int, Map<String, dynamic>> pinvByDespNo = {};
+        if (searchQuery != null && searchQuery.isNotEmpty) {
+          final queryLower = searchQuery.toLowerCase();
+          final recStr = recNo.toString();
+          final qualStr = (card['GREYQUAL'] as String? ?? '').toLowerCase();
+          final lotStr = (card['lot'] as String? ?? '').toLowerCase();
+          if (!recStr.contains(queryLower) && !qualStr.contains(queryLower) && !lotStr.contains(queryLower)) {
+            continue;
+          }
+        }
+        uncutList.add(Map<String, dynamic>.from(card));
+        final cardNo = (card['CARDNO'] as num?)?.toInt();
+        if (cardNo != null && cardNo > 0) {
+          cardNos.add(cardNo);
+        }
+      }
+
+      // Sort uncut list in FIFO order (CUTDATE ascending, RECCARDNO ascending) for display
+      uncutList.sort((a, b) {
+        final aDt = a['CUTDATE']?.toString() ?? '';
+        final bDt = b['CUTDATE']?.toString() ?? '';
+        final dtComp = aDt.compareTo(bDt);
+        if (dtComp != 0) return dtComp;
+        final aRec = (a['RECCARDNO'] as num?)?.toInt() ?? 0;
+        final bRec = (b['RECCARDNO'] as num?)?.toInt() ?? 0;
+        return aRec.compareTo(bRec);
+      });
+
+      // 3. Join with sq_PINVTRN by CARDNO (Strict 1:1 Foreign Key) to retrieve WEAVER, DDATE, WCHAL, RATE
+      if (cardNos.isNotEmpty) {
+        try {
+          final Map<int, Map<String, dynamic>> pinvByCardNo = {};
           final Set<int> pbillVnosToFetch = {};
-          for (final row in pinvRes as List) {
-            final dNo = (row['DESPNO'] as num?)?.toInt();
-            if (dNo != null) {
-              final r = row as Map<String, dynamic>;
-              pinvByDespNo[dNo] = r;
-              final rate = (r['RATE'] as num?)?.toDouble() ?? 0.0;
-              final vno = (r['VNO'] as num?)?.toInt();
-              if (rate <= 1.0 && vno != null && vno > 0) {
-                pbillVnosToFetch.add(vno);
+
+          // Chunk queries to avoid Supabase PostgREST URL length limits
+          const int chunkSize = 400;
+          for (int i = 0; i < cardNos.length; i += chunkSize) {
+            final chunk = cardNos.sublist(
+              i,
+              i + chunkSize > cardNos.length ? cardNos.length : i + chunkSize,
+            );
+
+            final pinvRes = await _db.client
+                .schema('IMMBE2627')
+                .from('sq_PINVTRN')
+                .select('CARDNO, DESPNO, VNO, CNO, WEAVER, DDATE, WCHAL, RATE, PURRATE')
+                .inFilter('CARDNO', chunk);
+
+            for (final row in pinvRes as List) {
+              final cNo = (row['CARDNO'] as num?)?.toInt();
+              if (cNo != null) {
+                final r = row as Map<String, dynamic>;
+                pinvByCardNo[cNo] = r;
+                final rate = (r['RATE'] as num?)?.toDouble() ?? 0.0;
+                final purRate = (r['PURRATE'] as num?)?.toDouble() ?? 0.0;
+                final vno = (r['VNO'] as num?)?.toInt();
+                if ((rate <= 1.0 || purRate <= 1.0) && vno != null && vno > 0) {
+                  pbillVnosToFetch.add(vno);
+                }
               }
             }
           }
@@ -539,17 +497,24 @@ class SrvCc {
           final Map<int, double> billsRateByVno = {};
           if (pbillVnosToFetch.isNotEmpty) {
             try {
-              final billsRes = await _db.client
-                  .schema('IMMBE2627')
-                  .from('sq_BILLS')
-                  .select('VNO, RATE')
-                  .eq('TYPE', 'P1')
-                  .inFilter('VNO', pbillVnosToFetch.toList());
-              for (final b in billsRes as List) {
-                final v = (b['VNO'] as num?)?.toInt();
-                final r = (b['RATE'] as num?)?.toDouble();
-                if (v != null && r != null && r > 1.0) {
-                  billsRateByVno[v] = r;
+              final pbillList = pbillVnosToFetch.toList();
+              for (int i = 0; i < pbillList.length; i += chunkSize) {
+                final chunk = pbillList.sublist(
+                  i,
+                  i + chunkSize > pbillList.length ? pbillList.length : i + chunkSize,
+                );
+                final billsRes = await _db.client
+                    .schema('IMMBE2627')
+                    .from('sq_BILLS')
+                    .select('VNO, RATE')
+                    .eq('TYPE', 'P1')
+                    .inFilter('VNO', chunk);
+                for (final b in billsRes as List) {
+                  final v = (b['VNO'] as num?)?.toInt();
+                  final r = (b['RATE'] as num?)?.toDouble();
+                  if (v != null && r != null && r > 1.0) {
+                    billsRateByVno[v] = r;
+                  }
                 }
               }
             } catch (err) {
@@ -557,18 +522,30 @@ class SrvCc {
             }
           }
 
-          // Merge sq_PINVTRN & sq_BILLS fields into uncutList
+          // Merge sq_PINVTRN & sq_BILLS fields into uncutList using exact CARDNO link
           for (final card in uncutList) {
-            final dNo = (card['DESPNO'] as num?)?.toInt();
-            if (dNo != null && pinvByDespNo.containsKey(dNo)) {
-              final pRow = pinvByDespNo[dNo]!;
+            final cNo = (card['CARDNO'] as num?)?.toInt();
+            if (cNo != null && pinvByCardNo.containsKey(cNo)) {
+              final pRow = pinvByCardNo[cNo]!;
               card['WEAVER'] = (pRow['WEAVER'] as String?)?.trim() ?? card['WEAVER'] ?? '';
               card['DDATE'] = pRow['DDATE'] ?? card['DDATE'];
               card['WCHAL'] = (pRow['WCHAL'] as String?)?.trim() ?? card['WCHAL'] ?? '';
+              if (pRow['DESPNO'] != null) {
+                card['DESPNO'] = pRow['DESPNO'];
+              }
               double effectiveRate = (pRow['RATE'] as num?)?.toDouble() ?? 0.0;
+              if (effectiveRate <= 1.0) {
+                final purRate = (pRow['PURRATE'] as num?)?.toDouble() ?? 0.0;
+                if (purRate > 1.0) effectiveRate = purRate;
+              }
               final pVno = (pRow['VNO'] as num?)?.toInt();
               if (effectiveRate <= 1.0 && pVno != null && billsRateByVno.containsKey(pVno)) {
                 effectiveRate = billsRateByVno[pVno]!;
+              }
+              // If sq_PINVTRN rate is still <= 1.0, preserve card['RATE'] if it was already valid from sq_MILLREC
+              final mrRate = (card['RATE'] as num?)?.toDouble() ?? 0.0;
+              if (effectiveRate <= 1.0 && mrRate > 1.0) {
+                effectiveRate = mrRate;
               }
               if (effectiveRate > 0) {
                 card['RATE'] = effectiveRate;
