@@ -18,6 +18,7 @@ import 'production/purchase_orders/scr_po_landing.dart';
 import 'crm/screen_crm_workspace.dart';
 import 'crm/screen_google_contacts_sync.dart';
 import 'library/screen_component_library.dart';
+import 'sales/scr_sales_landing.dart';
 import 'showcase/screen_showcase.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -174,6 +175,12 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
                             'Airbyte data sync diagnostics',
                             shad.LucideIcons.settings,
                             8),
+                        _buildCommandItem(
+                            context,
+                            'Sales',
+                            'Invoices & master customer reports',
+                            shad.LucideIcons.badgePercent,
+                            110),
                         _buildCommandItem(
                             context,
                             'CRM (WhatsApp Web)',
@@ -395,6 +402,12 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
         isHeader: true,
       ),
       DynamicSidebarNavItem(
+        icon: shad.LucideIcons.badgePercent,
+        label: 'Sales',
+        isSelected: selectedIndex == 110,
+        onTap: () => _handleModuleSelection(110),
+      ),
+      DynamicSidebarNavItem(
         icon: shad.LucideIcons.boxes,
         label: 'Stock',
         isSelected: selectedIndex == 106,
@@ -482,7 +495,7 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
       case 109:
         return shad.LucideIcons.fileSpreadsheet;
       case 110:
-        return shad.LucideIcons.fileDigit;
+        return shad.LucideIcons.badgePercent;
       case 111:
         return shad.LucideIcons.contact;
       case 950:
@@ -531,7 +544,7 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
       case 109:
         return 'Challans';
       case 110:
-        return 'Invoices';
+        return 'Sales';
       case 111:
         return 'Google Contacts';
       case 950:
@@ -565,6 +578,8 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
         return const ScrPbLanding();
       case 107:
         return const CrmWorkspacePage();
+      case 110:
+        return const ScrSalesLanding();
       case 111:
         return const ScreenGoogleContactsSync();
       case 950:

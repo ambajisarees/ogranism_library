@@ -40,13 +40,13 @@
     "semantic_hash": ""
   },
   "frontend/lib/main.dart": {
-    "mtime": 1785346706.1642406,
-    "ast_hash": "469d47bfe4b7c547b978693d4a9b200b",
+    "mtime": 1786475173.7051022,
+    "ast_hash": "d72c7d6eaa2042b3d906e4fe28512e34",
     "semantic_hash": ""
   },
   "frontend/lib/screens/home.dart": {
-    "mtime": 1785958314.7697916,
-    "ast_hash": "96d38001b86c746165ef84547f11e919",
+    "mtime": 1786475365.735948,
+    "ast_hash": "ec2319d2e484c5425b2f378b317255ef",
     "semantic_hash": ""
   },
   "frontend/web/manifest.json": {
@@ -1640,8 +1640,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/services/production/srv_cc.dart": {
-    "mtime": 1785935000.7881215,
-    "ast_hash": "b4b7e799795ae9b9cc081d731d90b94f",
+    "mtime": 1786357562.8082547,
+    "ast_hash": "92a1eb44efdb47f35db6cee68db1684a",
     "semantic_hash": ""
   },
   "frontend/lib/services/production/srv_pb.dart": {
@@ -1675,7 +1675,7 @@
     "semantic_hash": ""
   },
   "frontend/macos/Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage/Package.swift": {
-    "mtime": 1786075157.2017791,
+    "mtime": 1786475353.402974,
     "ast_hash": "61d013e6c93b3d917c4f6178b9f6c9cb",
     "semantic_hash": ""
   },
@@ -1770,13 +1770,13 @@
     "semantic_hash": ""
   },
   "docs/history/dev_log.md": {
-    "mtime": 1786076334.2852218,
-    "ast_hash": "d5833fb039eb6130c9f3ccc4bfcfc3af",
+    "mtime": 1786476051.757758,
+    "ast_hash": "a13362ef4e208f988f0479b348ad44ca",
     "semantic_hash": ""
   },
   "docs/history/git_entry.md": {
-    "mtime": 1786041175.3426304,
-    "ast_hash": "8f948ec96ce3da62e58d1f8ec5f68f20",
+    "mtime": 1786476055.815912,
+    "ast_hash": "92bd5d32f3568f121ef35c36efa72599",
     "semantic_hash": ""
   },
   "docs/history/legacy_modules_guide.md": {
@@ -2017,6 +2017,36 @@
   "frontend/lib/services/production/srv_design.dart": {
     "mtime": 1786075146.4499831,
     "ast_hash": "19b67cab5af38732ba1f92811d388d87",
+    "semantic_hash": ""
+  },
+  "frontend/lib/models/auth/mdl_auth.dart": {
+    "mtime": 1786475136.4845426,
+    "ast_hash": "a066ac310a00ec8ae785f6916eb827e7",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/admin/auth/scr_admin_auth_login.dart": {
+    "mtime": 1786475241.373047,
+    "ast_hash": "9a2ef60024f20200e61383d19d833ffa",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/admin/auth/scr_auth_gate.dart": {
+    "mtime": 1786475164.0494037,
+    "ast_hash": "5c3a36851bb2774c56bdf590d327eed9",
+    "semantic_hash": ""
+  },
+  "frontend/lib/services/auth/srv_auth.dart": {
+    "mtime": 1786475143.3048975,
+    "ast_hash": "d1247edab9bff6417bb0c8445a1ba3e3",
+    "semantic_hash": ""
+  },
+  "frontend/lib/services/auth/srv_inactivity_tracker.dart": {
+    "mtime": 1786475148.8415005,
+    "ast_hash": "719e72b06841edabce12dda59c97e4b3",
+    "semantic_hash": ""
+  },
+  "docs/architecture/universal_staging_extension_architecture.md": {
+    "mtime": 1786473163.3972554,
+    "ast_hash": "df40ac45e51c56831a86d011fb4b8a61",
     "semantic_hash": ""
   }
 }

@@ -1,16 +1,16 @@
-# Graph Report - textile_erp  (2026-08-07)
+# Graph Report - textile_erp  (2026-08-12)
 
 ## Corpus Check
-- 378 files · ~348,298 words
+- 384 files · ~352,758 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 5177 nodes · 6071 edges · 371 communities (354 shown, 17 thin omitted)
+- 5286 nodes · 6209 edges · 388 communities (375 shown, 13 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 16 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `de15ea22`
+- Built from commit: `d6e97d92`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -204,6 +204,8 @@
 - dy_table_group_row.dart
 - dab_select_pop.dart
 - supabase_config.dart
+- srv_auth.dart
+- scr_auth_gate.dart
 - Ambaji Sarees ERP — Build Plans (Claude → Gemini)
 - VoidCallback?
 - 2026-04-15 (Evening) · Advanced Registry Systems & Production Kanban Workstation
@@ -215,7 +217,9 @@
 - OrganismColors
 - CuttingScreen
 - README.md
+- scr_admin_auth_login.dart
 - backup_erp.ps1
+- sidebar_nav.dart
 - String?
 - 5. Consolidated File Inventory
 - identity.dart
@@ -226,6 +230,7 @@
 - PAGE 6: REPORTS
 - SbCutdetModel
 - 1. Current State Inventory
+- dy_table_header.dart
 - 2026-07-26 · [Windows Workstation] · Header Tabs Slate 10 Token, Sidenav Palette & Focus State Machine
 - PageLoadingNotification
 - List
@@ -237,6 +242,7 @@
 - 2026-07-31 · [MacBook Workstation] · Dynamic AI Component Engine Standardization, DynamicPagination, Master Architecture Roadmap & Multi-Agent Domain SOP
 - 2026-08-04 · [MacBook Workstation] · Add Cutting Card End-to-End Batch Creation Engine, Supabase Historical Data Backfill & Database Formula Audit
 - badge.dart
+- StatelessWidget
 - form_field.dart
 - mdl_jw.dart
 - Ambaji Sarees ERP — Master Legacy Architecture & Business Domain Guide
@@ -255,6 +261,7 @@
 - comments.dart
 - Usage
 - List
+- Architectural Specification — Universal Staging, Extension & Reconciliation Engine
 - page_showcase_price_matrix.dart
 - Usage
 - Usage
@@ -374,14 +381,24 @@
 - SbCutdetModel
 - tab_chrome.dart
 - accordion_group.dart
+- dab_sort_popover.dart
+- showcase_data_tables.dart
+- page_showcase_product_list.dart
 - page_showcase_profile_empty.dart
 - 2026-08-06 · [MacBook Workstation] · Master Architecture Plan, Items & Designs Specifications, Media Engine & Database Cleanup
 - 2026-08-04 · [MacBook Workstation] · Add Cutting Card End-to-End Batch Creation Engine, Supabase Historical Data Backfill & Database Formula Audit
 - 2026-08-05 · [MacBook Workstation] · Items Master (`itm` / `sq_QUAL`) 4-Barrel Submodule Landing Engine & Sidenav Integration
+- page_showcase_aging_analysis.dart
 - _FabricImageGalleryDialog
+- page_showcase_dispatch.dart
+- page_showcase_settings.dart
+- 2026-08-11 · [Windows Workstation] · Internal Team App Login/Logout System, AuthGate Router & RBAC Security
+- 2026-04-15 (Evening) · Advanced Registry Systems & Production Kanban Workstation
+- 2026-07-26 · [Windows Workstation] · Header Tabs Slate 10 Token, Sidenav Palette & Focus State Machine
+- 2026-08-07 · [MacBook Workstation] · Designs Master Engine (`sb_designs`), Origin Attributes, Matching Recipes & Stock View Ingestion
 
 ## God Nodes (most connected - your core abstractions)
-1. `Dev Log — Ambaji Sarees ERP` - 43 edges
+1. `Dev Log — Ambaji Sarees ERP` - 44 edges
 2. `Win32Window` - 22 edges
 3. `Usage` - 20 edges
 4. `Plan 03: Production Pipeline — Complete Module Architecture` - 13 edges
@@ -407,7 +424,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (371 total, 17 thin omitted)
+## Communities (388 total, 13 thin omitted)
 
 ### Community 0 - "theme.dart"
 Cohesion: 0.03
@@ -418,8 +435,8 @@ Cohesion: 0.03
 Nodes (71): _activeSortKey, alignment, amount, amountValue, build, _buildExpandedRowDetails, _buildFallbackThumbnailIcon, _buildGroupedRowWidgets (+63 more)
 
 ### Community 2 - "media_screen.dart"
-Cohesion: 0.06
-Nodes (31): build, createState, _currentSelected, DabFilterPopover, _DabFilterPopoverState, initState, onChanged, options (+23 more)
+Cohesion: 0.18
+Nodes (11): build, createState, _currentSelected, DabFilterPopover, _DabFilterPopoverState, initState, onChanged, options (+3 more)
 
 ### Community 3 - "model_grey.dart"
 Cohesion: 0.04
@@ -451,11 +468,11 @@ Nodes (63): autoCompleteWidget, build, _buildContentView, _buildDetailsPane, cre
 
 ### Community 10 - "input.dart"
 Cohesion: 0.04
-Nodes (47): author, avgWt, cardNo, costPerFreshPiece, createdOn, cut, cutCardNo, cutDate (+39 more)
+Nodes (49): author, avgWt, cardNo, costPerFreshPiece, createdOn, cut, cutCardNo, cutDate (+41 more)
 
 ### Community 11 - "login_screen.dart"
 Cohesion: 0.05
-Nodes (39): dart:async, dart:convert, autoMatchContactsWithMasters, bulkLinkContacts, connectGoogleAccount, count, _db, detail (+31 more)
+Nodes (38): dart:convert, autoMatchContactsWithMasters, bulkLinkContacts, connectGoogleAccount, count, _db, detail, email (+30 more)
 
 ### Community 12 - "StatelessWidget"
 Cohesion: 0.15
@@ -499,7 +516,7 @@ Nodes (32): 10. Gemini Execution Prompt, 11. Implementation Order (For Gemini), 
 
 ### Community 22 - "run_loop"
 Cohesion: 0.05
-Nodes (39): _authStatus, build, _buildFilterBar, _buildMainContent, _buildRightPanel, _buildTableHeader, _buildTableRow, _buildTopBar (+31 more)
+Nodes (41): _authStatus, build, _buildFilterBar, _buildMainContent, _buildRightPanel, _buildTableHeader, _buildTableRow, _buildTopBar (+33 more)
 
 ### Community 23 - "grey_deal_dialog.dart"
 Cohesion: 0.02
@@ -554,12 +571,12 @@ Cohesion: 0.08
 Nodes (23): 1. [ACTIVE] Identity & Taxonomy, 1. Fabric Families (`CLOTHTYPE`), 2. [ACTIVE] Sales & Compliance, 2. Compliance & Tax (`GSTRATE`), 3. [ACTIVE] Production Specifications, 3. Standard Lengths (`CUT`), 4. Operational Logistics (`PACKING`), 4. The Barrel Plan (Categorization) (+15 more)
 
 ### Community 36 - "generate_review.py"
-Cohesion: 0.17
-Nodes (12): build, createState, _currentEnd, _currentStart, DabSliderPopover, _DabSliderPopoverState, endValue, initState (+4 more)
+Cohesion: 0.11
+Nodes (18): build, createState, _currentEnd, _currentStart, DabSliderPopover, _DabSliderPopoverState, endValue, initState (+10 more)
 
 ### Community 37 - "box.dart"
-Cohesion: 0.07
-Nodes (26): 2026-04-05 · Foundation — Schema Migration Setup & Component Catalog, 2026-04-06–07 · Authentication, RBAC & Emerald Preview, 2026-04-08 · ERP Typography, Navigation, Tissues Architecture, 2026-04-10 · GitHub Actions & CI/CD, 2026-04-13 · `sq_QUAL` Deep Audit + App Icon Design, 2026-04-14 (Day) · Quality Masters Registry — Implementation, 2026-04-15 (Evening) · Advanced Registry Systems & Production Kanban Workstation, 2026-07-18 · [MacBook Workstation] · Cutting Card Total Investment Calculation Bugfix (+18 more)
+Cohesion: 0.08
+Nodes (25): 2026-04-05 · Foundation — Schema Migration Setup & Component Catalog, 2026-04-06–07 · Authentication, RBAC & Emerald Preview, 2026-04-08 · ERP Typography, Navigation, Tissues Architecture, 2026-04-10 · GitHub Actions & CI/CD, 2026-04-13 · `sq_QUAL` Deep Audit + App Icon Design, 2026-04-14 (Day) · Quality Masters Registry — Implementation, 2026-07-18 · [MacBook Workstation] · Cutting Card Total Investment Calculation Bugfix, 2026-07-29 · [Windows Workstation] · Standardized 12px / 8px / 8px Vertical Gap System, DAB 34px Height, Autocompletes & DDT Grouping Refinements (+17 more)
 
 ### Community 38 - "domain.dart"
 Cohesion: 0.10
@@ -606,8 +623,8 @@ Cohesion: 0.05
 Nodes (43): adatiya, address1, address2, atype, author, bankAcNo, bankName, city1 (+35 more)
 
 ### Community 49 - "workspace_controller.dart"
-Cohesion: 0.08
-Nodes (24): author, billingForm, createdOn, defaultColumns, displayName, docType, fromJson, isBilling (+16 more)
+Cohesion: 0.09
+Nodes (23): author, billingForm, createdOn, defaultColumns, displayName, docType, fromJson, isBilling (+15 more)
 
 ### Community 50 - "sync_monitor.dart"
 Cohesion: 0.09
@@ -694,8 +711,8 @@ Cohesion: 0.14
 Nodes (13): 1. Master Data Strategy: 50% / 25% / 25% Architectural Split, 2. Replica System & Smart Auto-Reconciliation Engine, 3. End-to-End Production & Material Pipeline, 4. End-to-End Sales & Inventory Pipeline, 5. Phased 1-Week Execution Roadmap, A. 50% Read-Only Modules (`sq_` Tables), A. Sequence Generation & Staging Inbox, B. 25% Hybrid Modules (`sq_` Base + `sb_` Enrichment) (+5 more)
 
 ### Community 71 - "List"
-Cohesion: 0.05
-Nodes (46): build, _buildActivityItem, _buildKpiCard, DyShlDash, title, _brokerLedger, build, createState (+38 more)
+Cohesion: 0.07
+Nodes (35): DyTable, _DyTableState, _FabricImageGalleryDialog, _FabricImageGalleryDialogState, build, _buildMetricCard, _buildTableRow, createState (+27 more)
 
 ### Community 72 - "Grader Agent"
 Cohesion: 0.20
@@ -726,8 +743,8 @@ Cohesion: 0.22
 Nodes (9): _binderRatio, build, _buildParamRow, _buildShadeSwatch, createState, _dyeRatio, PageShowcaseProductDetail, _PageShowcaseProductDetailState (+1 more)
 
 ### Community 80 - "service_cutting.dart"
-Cohesion: 0.18
-Nodes (10): _cachedSeriesMap, _db, getAllSeries, getSeriesByPrefix, getSeriesName, _instance, SqSeriesService, Map (+2 more)
+Cohesion: 0.20
+Nodes (9): _cachedSeriesMap, _db, getAllSeries, getSeriesByPrefix, getSeriesName, _instance, SqSeriesService, ../../../models/core/sq/sq_series.dart (+1 more)
 
 ### Community 81 - "service_grey.dart"
 Cohesion: 0.20
@@ -751,7 +768,7 @@ Nodes (30): 10. Implementation Order, 1. Business Context, 2.1 Mills in the Syst
 
 ### Community 86 - "spatial.dart"
 Cohesion: 0.05
-Nodes (38): ../core/keyboard_manager_widget.dart, crm/screen_crm_workspace.dart, crm/screen_google_contacts_sync.dart, demo_screen.dart, ../../../dynamic_ai/root/dy_module_tabs.dart, ../dynamic_ai/root/dy_shell.dart, ../dynamic_ai/root/sidebar_nav.dart, _addNewTab (+30 more)
+Nodes (36): ../core/keyboard_manager_widget.dart, crm/screen_crm_workspace.dart, crm/screen_google_contacts_sync.dart, demo_screen.dart, ../../../dynamic_ai/root/dy_module_tabs.dart, ../dynamic_ai/root/dy_shell.dart, ../dynamic_ai/root/sidebar_nav.dart, _addNewTab (+28 more)
 
 ### Community 87 - "showcase_navigation_utility.dart"
 Cohesion: 0.22
@@ -767,7 +784,7 @@ Nodes (8): _db, getPaginatedSummaries, getSummaryByMultiVno, _instance, SbCutdet
 
 ### Community 90 - "List"
 Cohesion: 0.12
-Nodes (14): _db, getTakaLinesByCardNo, getTakaLinesByRecCardNo, _instance, SqChaltrnService, _db, getQualityByCode, _instance (+6 more)
+Nodes (14): _db, getTakaLinesByCardNo, getTakaLinesByRecCardNo, _instance, SqChaltrnService, _db, getMasterByCode, _instance (+6 more)
 
 ### Community 91 - "screen_component_library.dart"
 Cohesion: 0.12
@@ -806,8 +823,8 @@ Cohesion: 0.25
 Nodes (8): build, _buildTimelineItem, createState, _progressVal, ShowcaseFeedbackStatus, _ShowcaseFeedbackStatusState, _triggerErrorToast, _triggerSuccessToast
 
 ### Community 100 - "dab_party_pop.dart"
-Cohesion: 0.07
-Nodes (28): build, createState, _currentParties, DabPartyPopover, _DabPartyPopoverState, initState, onChanged, partyOptions (+20 more)
+Cohesion: 0.11
+Nodes (18): build, createState, _currentParties, DabPartyPopover, _DabPartyPopoverState, initState, onChanged, partyOptions (+10 more)
 
 ### Community 101 - "Analysis 1: Sales & Job Work Pipeline"
 Cohesion: 0.15
@@ -831,7 +848,7 @@ Nodes (37): actCut, author, avgWt, baseQual, category, clothType, costPer, creat
 
 ### Community 106 - "nav_item.dart"
 Cohesion: 0.05
-Nodes (40): ../../../dynamic_ai/page/dy_page_header.dart, ../../../dynamic_ai/shells/dy_page_canvas.dart, ../../../dynamic_ai/shells/dy_shl_reports.dart, _brokerOptions, build, _buildDetailsShell, _buildMappedGridItems, _buildMappedListItems (+32 more)
+Nodes (40): ../../../dynamic_ai/micro/dab/dab_submodule_pop.dart, ../../../dynamic_ai/page/dy_page_header.dart, ../../../dynamic_ai/shells/dy_page_canvas.dart, _brokerOptions, build, _buildDetailsShell, _buildMappedGridItems, _buildMappedListItems (+32 more)
 
 ### Community 107 - "summary.dart"
 Cohesion: 0.29
@@ -850,8 +867,8 @@ Cohesion: 0.40
 Nodes (4): anonKey, SupabaseConfig, url, static const String
 
 ### Community 111 - "file_upload.dart"
-Cohesion: 0.50
-Nodes (4): 2026-07-29 · [Windows Workstation] · Standardized 12px / 8px / 8px Vertical Gap System, DAB 34px Height, Autocompletes & DDT Grouping Refinements, DynamicActionBar (DAB) 34px Height & Controls, DynamicDenseTable (DDT) Border & Grouping Fixes, Standardized Master Vertical Gap System
+Cohesion: 0.09
+Nodes (23): build, _buildActivityItem, _buildKpiCard, DyShlDash, title, build, _buildKpiCard, createState (+15 more)
 
 ### Community 112 - "Reimagined Categorization"
 Cohesion: 0.17
@@ -1067,6 +1084,14 @@ Nodes (21): FocusNode?, autoFocus, badgeCount, build, createState, didUpdateWidg
 Cohesion: 0.12
 Nodes (17): build, _buildInfoItem, createState, _currencyFmt, didUpdateWidget, _fetchLineItems, header, initState (+9 more)
 
+### Community 168 - "theme_view.dart"
+Cohesion: 0.07
+Nodes (26): admin, appType, createdAt, description, fromJson, fullName, hasPermission, id (+18 more)
+
+### Community 171 - "kanban.dart"
+Cohesion: 0.10
+Nodes (19): dart:async, Duration, build, child, _handleTimeout, _inactivityTimer, InactivityTrackerService, InactivityWrapper (+11 more)
+
 ### Community 172 - "Setup Instructions"
 Cohesion: 0.22
 Nodes (8): 1. Prerequisites, 2. How to Run the App (Frontend), 3. Backend Setup (PostgreSQL + Python), 4. Troubleshooting: "Command Not Found", Key Features Implemented (Draft), Setup Instructions, Structure, Textile ERP System
@@ -1080,11 +1105,11 @@ Cohesion: 0.25
 Nodes (8): build, _buildChevron, _buildLineRow, _buildSummaryRow, _buildTrackerStep, createState, PageShowcaseOrderDetail, _PageShowcaseOrderDetailState
 
 ### Community 177 - "package:flutter/material.dart"
-Cohesion: 0.09
-Nodes (22): ../../core/sq/sq_master.dart, debtors,
+Cohesion: 0.08
+Nodes (23): ../../core/sq/sq_master.dart, debtors,
   greySuppliers,
   jobWorkers,
-  brokers,, ../../../dynamic_ai/micro/table/dy_table_models.dart, atype, atypeDescription, broker, city, code (+14 more)
+  brokers,, ../../../dynamic_ai/micro/table/dy_table_models.dart, atype, atypeDescription, broker, city, code (+15 more)
 
 ### Community 178 - "Table: sq_MILLREC (Mill Receiving Slips)"
 Cohesion: 0.33
@@ -1107,8 +1132,8 @@ Cohesion: 0.17
 Nodes (12): DateTime?, build, createState, DabSingleDatePopover, _DabSingleDatePopoverState, _displayedMonth, _getMonthName, initialDate (+4 more)
 
 ### Community 183 - "showcase_overlays_dialogs.dart"
-Cohesion: 0.04
-Nodes (55): DyTable, _DyTableState, build, _buildKpiCard, createState, _isCollapsibleOpen, ShowcaseCardsContainers, _ShowcaseCardsContainersState (+47 more)
+Cohesion: 0.20
+Nodes (10): build, _buildDrawerLineItem, _buildMenuItem, createState, _isSheetOpen, _showAlertDialog, ShowcaseOverlaysDialogs, _ShowcaseOverlaysDialogsState (+2 more)
 
 ### Community 184 - "card_header.dart"
 Cohesion: 0.15
@@ -1127,12 +1152,20 @@ Cohesion: 0.40
 Nodes (4): Column Grouping, SQL Snippets (Postgres), Table Overview, Table: sq_BANKREC (Bank Reconciliation)
 
 ### Community 188 - "dy_table_group_row.dart"
-Cohesion: 0.50
-Nodes (4): 2026-08-05 · [MacBook Workstation] · Job Work (`jw`) 8-Submodule Landing Engine & DyPageCanvas 4-Shell Implementation, Job Work 4-Shell Landing Screen (`lib/screens/production/job_work/scr_jw_landing.dart`), Job Work Module Architecture (`lib/models/production/mdl_jw.dart` & `lib/services/production/srv_jw.dart`), Verification & Code Quality
+Cohesion: 0.12
+Nodes (16): _brokerLedger, build, createState, PageShowcaseBrokerCommission, _PageShowcaseBrokerCommissionState, build, createState, _files (+8 more)
 
 ### Community 189 - "dab_select_pop.dart"
 Cohesion: 0.18
 Nodes (11): build, createState, _currentSelected, DabSelectPopover, _DabSelectPopoverState, initState, onChanged, options (+3 more)
+
+### Community 191 - "srv_auth.dart"
+Cohesion: 0.11
+Nodes (17): activeProfileNotifier, AuthService, _client, currentSession, currentUser, fetchUserProfile, _instance, isAuthenticated (+9 more)
+
+### Community 192 - "scr_auth_gate.dart"
+Cohesion: 0.13
+Nodes (15): AuthState, _authStateStream, build, _checkInitialProfile, createState, initState, _isProfileLoading, ScrAuthGate (+7 more)
 
 ### Community 193 - "Ambaji Sarees ERP — Build Plans (Claude → Gemini)"
 Cohesion: 0.50
@@ -1147,8 +1180,8 @@ Cohesion: 0.17
 Nodes (11): Features, Input Example, Input Example 1, Input Example 2, Input Example 3, Input Example 4, Input Example 5, Input Tile (+3 more)
 
 ### Community 200 - "page_showcase_claims_notes.dart"
-Cohesion: 0.14
-Nodes (13): _agingData, build, _buildRiskBadge, createState, PageShowcaseAgingAnalysis, _PageShowcaseAgingAnalysisState, build, _buildNoteTypeBadge (+5 more)
+Cohesion: 0.29
+Nodes (7): build, _buildNoteTypeBadge, _buildStatusBadge, _claims, createState, PageShowcaseClaimsNotes, _PageShowcaseClaimsNotesState
 
 ### Community 201 - "OrganismColors"
 Cohesion: 0.17
@@ -1158,9 +1191,17 @@ Nodes (11): Features, Item Picker Example, Item Picker Example 1, Item Picker Ex
 Cohesion: 0.33
 Nodes (6): 11. Activity-to-UX Pattern Mapping, Billing Activities, Cutting Activities, Grey Pipeline Activities, Job Work Activities, Recipes & Analysis Activities
 
+### Community 204 - "scr_admin_auth_login.dart"
+Cohesion: 0.13
+Nodes (15): build, _buildFeatureChip, createState, dispose, _emailController, _errorMessage, _handleEmailLogin, _handleGoogleSSO (+7 more)
+
 ### Community 206 - "backup_erp.ps1"
 Cohesion: 0.33
 Nodes (6): 2. Activity Classification, Type A: SQL Fetch Registries, Type B: New App Entries (Supabase-native), Type C: Report Views, Type D: Linking & Reconciliation, Type E: Supplementary Data Capture
+
+### Community 207 - "sidebar_nav.dart"
+Cohesion: 0.13
+Nodes (14): build, collapsedWidth, DynamicSidebarNav, DynamicSidebarNavItem, expanded, expandedWidth, footerItems, header (+6 more)
 
 ### Community 209 - "5. Consolidated File Inventory"
 Cohesion: 0.50
@@ -1179,12 +1220,12 @@ Cohesion: 0.29
 Nodes (6): 1. Core Architecture: Master Design vs Multi-Design Catalog, 2. Designs Master Table Specification: `IMMBE2627.sb_designs`, 3. Key Technical Architecture Specifications, A. Matching Recipe & Vendor Palette Templates, Architectural Specification — Items, Designs, Media & Stock Integration, B. Joined Database View: `IMMBE2627.vw_designs_with_stock`
 
 ### Community 213 - "2026-07-27 · [Windows Workstation] · 3-Area Table Footer, Dark Mode Surface Tokens & Fabric Image Gallery Overlay"
-Cohesion: 0.22
-Nodes (8): MdlCcHeader, build, _buildCardPicPlaceholder, _buildMetricTile, card, onClose, ScrCcDetailCanvas, ../../models/production/mdl_cc.dart
+Cohesion: 0.20
+Nodes (9): MdlCcHeader, build, _buildCardPicPlaceholder, _buildMetricTile, card, onClose, ScrCcDetailCanvas, ../../models/production/mdl_cc.dart (+1 more)
 
 ### Community 214 - "page_showcase_settings.dart"
-Cohesion: 0.04
-Nodes (44): build, icon, isSelected, onTap, primaryMetric, ReportCard, secondaryChipText, subtitle (+36 more)
+Cohesion: 0.09
+Nodes (20): build, icon, isSelected, onTap, primaryMetric, ReportCard, secondaryChipText, subtitle (+12 more)
 
 ### Community 215 - "PAGE 6: REPORTS"
 Cohesion: 0.50
@@ -1198,13 +1239,17 @@ Nodes (6): 2026-08-02 · [Windows Workstation] · PageHeader & PageSubpages 36px
 Cohesion: 0.67
 Nodes (3): 1. Current State Inventory, What Exists Today, What's Missing (Your User Flow Mapped)
 
+### Community 218 - "dy_table_header.dart"
+Cohesion: 0.14
+Nodes (13): CheckboxState, activeSortDirection, activeSortKey, build, columns, DySortDirection, DyTableHeader, isAllExpanded (+5 more)
+
 ### Community 219 - "2026-07-26 · [Windows Workstation] · Header Tabs Slate 10 Token, Sidenav Palette & Focus State Machine"
 Cohesion: 0.50
 Nodes (4): 2026-07-27 · [Windows Workstation] · 3-Area Table Footer, Dark Mode Surface Tokens & Fabric Image Gallery Overlay, 3-Area Table Footer Row, Dual-Theme Surface Canvas Token Engine, Fabric Image Thumbnail & On-Click Overlay
 
 ### Community 220 - "PageLoadingNotification"
-Cohesion: 0.20
-Nodes (9): core/service_supabase.dart, _db, getCategoryOptions, getClothTypeOptions, getUnitOptions, _instance, SrvItm, ../../../models/production/items/mdl_itm.dart (+1 more)
+Cohesion: 0.12
+Nodes (15): _db, getQualityByCode, _instance, SqQualService, _db, getCategoryOptions, getClothTypeOptions, getUnitOptions (+7 more)
 
 ### Community 221 - "List"
 Cohesion: 0.17
@@ -1212,11 +1257,11 @@ Nodes (8): Icon Sets, Icons, Sizing Tokens, Styling, Usage, Bootstrap Icons, Luc
 
 ### Community 222 - "_FabricImageGalleryDialog"
 Cohesion: 0.05
-Nodes (43): ../../../dynamic_ai/micro/dab/dab_submodule_pop.dart, build, _buildDetailsShell, _buildMappedGridItems, _buildMappedListItems, _buildMappedTableRows, _buildSummaryTotals, _contextTabIndex (+35 more)
+Nodes (43): ../../../dynamic_ai/shells/dy_shl_reports.dart, build, _buildDetailsShell, _buildMappedGridItems, _buildMappedListItems, _buildMappedTableRows, _buildSummaryTotals, _contextTabIndex (+35 more)
 
 ### Community 223 - "page_showcase_stock_location.dart"
-Cohesion: 0.07
-Nodes (26): EdgeInsetsGeometry?, build, child, colSpan, DyFormField, DyFormSection, fields, leadingIcon (+18 more)
+Cohesion: 0.12
+Nodes (15): backgroundColor, build, content, DynamicWorkspaceShell, sidebar, actionBar, build, DyShlAdd (+7 more)
 
 ### Community 224 - "SqBilldetModel"
 Cohesion: 0.40
@@ -1232,15 +1277,19 @@ Nodes (5): 2026-08-05 · [MacBook Workstation] · Full-Sweep Rate Remediation, D
 
 ### Community 227 - "2026-07-31 · [MacBook Workstation] · Dynamic AI Component Engine Standardization, DynamicPagination, Master Architecture Roadmap & Multi-Agent Domain SOP"
 Cohesion: 0.05
-Nodes (40): createdAt, createdBy, currentStock, designCode, empty, eventDate, eventType, flBooked (+32 more)
+Nodes (39): createdAt, createdBy, currentStock, designCode, empty, eventDate, eventType, flBooked (+31 more)
 
 ### Community 232 - "2026-08-04 · [MacBook Workstation] · Add Cutting Card End-to-End Batch Creation Engine, Supabase Historical Data Backfill & Database Formula Audit"
-Cohesion: 0.04
-Nodes (57): CheckboxState, dy_table_models.dart, DabGroupSwitcher, build, columns, DyTableChildRow, isLastChild, rowData (+49 more)
+Cohesion: 0.06
+Nodes (32): dy_table_models.dart, build, columns, DyTableChildRow, isLastChild, rowData, build, columns (+24 more)
 
 ### Community 233 - "badge.dart"
-Cohesion: 0.13
-Nodes (15): @immutable, SqBillsModel, SqBillsTableMapper, GoogleContact, MdlItmHeader, MdlCcLineItem, MdlDesign, MdlJwHeader (+7 more)
+Cohesion: 0.12
+Nodes (16): @immutable, AppProfileModel, SqBillsModel, SqBillsTableMapper, GoogleContact, MdlItmHeader, MdlCcLineItem, MdlDesign (+8 more)
+
+### Community 234 - "StatelessWidget"
+Cohesion: 0.15
+Nodes (12): build, DyTableGalleryModal, imagePath, show, title, DynamicActionBar, _SkeletonBox, PageHeader (+4 more)
 
 ### Community 235 - "form_field.dart"
 Cohesion: 0.18
@@ -1274,28 +1323,28 @@ Cohesion: 0.18
 Nodes (10): Divider, Divider Example, Divider Example 1, Divider Example 2, Divider Example 3, Divider Example 4, Divider Tile, Features (+2 more)
 
 ### Community 242 - "dab_group_popover.dart"
-Cohesion: 0.12
-Nodes (17): ../dy_micro_button.dart, _activeLevels, _addLevel, build, createState, DabGroupLevelOption, DabGroupPopover, _DabGroupPopoverState (+9 more)
+Cohesion: 0.06
+Nodes (36): ../dy_micro_button.dart, _activeLevels, _addLevel, build, createState, DabGroupLevelOption, DabGroupPopover, _DabGroupPopoverState (+28 more)
 
 ### Community 243 - "dy_summary_bar.dart"
 Cohesion: 0.22
 Nodes (8): 1. Executive Summary & Domain Concept, 2. Full Column Analysis (47 Total Columns Profiled), A. Primary Identification & Catalog Specs, B. Pricing, Financial & Tax Specifications, C. Physical Manufacturing & Packaging Attributes, D. System Audit & Unused Legacy Fields, Key Sales & Financial Characteristics:, Master Schema & Domain Analysis: `sq_QUAL` (Item Master Engine)
 
 ### Community 244 - "srv_jw.dart"
-Cohesion: 0.12
-Nodes (15): _db, getBillByKey, getPaginatedBills, _instance, SqBillsService, _attachLineItems, _db, getPartyOptions (+7 more)
+Cohesion: 0.20
+Nodes (9): _attachLineItems, _db, getPartyOptions, getQualityOptions, _instance, SrvJw, ../../models/core/sq/sq_bills.dart, ../../models/production/mdl_jw.dart (+1 more)
 
 ### Community 245 - "StatelessWidget"
-Cohesion: 0.13
-Nodes (14): _db, getMasterByCode, _instance, SqMasterService, _db, getBrokerOptions, getCityOptions, _instance (+6 more)
+Cohesion: 0.22
+Nodes (8): core/service_supabase.dart, _db, getBrokerOptions, getCityOptions, _instance, SrvOrg, ../../../models/production/orgs/mdl_org.dart, static final SrvOrg
 
 ### Community 246 - "sq_pinvtrn_service.dart"
-Cohesion: 0.22
-Nodes (8): _db, getDispatchByCardNo, getPaginatedDispatches, _instance, SqPinvtrnService, ../../../models/core/sq/sq_pinvtrn.dart, package:supabase_flutter/supabase_flutter.dart, static final SqPinvtrnService
+Cohesion: 0.12
+Nodes (14): _db, getBillByKey, getPaginatedBills, _instance, SqBillsService, _db, getDispatchByCardNo, getPaginatedDispatches (+6 more)
 
 ### Community 247 - "dy_shl_tasks.dart"
-Cohesion: 0.06
-Nodes (33): Color, DyKanbanItem, build, DyKanbanPane, items, onAddItem, onItemSelected, selectedItem (+25 more)
+Cohesion: 0.09
+Nodes (21): Color, DyKanbanItem, build, DyKanbanPane, items, onAddItem, onItemSelected, selectedItem (+13 more)
 
 ### Community 248 - "tokens.dart"
 Cohesion: 0.18
@@ -1316,6 +1365,10 @@ Nodes (9): Features, Properties, Table, Table Example, Table Example 1, Table Ex
 ### Community 252 - "List"
 Cohesion: 0.20
 Nodes (9): Color Picker Example, Color Picker Example 1, Color Picker Example 2, Color Picker Example 3, Color Picker Tile, ColorPicker, Features, Properties (+1 more)
+
+### Community 253 - "Architectural Specification — Universal Staging, Extension & Reconciliation Engine"
+Cohesion: 0.17
+Nodes (11): 1. Executive Summary & Vision Statement, 2. The Universal 4-Layer Module Architecture, 3. Dynamic Foreign Key Binding Mechanics (`ext_sb_qual`), 4. Complete Database DDL Specifications, 5. Widespread Blueprint Across All Modules, A. Pending Draft State:, A. Universal Staging & Audit Table: `IMMBE2627.stage_sb_qual`, Architectural Specification — Universal Staging, Extension & Reconciliation Engine (+3 more)
 
 ### Community 254 - "page_showcase_price_matrix.dart"
 Cohesion: 0.13
@@ -1781,6 +1834,10 @@ Nodes (5): Basic Example, Features, MoreDots, Properties, Usage
 Cohesion: 0.33
 Nodes (5): Basic Example, Features, Properties, Usage, Validated
 
+### Community 370 - "SbCutdetModel"
+Cohesion: 0.17
+Nodes (11): EdgeInsetsGeometry?, build, child, colSpan, DyFormField, DyFormSection, fields, leadingIcon (+3 more)
+
 ### Community 371 - "tab_chrome.dart"
 Cohesion: 0.05
 Nodes (43): ../../../dynamic_ai/micro/cards/dy_list_item.dart, ../../../dynamic_ai/shells/dy_shl_dash.dart, build, _buildDetailsShell, _buildMappedGridItems, _buildMappedListItems, _buildMappedTableRows, _buildSummaryTotals (+35 more)
@@ -1788,6 +1845,18 @@ Nodes (43): ../../../dynamic_ai/micro/cards/dy_list_item.dart, ../../../dynamic_
 ### Community 372 - "accordion_group.dart"
 Cohesion: 0.20
 Nodes (9): 1. Density Spacing & Gap Multipliers, 2. Container & Content Padding Multipliers, 3. Button Sizing & Densities, 4. Input & Form Component Sizing, 5. Overlay, Layout, & Visual Components, 6. Layout Principles, A. Size Scaling Factors (`ButtonSize.scale`), B. Density Padding Modifiers (+1 more)
+
+### Community 373 - "dab_sort_popover.dart"
+Cohesion: 0.17
+Nodes (11): build, DabSortOption, DabSortPopover, icon, id, isAscending, label, onSelected (+3 more)
+
+### Community 374 - "showcase_data_tables.dart"
+Cohesion: 0.20
+Nodes (10): build, _buildStatusBadge, _buildTrackerBar, createState, _currentPage, _expandedRowIndex, _selectedRowIndices, ShowcaseDataTables (+2 more)
+
+### Community 375 - "page_showcase_product_list.dart"
+Cohesion: 0.29
+Nodes (7): build, _buildStockBadge, createState, _isGridView, PageShowcaseProductList, _PageShowcaseProductListState, _products
 
 ### Community 376 - "page_showcase_profile_empty.dart"
 Cohesion: 0.33
@@ -1805,25 +1874,57 @@ Nodes (4): 2026-08-04 · [MacBook Workstation] · Add Cutting Card End-to-End Ba
 Cohesion: 0.50
 Nodes (4): 2026-08-05 · [MacBook Workstation] · Items Master (`itm` / `sq_QUAL`) 4-Barrel Submodule Landing Engine & Sidenav Integration, Items 4-Shell Landing Screen & Sidenav Integration (`lib/screens/production/items/scr_itm_landing.dart` & `lib/screens/home.dart`), Items Core & Module Architecture (`lib/models/core/sq/sq_qual.dart`, `lib/models/production/items/mdl_itm.dart`, `lib/services/production/items/srv_itm.dart`), Verification & Code Quality
 
+### Community 380 - "page_showcase_aging_analysis.dart"
+Cohesion: 0.33
+Nodes (6): _agingData, build, _buildRiskBadge, createState, PageShowcaseAgingAnalysis, _PageShowcaseAgingAnalysisState
+
+### Community 381 - "_FabricImageGalleryDialog"
+Cohesion: 0.33
+Nodes (6): build, createState, PageShowcaseCrm, _PageShowcaseCrmState, _parties, _selectedPartyIndex
+
+### Community 382 - "page_showcase_dispatch.dart"
+Cohesion: 0.33
+Nodes (6): build, _buildDispatchStatus, createState, _dispatches, PageShowcaseDispatch, _PageShowcaseDispatchState
+
+### Community 383 - "page_showcase_settings.dart"
+Cohesion: 0.33
+Nodes (6): _autoSync, build, createState, _fiscalSchema, PageShowcaseSettings, _PageShowcaseSettingsState
+
+### Community 384 - "2026-08-11 · [Windows Workstation] · Internal Team App Login/Logout System, AuthGate Router & RBAC Security"
+Cohesion: 0.50
+Nodes (4): 2026-08-11 · [Windows Workstation] · Internal Team App Login/Logout System, AuthGate Router & RBAC Security, Admin Auth UI & Router Layer (`lib/screens/admin/auth/`), App Shell & Header Integration, Auth Service, Models & Inactivity Tracker
+
+### Community 385 - "2026-04-15 (Evening) · Advanced Registry Systems & Production Kanban Workstation"
+Cohesion: 0.67
+Nodes (3): 2026-04-15 (Evening) · Advanced Registry Systems & Production Kanban Workstation, Grey Production Workflow, Masters Registry Modernization
+
+### Community 386 - "2026-07-26 · [Windows Workstation] · Header Tabs Slate 10 Token, Sidenav Palette & Focus State Machine"
+Cohesion: 0.67
+Nodes (3): 2026-07-26 · [Windows Workstation] · Header Tabs Slate 10 Token, Sidenav Palette & Focus State Machine, Header Tabs & Sidenav Palette, Keyboard & Pointer Focus State Machine
+
+### Community 387 - "2026-08-07 · [MacBook Workstation] · Designs Master Engine (`sb_designs`), Origin Attributes, Matching Recipes & Stock View Ingestion"
+Cohesion: 0.67
+Nodes (3): 2026-08-07 · [MacBook Workstation] · Designs Master Engine (`sb_designs`), Origin Attributes, Matching Recipes & Stock View Ingestion, Database Table & Stock Summary View (`IMMBE2627.sb_designs` & `IMMBE2627.sbvw_stock_summary`), Flutter Data Models & Singleton Service Layer (`mdl_design.dart` & `srv_design.dart`)
+
 ## Knowledge Gaps
-- **3751 isolated node(s):** `GreyOrderRequest`, `GoogleSyncRequest`, `TABLE_CONFIG`, `SNAPSHOT_CONFIG`, `CountRow` (+3746 more)
+- **3829 isolated node(s):** `GreyOrderRequest`, `GoogleSyncRequest`, `TABLE_CONFIG`, `SNAPSHOT_CONFIG`, `CountRow` (+3824 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Layout & Spacing` connect `Layout & Spacing` to `SKILL.md`?**
+- **Why does `Dev Log — Ambaji Sarees ERP` connect `box.dart` to `accordion_group.dart`, `2026-04-15 (Evening) · Advanced Registry Systems & Production Kanban Workstation`, `2026-07-26 · [Windows Workstation] · Header Tabs Slate 10 Token, Sidenav Palette & Focus State Machine`, `2026-08-07 · [MacBook Workstation] · Designs Master Engine (`sb_designs`), Origin Attributes, Matching Recipes & Stock View Ingestion`, `2026-08-11 · [Windows Workstation] · Internal Team App Login/Logout System, AuthGate Router & RBAC Security`, `app_shell.dart`, `physics.dart`, `master_layout.dart`, `JSON Schemas`, `sidebar_nav.dart`, `2026-07-21 · Dynamic AI Design System, Native Shadcn Refactoring & Layout Architecture`, `2026-08-05 · [MacBook Workstation] · Organizations Master (`org` / `sq_MASTER`) 6-Barrel ATYPE Submodule Landing Engine & Sidenav Integration`, `wizard.dart`, `items_screen.dart`, `Process`, `SbCutdetModel`, `2026-07-26 · [Windows Workstation] · Header Tabs Slate 10 Token, Sidenav Palette & Focus State Machine`, `Ambaji ERP: Technical Design Manual (v220)`, `organs_view.dart`, `SqBilldetModel`, `2026-04-14 (Day) · Quality Masters Registry — Implementation`, `2026-08-05 · [MacBook Workstation] · Full-Sweep Rate Remediation, DESPNOS & Notes Column Addition & Physical CSV Audit`, `domain_view.dart`, `date_picker.dart`, `2026-07-16 · Central Media Library Explorer, Inline Scans, Overlay Progress & Popover Fixes`, `barcode_scanner.dart`, `icon.dart`, `2026-08-06 · [MacBook Workstation] · Master Architecture Plan, Items & Designs Specifications, Media Engine & Database Cleanup`, `2026-08-04 · [MacBook Workstation] · Add Cutting Card End-to-End Batch Creation Engine, Supabase Historical Data Backfill & Database Formula Audit`, `2026-08-05 · [MacBook Workstation] · Items Master (`itm` / `sq_QUAL`) 4-Barrel Submodule Landing Engine & Sidenav Integration`, `tabs.dart`, `service_auth.dart`?**
   _High betweenness centrality (0.001) - this node is a cross-community bridge._
 - **What connects `GreyOrderRequest`, `GoogleSyncRequest`, `TABLE_CONFIG` to the rest of the system?**
-  _3751 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _3829 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `theme.dart` be split into smaller, more focused modules?**
   _Cohesion score 0.02666666666666667 - nodes in this community are weakly interconnected._
 - **Should `cutting_screen.dart` be split into smaller, more focused modules?**
   _Cohesion score 0.027777777777777776 - nodes in this community are weakly interconnected._
-- **Should `media_screen.dart` be split into smaller, more focused modules?**
-  _Cohesion score 0.062388591800356503 - nodes in this community are weakly interconnected._
 - **Should `model_grey.dart` be split into smaller, more focused modules?**
   _Cohesion score 0.03571428571428571 - nodes in this community are weakly interconnected._
 - **Should `colors.dart` be split into smaller, more focused modules?**
   _Cohesion score 0.03225806451612903 - nodes in this community are weakly interconnected._
+- **Should `model_cutting.dart` be split into smaller, more focused modules?**
+  _Cohesion score 0.029850746268656716 - nodes in this community are weakly interconnected._
