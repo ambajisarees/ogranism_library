@@ -2,208 +2,317 @@
 import postgres from 'npm:postgres'
 
 const SCHEMA = 'IMMBE2627'
+const DEFAULT_EMAIL = 'design.ambaji@gmail.com'
+const DEFAULT_CLIENT_ID = '486012291961-nqqh431rt0sobmu8on4nsq3ipqjfral4.apps.googleusercontent.com'
+
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
 
 interface GoogleSyncRequest {
-  action: 'save_auth' | 'get_auth' | 'pull_contacts' | 'push_contacts';
-  email?: string;
-  refreshToken?: string;
-  accessToken?: string;
-  expiresIn?: number;
-  contacts?: any[];
+  action: 'get_sync_state' | 'save_auth' | 'exchange_oauth_code' | 'refresh_token' | 'upsert_batch'
+  email?: string
+  oauthClientId?: string
+  oauthClientSecret?: string
+  refreshToken?: string
+  accessToken?: string
+  expiresIn?: number
+  code?: string
+  codeVerifier?: string
+  redirectUri?: string
+  importSource?: string
+  rows?: unknown[]
+}
+
+function jsonResponse(payload: unknown, status = 200) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+  })
 }
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-      }
-    })
+    return new Response('ok', { headers: CORS_HEADERS })
   }
 
-  const databaseUrl = Deno.env.get('SUPABASE_DB_URL');
+  const databaseUrl = Deno.env.get('SUPABASE_DB_URL')
   if (!databaseUrl) {
-    return new Response(JSON.stringify({ error: 'SUPABASE_DB_URL is not set' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return jsonResponse({ error: 'SUPABASE_DB_URL is not set' }, 500)
   }
 
   const sql = postgres(databaseUrl, { prepare: false })
 
   try {
-    const body = (await req.json()) as GoogleSyncRequest;
-    const { action, email, refreshToken, accessToken, expiresIn, contacts } = body;
+    const body = (await req.json()) as GoogleSyncRequest
+    const action = body.action
+    const email = (body.email || DEFAULT_EMAIL).trim().toLowerCase()
 
-    // ── 1. SAVE OAUTH GOOGLE AUTHENTICATION ─────────────────────────────
+    // ── 1. GET SYNC STATE ────────────────────────────────────────────────
+    if (action === 'get_sync_state') {
+      await sql`
+        INSERT INTO "${sql.unsafe(SCHEMA)}"."sb_google_sync_state" ("email")
+        VALUES (${email})
+        ON CONFLICT ("email") DO NOTHING
+      `
+
+      const rows = await sql`
+        SELECT
+          "email",
+          "oauth_client_id",
+          ("oauth_client_secret" IS NOT NULL AND "oauth_client_secret" <> '') AS "has_client_secret",
+          ("refresh_token" IS NOT NULL AND "refresh_token" <> '') AS "has_refresh_token",
+          ("access_token" IS NOT NULL AND "access_token" <> '') AS "has_access_token",
+          "token_expires_at",
+          "next_sync_token",
+          "contact_groups_map",
+          "last_full_sync_at",
+          "last_delta_sync_at",
+          "last_push_at",
+          "total_google_contacts",
+          "is_continuous_sync_enabled",
+          "sync_health",
+          "last_error",
+          "updated_at"
+        FROM "${sql.unsafe(SCHEMA)}"."sb_google_sync_state"
+        WHERE "email" = ${email}
+        LIMIT 1
+      `
+
+      await sql.end()
+      return jsonResponse({ sync_state: rows[0] || null })
+    }
+
+    // ── 2. SAVE OAUTH TOKENS / CLIENT CREDENTIALS ────────────────────────
     if (action === 'save_auth') {
-      if (!email || !refreshToken) {
-        throw new Error('Email and refreshToken are required for save_auth');
-      }
+      const expiresAt =
+        body.expiresIn && body.expiresIn > 0
+          ? new Date(Date.now() + body.expiresIn * 1000).toISOString()
+          : null
 
-      const expiresAt = expiresIn ? new Date(Date.now() + expiresIn * 1000).toISOString() : null;
+      const hasToken =
+        Boolean(body.accessToken && body.accessToken.trim()) ||
+        Boolean(body.refreshToken && body.refreshToken.trim())
 
       await sql`
-        INSERT INTO "${sql.unsafe(SCHEMA)}"."sb_google_auth" (
-          "email", "refresh_token", "access_token", "expires_at", "updated_at"
+        INSERT INTO "${sql.unsafe(SCHEMA)}"."sb_google_sync_state" (
+          "email",
+          "oauth_client_id",
+          "oauth_client_secret",
+          "refresh_token",
+          "access_token",
+          "token_expires_at",
+          "sync_health",
+          "last_error",
+          "updated_at"
         ) VALUES (
-          ${email}, ${refreshToken}, ${accessToken || null}, ${expiresAt}, NOW()
+          ${email},
+          ${body.oauthClientId || DEFAULT_CLIENT_ID},
+          ${body.oauthClientSecret || null},
+          ${body.refreshToken || null},
+          ${body.accessToken || null},
+          ${expiresAt},
+          ${hasToken ? 'HEALTHY' : 'DISCONNECTED'},
+          NULL,
+          NOW()
         )
         ON CONFLICT ("email") DO UPDATE SET
-          "refresh_token" = EXCLUDED."refresh_token",
-          "access_token" = EXCLUDED."access_token",
-          "expires_at" = EXCLUDED."expires_at",
+          "oauth_client_id" = COALESCE(NULLIF(EXCLUDED."oauth_client_id", ''), "sb_google_sync_state"."oauth_client_id"),
+          "oauth_client_secret" = COALESCE(NULLIF(EXCLUDED."oauth_client_secret", ''), "sb_google_sync_state"."oauth_client_secret"),
+          "refresh_token" = COALESCE(NULLIF(EXCLUDED."refresh_token", ''), "sb_google_sync_state"."refresh_token"),
+          "access_token" = COALESCE(NULLIF(EXCLUDED."access_token", ''), "sb_google_sync_state"."access_token"),
+          "token_expires_at" = COALESCE(EXCLUDED."token_expires_at", "sb_google_sync_state"."token_expires_at"),
+          "sync_health" = CASE
+            WHEN COALESCE(NULLIF(EXCLUDED."access_token", ''), "sb_google_sync_state"."access_token") IS NOT NULL
+              OR COALESCE(NULLIF(EXCLUDED."refresh_token", ''), "sb_google_sync_state"."refresh_token") IS NOT NULL
+            THEN 'HEALTHY'
+            ELSE 'DISCONNECTED'
+          END,
+          "last_error" = NULL,
           "updated_at" = NOW()
-      `;
+      `
 
-      await sql.end();
-      return new Response(JSON.stringify({ success: true, email }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-      });
+      await sql.end()
+      return jsonResponse({ success: true, email })
     }
 
-    // ── 2. GET CURRENT AUTH STATUS ──────────────────────────────────────
-    if (action === 'get_auth') {
-      const rows = await sql`
-        SELECT "id", "email", "access_token", "expires_at", "created_at"
-        FROM "${sql.unsafe(SCHEMA)}"."sb_google_auth"
-        ORDER BY "created_at" DESC
+    // ── 3. EXCHANGE OAUTH AUTHORIZATION CODE ─────────────────────────────
+    if (action === 'exchange_oauth_code') {
+      if (!body.code || !body.redirectUri) {
+        await sql.end()
+        return jsonResponse({ error: 'code and redirectUri are required' }, 400)
+      }
+
+      const stateRows = await sql`
+        SELECT "oauth_client_id", "oauth_client_secret"
+        FROM "${sql.unsafe(SCHEMA)}"."sb_google_sync_state"
+        WHERE "email" = ${email}
         LIMIT 1
-      `;
+      `
 
-      await sql.end();
-      const auth = rows[0] || null;
+      const clientId =
+        body.oauthClientId || stateRows[0]?.oauth_client_id || Deno.env.get('GOOGLE_OAUTH_CLIENT_ID') || DEFAULT_CLIENT_ID
+      const clientSecret =
+        body.oauthClientSecret || stateRows[0]?.oauth_client_secret || Deno.env.get('GOOGLE_OAUTH_CLIENT_SECRET') || ''
 
-      return new Response(JSON.stringify({
-        connected: auth !== null,
-        email: auth?.email || null,
-        expiresAt: auth?.expires_at || null,
-      }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-      });
-    }
+      const form = new URLSearchParams()
+      form.set('code', body.code)
+      form.set('client_id', clientId)
+      if (clientSecret) form.set('client_secret', clientSecret)
+      form.set('redirect_uri', body.redirectUri)
+      form.set('grant_type', 'authorization_code')
+      if (body.codeVerifier) form.set('code_verifier', body.codeVerifier)
 
-    // ── 3. UPSERT PULLED GOOGLE CONTACTS ────────────────────────────────
-    if (action === 'pull_contacts') {
-      if (!Array.isArray(contacts)) {
-        throw new Error('contacts array is required for pull_contacts');
-      }
+      const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: form.toString(),
+      })
 
-      let upsertedCount = 0;
-
-      for (const item of contacts) {
-        const resourceName = item.resourceName || item.google_resource_name;
-        if (!resourceName) continue;
-
-        const displayName = item.names?.[0]?.displayName || item.display_name || 'Unnamed Google Contact';
-        const givenName = item.names?.[0]?.givenName || item.given_name || null;
-        const familyName = item.names?.[0]?.familyName || item.family_name || null;
-        const companyName = item.organizations?.[0]?.name || item.company_name || null;
-        const jobTitle = item.organizations?.[0]?.title || item.job_title || null;
-        const photoUrl = item.photos?.[0]?.url || item.photo_url || null;
-
-        const phones = item.phoneNumbers || item.phone_numbers || [];
-        const emailsList = item.emailAddresses || item.emails || [];
-        const addressesList = item.addresses || [];
-        const userDefined = item.userDefined || item.user_defined_fields || [];
-        const memberships = item.memberships || item.group_memberships || [];
-        const notes = item.biographies?.[0]?.value || item.notes || null;
-
-        // Primary phone extraction
-        let primaryPhone = item.primary_phone || null;
-        if (!primaryPhone && phones.length > 0) {
-          primaryPhone = phones[0].canonicalForm || phones[0].value || phones[0].number || null;
-        }
-
+      const tokenJson = await tokenRes.json()
+      if (!tokenRes.ok || !tokenJson.access_token) {
+        const errMsg = tokenJson.error_description || tokenJson.error || `HTTP ${tokenRes.status}`
         await sql`
-          INSERT INTO "${sql.unsafe(SCHEMA)}"."sb_google_contacts" (
-            "google_resource_name",
-            "etag",
-            "display_name",
-            "given_name",
-            "family_name",
-            "company_name",
-            "job_title",
-            "photo_url",
-            "phone_numbers",
-            "primary_phone",
-            "emails",
-            "addresses",
-            "user_defined_fields",
-            "group_memberships",
-            "notes",
-            "raw_data",
-            "sync_status",
-            "last_synced_at",
-            "updated_at"
-          ) VALUES (
-            ${resourceName},
-            ${item.etag || null},
-            ${displayName},
-            ${givenName},
-            ${familyName},
-            ${companyName},
-            ${jobTitle},
-            ${photoUrl},
-            ${JSON.stringify(phones)},
-            ${primaryPhone},
-            ${JSON.stringify(emailsList)},
-            ${JSON.stringify(addressesList)},
-            ${JSON.stringify(userDefined)},
-            ${JSON.stringify(memberships)},
-            ${notes},
-            ${JSON.stringify(item)},
-            'synced',
-            NOW(),
-            NOW()
-          )
-          ON CONFLICT ("google_resource_name") DO UPDATE SET
-            "etag" = EXCLUDED."etag",
-            "display_name" = EXCLUDED."display_name",
-            "given_name" = EXCLUDED."given_name",
-            "family_name" = EXCLUDED."family_name",
-            "company_name" = EXCLUDED."company_name",
-            "job_title" = EXCLUDED."job_title",
-            "photo_url" = EXCLUDED."photo_url",
-            "phone_numbers" = EXCLUDED."phone_numbers",
-            "primary_phone" = COALESCE(EXCLUDED."primary_phone", "sb_google_contacts"."primary_phone"),
-            "emails" = EXCLUDED."emails",
-            "addresses" = EXCLUDED."addresses",
-            "user_defined_fields" = EXCLUDED."user_defined_fields",
-            "group_memberships" = EXCLUDED."group_memberships",
-            "notes" = EXCLUDED."notes",
-            "raw_data" = EXCLUDED."raw_data",
-            "sync_status" = 'synced',
-            "last_synced_at" = NOW(),
-            "updated_at" = NOW()
-        `;
-
-        upsertedCount++;
+          UPDATE "${sql.unsafe(SCHEMA)}"."sb_google_sync_state"
+          SET "sync_health" = 'ERROR', "last_error" = ${errMsg}, "updated_at" = NOW()
+          WHERE "email" = ${email}
+        `
+        await sql.end()
+        return jsonResponse({ error: errMsg }, 400)
       }
 
-      await sql.end();
-      return new Response(JSON.stringify({ success: true, count: upsertedCount }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-      });
+      const expiresAt = new Date(Date.now() + Number(tokenJson.expires_in || 3600) * 1000).toISOString()
+
+      await sql`
+        INSERT INTO "${sql.unsafe(SCHEMA)}"."sb_google_sync_state" (
+          "email", "oauth_client_id", "oauth_client_secret",
+          "refresh_token", "access_token", "token_expires_at",
+          "sync_health", "last_error", "updated_at"
+        ) VALUES (
+          ${email}, ${clientId}, ${clientSecret || null},
+          ${tokenJson.refresh_token || null}, ${tokenJson.access_token}, ${expiresAt},
+          'HEALTHY', NULL, NOW()
+        )
+        ON CONFLICT ("email") DO UPDATE SET
+          "oauth_client_id" = EXCLUDED."oauth_client_id",
+          "oauth_client_secret" = COALESCE(NULLIF(EXCLUDED."oauth_client_secret", ''), "sb_google_sync_state"."oauth_client_secret"),
+          "refresh_token" = COALESCE(NULLIF(EXCLUDED."refresh_token", ''), "sb_google_sync_state"."refresh_token"),
+          "access_token" = EXCLUDED."access_token",
+          "token_expires_at" = EXCLUDED."token_expires_at",
+          "sync_health" = 'HEALTHY',
+          "last_error" = NULL,
+          "updated_at" = NOW()
+      `
+
+      await sql.end()
+      return jsonResponse({
+        success: true,
+        access_token: tokenJson.access_token,
+        expires_at: expiresAt,
+        has_refresh_token: Boolean(tokenJson.refresh_token),
+      })
     }
 
-    await sql.end();
-    return new Response(JSON.stringify({ error: `Unknown action: ${action}` }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-    });
+    // ── 4. REFRESH GOOGLE ACCESS TOKEN ───────────────────────────────────
+    if (action === 'refresh_token') {
+      const stateRows = await sql`
+        SELECT "oauth_client_id", "oauth_client_secret", "refresh_token"
+        FROM "${sql.unsafe(SCHEMA)}"."sb_google_sync_state"
+        WHERE "email" = ${email}
+        LIMIT 1
+      `
+      const row = stateRows[0]
+      const refreshToken = body.refreshToken || row?.refresh_token
+      const clientId =
+        body.oauthClientId || row?.oauth_client_id || Deno.env.get('GOOGLE_OAUTH_CLIENT_ID') || DEFAULT_CLIENT_ID
+      const clientSecret =
+        body.oauthClientSecret || row?.oauth_client_secret || Deno.env.get('GOOGLE_OAUTH_CLIENT_SECRET') || ''
+
+      if (!refreshToken || !clientSecret) {
+        await sql.end()
+        return jsonResponse(
+          { error: 'Missing refresh_token or oauth_client_secret for token refresh' },
+          400,
+        )
+      }
+
+      const form = new URLSearchParams()
+      form.set('client_id', clientId)
+      form.set('client_secret', clientSecret)
+      form.set('refresh_token', refreshToken)
+      form.set('grant_type', 'refresh_token')
+
+      const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: form.toString(),
+      })
+
+      const tokenJson = await tokenRes.json()
+      if (!tokenRes.ok || !tokenJson.access_token) {
+        const errMsg = tokenJson.error_description || tokenJson.error || `HTTP ${tokenRes.status}`
+        await sql`
+          UPDATE "${sql.unsafe(SCHEMA)}"."sb_google_sync_state"
+          SET "sync_health" = 'TOKEN_EXPIRED', "last_error" = ${errMsg}, "updated_at" = NOW()
+          WHERE "email" = ${email}
+        `
+        await sql.end()
+        return jsonResponse({ error: errMsg }, 401)
+      }
+
+      const expiresAt = new Date(Date.now() + Number(tokenJson.expires_in || 3600) * 1000).toISOString()
+
+      await sql`
+        UPDATE "${sql.unsafe(SCHEMA)}"."sb_google_sync_state"
+        SET
+          "access_token" = ${tokenJson.access_token},
+          "token_expires_at" = ${expiresAt},
+          "sync_health" = 'HEALTHY',
+          "last_error" = NULL,
+          "updated_at" = NOW()
+        WHERE "email" = ${email}
+      `
+
+      await sql.end()
+      return jsonResponse({
+        success: true,
+        access_token: tokenJson.access_token,
+        expires_at: expiresAt,
+      })
+    }
+
+    // ── 5. BATCH UPSERT CONTACTS VIA RPC ─────────────────────────────────
+    if (action === 'upsert_batch') {
+      if (!Array.isArray(body.rows)) {
+        await sql.end()
+        return jsonResponse({ error: 'rows array is required for upsert_batch' }, 400)
+      }
+
+      const importSource = body.importSource || 'GOOGLE_API'
+      const rpcRows = await sql`
+        SELECT "${sql.unsafe(SCHEMA)}"."fn_upsert_google_contacts_batch"(
+          ${JSON.stringify(body.rows)}::jsonb,
+          ${email},
+          ${importSource}
+        ) AS result
+      `
+
+      await sql.end()
+      return jsonResponse({ success: true, ...(rpcRows[0]?.result || {}) })
+    }
+
+    await sql.end()
+    return jsonResponse({ error: `Unknown action: ${action}` }, 400)
   } catch (err) {
-    console.error('Error in google-contacts-sync:', err);
-    try { await sql.end() } catch (_) {}
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    return new Response(JSON.stringify({ error: errorMsg }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-    });
+    console.error('Error in google-contacts-sync:', err)
+    try {
+      await sql.end()
+    } catch (_) {
+      // ignore close errors
+    }
+    const errorMsg = err instanceof Error ? err.message : String(err)
+    return jsonResponse({ error: errorMsg }, 500)
   }
-});
+})

@@ -81,38 +81,45 @@ class _DyDetailsPaneState extends State<DyDetailsPane> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              widget.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.typography.h4.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colors.foreground,
+                              ),
+                            ),
+                          ),
+                          if (widget.statusBadge != null) ...[
+                            SizedBox(width: 8 * theme.scaling),
+                            widget.statusBadge!,
+                          ],
+                        ],
+                      ),
+                      if (widget.subtitle != null) ...[
+                        SizedBox(height: 2 * theme.scaling),
                         Text(
-                          widget.title,
-                          style: theme.typography.h4.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colors.foreground,
+                          widget.subtitle!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.typography.xSmall.copyWith(
+                            color: colors.mutedForeground,
                           ),
                         ),
-                        if (widget.statusBadge != null) ...[
-                          SizedBox(width: 8 * theme.scaling),
-                          widget.statusBadge!,
-                        ],
                       ],
-                    ),
-                    if (widget.subtitle != null) ...[
-                      SizedBox(height: 2 * theme.scaling),
-                      Text(
-                        widget.subtitle!,
-                        style: theme.typography.xSmall.copyWith(
-                          color: colors.mutedForeground,
-                        ),
-                      ),
                     ],
-                  ],
+                  ),
                 ),
-                const Spacer(),
+                const shad.DensityGap(shad.gapSm),
                 if (widget.onPrint != null) ...[
                   SizedBox(
                     width: 28 * theme.scaling,
@@ -171,7 +178,8 @@ class _DyDetailsPaneState extends State<DyDetailsPane> {
           shad.Divider(color: colors.border),
 
           // 2. INNER TAB SWITCHER
-          Padding(
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(
               horizontal: 16 * theme.scaling,
               vertical: 8 * theme.scaling,

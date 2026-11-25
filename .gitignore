@@ -42,3 +42,6 @@ graphify-out/
 
 # Offline Empire binary vault (142 MB .mde binaries kept locally for offline sprint)
 docs/empire_intake/offline_vault/*.mde
+
+# Historical data binary archives
+backend/historical_data/*.zip

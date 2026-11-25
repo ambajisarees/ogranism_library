@@ -185,13 +185,54 @@ class SrvSales {
   }
 
   List<MdlSalesBill>? _cachedBills;
+  List<MdlSalesBill>? _cachedReturns;
   DateTime? _cacheTimestamp;
+  DateTime? _returnsCacheTimestamp;
   static const Duration _cacheTtl = Duration(minutes: 5);
 
   /// Clears the in-memory cache to force a fresh fetch from Supabase.
   void clearCache() {
     _cachedBills = null;
+    _cachedReturns = null;
     _cacheTimestamp = null;
+    _returnsCacheTimestamp = null;
+  }
+
+  /// Fetches current-FY Sales Returns / Credit Notes (`P3`, `P25`, `S3` with `VNO < 100000`)
+  /// directly from `sq_BILLS` without any joins (~409 rows) for net revenue & return-ratio analytics.
+  Future<List<MdlSalesBill>> getSalesReturnBills({bool forceRefresh = false}) async {
+    try {
+      final bool isValid = _cachedReturns != null &&
+          _returnsCacheTimestamp != null &&
+          DateTime.now().difference(_returnsCacheTimestamp!) < _cacheTtl;
+      if (!forceRefresh && isValid) {
+        return _cachedReturns!;
+      }
+
+      final response = await _db.client
+          .schema('IMMBE2627')
+          .from('sq_BILLS')
+          .select(
+            'CNO,VNO,TYPE,BILL,DATE,code,BCODE,cCODE,haste,PARCELS,grossamt,BILLAMT,finalamt,TOTPCS,TOTMTS,TRANSPORT,RRNO,RRDATE,EWB_NO,paid,QUAL,PAYDAYS,PAYDATE,REC_AMT,DISCOUNT,FREIGHT,VATAMT',
+          )
+          .inFilter('TYPE', ['P3', 'P25', 'S3'])
+          .lt('VNO', 100000)
+          .order('DATE', ascending: false)
+          .limit(1000);
+
+      final List<dynamic> rawList = response as List<dynamic>;
+      final returns = rawList.map((j) {
+        final sqBill = SqBillsModel.fromJson(j as Map<String, dynamic>);
+        return MdlSalesBill.fromSqBills(sqBill);
+      }).toList();
+
+      _cachedReturns = returns;
+      _returnsCacheTimestamp = DateTime.now();
+      return returns;
+    } catch (e, stack) {
+      debugPrint('Error in SrvSales.getSalesReturnBills: $e\n$stack');
+      return const [];
+    }
   }
 
   /// Fetches ALL sales invoices matching filters (active FY S1 invoices with VNO < 100,000)
@@ -255,7 +296,7 @@ class SrvSales {
                 .schema('IMMBE2627')
                 .from('sq_BILLS')
                 .select(
-                  'CNO,VNO,TYPE,BILL,DATE,code,BCODE,cCODE,haste,PARCELS,grossamt,BILLAMT,finalamt,TOTPCS,TOTMTS,TRANSPORT,RRNO,RRDATE,EWB_NO,paid,QUAL',
+                  'CNO,VNO,TYPE,BILL,DATE,code,BCODE,cCODE,haste,PARCELS,grossamt,BILLAMT,finalamt,TOTPCS,TOTMTS,TRANSPORT,RRNO,RRDATE,EWB_NO,paid,QUAL,PAYDAYS,PAYDATE,REC_AMT,DISCOUNT,FREIGHT,VATAMT',
                 )
                 .eq('TYPE', 'S1')
                 .lt('VNO', 100000)

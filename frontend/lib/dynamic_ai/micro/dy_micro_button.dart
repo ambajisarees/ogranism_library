@@ -15,6 +15,8 @@ library;
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
+import 'dy_count_badge.dart';
+
 /// MicroButton: Universal reusable button control across PageHeader and DAB.
 /// Rebuilt from scratch with strict token architecture:
 /// - Base surface: `colors.card`
@@ -116,7 +118,7 @@ class _MicroButtonState extends State<MicroButton> {
 
     final backgroundColor = widget.isGhost
         ? (widget.isSelected ? colors.accent : shad.Colors.transparent)
-        : colors.card;
+        : colors.background;
 
     final buttonStyle = (widget.isGhost
             ? const shad.ButtonStyle.ghost()
@@ -126,10 +128,12 @@ class _MicroButtonState extends State<MicroButton> {
         )
         .withPadding(
           padding: widget.padding ??
-              EdgeInsets.symmetric(
-                horizontal: isIconOnly ? 8 * theme.scaling : 12 * theme.scaling,
-                vertical: 8 * theme.scaling,
-              ),
+              (isIconOnly
+                  ? EdgeInsets.all(10 * theme.scaling)
+                  : EdgeInsets.symmetric(
+                      horizontal: 12 * theme.scaling,
+                      vertical: 8 * theme.scaling,
+                    )),
         )
         .withBorderRadius(
           borderRadius: BorderRadius.circular(theme.radiusMd),
@@ -158,7 +162,7 @@ class _MicroButtonState extends State<MicroButton> {
           if (widget.leadingIcon != null) ...[
             Icon(
               widget.leadingIcon,
-              size: 16 * theme.scaling,
+              size: theme.iconTheme.small.size ?? 16.0,
               color: widget.isSelected ? colors.primary : colors.mutedForeground,
             ),
             if (widget.label.isNotEmpty) const shad.DensityGap(shad.gapSm),
@@ -178,33 +182,20 @@ class _MicroButtonState extends State<MicroButton> {
           if (widget.badgeCount != null) ...[
             if (widget.label.isNotEmpty || widget.leadingIcon != null)
               const shad.DensityGap(shad.gapSm),
-            widget.isSelected
-                ? shad.PrimaryBadge(
-                    child: Text(
-                      widget.badgeCount.toString(),
-                      style: theme.typography.xSmall.copyWith(
-                        fontSize: 10 * theme.scaling,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  )
-                : shad.SecondaryBadge(
-                    child: Text(
-                      widget.badgeCount.toString(),
-                      style: theme.typography.xSmall.copyWith(
-                        fontSize: 10 * theme.scaling,
-                        fontWeight: FontWeight.w600,
-                        color: colors.mutedForeground,
-                      ),
-                    ),
-                  ),
+            DyCountBadge(
+              count: widget.badgeCount is int
+                  ? widget.badgeCount as int
+                  : (int.tryParse(widget.badgeCount.toString()) ?? 0),
+              labelOverride: widget.badgeCount.toString(),
+              isPrimary: widget.isSelected,
+            ),
           ],
           if (widget.trailingIcon != null) ...[
             if (widget.label.isNotEmpty || widget.leadingIcon != null || widget.badgeCount != null)
               const shad.DensityGap(shad.gapSm),
             Icon(
               widget.trailingIcon,
-              size: 16 * theme.scaling,
+              size: theme.iconTheme.small.size ?? 16.0,
               color: colors.mutedForeground,
             ),
           ],

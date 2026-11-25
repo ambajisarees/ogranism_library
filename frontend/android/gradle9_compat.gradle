@@ -1,0 +1,48 @@
+import javax.inject.Inject
+import org.gradle.api.Action
+import org.gradle.process.ExecOperations
+import org.gradle.process.ExecSpec
+
+interface InjectedExecOps {
+    @Inject
+    ExecOperations getExecOperations()
+}
+
+allprojects { proj ->
+    def ops = proj.objects.newInstance(InjectedExecOps).execOperations
+    def execCompat = { Object actionOrClosure ->
+        return ops.exec(new Action<ExecSpec>() {
+            @Override
+            void execute(ExecSpec spec) {
+                if (actionOrClosure instanceof Closure) {
+                    Closure c = (Closure) ((Closure) actionOrClosure).clone()
+                    c.delegate = spec
+                    c.resolveStrategy = Closure.DELEGATE_FIRST
+                    c.call(spec)
+                } else if (actionOrClosure instanceof Action) {
+                    ((Action<ExecSpec>) actionOrClosure).execute(spec)
+                } else {
+                    throw new IllegalArgumentException("Unsupported exec argument: ${actionOrClosure}")
+                }
+            }
+        })
+    }
+    if (!proj.extensions.extraProperties.has("exec")) {
+        proj.extensions.extraProperties.set("exec", execCompat)
+    }
+    proj.metaClass.exec = execCompat
+
+    if (proj != rootProject) {
+        proj.afterEvaluate {
+            if (proj.plugins.hasPlugin("com.android.library")) {
+                def androidExt = proj.extensions.findByName("android")
+                if (androidExt != null) {
+                    def currentSdk = androidExt.compileSdk
+                    if (!(currentSdk instanceof Number) || currentSdk.intValue() < 36) {
+                        androidExt.compileSdk = 36
+                    }
+                }
+            }
+        }
+    }
+}

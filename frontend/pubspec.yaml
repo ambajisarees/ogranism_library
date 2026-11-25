@@ -9,26 +9,22 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.2
-  google_fonts: ^8.0.2
-  supabase_flutter: ^2.4.0
-  intl: ^0.20.2
-  window_manager: ^0.5.1
-  screen_retriever: ^0.2.0
-  lucide_icons_flutter: ^3.1.14+2
-  shadcn_flutter: ^0.0.53
-  pluto_grid: ^8.0.0
-  desktop_drop: ^0.7.0
-  file_picker: ^11.0.2
-  photo_view: ^0.15.0
-  carousel_slider: ^5.0.0
-  fl_chart: ^1.2.0
-  image: ^4.8.0
+  google_fonts: ^9.0.0
+  supabase_flutter: ^2.18.3
+  intl: ^0.20.3
+  window_manager: 0.5.2
+  shadcn_flutter: ^0.0.55
+  shared_preferences: ^2.5.6
+  desktop_drop: ^0.8.4
+  file_picker: ^11.0.3
+  fl_chart: ^1.3.0
+  image: ^4.12.0
   webview_windows: ^0.2.2
   super_clipboard: ^0.8.4
-  url_launcher: ^6.3.2
+  url_launcher: ^6.3.3
   http: ^1.2.1
-  meta: any
+  pdf: ^3.13.1
+  printing: ^5.15.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -37,7 +33,7 @@ dev_dependencies:
   msix: ^3.16.1
 
 msix_config:
-  display_name: Ambaji Sarees ERP
+  display_name: Dhaaga
   publisher_display_name: Ambaji Sarees
   publisher: CN=AmbajiSarees, O=AmbajiSarees, L=Surat, S=Gujarat, C=IN
   identity_name: com.ambajisaree.erp
@@ -47,5 +43,7 @@ msix_config:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/logo/
 
 

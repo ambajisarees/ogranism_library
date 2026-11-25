@@ -3,20 +3,18 @@
 LLM CONTEXT & QUERY SPACE — DAB GROUP SWITCHER (dab_group_switcher.dart)
 ================================================================================
 1. DOMAIN & PURPOSE:
-   - Grouping switcher button group component for DynamicActionBar (DAB).
-   - Exact visual replica of View Switcher button group with 4 grouping modes.
+   - Grouping switcher native `shad.ButtonGroup` component for DynamicActionBar (DAB).
+   - Connected 36px outline segments using `shad.SelectedButton` with `ButtonStyle.outline`.
    - First option is ALWAYS 'None' (id: 'none', label: 'None', icon: LucideIcons.layoutList).
 
 2. BUSINESS LOGIC & DATA CONTRACTS:
-   - Built with 34px height `MicroButton` controls matching native DAB button group tokens.
-   - Native `shadcn_flutter` color scheme (`colors.card`, `colors.border`, `theme.radiusMd`).
+   - Built strictly with native `shad.ButtonGroup` + `shad.SelectedButton` controls
+     inheriting global `OutlineButtonTheme` (`colors.background` / `colors.accent` / `radiusMd`).
 ================================================================================
 */
 
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
-
-import '../dy_micro_button.dart';
 
 /// Grouping option model for [DabGroupSwitcher].
 class DabGroupOption {
@@ -39,7 +37,7 @@ const List<DabGroupOption> kDefaultGroupOptions = [
   DabGroupOption(id: 'cut', label: 'Cut', icon: shad.LucideIcons.scissors),
 ];
 
-/// [DabGroupSwitcher] — 4-Option Grouping Switcher Button Group for DAB.
+/// [DabGroupSwitcher] — Native `shad.ButtonGroup` Grouping Switcher for DAB.
 class DabGroupSwitcher extends StatelessWidget {
   final String selectedGroup;
   final ValueChanged<String> onGroupChanged;
@@ -56,35 +54,62 @@ class DabGroupSwitcher extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
     final colors = theme.colorScheme;
+    final scaling = theme.scaling;
+    final iconSmSize = theme.iconTheme.small.size ?? 16.0;
 
     return FocusTraversalGroup(
       policy: WidgetOrderTraversalPolicy(),
-      child: shad.OutlinedContainer(
-        borderRadius: BorderRadius.circular(theme.radiusMd),
-        borderColor: colors.border,
-        backgroundColor: colors.card,
-        padding: const EdgeInsets.all(2.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+      child: SizedBox(
+        height: 36 * scaling,
+        child: shad.ButtonGroup(
           children: groups.map((g) {
             final bool isSelected = selectedGroup == g.id;
-
-            return shad.Tooltip(
-              anchorAlignment: Alignment.bottomCenter,
-              alignment: Alignment.topCenter,
-              tooltip: (context) => shad.TooltipContainer(
-                child: Text('Group by: ${g.label}'),
+            final segmentStyle = const shad.ButtonStyle.outline().withPadding(
+              padding: EdgeInsets.symmetric(
+                horizontal: isSelected ? 12 * scaling : 10 * scaling,
               ),
-              child: MicroButton(
-                label: isSelected ? g.label : '',
-                leadingIcon: g.icon,
-                isSelected: isSelected,
-                isGhost: !isSelected,
-                padding: EdgeInsets.symmetric(
-                  horizontal: isSelected ? 10 * theme.scaling : 8 * theme.scaling,
-                  vertical: 6 * theme.scaling,
+            );
+
+            return shad.FocusToFront(
+              child: shad.Tooltip(
+                anchorAlignment: Alignment.bottomCenter,
+                alignment: Alignment.topCenter,
+                tooltip: (context) => shad.TooltipContainer(
+                  child: Text('Group by: ${g.label}'),
                 ),
-                onPressed: () => onGroupChanged(g.id),
+                child: shad.SelectedButton(
+                  value: isSelected,
+                  alignment: Alignment.center,
+                  style: segmentStyle,
+                  selectedStyle: segmentStyle,
+                  onChanged: (_) => onGroupChanged(g.id),
+                  child: Focus(
+                    canRequestFocus: false,
+                    skipTraversal: true,
+                    descendantsAreFocusable: false,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(
+                          g.icon,
+                          size: iconSmSize,
+                          color: colors.mutedForeground,
+                        ),
+                        if (isSelected) ...[
+                          const shad.DensityGap(shad.gapSm),
+                          Text(
+                            g.label,
+                            style: theme.typography.textSmall.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: colors.mutedForeground,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
               ),
             );
           }).toList(),

@@ -16,6 +16,10 @@ enum DyTableRowType {
   child,
 }
 
+/// Alias types for backward compatibility with retired `dy_table_pane.dart`.
+typedef DynamicTableColumnSpec = DyTableColumnSpec;
+typedef DynamicTableRowData = DyTableRowData;
+
 /// Column Specification model for [DyTable].
 class DyTableColumnSpec {
   final String key;
@@ -31,14 +35,16 @@ class DyTableColumnSpec {
   const DyTableColumnSpec({
     required this.key,
     required this.label,
-    this.width = 120.0,
+    double? width,
     this.flex = 1,
     this.isNumeric = false,
     this.isSortable = true,
     this.isPinnedLeft = false,
     this.isPinnedRight = false,
-    this.textAlignment = Alignment.centerLeft,
-  });
+    Alignment? alignment,
+    Alignment textAlignment = Alignment.centerLeft,
+  })  : width = width ?? 120.0,
+        textAlignment = alignment ?? textAlignment;
 }
 
 /// Dynamic Row Data model for [DyTable].
@@ -49,6 +55,7 @@ class DyTableRowData {
   final String? voucherNo;
   final String? partyName;
   final String? imagePath;
+  final List<String> imageUrls;
   final String? title;
   final Map<String, dynamic> data;
   final List<DyTableRowData> children;
@@ -69,7 +76,9 @@ class DyTableRowData {
     double amountValue = 0.0,
     String? status,
     String? expandedDetails,
-    this.imagePath,
+    String? imagePath,
+    String? thumbnailUrl,
+    this.imageUrls = const [],
     this.title,
     Map<String, dynamic>? data,
     List<DyTableRowData>? children,
@@ -80,6 +89,7 @@ class DyTableRowData {
     Map<String, dynamic>? rawData,
   })  : voucherNo = voucherNo ?? (data?['vno'] as String?),
         partyName = partyName ?? (data?['partyName'] as String?),
+        imagePath = imagePath ?? thumbnailUrl,
         children = children ?? childRows ?? const [],
         rawData = rawData ?? data,
         data = {

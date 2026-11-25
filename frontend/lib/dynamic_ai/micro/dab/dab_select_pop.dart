@@ -1,7 +1,7 @@
 /// LLM NOTE: DabSelectPopover
 /// - Level: DAB Popover Component
-/// - Purpose: Unified multi-option checklist selection popover for DynamicActionBar (Party, Mill, Quality, Fabric, Status) with 200px width.
-/// - Widget Composition: shad.Card -> Column(Search TextField + Scrollable Checkbox List).
+/// - Purpose: Native `shad.SelectPopup` multi-select filter popover for DynamicActionBar (Party, Mill, Quality, Fabric, Status).
+/// - Widget Composition: `shad.Data<shad.SelectData>` -> `shad.SelectPopup<String>.builder` (when options > 5, with autofocused search) or `shad.SelectPopup<String>` (`<= 5` items), giving built-in `SubFocusScope` arrow/Enter/Esc keyboard navigation.
 
 library;
 
@@ -10,11 +10,7 @@ import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
 import '../../specs/dy_grid_system.dart';
 
-/// Unified Select Checklist Popover following standard DAB popover specs:
-/// - Width: `DyGridSystem.popWidthStandard` (200px)
-/// - Corner Radius: 8px, Inner Card Padding: 8px
-/// - Max Height: 300px
-/// - Search textfield rendered ONLY if options > 5 items
+/// Unified Multi-Select Checklist Popover backed natively by [shad.SelectPopup].
 class DabSelectPopover extends StatefulWidget {
   final String title;
   final List<String> options;
@@ -34,139 +30,91 @@ class DabSelectPopover extends StatefulWidget {
 }
 
 class _DabSelectPopoverState extends State<DabSelectPopover> {
-  String _searchQuery = '';
   late Set<String> _currentSelected;
 
   @override
   void initState() {
     super.initState();
-    _currentSelected = Set.from(widget.selectedValues);
+    _currentSelected = Set<String>.from(widget.selectedValues);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = shad.Theme.of(context);
     final colors = theme.colorScheme;
+    final hasSearch = widget.options.length > 5;
 
-    final filteredOptions = widget.options.where((option) {
-      if (_searchQuery.isEmpty) return true;
-      return option.toLowerCase().contains(_searchQuery.toLowerCase());
-    }).toList();
-
-    return shad.Card(
-      padding: EdgeInsets.all(8 * theme.scaling),
-      child: SizedBox(
-        width: DyGridSystem.popWidthStandard * theme.scaling,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Top Search Bar (rendered ONLY if options > 5)
-            if (widget.options.length > 5) ...[
-              shad.TextField(
-                filled: true,
-                placeholder: Text('Search ${widget.title}...'),
-                padding: EdgeInsets.symmetric(
-                  horizontal: 8 * theme.scaling,
-                  vertical: 6 * theme.scaling,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.card,
-                  borderRadius: BorderRadius.circular(theme.radiusMd),
-                  border: Border.all(color: colors.border),
-                ),
-                onChanged: (val) {
-                  setState(() => _searchQuery = val);
-                },
-                features: [
-                  shad.InputFeature.leading(
-                    Icon(
-                      shad.LucideIcons.search,
-                      size: 14 * theme.scaling,
-                      color: colors.mutedForeground,
-                    ),
-                  ),
-                ],
-              ),
-              const shad.DensityGap(shad.gapSm),
-            ],
-
-            // Scrollable List of Checkbox Items (maxHeight 300px)
-            ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: 300 * theme.scaling),
-              child: filteredOptions.isEmpty
-                  ? Padding(
-                      padding: EdgeInsets.all(12 * theme.scaling),
-                      child: Center(
-                        child: Text(
-                          'No options found',
-                          style: theme.typography.xSmall.copyWith(
-                            color: colors.mutedForeground,
-                          ),
+    return SizedBox(
+      width: 220 * theme.scaling,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minWidth: DyGridSystem.popWidthStandard * theme.scaling,
+          maxHeight: 300 * theme.scaling,
+        ),
+        child: shad.Data.inherit(
+          data: shad.SelectData(
+            enabled: true,
+            autoClose: false,
+            isSelected: (val) => val is String && _currentSelected.contains(val),
+            onChanged: (val, selected) {
+              if (val is! String) return false;
+              setState(() {
+                if (selected) {
+                  _currentSelected.add(val);
+                } else {
+                  _currentSelected.remove(val);
+                }
+              });
+              widget.onChanged(Set<String>.from(_currentSelected));
+              return true;
+            },
+            hasSelection: _currentSelected.isNotEmpty,
+            expandIcon: null,
+          ),
+          child: hasSearch
+              ? shad.SelectPopup<String>.builder(
+                  shrinkWrap: true,
+                  searchPlaceholder: Text('Search ${widget.title}...'),
+                  emptyBuilder: (_) => Padding(
+                    padding: EdgeInsets.all(12 * theme.scaling),
+                    child: Center(
+                      child: Text(
+                        'No options found',
+                        style: theme.typography.xSmall.copyWith(
+                          color: colors.mutedForeground,
                         ),
                       ),
-                    )
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      padding: EdgeInsets.zero,
-                      itemCount: filteredOptions.length,
-                      itemBuilder: (context, index) {
-                        final item = filteredOptions[index];
-                        final isChecked = _currentSelected.contains(item);
-
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              if (isChecked) {
-                                _currentSelected.remove(item);
-                              } else {
-                                _currentSelected.add(item);
-                              }
-                            });
-                            widget.onChanged(_currentSelected);
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 8 * theme.scaling,
-                              vertical: 6 * theme.scaling,
-                            ),
-                            child: Row(
-                              children: [
-                                shad.Checkbox(
-                                  state: isChecked
-                                      ? shad.CheckboxState.checked
-                                      : shad.CheckboxState.unchecked,
-                                  onChanged: (state) {
-                                    setState(() {
-                                      if (state == shad.CheckboxState.checked) {
-                                        _currentSelected.add(item);
-                                      } else {
-                                        _currentSelected.remove(item);
-                                      }
-                                    });
-                                    widget.onChanged(_currentSelected);
-                                  },
-                                ),
-                                const shad.DensityGap(shad.gapSm),
-                                Expanded(
-                                  child: Text(
-                                    item,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: theme.typography.textSmall.copyWith(
-                                      fontWeight: isChecked ? FontWeight.bold : FontWeight.normal,
-                                      color: colors.foreground,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
                     ),
-            ),
-          ],
+                  ),
+                  builder: (context, searchQuery) {
+                    final q = (searchQuery ?? '').trim().toLowerCase();
+                    final filtered = q.isEmpty
+                        ? widget.options
+                        : widget.options
+                            .where((o) => o.toLowerCase().contains(q))
+                            .toList();
+                    return shad.SelectItemList(
+                      children: [
+                        for (final item in filtered)
+                          shad.SelectItemButton<String>(
+                            value: item,
+                            child: Text(item),
+                          ),
+                      ],
+                    );
+                  },
+                )
+              : shad.SelectPopup<String>(
+                  items: shad.SelectItemList(
+                    children: [
+                      for (final item in widget.options)
+                        shad.SelectItemButton<String>(
+                          value: item,
+                          child: Text(item),
+                        ),
+                    ],
+                  ),
+                ),
         ),
       ),
     );

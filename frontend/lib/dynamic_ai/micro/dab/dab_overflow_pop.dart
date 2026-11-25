@@ -1,17 +1,14 @@
 /// LLM NOTE: DabOverflowPopover
 /// - Level: DAB Popover Component
-/// - Purpose: Overflow menu for Three-Dots trailing button in DynamicActionBar providing quick actions (Export View Data, Column Visibility, Density Toggle, Reset Layout).
+/// - Purpose: Native `shad.DropdownMenu` overflow menu for Three-Dots trailing button in DynamicActionBar providing quick actions (Export View Data, Column Visibility, Density Settings, Reset View Layout).
+/// - Widget Composition: `shad.DropdownMenu` -> `MenuLabel`, `MenuDivider`, `MenuButton`.
 
 library;
-/// - Widget Composition: shad.Card -> Column(Vertical list of action buttons with leading icons).
 
 import 'package:flutter/widgets.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
-import '../../specs/dy_grid_system.dart';
-
-/// Overflow Popover for Three-Dots trailing button in DAB:
-/// Displays additional table/data actions (Export, Column Specs, Density, Reset)
+/// Overflow Dropdown Menu for Three-Dots trailing button in DAB.
 class DabOverflowPopover extends StatelessWidget {
   final VoidCallback? onExportPressed;
   final VoidCallback? onColumnSpecsPressed;
@@ -28,108 +25,32 @@ class DabOverflowPopover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = shad.Theme.of(context);
-    final colors = theme.colorScheme;
-
-    final options = [
-      _OverflowOption(
-        icon: shad.LucideIcons.download,
-        label: 'Export View Data',
-        onTap: () {
-          shad.closeOverlay(context);
-          onExportPressed?.call();
-        },
-      ),
-      _OverflowOption(
-        icon: shad.LucideIcons.columns3,
-        label: 'Column Visibility',
-        onTap: () {
-          shad.closeOverlay(context);
-          onColumnSpecsPressed?.call();
-        },
-      ),
-      _OverflowOption(
-        icon: shad.LucideIcons.slidersHorizontal,
-        label: 'Density Settings',
-        onTap: () {
-          shad.closeOverlay(context);
-          onDensityPressed?.call();
-        },
-      ),
-      _OverflowOption(
-        icon: shad.LucideIcons.rotateCcw,
-        label: 'Reset View Layout',
-        onTap: () {
-          shad.closeOverlay(context);
-          onResetLayoutPressed?.call();
-        },
-      ),
-    ];
-
-    return shad.Card(
-      padding: EdgeInsets.all(8 * theme.scaling),
-      child: SizedBox(
-        width: DyGridSystem.popWidthStandard * theme.scaling,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 8 * theme.scaling,
-                vertical: 4 * theme.scaling,
-              ),
-              child: Text(
-                'TABLE ACTIONS',
-                style: theme.typography.xSmall.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: colors.mutedForeground,
-                  fontSize: 10 * theme.scaling,
-                ),
-              ),
-            ),
-            const shad.DensityGap(shad.gapXs),
-            ...options.map((opt) {
-              return Padding(
-                padding: EdgeInsets.only(bottom: 4 * theme.scaling),
-                child: shad.GhostButton(
-                  onPressed: opt.onTap,
-                  child: Row(
-                    children: [
-                      Icon(
-                        opt.icon,
-                        size: 14 * theme.scaling,
-                        color: colors.mutedForeground,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          opt.label,
-                          style: theme.typography.textSmall.copyWith(
-                            color: colors.foreground,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
-          ],
+    return shad.DropdownMenu(
+      children: [
+        const shad.MenuLabel(child: Text('Table Actions')),
+        const shad.MenuDivider(),
+        shad.MenuButton(
+          leading: const Icon(shad.LucideIcons.download),
+          onPressed: (_) => onExportPressed?.call(),
+          child: const Text('Export View Data'),
         ),
-      ),
+        shad.MenuButton(
+          leading: const Icon(shad.LucideIcons.columns3),
+          onPressed: (_) => onColumnSpecsPressed?.call(),
+          child: const Text('Column Visibility'),
+        ),
+        shad.MenuButton(
+          leading: const Icon(shad.LucideIcons.slidersHorizontal),
+          onPressed: (_) => onDensityPressed?.call(),
+          child: const Text('Density Settings'),
+        ),
+        const shad.MenuDivider(),
+        shad.MenuButton(
+          leading: const Icon(shad.LucideIcons.rotateCcw),
+          onPressed: (_) => onResetLayoutPressed?.call(),
+          child: const Text('Reset View Layout'),
+        ),
+      ],
     );
   }
-}
-
-class _OverflowOption {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _OverflowOption({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
 }

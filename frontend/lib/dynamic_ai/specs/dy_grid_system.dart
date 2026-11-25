@@ -4,18 +4,24 @@ LLM CONTEXT & QUERY SPACE — DYNAMIC AI GRID SYSTEM SPECS (dy_grid_system.dart)
 ================================================================================
 1. DOMAIN & PURPOSE:
    - Centralized layout specification & Base-12 grid system for Dynamic AI Engine.
-   - Defines flex ratios, fixed pane dimensions, breakpoint boundaries, and 
-     layout constants across all 2-pane, 3-pane, and 4-pane ERP module views.
+   - Defines flex ratios, gap-compensated Base-12 column track math (`spanWidth`),
+     fixed pane dimensions, breakpoint boundaries, and layout constants across all
+     2-pane, 3-pane, and 4-pane ERP module views.
 
 2. BUSINESS LOGIC & DATA CONTRACTS:
-   - Base-12 Grid System: Total flex = 12.
+   - Base-12 Grid System: Total tracks = 12 (`unitTrack = (W - 11 * gap) / 12`),
+     `spanWidth(s) = s * unitTrack + (s - 1) * gap` so cross-row boundaries
+     (e.g. `3-3-3-3` over `9-3`, `4-4-4` over `8-4`, `6-3-3` over `9-3`) stay flush.
    - Table Mode (DVT): Flex 12 full width & column span divider.
    - List Mode (DL + DCP): Fixed 360px Master List + Flex 8 Content Inspector.
    - Cards Mode (DVC + DDP): Flex 9 Cards Grid (75%) + Flex 3 Details Pane (25%).
    - Board Mode (Kanban): 3-Pane Equal (flex 4 each) or 4-Pane Equal (flex 3 each).
 
 3. DATA AUDIT / NULL RATES / GOTCHAS:
-   - Always multiply fixed metrics by `theme.scaling` for HiDPI/Density responsiveness.
+   - Always multiply fixed metrics and gutters by `theme.scaling` for HiDPI/Density responsiveness.
+
+4. OPEN QUESTIONS & CLARIFICATIONS:
+   - None at this stage.
 ================================================================================
 */
 
@@ -42,6 +48,21 @@ abstract class DyGridSystem {
   // 2. ACTIVE ERP VIEW MODE SPLIT RATIOS (BY USE CASE & DYNAMIC COMPONENT)
   // =========================================================================
   static const int flexBase = 12;
+
+  /// Computes the exact pixel width for a Base-12 column [span] (`1..12`)
+  /// inside a container of [totalWidth] with [gap] (`12px * scaling`) gutters,
+  /// ensuring rows with 2, 3, or 4 cards align 100% flush at every column boundary.
+  static double spanWidth({
+    required double totalWidth,
+    required int span,
+    required double gap,
+  }) {
+    final clampedSpan = span.clamp(1, flexBase);
+    if (totalWidth <= 0) return 0;
+    final unitTrack = (totalWidth - ((flexBase - 1) * gap)) / flexBase;
+    final resolved = (clampedSpan * unitTrack) + ((clampedSpan - 1) * gap);
+    return resolved > 0 ? resolved : 0;
+  }
 
   // A. Table View Mode (DVT - DynamicDenseTable)
   // Uses full 12-column grid system to neatly organize column width spans

@@ -40,13 +40,13 @@
     "semantic_hash": ""
   },
   "frontend/lib/main.dart": {
-    "mtime": 1786475173.7051022,
-    "ast_hash": "d72c7d6eaa2042b3d906e4fe28512e34",
+    "mtime": 1795005698.889077,
+    "ast_hash": "cdc68ea278c3f756c1ed486c5f6bab7f",
     "semantic_hash": ""
   },
   "frontend/lib/screens/home.dart": {
-    "mtime": 1786475365.735948,
-    "ast_hash": "ec2319d2e484c5425b2f378b317255ef",
+    "mtime": 1795117699.1195045,
+    "ast_hash": "dbfdcfa55116407f0a639ca974bc4c13",
     "semantic_hash": ""
   },
   "frontend/web/manifest.json": {
@@ -55,8 +55,8 @@
     "semantic_hash": ""
   },
   "frontend/windows/flutter/generated_plugin_registrant.cc": {
-    "mtime": 1784968596.2076392,
-    "ast_hash": "ae187862683833149df0c2dcbc454679",
+    "mtime": 1793875139.2856824,
+    "ast_hash": "752feebd4b6ff870cba3a459505e93be",
     "semantic_hash": ""
   },
   "frontend/windows/flutter/generated_plugin_registrant.h": {
@@ -305,8 +305,8 @@
     "semantic_hash": ""
   },
   "frontend/analysis_options.yaml": {
-    "mtime": 1784799475.960165,
-    "ast_hash": "700a165aaf55c5d3063d8d87b665f909",
+    "mtime": 1794999512.6065137,
+    "ast_hash": "397917479d968ba68c07323b4aafb2c3",
     "semantic_hash": ""
   },
   "frontend/analysis_output.txt": {
@@ -345,8 +345,8 @@
     "semantic_hash": ""
   },
   "frontend/pubspec.yaml": {
-    "mtime": 1785262239.0435958,
-    "ast_hash": "efad44900755c9625337ce93909f707a",
+    "mtime": 1794926287.4411051,
+    "ast_hash": "c90dbfc105d0745943740ec6bbc8d830",
     "semantic_hash": ""
   },
   "frontend/web/index.html": {
@@ -1135,23 +1135,23 @@
     "semantic_hash": ""
   },
   "backend/schema_docs/07_sb_google_contacts.sql": {
-    "mtime": 1784986622.8425083,
-    "ast_hash": "ca3cc38374611d2016d8b52b4078c3a2",
+    "mtime": 1795091554.4793978,
+    "ast_hash": "7fb2ea402be54521ef91f716bd8f367c",
     "semantic_hash": ""
   },
   "backend/supabase/functions/google-contacts-sync/index.ts": {
-    "mtime": 1784986622.8453617,
-    "ast_hash": "75e2b95a8e342ba6f04ff90ed2fe5626",
+    "mtime": 1795091557.9488401,
+    "ast_hash": "3ef06d3fbc43fbe9316946eab53408ca",
     "semantic_hash": ""
   },
   "frontend/lib/core/keyboard_manager_widget.dart": {
-    "mtime": 1784828582.0655234,
-    "ast_hash": "4da3d5704714d910c60dff32313aa63f",
+    "mtime": 1795117677.0143843,
+    "ast_hash": "9fc216e75b0ce793c5dce0b8eb280f53",
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/micro/cards/dy_grid_card.dart": {
-    "mtime": 1785674811.5868845,
-    "ast_hash": "7d93cc147c7515f7c688f097bba166bc",
+    "mtime": 1793873337.200275,
+    "ast_hash": "f77bd4b9a886e04e1b10b02065b9aeb6",
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/micro/cards/dy_kanban_item.dart": {
@@ -1230,8 +1230,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/micro/table/dy_table_def_row.dart": {
-    "mtime": 1785935000.7598867,
-    "ast_hash": "88d50b8809be67824aa7eef75bb68d06",
+    "mtime": 1793873454.456655,
+    "ast_hash": "193a93a52b1aaabb7b678a70842179d0",
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/micro/table/dy_table_footer.dart": {
@@ -1240,8 +1240,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/micro/table/dy_table_gallery_modal.dart": {
-    "mtime": 1785610465.6851318,
-    "ast_hash": "8e8c4ffd83e64bf93d5446f66d52f3b4",
+    "mtime": 1793812518.446614,
+    "ast_hash": "c0be9bc9bb153a9b784dadfc4b8e019f",
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/micro/table/dy_table_group_row.dart": {
@@ -1260,8 +1260,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/page/dy_action_bar.dart": {
-    "mtime": 1785935000.7598867,
-    "ast_hash": "7ce50461a1a864837486666ec3b255c8",
+    "mtime": 1793873457.3911295,
+    "ast_hash": "9cb12dfbdeace934c8cf4ed45b90716c",
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/page/dy_card_pane.dart": {
@@ -1290,8 +1290,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/page/dy_page_header.dart": {
-    "mtime": 1785955465.633695,
-    "ast_hash": "b2c9d4a6206c95d8f6a1bcb8cf968272",
+    "mtime": 1795007544.4051666,
+    "ast_hash": "58a18241caaa78840920308f78e1a36e",
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/page/dy_table.dart": {
@@ -1300,33 +1300,33 @@
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/page/dy_table_pane.dart": {
-    "mtime": 1785571785.5471923,
-    "ast_hash": "96e098912a80e26e425db94802109425",
+    "mtime": 1793813691.942423,
+    "ast_hash": "a4f17b50e3e71446ec339aa178b6b3a6",
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/root/dy_module_tabs.dart": {
-    "mtime": 1785642669.3914766,
-    "ast_hash": "1751078807d7a7b9ecda3697b98f9b35",
+    "mtime": 1795118520.446549,
+    "ast_hash": "39bb4801ee7ffc4f7ddad6f81f7eeecf",
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/root/dy_shell.dart": {
-    "mtime": 1785672189.7311091,
-    "ast_hash": "561af2886897150528ac10ddcf49697c",
+    "mtime": 1794998660.6194656,
+    "ast_hash": "8eeb40a308c92ee8af483639befab3ff",
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/root/sidebar_nav.dart": {
-    "mtime": 1785673523.7130382,
-    "ast_hash": "ea7a3b66f4e398744006ab43fcd036b8",
+    "mtime": 1795117607.803649,
+    "ast_hash": "1773e98c015ac621b20fc4223e4beac8",
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/shells/dy_shl_details.dart": {
-    "mtime": 1785935000.7698848,
-    "ast_hash": "3a74e9727e99cabad3257b8bd9754a0c",
+    "mtime": 1794995468.5655606,
+    "ast_hash": "bf875ab64e3fe51c8de6e330b5943846",
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/specs/dy_color_system.dart": {
-    "mtime": 1785673917.7964911,
-    "ast_hash": "73abebc5d8a1965e56fa58c167e4d11f",
+    "mtime": 1794995444.1440916,
+    "ast_hash": "5b1a19c8175019ec1f01ba68a690529d",
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/specs/dy_grid_system.dart": {
@@ -1375,8 +1375,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/models/model_google_contacts.dart": {
-    "mtime": 1784986622.8464396,
-    "ast_hash": "ed1637361c5c4a4771026ed65c495d58",
+    "mtime": 1795118610.6062367,
+    "ast_hash": "2c0f41cd9db614fc89639b26a20a907f",
     "semantic_hash": ""
   },
   "frontend/lib/models/production/mdl_cc.dart": {
@@ -1400,58 +1400,13 @@
     "semantic_hash": ""
   },
   "frontend/lib/screens/crm/screen_google_contacts_sync.dart": {
-    "mtime": 1784986622.8493419,
-    "ast_hash": "a143fe4488943a5781e1f7440af4d6ca",
+    "mtime": 1795119405.6241746,
+    "ast_hash": "9be657369e3ae979c94ac94ab82571d2",
     "semantic_hash": ""
   },
   "frontend/lib/screens/crm/screen_whatsapp_webview.dart": {
-    "mtime": 1784837268.6336737,
-    "ast_hash": "2890c9a8897e143d734f63a29265020c",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/demo_screen.dart": {
-    "mtime": 1785782335.0582435,
-    "ast_hash": "6333f159ef70db50af48fd464829393e",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/library/screen_component_library.dart": {
-    "mtime": 1785000149.753545,
-    "ast_hash": "89aebfcdbc9c4e1caeed47ed355cdad1",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/library/showcase_buttons_controls.dart": {
-    "mtime": 1785001935.7836156,
-    "ast_hash": "4876ff7bd7c60bfcb76935cbe5c9cba8",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/library/showcase_cards_containers.dart": {
-    "mtime": 1785000125.5573084,
-    "ast_hash": "a92e9417ffffa6d3b08869ba77b35ce1",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/library/showcase_data_tables.dart": {
-    "mtime": 1785000117.3348079,
-    "ast_hash": "7e2b1b6c0399b0889e34eb35c72c3969",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/library/showcase_feedback_status.dart": {
-    "mtime": 1785000164.823924,
-    "ast_hash": "92edbe14a8258618435d67cc70932047",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/library/showcase_inputs_forms.dart": {
-    "mtime": 1785000193.0689843,
-    "ast_hash": "0ddb62d69b309b699acecf31a12b28cf",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/library/showcase_navigation_utility.dart": {
-    "mtime": 1785000058.9091809,
-    "ast_hash": "b47f0813692eb45c70697249c087951c",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/library/showcase_overlays_dialogs.dart": {
-    "mtime": 1784999995.8117042,
-    "ast_hash": "db07fd8e3dc9f35dde4fb68f4571145c",
+    "mtime": 1793812518.454956,
+    "ast_hash": "1861d50c73443054c9aa8660e912a446",
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/cutting/scr_cc_detail_canvas.dart": {
@@ -1475,8 +1430,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/purchase_bills/scr_pb_landing.dart": {
-    "mtime": 1785935000.780903,
-    "ast_hash": "99cc86cc6f9e019c4390ae6842c77e96",
+    "mtime": 1793812518.4698498,
+    "ast_hash": "549e45fb9c88f3aad08db9078011a5d7",
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/purchase_orders/scr_po_detail_canvas.dart": {
@@ -1485,118 +1440,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/purchase_orders/scr_po_landing.dart": {
-    "mtime": 1785782335.061216,
-    "ast_hash": "0ee937173f21e3091f7732956f91885b",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_add_product.dart": {
-    "mtime": 1785002214.9318886,
-    "ast_hash": "a28a591ce40a344e4dda8d6d5b0ada6f",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_aging_analysis.dart": {
-    "mtime": 1785002408.3283038,
-    "ast_hash": "4074092c23451a21c3bf875638937c79",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_broker_commission.dart": {
-    "mtime": 1785002412.9725757,
-    "ast_hash": "08d14b710321956f8113e216d4d5c27c",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_claims_notes.dart": {
-    "mtime": 1785002423.6569643,
-    "ast_hash": "f118ad60730aac5fa3e17114a2af6358",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_classic_dashboard.dart": {
-    "mtime": 1785001943.048066,
-    "ast_hash": "0b66ed3bb2a19a820d3b259acab10e82",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_crm.dart": {
-    "mtime": 1785002010.167149,
-    "ast_hash": "2025b88b7368b17c4bc7117e28cd17aa",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_dispatch.dart": {
-    "mtime": 1785002403.0965855,
-    "ast_hash": "91210a197bf3c0a781c1e65ba191ea52",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_ecommerce_dashboard.dart": {
-    "mtime": 1785001949.0056217,
-    "ast_hash": "f0bf6fbf18e652289d58489514fb8ff4",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_file_manager.dart": {
-    "mtime": 1785002227.589172,
-    "ast_hash": "9083b85d818f880b0e475eb115ffb7ac",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_kanban.dart": {
-    "mtime": 1785002236.0143425,
-    "ast_hash": "9c5ddf3eb664dbc3b68d7f8e1bf01ed1",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_mill_dashboard.dart": {
-    "mtime": 1785001961.4536164,
-    "ast_hash": "6482bcd2f8e2cdca0868c87947e9b540",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_notes_tasks.dart": {
-    "mtime": 1785002004.9280567,
-    "ast_hash": "3786fd3b66f195aa79de2ece193fc6c1",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_order_detail.dart": {
-    "mtime": 1785001990.1182506,
-    "ast_hash": "15b795d2bcbdc059e5c352fcb2775a8c",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_order_list.dart": {
-    "mtime": 1785001983.8328273,
-    "ast_hash": "d76add0a850f10603f4ebae3b66018e0",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_payment_dashboard.dart": {
-    "mtime": 1785001955.4182994,
-    "ast_hash": "dc01fada5dd1240c3f50855fa8673777",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_price_matrix.dart": {
-    "mtime": 1785002418.0749254,
-    "ast_hash": "78815eea72ceff7fd8b3bc0b2caa6967",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_product_detail.dart": {
-    "mtime": 1785002257.8933086,
-    "ast_hash": "98e6b73c6f519bdee429354742d5d592",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_product_list.dart": {
-    "mtime": 1785002241.6347544,
-    "ast_hash": "32acaea5c42a2b1aced9589722ea2fc4",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_profile_empty.dart": {
-    "mtime": 1785002024.0912213,
-    "ast_hash": "770e7622c6841b064f0dcc6e03a957ee",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_settings.dart": {
-    "mtime": 1785002247.0719807,
-    "ast_hash": "f46344529229b7c554ae7cce317f5507",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/page_showcase_stock_location.dart": {
-    "mtime": 1785001996.167218,
-    "ast_hash": "b941cb0186058901a8b9cc435e0779de",
-    "semantic_hash": ""
-  },
-  "frontend/lib/screens/showcase/screen_showcase.dart": {
-    "mtime": 1785002430.9010978,
-    "ast_hash": "534605e3f7a9df8726714e1eb7c6f61b",
+    "mtime": 1793812518.4698498,
+    "ast_hash": "a64b6ab6cd78615da426e4c272c381b1",
     "semantic_hash": ""
   },
   "frontend/lib/services/core/sb/sb_cutdet_service.dart": {
@@ -1640,8 +1485,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/services/production/srv_cc.dart": {
-    "mtime": 1786357562.8082547,
-    "ast_hash": "92a1eb44efdb47f35db6cee68db1684a",
+    "mtime": 1788433820.21219,
+    "ast_hash": "e417930896fe322b111d0c57cf7857d4",
     "semantic_hash": ""
   },
   "frontend/lib/services/production/srv_pb.dart": {
@@ -1660,23 +1505,23 @@
     "semantic_hash": ""
   },
   "frontend/lib/services/service_google_contacts.dart": {
-    "mtime": 1784986622.8823922,
-    "ast_hash": "2f8c39a44945b0efb08b585558b11d61",
+    "mtime": 1795118659.8785937,
+    "ast_hash": "3de2ff006656f6073175dd8deb03bffb",
     "semantic_hash": ""
   },
   "frontend/lib/services/service_keyboard_shortcuts.dart": {
-    "mtime": 1784820734.7910056,
-    "ast_hash": "56efa4606f4efa62721dee4de10f4844",
+    "mtime": 1795117602.9214175,
+    "ast_hash": "8938ff057a23831394f733862e86783d",
     "semantic_hash": ""
   },
   "frontend/macos/Flutter/GeneratedPluginRegistrant.swift": {
-    "mtime": 1784986718.1537752,
-    "ast_hash": "a4032ab2bf5113dc4c8fb54260fb7c7e",
+    "mtime": 1793875139.311667,
+    "ast_hash": "475a34246fb503f5a11e8eaf194b0338",
     "semantic_hash": ""
   },
   "frontend/macos/Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage/Package.swift": {
-    "mtime": 1786475353.402974,
-    "ast_hash": "61d013e6c93b3d917c4f6178b9f6c9cb",
+    "mtime": 1793811912.8213615,
+    "ast_hash": "59698291197c1b2276ef81ea1fa4a062",
     "semantic_hash": ""
   },
   "frontend/macos/Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage/Sources/FlutterGeneratedPluginSwiftPackage/FlutterGeneratedPluginSwiftPackage.swift": {
@@ -1685,7 +1530,7 @@
     "semantic_hash": ""
   },
   "frontend/macos/Flutter/ephemeral/flutter_export_environment.sh": {
-    "mtime": 1785781100.3883536,
+    "mtime": 1795093117.0196066,
     "ast_hash": "53bcc26003ef18e7e96ed2b4d5097dd1",
     "semantic_hash": ""
   },
@@ -1770,13 +1615,13 @@
     "semantic_hash": ""
   },
   "docs/history/dev_log.md": {
-    "mtime": 1786476051.757758,
-    "ast_hash": "a13362ef4e208f988f0479b348ad44ca",
+    "mtime": 1789374361.8178184,
+    "ast_hash": "f9dbacbffca08db6684e1df1a8f6b374",
     "semantic_hash": ""
   },
   "docs/history/git_entry.md": {
-    "mtime": 1786476055.815912,
-    "ast_hash": "92bd5d32f3568f121ef35c36efa72599",
+    "mtime": 1789374371.3102036,
+    "ast_hash": "0dc96e5b5d5d4e8f8e4f9e513227d821",
     "semantic_hash": ""
   },
   "docs/history/legacy_modules_guide.md": {
@@ -1840,8 +1685,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/shells/dy_shl_dash.dart": {
-    "mtime": 1785683383.575209,
-    "ast_hash": "6e7b88f4a2fd2891b0b6247876b49cec",
+    "mtime": 1793870795.9302151,
+    "ast_hash": "6ad262e1874cc44c38e3b7811d06286f",
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/shells/dy_shl_reports.dart": {
@@ -1850,8 +1695,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/shells/dy_shl_tasks.dart": {
-    "mtime": 1785683336.9948604,
-    "ast_hash": "72d547851b8101ca7d0f49733a2bc67a",
+    "mtime": 1794995474.6703482,
+    "ast_hash": "cf8cf97281ea9e9a3532a8a245e8ebe6",
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/micro/table/dy_table_subheader_row.dart": {
@@ -1875,13 +1720,13 @@
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/cutting/scr_cc_form.dart": {
-    "mtime": 1785935000.7786062,
-    "ast_hash": "41ddb5c904929cf1ceca63899cecff49",
+    "mtime": 1793812518.4609897,
+    "ast_hash": "da431b28d2ed01c65f524a9f87528be1",
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/micro/dab/dab_group_popover.dart": {
-    "mtime": 1785935000.7558184,
-    "ast_hash": "14ad8962f50508b2de0d119539ba003f",
+    "mtime": 1793812518.446614,
+    "ast_hash": "f9f98883e9f89b58afb7b65762457ea9",
     "semantic_hash": ""
   },
   "frontend/lib/dynamic_ai/micro/dab/dab_group_switcher.dart": {
@@ -1910,8 +1755,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/job_work/scr_jw_landing.dart": {
-    "mtime": 1785955989.3060906,
-    "ast_hash": "73029d9285c311135890d754d0c415ee",
+    "mtime": 1795007935.752539,
+    "ast_hash": "1e9724967aff204db2976e711f28eee1",
     "semantic_hash": ""
   },
   "frontend/lib/services/production/srv_jw.dart": {
@@ -1935,8 +1780,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/items/scr_itm_landing.dart": {
-    "mtime": 1785957507.1013844,
-    "ast_hash": "8fc0b5e412be59b7748dbb38bc3c58e3",
+    "mtime": 1794132332.3523972,
+    "ast_hash": "18305d75e9e81ae75e0e9c46eaaa7a28",
     "semantic_hash": ""
   },
   "frontend/lib/services/core/sq/sq_qual_service.dart": {
@@ -1960,8 +1805,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/screens/production/orgs/scr_org_landing.dart": {
-    "mtime": 1785958302.5348587,
-    "ast_hash": "e88e2e054ba12644d6ab47eed6d1743f",
+    "mtime": 1793812518.467748,
+    "ast_hash": "eb814b3e01accb5e77a44f508935bf94",
     "semantic_hash": ""
   },
   "frontend/lib/services/core/sq/sq_master_service.dart": {
@@ -2010,33 +1855,33 @@
     "semantic_hash": ""
   },
   "frontend/lib/models/production/mdl_design.dart": {
-    "mtime": 1786075140.3000264,
-    "ast_hash": "56d1f517b47e721284f0df414ac1c499",
+    "mtime": 1794834510.7175317,
+    "ast_hash": "c0b4c20fd0289f4a1a7da2f45d6b8bdd",
     "semantic_hash": ""
   },
   "frontend/lib/services/production/srv_design.dart": {
-    "mtime": 1786075146.4499831,
-    "ast_hash": "19b67cab5af38732ba1f92811d388d87",
+    "mtime": 1794834137.1719115,
+    "ast_hash": "1429109f9252c1a6684b9fe3314d96fb",
     "semantic_hash": ""
   },
   "frontend/lib/models/auth/mdl_auth.dart": {
-    "mtime": 1786475136.4845426,
-    "ast_hash": "a066ac310a00ec8ae785f6916eb827e7",
+    "mtime": 1794822583.1110585,
+    "ast_hash": "1bbb342794224ca2c7949b6ff7adcbd8",
     "semantic_hash": ""
   },
   "frontend/lib/screens/admin/auth/scr_admin_auth_login.dart": {
-    "mtime": 1786475241.373047,
-    "ast_hash": "9a2ef60024f20200e61383d19d833ffa",
+    "mtime": 1794824531.0979009,
+    "ast_hash": "c3e9f641c30efa64482c05d9e92455c3",
     "semantic_hash": ""
   },
   "frontend/lib/screens/admin/auth/scr_auth_gate.dart": {
-    "mtime": 1786475164.0494037,
-    "ast_hash": "5c3a36851bb2774c56bdf590d327eed9",
+    "mtime": 1794998679.5456991,
+    "ast_hash": "ab8f41822836915e8dc5073cdbb406f9",
     "semantic_hash": ""
   },
   "frontend/lib/services/auth/srv_auth.dart": {
-    "mtime": 1786475143.3048975,
-    "ast_hash": "d1247edab9bff6417bb0c8445a1ba3e3",
+    "mtime": 1794823762.649056,
+    "ast_hash": "281d3b5c11284b46e6d800fc84ea0df3",
     "semantic_hash": ""
   },
   "frontend/lib/services/auth/srv_inactivity_tracker.dart": {
@@ -2047,6 +1892,1231 @@
   "docs/architecture/universal_staging_extension_architecture.md": {
     "mtime": 1786473163.3972554,
     "ast_hash": "df40ac45e51c56831a86d011fb4b8a61",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/export_empire_sql.ps1": {
+    "mtime": 1793777057.3530262,
+    "ast_hash": "426452c952e761b46e2bb2694c3e9251",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/extract_93_tables_schema.sql": {
+    "mtime": 1793776963.7339466,
+    "ast_hash": "eefcf9d7488064ee8d0c66c7d208b961",
+    "semantic_hash": ""
+  },
+  "frontend/android/app/build.gradle.kts": {
+    "mtime": 1794999497.2083697,
+    "ast_hash": "a3c67c769462231926ca9376ce5e0862",
+    "semantic_hash": ""
+  },
+  "frontend/android/app/src/main/kotlin/com/example/textile_erp/MainActivity.kt": {
+    "mtime": 1794999497.2251098,
+    "ast_hash": "1113600b94020ac0fa73eaa2f9190f3b",
+    "semantic_hash": ""
+  },
+  "frontend/android/build.gradle.kts": {
+    "mtime": 1795003835.798586,
+    "ast_hash": "ea111533a9e79fcf90934a89a3c6f75a",
+    "semantic_hash": ""
+  },
+  "frontend/android/gradle9_compat.gradle": {
+    "mtime": 1795004289.6753533,
+    "ast_hash": "2536e40484e15e79c3549c9079363913",
+    "semantic_hash": ""
+  },
+  "frontend/android/settings.gradle.kts": {
+    "mtime": 1794999497.4380724,
+    "ast_hash": "a34513cd87cef855195771f6a457a218",
+    "semantic_hash": ""
+  },
+  "frontend/lib/dynamic_ai/micro/cards/dy_kpi_metric_card.dart": {
+    "mtime": 1794995448.944813,
+    "ast_hash": "0b418ab986eb60d099de9eed82762ff3",
+    "semantic_hash": ""
+  },
+  "frontend/lib/dynamic_ai/micro/charts/dy_donut_breakdown_card.dart": {
+    "mtime": 1794995461.6444936,
+    "ast_hash": "367909d81ed0b66578ebb242a59bced1",
+    "semantic_hash": ""
+  },
+  "frontend/lib/dynamic_ai/micro/charts/dy_horizontal_bar_card.dart": {
+    "mtime": 1794995463.817166,
+    "ast_hash": "9e8fc41c7a526d13cc8efa6505016ebd",
+    "semantic_hash": ""
+  },
+  "frontend/lib/dynamic_ai/micro/charts/dy_trend_area_chart.dart": {
+    "mtime": 1794995466.3607192,
+    "ast_hash": "91288232c17c34880a9dff0cb6217c53",
+    "semantic_hash": ""
+  },
+  "frontend/lib/dynamic_ai/root/sidebar_nav_flyout.dart": {
+    "mtime": 1795004822.7614605,
+    "ast_hash": "946f1484fb47a9cce1f727c2ff9e8ad6",
+    "semantic_hash": ""
+  },
+  "frontend/lib/dynamic_ai/shells/dy_linear_landing_canvas.dart": {
+    "mtime": 1795118534.6969461,
+    "ast_hash": "1ee53ad93811f712f5c219b168261ba3",
+    "semantic_hash": ""
+  },
+  "frontend/lib/models/production/items/mdl_sb_item.dart": {
+    "mtime": 1794132530.628682,
+    "ast_hash": "169f92afebe894918260bdf7616569c4",
+    "semantic_hash": ""
+  },
+  "frontend/lib/models/sales/mdl_sales.dart": {
+    "mtime": 1793874061.7227778,
+    "ast_hash": "8a26cbc26ee818a1409b1494651a6695",
+    "semantic_hash": ""
+  },
+  "frontend/lib/models/sales/mdl_sales_dash.dart": {
+    "mtime": 1793869170.2644064,
+    "ast_hash": "ded18fd138eef86f40275e1f0cdda857",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/admin/auth/widgets/dia_admin_approvals.dart": {
+    "mtime": 1794823094.9613085,
+    "ast_hash": "8c18736545f3a03eabd5ddda97b2e3b4",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/admin/auth/widgets/textile_weave_background.dart": {
+    "mtime": 1794823779.6142483,
+    "ast_hash": "cd13f8cf0c7c034c8ba385960fc66a93",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/admin/item_config/scr_admin_item_config.dart": {
+    "mtime": 1794132602.9762418,
+    "ast_hash": "6faf4a34e5ab7bd4c1de741f1e1ff452",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/home_navigation_config.dart": {
+    "mtime": 1794992502.8727877,
+    "ast_hash": "44faff546a97461d3b3b15cbd051c09c",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/home_popovers.dart": {
+    "mtime": 1795001382.693564,
+    "ast_hash": "c8dafd573feb50728434748397298ef2",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/mobile/scr_mobile_floor_prototype.dart": {
+    "mtime": 1794822835.9783487,
+    "ast_hash": "154619fd8003117a237572525fb96ff9",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/production/designs/dia_dsn_add_edit.dart": {
+    "mtime": 1794834193.1340642,
+    "ast_hash": "cf92912cf415e84b8089c82f631c72c4",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/production/designs/scr_dsn_landing.dart": {
+    "mtime": 1794834245.242406,
+    "ast_hash": "e4f645663faec2fc4e4aa8b8a4fbce84",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/production/items/dia_itm_add_edit.dart": {
+    "mtime": 1794132810.1383812,
+    "ast_hash": "c06c58bf750495d00f76e2cb73dd90ab",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/production/items/widgets/itm_completion_meter.dart": {
+    "mtime": 1794132426.6576364,
+    "ast_hash": "5609298aca8818cc0fc5ac1f86a913a0",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/production/items/widgets/itm_variations_audit_section.dart": {
+    "mtime": 1794132885.7151525,
+    "ast_hash": "7872f25d87a167d8e7825ddcf76752ed",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/production/job_work/scr_jw_add_challan.dart": {
+    "mtime": 1795007932.9388156,
+    "ast_hash": "8c2e1a68ca8541bc877ef6858e6e4837",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/production/job_work/scr_jw_analytics.dart": {
+    "mtime": 1795007930.8960934,
+    "ast_hash": "73e802bd428322d650a2dc324a6c1ab0",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/production/job_work/scr_jw_bento_cards.dart": {
+    "mtime": 1795007974.7475164,
+    "ast_hash": "1d4ddb9597cbb379194dd966fe6c818f",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/sales/dialogs/dia_sales_invoice_print.dart": {
+    "mtime": 1793876198.3454897,
+    "ast_hash": "2f3d4dcb83708ac5ff36d18f55f66e78",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/sales/scr_sales_dash_pane.dart": {
+    "mtime": 1793870798.4991243,
+    "ast_hash": "f3b159d6b19d7781cb0d360cb57b3bb8",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/sales/scr_sales_details_pane.dart": {
+    "mtime": 1794995476.3529527,
+    "ast_hash": "7ad4fca6c3fb53c1aa58202d5b9ec487",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/sales/scr_sales_landing.dart": {
+    "mtime": 1793875543.430012,
+    "ast_hash": "1f16554559e5648ed54f1ce9fd122667",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/sales/scr_sales_report_pane.dart": {
+    "mtime": 1793813691.9387097,
+    "ast_hash": "7e295b6eefdafbe992caa427e91b09d0",
+    "semantic_hash": ""
+  },
+  "frontend/lib/services/production/items/srv_sb_item.dart": {
+    "mtime": 1794132426.8248668,
+    "ast_hash": "05bcc9e98ff9bb62cfd3d985aa175ab1",
+    "semantic_hash": ""
+  },
+  "frontend/lib/services/sales/srv_sales.dart": {
+    "mtime": 1793868939.754944,
+    "ast_hash": "fec36199909bf6c3b7b017500f457e0e",
+    "semantic_hash": ""
+  },
+  "frontend/lib/services/sales/srv_sales_pdf_builder.dart": {
+    "mtime": 1793875321.586355,
+    "ast_hash": "11260e4c7d973defb39209fa0366606e",
+    "semantic_hash": ""
+  },
+  "frontend/lib/services/sales/srv_sales_print.dart": {
+    "mtime": 1793875414.731161,
+    "ast_hash": "a271c37a70e7acc2e007a19663fd6b59",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/EMPIRE_ARCHITECTURE_AND_UX_ENCYCLOPEDIA.md": {
+    "mtime": 1793795050.210943,
+    "ast_hash": "3b3c60c1dd89416ef6c9f5c1b5a43e04",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/README.md": {
+    "mtime": 1793551466.730395,
+    "ast_hash": "9f4e02cf7a1e643484349ec9718dc106",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/all_93_tables_catalog.md": {
+    "mtime": 1793777057.3015425,
+    "ast_hash": "77435f7e30772e0219521b4f94d13ba5",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/empire_master_system_blueprint.md": {
+    "mtime": 1793780696.3595867,
+    "ast_hash": "9c285e9eea0a518f2b7a5ea559b8c43e",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/empire_module_ux_brief_template.md": {
+    "mtime": 1793551467.4512577,
+    "ast_hash": "983bd12f9cc0d545c867330154cf4f05",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/offline_vault/empire_launcher_decoded.txt": {
+    "mtime": 1793780385.2068508,
+    "ast_hash": "43c101b7685199dbd92e3e4230c45478",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/offline_vault/mde_extracted_sql.txt": {
+    "mtime": 1793780384.3467758,
+    "ast_hash": "e675aae223cb8ed41c03ad697d3c434d",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/INDEX.md": {
+    "mtime": 1793795047.232827,
+    "ast_hash": "688cc6ad61e687b838542f76677eed11",
+    "semantic_hash": ""
+  },
+  "docs/history/work_gap_summary_august_26.md": {
+    "mtime": 1789374346.656792,
+    "ast_hash": "550b017a0604b749b1a44a07a1eb0b1f",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/00_menu_01_inventory_main.png": {
+    "mtime": 1793783889.3844223,
+    "ast_hash": "5cd708e60209a1f41b596f36b8ae47f3",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/00_menu_02_inventory_design_wise_stocks.png": {
+    "mtime": 1793783889.387115,
+    "ast_hash": "ede72449c4a5f2159fc8aec7f9b74c20",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/00_menu_03_inventory_stock_transfer.png": {
+    "mtime": 1793783889.3911824,
+    "ast_hash": "c7147e258d89181615c81a9342e896b6",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/00_menu_04_inventory_box_section.png": {
+    "mtime": 1793783889.3926134,
+    "ast_hash": "590ed06c14c4c52221af563ee645dae1",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/00_menu_05_billing_sys_main.png": {
+    "mtime": 1793783889.3976004,
+    "ast_hash": "72e2d50e9c3efb40d5aa5016d09891c1",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/00_menu_06_billing_sys_jobwork_value_additions.png": {
+    "mtime": 1793784281.248415,
+    "ast_hash": "63022b2339b84986bbcad2b6aa8052df",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/00_menu_07_gen_entries_main.png": {
+    "mtime": 1793784281.2516456,
+    "ast_hash": "f668b8c7186ea7288812c32d7604be0b",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/00_menu_08_gen_entries_expenses.png": {
+    "mtime": 1793784281.2559848,
+    "ast_hash": "4662da1de3b19fccb1465e3b3407f93e",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/00_menu_09_gen_entries_journal.png": {
+    "mtime": 1793784281.2690325,
+    "ast_hash": "a273daaba882f69b96bb15061e157dc2",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/00_menu_10_masters_main.png": {
+    "mtime": 1793784281.272078,
+    "ast_hash": "d94bf0fd9597615aa3f723e9d70b6ac5",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/00_menu_11_reports_main.png": {
+    "mtime": 1793784521.3151846,
+    "ast_hash": "88abc54843560aecfa25eb331413cffb",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/00_menu_12_utilities_main.png": {
+    "mtime": 1793784521.318731,
+    "ast_hash": "16f2d9764d641ab47502dadd3af44143",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/00_menu_13_customise_main.png": {
+    "mtime": 1793784521.3218875,
+    "ast_hash": "5819d461e9e7382a0cecd666b80627cc",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/00_menu_14_customise_maintenance.png": {
+    "mtime": 1793784521.3250341,
+    "ast_hash": "323ef8740d145d3b7e00b843c18fd98d",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/00_shell_01_login_dialog.png": {
+    "mtime": 1793780979.7872746,
+    "ast_hash": "bf69ed7bd80aa591cd3d56c24a7161c9",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/00_shell_02_home_switchboard.png": {
+    "mtime": 1793781033.3384435,
+    "ast_hash": "d6e06cd631c3fd2d7acd0369aa1f5e49",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_bill_01_P3_sales_goods_return_view.png": {
+    "mtime": 1793788110.9803796,
+    "ast_hash": "5442bdc5b3c59dc6f51fb522e260ac56",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_bill_07_work_rec_bill_payment_det_sweets_tab.png": {
+    "mtime": 1793788365.8440917,
+    "ast_hash": "0fbb49438768f79fd48d1f058a09ce0f",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_bill_08_rcm_self_invoice_accounting_popup.png": {
+    "mtime": 1793788395.6356273,
+    "ast_hash": "80ad54776e878d12da316d1ecc62cce5",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_bill_10_rcm_self_invoice_freight_gta_view.png": {
+    "mtime": 1793788439.6800225,
+    "ast_hash": "c76b8a610189b1c67f4504a20f3aad64",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_bill_13_bills_signed_copy_ack_entry.png": {
+    "mtime": 1793788600.448676,
+    "ast_hash": "de2537b5835446a0898034c3551f641b",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_bill_14_parcel_gatepass_entry_mukadam.png": {
+    "mtime": 1793788625.7126024,
+    "ast_hash": "705eb56e8ca3f0228cdff1b70e5b880d",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_bill_15_lr_no_covering_letter_table_311_parcels.png": {
+    "mtime": 1793788644.0743933,
+    "ast_hash": "2773629b0ab57efe49179dcf1ff8b56f",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_bill_16_eway_bill_bulk_gen_S1_sales_19_rows.png": {
+    "mtime": 1793788663.8538513,
+    "ast_hash": "b514ff5480912952b0af13270b74c17d",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_bill_17_einvoice_bulk_gen_S1_sales_20_rows.png": {
+    "mtime": 1793788685.9748862,
+    "ast_hash": "9803c9d7a64a34d1734ce3cab1a2e78b",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_bill_18_S1_sales_order_linked_paid_view.png": {
+    "mtime": 1793788705.6333268,
+    "ast_hash": "fc2e315a7b20c14f10bea6084fc10e3d",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_bill_19_O45_ready_product_schiffly_add.png": {
+    "mtime": 1793788759.8967533,
+    "ast_hash": "1ee9363a5ecc5c47ecec626ccfa97bd2",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_challan_O14_lace_po_view_cgst_tab.png": {
+    "mtime": 1793781159.7602007,
+    "ast_hash": "7b77610c41d456bba614267812f45db6",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_challan_O4_work_in_house_card_348_view.png": {
+    "mtime": 1793782187.4405124,
+    "ast_hash": "4bef1e2a89b22890826b5c80d7f4934e",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_challan_O5_work_desp_stitching_763_view.png": {
+    "mtime": 1793782210.7939932,
+    "ast_hash": "6cdac02ef3200798602a11bf38c6e15b",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_challan_O6_work_rec_stitching_972_view.png": {
+    "mtime": 1793782241.160045,
+    "ast_hash": "cda9427a7db0e9a464fcb505561cbfc7",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_challan_S1_finish_sales_add_misc_tab.png": {
+    "mtime": 1793781097.338348,
+    "ast_hash": "0f7c2135381ac3cb6ab0b1b742058600",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_challan_S1_finish_sales_view_igst_tab.png": {
+    "mtime": 1793781132.7190125,
+    "ast_hash": "b3e54711c2f69d6969c26d0653b2ec7f",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/01_inv_11_sales_order_photo_view_O1.png": {
+    "mtime": 1793785798.157048,
+    "ast_hash": "6c4a0905c2f873814a38e596a56f2f39",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/02_bill_02_S2_grey_purchase_return_view.png": {
+    "mtime": 1793788140.0039036,
+    "ast_hash": "2aeb3f0e5536c6e563d2a420dd895f16",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/02_bill_03_grey_sales_add.png": {
+    "mtime": 1793788153.5224082,
+    "ast_hash": "514ccc6ee2c1281fe0f72179298cf63d",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/02_inv_01_grey_purchase_orders_purord_add.png": {
+    "mtime": 1793785374.9797707,
+    "ast_hash": "54283e6964ddf759d0ba749cd8e80150",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/02_inv_09_design_wise_opening_stock_empty.png": {
+    "mtime": 1793785737.7762256,
+    "ast_hash": "ec5917cf1aa1ef4ec2303b4317ec4f12",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/02_inv_10_design_wise_with_photos_tagger_unused.png": {
+    "mtime": 1793785774.7173038,
+    "ast_hash": "165866b457934712eabd94e248cf7cec",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/02_inv_12_qual_wise_opening_stock_qopstock.png": {
+    "mtime": 1793785822.487369,
+    "ast_hash": "6fbd622af72bf9275f6ef7a8fb35af74",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/02_inv_13_stock_transfer_finish_prod_cons.png": {
+    "mtime": 1793785839.022516,
+    "ast_hash": "b63d2a79f65f109352b7f5c24ac8d452",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/02_inv_14_godown_transfer_unused.png": {
+    "mtime": 1793785852.9088542,
+    "ast_hash": "f11e5e9edb28ee431c61df02581b2fc7",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/02_inv_15_godown_inward_unused.png": {
+    "mtime": 1793785870.5443835,
+    "ast_hash": "bc022c2aa72b50b4ab92b27e1d5ed5d8",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/02_inv_16_carton_pack_mat_cons_broken_name_err.png": {
+    "mtime": 1793785892.9570518,
+    "ast_hash": "92e91f7bd5b571290e7d9b1665e286d8",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/02_inv_17_box_opening_stock_empty.png": {
+    "mtime": 1793785908.3339953,
+    "ast_hash": "e8f3d31969fb0a9df600a7f1eee57ffa",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/02_purbill_P1_f4_open_taka_details_prompt.png": {
+    "mtime": 1793781793.7039182,
+    "ast_hash": "f7cd17780c32117122b657cedf36cd00",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/02_purbill_P1_grey_purchase_and_mill_desp_view.png": {
+    "mtime": 1793781752.671269,
+    "ast_hash": "b54fed24dde62b7b8c4192c000c0ce50",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/02_purbill_P1_taka_details_checking_popup.png": {
+    "mtime": 1793781773.8834975,
+    "ast_hash": "09ce532cef10757b28a9d45f60164b2a",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/03_inv_02_lot_no_entry_table_grid_375_rows.png": {
+    "mtime": 1793785480.2670715,
+    "ast_hash": "f8b918da28c35c4b747ef7692caee198",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/03_inv_03_lot_no_entry_table_filter_dialog.png": {
+    "mtime": 1793785494.5359135,
+    "ast_hash": "bc9691ccb85a57b8c2b79919d7eeb771",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/03_inv_05_multi_mill_desp_equal_mts_unused.png": {
+    "mtime": 1793785571.9286404,
+    "ast_hash": "741a1e41bf483f1a283f6fdacfe93cbb",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/03_inv_06_eway_bill_bulk_gen_mill_challan_37_rows.png": {
+    "mtime": 1793785633.031214,
+    "ast_hash": "f4913450225720484931c6676f100b6a",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/03_pinvtrn_mill_despatch_entry_view.png": {
+    "mtime": 1793782025.7840233,
+    "ast_hash": "c92d2393adc5868f8f1a3a0ef04361b1",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/04_inv_07_card_design_costing_lifecycle_xray.png": {
+    "mtime": 1793785689.3430848,
+    "ast_hash": "bd0ec716a343f39a9ae42a7243a3765b",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/04_inv_08_mill_wise_pricelist_tp_empty.png": {
+    "mtime": 1793785715.4987836,
+    "ast_hash": "ace3ed584ff5b96a3bd8bc43eea3adbc",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/04_jobbill_J1_mill_receipt_entry_view.png": {
+    "mtime": 1793782047.2015913,
+    "ast_hash": "8327b56ce4fa5068d0f2f2dbf9289624",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/04_jobbill_J1_taka_shrinkage_short_pct_popup.png": {
+    "mtime": 1793782082.2608628,
+    "ast_hash": "74ecf93b6ac2828e54479a28f580db98",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_bill_11_bills_discount_entry_party_dropdown.png": {
+    "mtime": 1793788537.2019644,
+    "ast_hash": "5836173731016b88e119f064271cda3c",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_bill_12_payment_tally_module_purtally.png": {
+    "mtime": 1793788585.7105649,
+    "ast_hash": "27ea7adaa48504a5223b22f8d87e29bd",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_gen_01_expenses_single_entry_add.png": {
+    "mtime": 1793788913.8830073,
+    "ast_hash": "1f337d68d2bbb647093756da9b8e6cf0",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_gen_02_expenses_direct_auto_spreader.png": {
+    "mtime": 1793788939.476789,
+    "ast_hash": "5907086d93c50dd7c1d4ca0256d8bd2c",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_gen_03_journal_entry_J2_company_list_view.png": {
+    "mtime": 1793788959.3253777,
+    "ast_hash": "cb2429732fc327daafdec761d9f3878f",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_gen_04_journal_with_tds_T1_generator.png": {
+    "mtime": 1793788973.0867882,
+    "ast_hash": "1dc28180074186eaece62f8ff266153d",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_gen_05_multi_journal_multiple_entries_add.png": {
+    "mtime": 1793788987.6915414,
+    "ast_hash": "e12b90d2a903835f2391ba87bb447fa5",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_gen_06_general_rec_pay_on_account_view.png": {
+    "mtime": 1793789006.4778244,
+    "ast_hash": "583cb76867466c27a2d4040be0fb27db",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_gen_07_billwise_rec_pay_multi_bill_B1_view.png": {
+    "mtime": 1793789067.410271,
+    "ast_hash": "442b2ecdb9d6cb884216ed471b5d33ab",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_gen_08_opening_balances_ledger_add.png": {
+    "mtime": 1793789118.4824786,
+    "ast_hash": "c90d175e2112f76dbf095a60c4d3bb8a",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_gen_09_banks_setup_information_grid.png": {
+    "mtime": 1793789139.4533422,
+    "ast_hash": "72ff95f35cc9998d8ac50305e93850d9",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_gen_10_tds_form_16a_entry_empty.png": {
+    "mtime": 1793789167.214115,
+    "ast_hash": "9cbe99ffd46651613f0df93ac5317029",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_gen_11_tds_form_16a_nature_dropdown.png": {
+    "mtime": 1793789174.680165,
+    "ast_hash": "20a276b1ca812ec174755db4a6d7d7ee",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_gen_12_tds_adjustment_against_challan_broken_name_err.png": {
+    "mtime": 1793789204.4994144,
+    "ast_hash": "80c31f048e868c65479193eaafb51bb8",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_gen_13_opening_stock_item_dropdown.png": {
+    "mtime": 1793789215.0400827,
+    "ast_hash": "ab387655a9ed311456ff2f720a48020e",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_gen_14_closing_stock_manual_valuation_grid.png": {
+    "mtime": 1793789227.0650842,
+    "ast_hash": "85122dffc9cc748dec409b613eba2782",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_gen_15_capital_ac_profit_share_partnership_grid.png": {
+    "mtime": 1793789239.901739,
+    "ast_hash": "593340427029106e4a0e6d1ec421ba80",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_salerec_B1_bank_receipt_billwise_view.png": {
+    "mtime": 1793781974.8908267,
+    "ast_hash": "ca91e66fb5b856f52cd9b8ca24fb5cb6",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/05_salerec_B2_bank_payment_unadj_xx_view.png": {
+    "mtime": 1793782002.5701041,
+    "ast_hash": "d7a4f9ac924415d512e1d6fd4476b948",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/06_bill_04_auto_194q_tds_tcs_rcm_gen.png": {
+    "mtime": 1793788275.5147295,
+    "ast_hash": "931550c5e23c5528b922f83e86d0c92d",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/06_bill_05_auto_purchase_commission_P76_gen.png": {
+    "mtime": 1793788292.8865113,
+    "ast_hash": "3e8ace96570c72791ceefa91d810ac37",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/06_bill_06_billsdir_direct_bills_entry_add.png": {
+    "mtime": 1793788313.3010528,
+    "ast_hash": "d4f096408f0eb479b7e8bbd15b41c195",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/06_bill_09_gstr_2a_2b_reconciliation_broken_name_err.png": {
+    "mtime": 1793788415.0914178,
+    "ast_hash": "4ceb75247a90a6480d11dcc3d1aca7d5",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/06_cutdet3_O3_multi_cutting_card_costing_view.png": {
+    "mtime": 1793782132.4063275,
+    "ast_hash": "a681c9a2aff95eb7cc6e99d5f201f54f",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/06_inv_04_single_cutting_card_entry_costing_view.png": {
+    "mtime": 1793785536.8627162,
+    "ast_hash": "2b551c46342c44d3c1dc92d9fff63ba2",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/07_mst_01_accounts_information_manager_party_form.png": {
+    "mtime": 1793789442.6118684,
+    "ast_hash": "e013f2541aade7e0c0629521e9ebc110",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/07_mst_02_account_groups_manager_broker_group_form.png": {
+    "mtime": 1793789455.0695436,
+    "ast_hash": "06787d900c59dd24eb2ced7d7f8b5bcb",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/07_mst_03_account_types_manager_chart_of_accounts_grid.png": {
+    "mtime": 1793789463.2523348,
+    "ast_hash": "d52da1110df5a166c3903dfdd2cd2d2b",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/07_mst_04_transaction_types_series_engine_grid.png": {
+    "mtime": 1793789653.36125,
+    "ast_hash": "4c46d7ee1c083960b390a83400a705d3",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/07_mst_05_company_information_manager_form.png": {
+    "mtime": 1793789664.6399138,
+    "ast_hash": "e0f1e42f98b56c57b76dc3e161553bca",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/07_mst_06_quality_information_manager_item_master_form.png": {
+    "mtime": 1793789676.5441465,
+    "ast_hash": "65fc82d8011109c232f772b3ff8f049e",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/07_mst_07_screen_series_brand_list_grid.png": {
+    "mtime": 1793789692.6332028,
+    "ast_hash": "12f7ad11c33b1094fa0d0f11d030289a",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/07_mst_08_category_master_grid.png": {
+    "mtime": 1793789702.7231474,
+    "ast_hash": "716431667c6803d81536b5219fd4181f",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/07_mst_09_clothtype_base_fabric_grid.png": {
+    "mtime": 1793789712.2569392,
+    "ast_hash": "e9ae0f5c150e5179e175973969e9be96",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/07_mst_10_packing_type_rate_delta_grid.png": {
+    "mtime": 1793789722.6843824,
+    "ast_hash": "c0dc3cd7be8d56451fb1d4cafbf400c0",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/07_mst_11_haste_adatiya_agent_subparty_form.png": {
+    "mtime": 1793789797.9726574,
+    "ast_hash": "88178a49f90f7879e9ec2eb4e227400a",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/07_mst_12_market_building_list_grid.png": {
+    "mtime": 1793789808.9430869,
+    "ast_hash": "126c84b147045d12575260cfb4753866",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/07_mst_13_cities_master_std_code_broken_name_err.png": {
+    "mtime": 1793789816.048233,
+    "ast_hash": "6952b79f83e36768ee614d09b727e5ba",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/07_mst_14_transports_master_eway_gstin_grid.png": {
+    "mtime": 1793789846.0321043,
+    "ast_hash": "e0ef3f032a36d2d327c78cde0d4a21ab",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/07_mst_15_holiday_master_grid.png": {
+    "mtime": 1793789857.9184291,
+    "ast_hash": "c16f21da66c52d4eafcf0443583311db",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/07_mst_16_rmklist_staff_masters_and_design_remarks_grid.png": {
+    "mtime": 1793789877.7756743,
+    "ast_hash": "4b319d1a5bb9bdc6ca9246b108eb0ff5",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/07_mst_17_gst_statecodes_master_grid.png": {
+    "mtime": 1793789889.2573442,
+    "ast_hash": "35ed91a8e1c8b5332d3aa7e6da3bf0b4",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_01_po_reports_menu_list.png": {
+    "mtime": 1793790561.4227066,
+    "ast_hash": "b1a5dcca773af025cdcfc83fefcccfe4",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_02_po_reports_filter_form.png": {
+    "mtime": 1793790572.926893,
+    "ast_hash": "806cf6bb20d017f3e1a16efe73ba28ad",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_03_grey_godown_reports_menu_list.png": {
+    "mtime": 1793790592.8738444,
+    "ast_hash": "5294a1cfb021b3f8ec41cecaa2958f94",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_04_grey_godown_reports_filter_form.png": {
+    "mtime": 1793790634.2033398,
+    "ast_hash": "21c490f05ba464eb72170cf3e4c729f8",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_05_grey_stock_in_godown_grid_all.png": {
+    "mtime": 1793790656.9590824,
+    "ast_hash": "f9f69daed104c0ba94aa45a72f78e7a3",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_06_grey_stock_in_godown_grid_aaiswarya.png": {
+    "mtime": 1793790680.676025,
+    "ast_hash": "11300dc96a3971d496acc59ce4066d9a",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_07_mill_despatch_pending_menu_list.png": {
+    "mtime": 1793790688.331908,
+    "ast_hash": "2a9bc12b6ef4b2a0cc5e67d72097a72d",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_08_mill_despatch_pending_subtotals_form.png": {
+    "mtime": 1793790700.0525825,
+    "ast_hash": "f4931e90f6ef9ed44db48cf0d6fe8151",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_09_mill_pending_report_detail_grid.png": {
+    "mtime": 1793790711.076136,
+    "ast_hash": "944829e45f15a62c7c19d889189c16dd",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_10_mill_pending_report_summary_by_mill_grid.png": {
+    "mtime": 1793790716.3017576,
+    "ast_hash": "31dc3ab705bff7c66ad9c06678006157",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_11_mill_receipt_cutting_costing_menu_list.png": {
+    "mtime": 1793790727.0699897,
+    "ast_hash": "3c8c599dc92556f63177e007d1451d35",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_12_mill_receipt_cutting_filter_form.png": {
+    "mtime": 1793790734.434116,
+    "ast_hash": "4ce072c1cb5d039baebe4bb251424860",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_13_mill_receipt_details_shrinkage_grid.png": {
+    "mtime": 1793790745.107129,
+    "ast_hash": "0671f7c16b1474723d767203b6520dc5",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_14_finish_stock_reports_filter_form.png": {
+    "mtime": 1793790789.911733,
+    "ast_hash": "2a0d7e3663a1f50c6a5ebbc1ca114b42",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_15_finish_stock_reports_menu_list.png": {
+    "mtime": 1793790841.6406324,
+    "ast_hash": "49f17321c284422d1daa981e6383f1df",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_16_bills_slips_documents_printing_setup.png": {
+    "mtime": 1793790867.1519394,
+    "ast_hash": "05ab1f6eac6973ff73f281ded1b71c17",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_17_items_sales_purchase_menu_list.png": {
+    "mtime": 1793790967.9132578,
+    "ast_hash": "5dd927ab736e4ba278f4b9f073dfa412",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_18_finish_sales_detailed_report_742p_grid.png": {
+    "mtime": 1793790982.2433023,
+    "ast_hash": "431c69eb3344b5aaaa76d2a5bfec0b23",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_19_outstanding_payment_msme_menu_list.png": {
+    "mtime": 1793791059.8369973,
+    "ast_hash": "48bc7b066b9f142df7422890384fa47c",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_20_sales_outstanding_bills_multiyear_grid.png": {
+    "mtime": 1793791073.02372,
+    "ast_hash": "5aeab29e104726ef848c6401f0041da2",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_21_sales_purchases_job_registers_menu_list.png": {
+    "mtime": 1793791087.8154325,
+    "ast_hash": "b2e15132bf037f2fd10fc81b6bd8a5a6",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_22_sales_register_filter_form.png": {
+    "mtime": 1793791096.5711567,
+    "ast_hash": "e31cdabd68edf8cd64b55891aff1296e",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_23_sales_register_partywise_daily_grid.png": {
+    "mtime": 1793791106.738342,
+    "ast_hash": "1ef0b17a512a8a7ae5744826cae2c923",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_24_sales_register_company_dropdown.png": {
+    "mtime": 1793791112.5739021,
+    "ast_hash": "dece2b5c1b8ae49191e92b81a9e02c1d",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_25_job_inventory_sale_orders_menu_list.png": {
+    "mtime": 1793791252.4664788,
+    "ast_hash": "4c05df297cab40f8e378fe7376ad4af3",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_26_job_inventory_sale_orders_filter_form.png": {
+    "mtime": 1793791274.3526874,
+    "ast_hash": "af843b763b6e4153d2b7b05d52cdd461",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_27_job_status_report_all_challans_grid.png": {
+    "mtime": 1793791290.9544623,
+    "ast_hash": "51cf01bf28edbfecdc3da8b22b814c81",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_28_work_desp_stitching_detailed_status_grid.png": {
+    "mtime": 1793791331.187881,
+    "ast_hash": "14177821d7bd9f477fb24878e1491c63",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_29_work_jobcard_reports_menu_list.png": {
+    "mtime": 1793791339.7190435,
+    "ast_hash": "2705bf1a94d99faf07385a977343ef2a",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_30_work_jobcard_reports_type_dropdown.png": {
+    "mtime": 1793791344.5948348,
+    "ast_hash": "c54b2acf009a31aa34c76906998a3ae3",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_31_work_desp_stitching_pending_partywise_grid.png": {
+    "mtime": 1793791354.766818,
+    "ast_hash": "210ca88909fd393b9369e8a25e1f1a05",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_32_multiple_ledgers_interest_msme_menu_list.png": {
+    "mtime": 1793791362.7047224,
+    "ast_hash": "fc24aa86a8a1fe7a4ea4358d267664a5",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_33_multiple_ledgers_zero_bal_popup.png": {
+    "mtime": 1793791373.313258,
+    "ast_hash": "3d6681d2269ce8df4099d4a094f6c729",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_34_ledger_summary_ungrouped_raw_grid.png": {
+    "mtime": 1793791388.9158807,
+    "ast_hash": "56539d8e00073d0db6560c2f1e2a29e7",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_35_trial_balance_latest_popup.png": {
+    "mtime": 1793791398.6477878,
+    "ast_hash": "122c92377a63edcc31a775e33f3c7c2c",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_36_trial_balance_zero_bal_popup.png": {
+    "mtime": 1793791406.3513622,
+    "ast_hash": "401dc102b3eb2cd0557e9c88f236d435",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_37_trial_balance_grouped_by_actype_grid.png": {
+    "mtime": 1793791420.9984124,
+    "ast_hash": "b90a575f625ac000d024aa2a8ea556d9",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_38_telephone_diary_masters_filter_form.png": {
+    "mtime": 1793791438.204694,
+    "ast_hash": "d8ea38a0603716914615841b87a6fb2d",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_39_telephone_diary_masters_menu_list.png": {
+    "mtime": 1793791443.2483675,
+    "ast_hash": "2361783bc37eb0f0091a149fff703db1",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_40_user_work_lists_audit_menu_list.png": {
+    "mtime": 1793791479.3826752,
+    "ast_hash": "a363e567a06ba182da3cef1f31588e59",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_41_user_work_lists_permissions_filter_form.png": {
+    "mtime": 1793791517.2167277,
+    "ast_hash": "fcdecd583dca2d3cb629192b53e9790b",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_42_printed_sale_bill_S1_tax_invoice_preview.png": {
+    "mtime": 1793792188.3411448,
+    "ast_hash": "4b3a51added94e73cfe16e853540c8cc",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_43_printed_sale_bill_S1_tax_invoice_dup.png": {
+    "mtime": 1793792192.5501168,
+    "ast_hash": "4b3a51added94e73cfe16e853540c8cc",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_44_finish_stock_main_screen_negative_qty_grid.png": {
+    "mtime": 1793792227.570641,
+    "ast_hash": "ed72d357a2ebe3c42e1993de6cbe531f",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_45_single_account_ledger_company_dropdown.png": {
+    "mtime": 1793792376.104529,
+    "ast_hash": "af9c6156fc3bf8e01461112363c3f7cb",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_46_single_account_ledger_options_form.png": {
+    "mtime": 1793792394.3572924,
+    "ast_hash": "d501e8d3a5bf9136ab0aff8806d25c46",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_47_single_account_ledger_options_dup.png": {
+    "mtime": 1793792461.536789,
+    "ast_hash": "11a0f357b9e2281a723e15920318352d",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_48_single_account_dynamic_ledger_meera_grid.png": {
+    "mtime": 1793792474.0255563,
+    "ast_hash": "74fd045626cae800f8e9fbb0a754695c",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_49_gst_return_reports_gstr1_3b_itc04_menu.png": {
+    "mtime": 1793792495.7616715,
+    "ast_hash": "315f1517808ebe8885910896b4c857ec",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_50_final_accounts_trial_balance_full_width.png": {
+    "mtime": 1793794494.330686,
+    "ast_hash": "baf9271457078c931d1bc9293c4e9d73",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_51_final_accounts_profit_and_loss_with_pct_sale.png": {
+    "mtime": 1793794553.8554864,
+    "ast_hash": "37ef6843d5adf8237e4a149ffb6ef1a4",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_52_final_accounts_trading_with_pnl_page1_stocks.png": {
+    "mtime": 1793794597.2847235,
+    "ast_hash": "8649cd52ea8522e20cc1944ffa6b025f",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/08_rep_53_final_accounts_trading_with_pnl_page2_totals.png": {
+    "mtime": 1793794616.4875543,
+    "ast_hash": "fc33f859a6d2b18ca3622027746a622c",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/09_util_01_error_detection_and_correction_hub.png": {
+    "mtime": 1793792507.362103,
+    "ast_hash": "d55964dfb8be6b82c75f813f9aa9f630",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/09_util_02_gst_activation_and_setup_tab1.png": {
+    "mtime": 1793792540.205971,
+    "ast_hash": "ba4fdf99f70f052efe5489f4c89e9af4",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/09_util_03_setup_hsn_gst_rates_in_items_finish.png": {
+    "mtime": 1793792543.3002076,
+    "ast_hash": "d397f096772d67be13e96020e0fe4408",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/09_util_04_tcs_setup_wizard_tab3.png": {
+    "mtime": 1793792546.2954254,
+    "ast_hash": "e330035721a74a7e0d8dea457d10f80a",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/09_util_05_tds_194q_setup_wizard_tab4.png": {
+    "mtime": 1793792549.0820944,
+    "ast_hash": "6eabc04f2c120fbf90266cff069dc1fe",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/09_util_06_setup_hsn_gst_rates_in_items_blank.png": {
+    "mtime": 1793792559.087852,
+    "ast_hash": "606351f6645769dfa64e53caa81b5331",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/09_util_07_masters_merging_deduplication_hub.png": {
+    "mtime": 1793792571.3767097,
+    "ast_hash": "40e4d338bb48d0a8cace9860f22b0d95",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/09_util_08_transfer_balances_year_end_tab1.png": {
+    "mtime": 1793792625.2923365,
+    "ast_hash": "d193fcbc1a4056ddf5a062beccfdde45",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/09_util_09_transfer_balances_year_end_tab1_dup.png": {
+    "mtime": 1793792632.7150636,
+    "ast_hash": "1188c62efb674ac827f4e184783f46c2",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/09_util_10_create_new_year_directory_tab2.png": {
+    "mtime": 1793792644.6966808,
+    "ast_hash": "45aaa944b06cc3f1a2a6bc748c3eaccb",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/09_util_11_transfer_in_current_year_tab3.png": {
+    "mtime": 1793792649.6224554,
+    "ast_hash": "7a5735b3a26f8432d3f6d2adeaddc647",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/09_util_12_closing_entries_and_lock_editing_tab4.png": {
+    "mtime": 1793792653.9867194,
+    "ast_hash": "b7c2afee7faec8b4848a3ccb06bb5d4d",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/09_util_13_label_sticker_printing_dotmatrix.png": {
+    "mtime": 1793792663.3155384,
+    "ast_hash": "78199598ba8c44576924349181bcc419",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/09_util_14_label_sticker_printing_tsc_ttp244_barcode.png": {
+    "mtime": 1793792677.1503887,
+    "ast_hash": "0168f1fc623430397fc9f100caa9cc70",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/09_util_15_calendar_appointment_scheduler.png": {
+    "mtime": 1793792723.718348,
+    "ast_hash": "fcf81a68ec2401614c1b8479d09e1b61",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/09_util_16_module_keyboard_shortcuts_popup.png": {
+    "mtime": 1793792733.8423095,
+    "ast_hash": "1a9334919865c65b75f15b3368cf23bb",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/10_cust_01_report_formatting_options.png": {
+    "mtime": 1793792792.067018,
+    "ast_hash": "69f758b827be6a8cbf30bfb5317b3390",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/10_cust_02_report_list_udrs_definitions_grid.png": {
+    "mtime": 1793792798.8758197,
+    "ast_hash": "3a955873a9c0e165d607bf0c38244e4f",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/10_cust_03_module_permissions_9_users_rbac_grid.png": {
+    "mtime": 1793792893.1485982,
+    "ast_hash": "35f201196a7abd0b30b47038a4fca174",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/10_cust_04_quickreports_switchboard_mapping_grid.png": {
+    "mtime": 1793792903.7939034,
+    "ast_hash": "b04e915e285182156ed97ead02344fde",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/10_cust_05_config_tab01_general_backup.png": {
+    "mtime": 1793792921.7318375,
+    "ast_hash": "ae1cae19d1fe863227d624fe6b50bf64",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/10_cust_06_config_tab02_ledgers_interest_locks.png": {
+    "mtime": 1793792925.7176502,
+    "ast_hash": "f80fe867e791b028be4e342d5f6ece72",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/10_cust_07_config_tab03_rec_pay_slip_rules.png": {
+    "mtime": 1793792928.8989344,
+    "ast_hash": "69d4f8780082efe217bbfeaa7a26d15f",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/10_cust_08_config_tab04_billing_templates_rules.png": {
+    "mtime": 1793792932.5953557,
+    "ast_hash": "d3f1e280ebccfe57e9ab3b9a070ff974",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/10_cust_09_config_tab05_grey_mill_strict_links.png": {
+    "mtime": 1793792935.994666,
+    "ast_hash": "714cdb732fe1434705688cc4d4d56074",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/10_cust_10_config_tab06_reports_qr_printer.png": {
+    "mtime": 1793792938.98274,
+    "ast_hash": "76d5404fb16382ac8f44092728f6f887",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/10_cust_11_config_tab07_adhat_spec_dhara_rules.png": {
+    "mtime": 1793792941.58616,
+    "ast_hash": "2027ea336bd790d4e0c3ef34f2a946a9",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/10_cust_12_config_tab08_mill_spec_grey_value.png": {
+    "mtime": 1793792944.3412387,
+    "ast_hash": "624fb3196b6f9b07da5c4ecd1df701e3",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/10_cust_13_config_tab09_emb_spec_tds_billdate.png": {
+    "mtime": 1793792947.4005666,
+    "ast_hash": "a81cdb3e593786868fee94fc9cba8f8d",
+    "semantic_hash": ""
+  },
+  "docs/empire_intake/screens/10_cust_14_config_tab10_gst_msme_dhara_before_gst.png": {
+    "mtime": 1793792950.0933702,
+    "ast_hash": "04bebea45a2b60c930b2915f54470a86",
+    "semantic_hash": ""
+  },
+  "frontend/android/app/src/main/res/mipmap-hdpi/ic_launcher.png": {
+    "mtime": 1769199471.1775227,
+    "ast_hash": "13e9c72ec37fac220397aa819fa1ef2d",
+    "semantic_hash": ""
+  },
+  "frontend/android/app/src/main/res/mipmap-mdpi/ic_launcher.png": {
+    "mtime": 1769199471.2095785,
+    "ast_hash": "6270344430679711b81476e29878caa7",
+    "semantic_hash": ""
+  },
+  "frontend/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png": {
+    "mtime": 1769199471.2711625,
+    "ast_hash": "a0a8db5985280b3679d99a820ae2db79",
+    "semantic_hash": ""
+  },
+  "frontend/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png": {
+    "mtime": 1769199471.3066132,
+    "ast_hash": "afe1b655b9f32da22f9a4301bb8e6ba8",
+    "semantic_hash": ""
+  },
+  "frontend/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png": {
+    "mtime": 1769199471.354872,
+    "ast_hash": "57838d52c318faff743130c3fcfae0c6",
+    "semantic_hash": ""
+  },
+  "frontend/assets/logo/as logo.png": {
+    "mtime": 1794926084.0208645,
+    "ast_hash": "fe909e8e22089f8a9589ae6040e083df",
+    "semantic_hash": ""
+  },
+  "frontend/assets/logo/as wordmark.png": {
+    "mtime": 1794925988.2912247,
+    "ast_hash": "a58bef45451a1654946674bda28dad13",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/crm/widgets/scr_contacts_add_flow.dart": {
+    "mtime": 1795119145.5575361,
+    "ast_hash": "faf6056ad6c4d1017a6f67e6a55f33f6",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/crm/widgets/scr_contacts_bento_cards.dart": {
+    "mtime": 1795119409.1681628,
+    "ast_hash": "bca838e3469ef44e402ea0097e391923",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/crm/widgets/scr_contacts_edit_form.dart": {
+    "mtime": 1795119143.498572,
+    "ast_hash": "e5cdaa3c0950f25d8192d47237ccbbec",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/crm/widgets/scr_contacts_group_empire.dart": {
+    "mtime": 1795119140.2683873,
+    "ast_hash": "f36c13095be76c674ab2ef8a9a4723d3",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/crm/widgets/scr_contacts_inspector.dart": {
+    "mtime": 1795119181.3878906,
+    "ast_hash": "5f7c86d0863b3580e728a8b7e42bc9d8",
+    "semantic_hash": ""
+  },
+  "frontend/lib/screens/crm/widgets/scr_contacts_modals.dart": {
+    "mtime": 1795118895.2799082,
+    "ast_hash": "4f380f5c2c4b5737b614378e8a26f19b",
+    "semantic_hash": ""
+  },
+  "frontend/lib/services/google_contacts_mapper.dart": {
+    "mtime": 1795118615.9861372,
+    "ast_hash": "66eb7341a5ac8c3fac9a048346fd6ef7",
+    "semantic_hash": ""
+  },
+  "frontend/lib/services/service_google_contacts_write.dart": {
+    "mtime": 1795119414.4148417,
+    "ast_hash": "7f6813d000fb73b594c5f55ef8c9683e",
     "semantic_hash": ""
   }
 }

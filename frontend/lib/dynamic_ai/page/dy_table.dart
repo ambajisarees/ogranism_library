@@ -20,6 +20,10 @@ import '../micro/table/dy_table_models.dart';
 // Re-export models for backward compatibility across all screens
 export '../micro/table/dy_table_models.dart';
 
+/// Backward-compatible aliases replacing retired `dy_table_pane.dart`.
+typedef DynamicDenseTable = DyTable;
+typedef DyTablePane = DyTable;
+
 class DyTable extends StatefulWidget {
   final List<DyTableColumnSpec> columns;
   final List<DyTableRowData> rows;

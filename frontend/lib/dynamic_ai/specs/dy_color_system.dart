@@ -4,10 +4,14 @@ LLM CONTEXT & QUERY SPACE — DYNAMIC COLOR SYSTEM (dy_color_system.dart)
 ================================================================================
 1. DOMAIN & PURPOSE:
    - Master ERP color system combining `shadcn_flutter` native ColorScheme tokens,
-     custom protected ERP surface canvas tokens, and a 6-color pipeline scale.
+     custom protected ERP surface canvas tokens, and a unified 6-color status &
+     charting scale (`Red`, `Orange`, `Emerald`, `Cyan`, `Indigo`, `Pink`).
    - Theme Mode Mapping (Configured in main.dart):
      * Light Theme: `ColorSchemes.lightSlate` + Teal Accent (`shad.Colors.teal[500]`)
      * Dark Theme: `ColorSchemes.darkStone` + Amber Accent (`shad.Colors.amber[500]`)
+     * Strict Separation: `teal` (Light) and `amber` (Dark) are strictly reserved
+       for `colorScheme.primary` / `colorScheme.ring` and are NEVER used in ERP
+       status scales or chart palettes.
 
 2. SURFACE HIERARCHY & CANVAS TOKENS:
    - Light Mode Surface Hierarchy:
@@ -46,13 +50,13 @@ LLM CONTEXT & QUERY SPACE — DYNAMIC COLOR SYSTEM (dy_color_system.dart)
    - Dividers/Borders:        `colors.border` (Slate 200 in Light, Stone 800 in Dark)
    - Secondary Text:          `colors.mutedForeground`
 
-5. THE 6-COLOR ERP PIPELINE SCALE (100 = Light Surface, 500 = Solid Accent):
-   - Red:     `red[500]` / `red[100]` (Danger, Cancelled, Overdue)
-   - Green:   `emerald[500]` / `emerald[100]` (Success, Completed, Paid, Received)
-   - Yellow:  `yellow[500]` / `yellow[100]` (Pending Action, Hold)
-   - Orange:  `orange[500]` / `orange[100]` (Warning, In Cutting, Partial)
-   - Indigo:  `indigo[500]` / `indigo[100]` (Processing, Mill Dispatch, In Transit)
-   - Fuchsia: `fuchsia[500]` / `fuchsia[100]` (Special Stage, Custom Audit, Margin)
+5. THE 6-COLOR ERP STATUS & CHARTING SCALE (100 = Light Surface, 500 = Solid Accent):
+   - Red:     `red[500]` / `red[100]` / `red[600]` (Danger, Cancelled, Overdue, Shortage)
+   - Orange:  `orange[500]` / `orange[100]` / `orange[600]` (Warning, In Cutting, Partial Dispatch)
+   - Emerald: `emerald[500]` / `emerald[100]` / `emerald[600]` (Success, Completed, Paid, Received)
+   - Cyan:    `cyan[500]` / `cyan[100]` / `cyan[600]` (Info, Pending Action, Active Hold, Primary Metric)
+   - Indigo:  `indigo[500]` / `indigo[100]` / `indigo[600]` (Processing, Mill Dispatch, In Transit)
+   - Pink:    `pink[500]` / `pink[100]` / `pink[600]` (Special Stage, Custom Audit, Voucher Margin)
 ================================================================================
 */
 
@@ -96,59 +100,56 @@ abstract class DyColorSystem {
       isDark ? colors.accent : slate200;
 
   // =========================================================================
-  // 1. BRAND & THEME PRIMARIES
+  // 1. THE 6-COLOR ERP STATUS SCALE (100 = Surface, 500 = Primary Solid)
   // =========================================================================
-  static Color get primaryTeal => shad.Colors.teal[500]; // Light Theme Primary (#14B8A6)
-  static Color get primaryTealSurface => shad.Colors.teal[100];
-  static Color get primaryTealText => shad.Colors.teal[700];
+  // Teal & Amber are reserved exclusively for theme colorScheme.primary/ring.
 
-  static Color get primaryAmber => shad.Colors.amber[500]; // Dark Theme Primary (#F59E0B)
-  static Color get primaryAmberSurface => shad.Colors.amber[100];
-  static Color get primaryAmberText => shad.Colors.amber[700];
-
-  // =========================================================================
-  // 2. THE 6-COLOR ERP STATUS SCALE (100 = Surface, 500 = Primary Solid)
-  // =========================================================================
-  
   // SCALE 1: RED (Danger, Cancelled, Overdue, Shortage)
   static Color get red100 => shad.Colors.red[100];
   static Color get red500 => shad.Colors.red[500];
   static Color get red600 => shad.Colors.red[600];
 
-  // SCALE 2: GREEN / EMERALD (Success, Completed, Paid, Received)
-  static Color get green100 => shad.Colors.emerald[100];
-  static Color get green500 => shad.Colors.emerald[500];
-  static Color get green600 => shad.Colors.emerald[600];
-
-  // SCALE 3: YELLOW (Pending Action, Hold, Attention Required)
-  static Color get yellow100 => shad.Colors.yellow[100];
-  static Color get yellow500 => shad.Colors.yellow[500];
-  static Color get yellow600 => shad.Colors.yellow[600];
-
-  // SCALE 4: ORANGE (Warning, In Cutting, Partial Dispatch)
+  // SCALE 2: ORANGE (Warning, In Cutting, Partial Dispatch)
   static Color get orange100 => shad.Colors.orange[100];
   static Color get orange500 => shad.Colors.orange[500];
   static Color get orange600 => shad.Colors.orange[600];
+
+  // SCALE 3: EMERALD (Success, Completed, Paid, Received)
+  static Color get emerald100 => shad.Colors.emerald[100];
+  static Color get emerald500 => shad.Colors.emerald[500];
+  static Color get emerald600 => shad.Colors.emerald[600];
+  static Color get green100 => emerald100;
+  static Color get green500 => emerald500;
+  static Color get green600 => emerald600;
+
+  // SCALE 4: CYAN (Info, Pending Action, Hold, Primary Metric)
+  static Color get cyan100 => shad.Colors.cyan[100];
+  static Color get cyan500 => shad.Colors.cyan[500];
+  static Color get cyan600 => shad.Colors.cyan[600];
 
   // SCALE 5: INDIGO (Processing, Mill Dispatch, In Transit)
   static Color get indigo100 => shad.Colors.indigo[100];
   static Color get indigo500 => shad.Colors.indigo[500];
   static Color get indigo600 => shad.Colors.indigo[600];
 
-  // SCALE 6: FUCHSIA (Special Stage, Custom Audit, Voucher Margin)
-  static Color get fuchsia100 => shad.Colors.fuchsia[100];
-  static Color get fuchsia500 => shad.Colors.fuchsia[500];
-  static Color get fuchsia600 => shad.Colors.fuchsia[600];
+  // SCALE 6: PINK (Special Stage, Custom Audit, Voucher Margin)
+  static Color get pink100 => shad.Colors.pink[100];
+  static Color get pink500 => shad.Colors.pink[500];
+  static Color get pink600 => shad.Colors.pink[600];
+  static Color get fuchsia100 => pink100;
+  static Color get fuchsia500 => pink500;
+  static Color get fuchsia600 => pink600;
 
   // =========================================================================
-  // 3. CHARTING & PALETTE ROTATION (5 CATEGORICAL COLORS)
+  // 2. CHARTING & PALETTE ROTATION (6 CATEGORICAL COLORS)
   // =========================================================================
   static List<Color> get chartPalette => [
-        shad.Colors.teal[500],
-        shad.Colors.indigo[500],
-        shad.Colors.amber[500],
-        shad.Colors.emerald[500],
-        shad.Colors.fuchsia[500],
+        red500,
+        orange500,
+        emerald500,
+        cyan500,
+        indigo500,
+        pink500,
       ];
 
   // =========================================================================

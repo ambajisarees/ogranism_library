@@ -199,115 +199,130 @@ class _DyTableDefRowState extends State<DyTableDefRow> {
                 if (widget.showTrailingActions)
                   SizedBox(
                     width: 72 * theme.scaling,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 28 * theme.scaling,
-                        height: 28 * theme.scaling,
-                        child: shad.IconButton.ghost(
-                          size: shad.ButtonSize.small,
-                          density: shad.ButtonDensity.compact,
-                          icon: Icon(
-                            shad.LucideIcons.pencil,
-                            size: 16 * theme.scaling,
-                            color: colors.mutedForeground,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 28 * theme.scaling,
+                          height: 28 * theme.scaling,
+                          child: shad.IconButton.ghost(
+                            size: shad.ButtonSize.small,
+                            density: shad.ButtonDensity.compact,
+                            icon: Icon(
+                              shad.LucideIcons.pencil,
+                              size: 16 * theme.scaling,
+                              color: colors.mutedForeground,
+                            ),
+                            onPressed: () {
+                              if (widget.onEdit != null) {
+                                widget.onEdit!();
+                              } else {
+                                shad.showToast(
+                                  context: context,
+                                  builder: (context, overlay) => shad.Card(
+                                    child: Text('Edit Record #${widget.rowData.id}'),
+                                  ),
+                                );
+                              }
+                            },
                           ),
-                          onPressed: () {
-                            if (widget.onEdit != null) {
-                              widget.onEdit!();
-                            } else {
-                              shad.showToast(
-                                context: context,
-                                builder: (context, overlay) => shad.Card(
-                                  child: Text('Edit Record #${widget.rowData.id}'),
-                                ),
-                              );
-                            }
-                          },
                         ),
-                      ),
-                      const SizedBox(width: 4),
-                      SizedBox(
-                        width: 28 * theme.scaling,
-                        height: 28 * theme.scaling,
-                        child: shad.IconButton.ghost(
-                          size: shad.ButtonSize.small,
-                          density: shad.ButtonDensity.compact,
-                          icon: Icon(
-                            shad.LucideIcons.ellipsis,
-                            size: 16 * theme.scaling,
-                            color: colors.mutedForeground,
+                        const SizedBox(width: 4),
+                        SizedBox(
+                          width: 28 * theme.scaling,
+                          height: 28 * theme.scaling,
+                          child: shad.IconButton.ghost(
+                            size: shad.ButtonSize.small,
+                            density: shad.ButtonDensity.compact,
+                            icon: Icon(
+                              shad.LucideIcons.ellipsis,
+                              size: 16 * theme.scaling,
+                              color: colors.mutedForeground,
+                            ),
+                            onPressed: () {
+                              if (widget.onMoreActions != null) {
+                                widget.onMoreActions!();
+                              } else {
+                                shad.showToast(
+                                  context: context,
+                                  builder: (context, overlay) => shad.Card(
+                                    child: Text('Actions Menu #${widget.rowData.id}'),
+                                  ),
+                                );
+                              }
+                            },
                           ),
-                          onPressed: () {
-                            if (widget.onMoreActions != null) {
-                              widget.onMoreActions!();
-                            } else {
-                              shad.showToast(
-                                context: context,
-                                builder: (context, overlay) => shad.Card(
-                                  child: Text('Actions Menu #${widget.rowData.id}'),
-                                ),
-                              );
-                            }
-                          },
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
               ],
             ),
           ),
 
-        // Dynamic Divider: Indented if expanded with children, Full-Width if collapsed
-        if (widget.isExpanded && widget.rowData.hasChildren)
-          Row(
-            children: [
-              SizedBox(width: 70 * theme.scaling),
-              Expanded(
-                child: Container(
-                  height: 1.0,
-                  color: colors.border,
+          // Dynamic Divider: Indented if expanded with children, Full-Width if collapsed
+          if (widget.isExpanded && widget.rowData.hasChildren)
+            Row(
+              children: [
+                SizedBox(width: 70 * theme.scaling),
+                Expanded(
+                  child: Container(
+                    height: 1.0,
+                    color: colors.border,
+                  ),
                 ),
-              ),
-            ],
-          )
-        else
-          Container(
-            height: 1.0,
-            color: colors.border,
-          ),
-      ],
-    ),
-  );
-}
+              ],
+            )
+          else
+            Container(
+              height: 1.0,
+              color: colors.border,
+            ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildStatusBadge(BuildContext context, String statusStr) {
     final theme = shad.Theme.of(context);
     final upper = statusStr.toUpperCase();
 
-    if (upper == 'UNCUT' || upper == 'IN CUTTING') {
-      return shad.SecondaryBadge(
+    Widget badge;
+    if (upper == 'UNCUT' ||
+        upper == 'IN CUTTING' ||
+        upper == 'LR LOGGED' ||
+        upper == 'HASTE') {
+      badge = shad.SecondaryBadge(
         child: Text(
           statusStr,
           style: theme.typography.xSmall,
         ),
       );
-    } else if (upper == 'ACTIVE' || upper == 'COMPLETED') {
-      return shad.PrimaryBadge(
+    } else if (upper == 'ACTIVE' ||
+        upper == 'COMPLETED' ||
+        upper == 'SETTLED' ||
+        upper == 'EWB LOGGED') {
+      badge = shad.PrimaryBadge(
+        child: Text(
+          statusStr,
+          style: theme.typography.xSmall,
+        ),
+      );
+    } else {
+      badge = shad.OutlineBadge(
         child: Text(
           statusStr,
           style: theme.typography.xSmall,
         ),
       );
     }
-    return shad.OutlineBadge(
-      child: Text(
-        statusStr,
-        style: theme.typography.xSmall,
-      ),
+
+    return Focus(
+      canRequestFocus: false,
+      skipTraversal: true,
+      descendantsAreFocusable: false,
+      child: badge,
     );
   }
 }

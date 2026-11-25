@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
-import '../../../dynamic_ai/page/dy_table_pane.dart';
+import '../../../dynamic_ai/micro/table/dy_table_models.dart';
 
 /*
 ================================================================================

@@ -11,14 +11,25 @@ LLM CONTEXT & QUERY SPACE — DYNAMIC FORM SECTION (dy_form_section.dart)
    - Sticky Header: 36px height, `DyColorSystem.resolveSurfaceCanvas(isDark)` background,
      1px `colors.border` bottom line, standard `h4` typography.
    - Grid Body: `padSm` container padding (16px scaled), `gapSm` row & column spacing (8px).
-   - 12-Column Flex Grid: Each `DyFormField` specifies `colSpan` (1 to 12).
+   - 12-Column Flex Grid: Each `DyFormField` specifies `colSpan` (1 to 12), calculated via
+     gap-compensated `DyGridSystem.spanWidth` math so `4-4-4`, `3-3-3-3`, and `6-6` rows fit cleanly.
+
+3. DATA AUDIT / NULL RATES / GOTCHAS:
+   - Subtracts a 0.05px sub-pixel guard on spans `< 12` so IEEE-754 rounding never causes
+     `Wrap` to spill the final field in a full 12-column row onto a new line.
+
+4. OPEN QUESTIONS & CLARIFICATIONS:
+   - None currently.
 ================================================================================
 */
+
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart' hide Card, Tab, Badge;
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shad;
 
 import '../specs/dy_color_system.dart';
+import '../specs/dy_grid_system.dart';
 
 /// Field specification for [DyFormSection] holding a widget child and 12-column grid span.
 class DyFormField {
@@ -108,16 +119,25 @@ class DyFormSection extends StatelessWidget {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final double availableWidth = constraints.maxWidth;
-                final double gap = 8 * theme.scaling; // gapSm baseline = 8px
+                final double gap =
+                    theme.density.baseGap * theme.scaling * shad.gapSm;
 
                 return Wrap(
                   spacing: gap,
                   runSpacing: gap,
                   children: fields.map((field) {
-                    // Calculate exact item width based on 12-column span
-                    final double itemWidth = field.colSpan == 12
+                    // Gap-compensated Base-12 width (with 0.05px float-epsilon guard)
+                    final double itemWidth = field.colSpan >= DyGridSystem.flexBase
                         ? availableWidth
-                        : ((availableWidth - gap) * (field.colSpan / 12.0)).clamp(0.0, availableWidth);
+                        : math.max(
+                            0.0,
+                            DyGridSystem.spanWidth(
+                                  totalWidth: availableWidth,
+                                  span: field.colSpan,
+                                  gap: gap,
+                                ) -
+                                0.05,
+                          );
 
                     return SizedBox(
                       width: itemWidth,

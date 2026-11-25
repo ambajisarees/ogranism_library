@@ -19,19 +19,21 @@ LLM CONTEXT & QUERY SPACE — SALES INVOICE DOMAIN MODEL (mdl_sales.dart)
        - effectivePartyName = code / partyName (main customer)
        - effectiveAgentOrBiller = BCODE / brokerName (agent/broker or 'Direct')
        - billType = SalesBillType.customer
+   - Dispatch & Reconciliation Stage (`dispatchStage`):
+     * `'SETTLED'` when `paymentStatus == 'Y'`
+     * `'EWB LOGGED'` when `ewayBillNo` is populated
+     * `'LR LOGGED'` when `lrNo` (`RRNO`) is populated
+     * `'PENDING LR'` otherwise (active dispatch/bilti wave)
    - Bales: Extracted from `PARCELS` (numeric / integer).
    - Amounts: `grossamt` (Gross Amount) and `BILLAMT` (Final Payable Amount).
-   - Grouping: `MdlCustomerSalesGroup` aggregates invoices by Master Customer (`code`),
-     computing total revenue, total gross, total bales, total pieces, and distinct hastes.
 
 3. DATA AUDIT / NULL RATES / GOTCHAS:
    - `sq_BILLS` is an Airbyte read-only mirror.
-   - Total S1 records across the database is ~17,900.
-   - No forced `< 100000` filter unless specified by fiscal filter.
+   - Active FY S1 invoices (`VNO < 100000`) total ~13,591 rows.
    - Default fallbacks (`?? 0.0`, `?? 0`, `?? 'N/A'`) ensure zero null-unwrapping crashes.
 
 4. OPEN QUESTIONS & CLARIFICATIONS:
-   - Can a bill be linked to multiple hastes at line-item level? Currently haste is at header level.
+   - Future step will attach `sb_packing_slips` & `sb_invoice_recon` reconciliation state.
 ================================================================================
 */
 
@@ -109,6 +111,9 @@ class MdlSalesBill {
     this.rawJson = const {},
   });
 
+  /// Composite primary key string (`CNO_TYPE_VNO`).
+  String get compositeId => '${cno}_${type}_$vno';
+
   /// Factory adapting canonical [SqBillsModel].
   factory MdlSalesBill.fromSqBills(SqBillsModel sq, {List<SqBilldetModel> lineItems = const []}) {
     final raw = sq.rawJson;
@@ -132,12 +137,12 @@ class MdlSalesBill {
       finalAmount: sq.finalAmount > 0 ? sq.finalAmount : sq.billAmount,
       totalPieces: sq.totalPieces,
       totalMeters: sq.totalMeters,
-      transport: sq.transport,
-      ewayBillNo: sq.ewayBillNo,
-      lrNo: sq.lrNo,
+      transport: sq.transport.trim(),
+      ewayBillNo: sq.ewayBillNo.trim(),
+      lrNo: sq.lrNo.trim(),
       lrDate: sq.lrDate,
-      paymentStatus: sq.paymentStatus,
-      quality: sq.quality,
+      paymentStatus: sq.paymentStatus.trim(),
+      quality: sq.quality.trim(),
       lineItems: lineItems,
       rawJson: raw,
     );
@@ -145,6 +150,30 @@ class MdlSalesBill {
 
   /// Whether this bill has a designated Haste.
   bool get hasHaste => haste.isNotEmpty;
+
+  /// Whether LR / Bilti number is recorded.
+  bool get hasLr => lrNo.isNotEmpty;
+
+  /// Whether GST E-Waybill number is recorded.
+  bool get hasEwayBill => ewayBillNo.isNotEmpty;
+
+  /// Whether invoice is marked settled (`paid == 'Y'`).
+  bool get isSettled => paymentStatus.toUpperCase() == 'Y';
+
+  /// Standardized 4-stage dispatch / reconciliation status label.
+  String get dispatchStage {
+    if (isSettled) return 'SETTLED';
+    if (hasEwayBill) return 'EWB LOGGED';
+    if (hasLr) return 'LR LOGGED';
+    return 'PENDING LR';
+  }
+
+  /// Compact Transport + LR summary cell string.
+  String get formattedTransportLr {
+    final tr = transport.isNotEmpty ? transport : 'Direct / Unassigned';
+    if (hasLr) return '$tr • LR $lrNo';
+    return tr;
+  }
 
   /// Effective Party Name:
   /// - If haste is present: Pick haste
@@ -173,6 +202,12 @@ class MdlSalesBill {
     return DateFormat('dd MMM yyyy').format(date!);
   }
 
+  /// Formatted LR date string (DD-MMM-YYYY).
+  String get formattedLrDate {
+    if (lrDate == null) return 'Pending';
+    return DateFormat('dd MMM yyyy').format(lrDate!);
+  }
+
   /// Formatted currency string for Bill Amount (₹XX,XXX).
   String get formattedBillAmount {
     return NumberFormat.currency(
@@ -194,10 +229,11 @@ class MdlSalesBill {
   /// Converts this invoice into standard [DyTableRowData] for tabular reporting.
   DyTableRowData toDyRowData() {
     return DyTableRowData(
-      id: '${cno}_${type}_$vno',
+      id: compositeId,
       rowType: DyTableRowType.def,
       voucherNo: billNo.isNotEmpty ? billNo : vno.toString(),
       partyName: effectivePartyName,
+      status: dispatchStage,
       data: {
         'vno': billNo.isNotEmpty ? billNo : vno.toString(),
         'date': formattedDate,
@@ -215,7 +251,11 @@ class MdlSalesBill {
         'grossAmtVal': grossAmount,
         'billAmt': formattedBillAmount,
         'billAmtVal': billAmount,
-        'transport': transport,
+        'transport': transport.isNotEmpty ? transport : '-',
+        'transportLr': formattedTransportLr,
+        'lrNo': hasLr ? lrNo : 'Pending LR',
+        'ewbNo': hasEwayBill ? ewayBillNo : '-',
+        'status': dispatchStage,
       },
     );
   }

@@ -22,9 +22,9 @@ class DyTableGalleryModal extends StatelessWidget {
       context,
       shad.PopoverConfiguration(
         anchorAlignment: Alignment.center,
-        alignment: Alignment.center,
-        builder: (context) => DyTableGalleryModal(title: title, imagePath: imagePath),
+        alignment: Alignment.center
       ),
+      builder: (context) => DyTableGalleryModal(title: title, imagePath: imagePath),
     );
   }
 

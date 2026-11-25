@@ -178,22 +178,27 @@ class _DyGridCardState extends State<DyGridCard> {
                       ),
 
                       // 3. Bottom Key Metrics Badge Row (Quantity & Value)
-                      Row(
-                        children: [
-                          shad.PrimaryBadge(
-                            child: Text(
-                              widget.item.quantity,
-                              style: theme.typography.xSmall,
+                      Focus(
+                        canRequestFocus: false,
+                        skipTraversal: true,
+                        descendantsAreFocusable: false,
+                        child: Row(
+                          children: [
+                            shad.PrimaryBadge(
+                              child: Text(
+                                widget.item.quantity,
+                                style: theme.typography.xSmall,
+                              ),
                             ),
-                          ),
-                          SizedBox(width: 6 * theme.scaling),
-                          shad.SecondaryBadge(
-                            child: Text(
-                              widget.item.amount,
-                              style: theme.typography.xSmall,
+                            SizedBox(width: 6 * theme.scaling),
+                            shad.SecondaryBadge(
+                              child: Text(
+                                widget.item.amount,
+                                style: theme.typography.xSmall,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -207,6 +212,11 @@ class _DyGridCardState extends State<DyGridCard> {
   }
 
   Widget _buildFallbackThumbnail(shad.ThemeData theme, shad.ColorScheme colors) {
+    final fallbackIcon =
+        (widget.item.rawData?['fallbackIcon'] as IconData?) ?? shad.LucideIcons.scissors;
+    final fallbackLabel = (widget.item.rawData?['fallbackLabel'] as String?) ??
+        'Fabric Lot #${widget.item.voucherNo.replaceAll(RegExp(r'[^\d]'), '')}';
+
     return Container(
       color: colors.primary.withAlpha(20),
       child: Center(
@@ -214,16 +224,21 @@ class _DyGridCardState extends State<DyGridCard> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              shad.LucideIcons.scissors,
+              fallbackIcon,
               size: 28 * theme.scaling,
               color: colors.primary,
             ),
             SizedBox(height: 4 * theme.scaling),
-            Text(
-              'Fabric Lot #${widget.item.voucherNo.replaceAll(RegExp(r'[^\d]'), '')}',
-              style: theme.typography.xSmall.copyWith(
-                fontWeight: FontWeight.bold,
-                color: colors.foreground,
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8 * theme.scaling),
+              child: Text(
+                fallbackLabel,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.typography.xSmall.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: colors.foreground,
+                ),
               ),
             ),
           ],
